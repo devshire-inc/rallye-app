@@ -45,5 +45,3 @@ bunx cap sync     # sincroniza dist/ com os projetos nativos ios/android
 ## Setup local
 
 Veja `docs/local-setup.md` (raiz do monorepo de documentação) ou o guia unificado referenciado na feature BEAC-1614.
-
-<!-- ci verification -->
