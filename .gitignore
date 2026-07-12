@@ -40,3 +40,6 @@ android/app/build/
 android/local.properties
 android/.idea/
 android/*.iml
+
+# Wrangler (Cloudflare)
+.wrangler/

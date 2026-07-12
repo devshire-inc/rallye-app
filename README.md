@@ -30,8 +30,10 @@ Seguindo a recomendação oficial do Capacitor, os projetos nativos gerados por 
 
 ## Ambientes
 
-- `develop` → deploy automático em **hml** (build web em hml + builds Capacitor de teste).
+- `develop` → deploy automático em **hml**: build web publicado como Cloudflare Worker (static assets) em `rallye-app-hml.<subdomínio>.workers.dev`, além dos builds Capacitor de teste.
 - `main` → deploy automático em **prod** (ativado apenas ao final do MVP + publicação nas lojas de app), protegida por branch protection (PR revisado e aprovado é o único gate humano do pipeline).
+
+O build web é hospedado no **Cloudflare Workers (static assets)** — não Cloudflare Pages nem Railway — seguindo a recomendação atual da Cloudflare para SPAs (CDN global, sem servidor próprio para manter). Configuração em `wrangler.jsonc`.
 
 ## Comandos locais
 
@@ -40,6 +42,7 @@ bun install       # instala dependências
 bun run dev       # dev server Vite
 bun run build     # build de produção (gera dist/)
 bunx cap sync     # sincroniza dist/ com os projetos nativos ios/android
+bun run deploy:hml  # deploy manual do build atual no Cloudflare Workers (hml)
 ```
 
 ## Setup local
