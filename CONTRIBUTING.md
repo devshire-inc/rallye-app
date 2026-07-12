@@ -38,3 +38,13 @@ docs: documentar setup de ambiente local
 - PR para `main` exige ao menos 1 aprovação e todos os checks de CI verdes (branch protection).
 - PR para `develop` deve passar no pipeline de CI (lint + test + build) antes do merge.
 - Título do PR segue a mesma convenção de commit (ex.: `feat(financeiro): implementar estorno de Day Use`).
+
+## ⚠️ Limitação atual: branch protection nativa indisponível
+
+O GitHub bloqueia branch protection (regras clássicas e Rulesets) em repositórios **privados** no plano **Free** da organization — tanto `rallye-api` quanto `rallye-app` recebem `403 Upgrade to GitHub Pro or make this repository public` ao tentar configurar. Isso significa que, até a organization `devshire-inc` fazer upgrade para GitHub Team/Pro (ou os repos serem tornados públicos, o que não é desejado), **não há enforcement automático** de:
+
+- Bloqueio de push direto na `main`.
+- Exigência de aprovação de PR antes do merge.
+- Exigência de CI verde antes do merge.
+
+**Mitigação temporária (disciplina de equipe, não técnica):** até o upgrade acontecer, todo mergeador deve manualmente conferir que o CI passou e que houve revisão antes de mergear em `main` — nunca fazer push direto nela. Reavalie esta seção assim que o plano da organization mudar (task BEAC-1758 no Allye).
