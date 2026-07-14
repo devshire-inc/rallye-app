@@ -1,0 +1,31 @@
+/* BEAC-1816: botões 36px de altura, ícone + label, conforme specs A1/A2. */
+.social-login-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.social-login-button {
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border, #d0d5dd);
+  background: var(--color-surface, #fff);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.social-login-button__icon {
+  width: 18px;
+  height: 18px;
+}
+
+.social-login-button--apple {
+  background: #000;
+  color: #fff;
+  border-color: #000;
+}
