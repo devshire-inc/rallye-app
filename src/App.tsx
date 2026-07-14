@@ -9,6 +9,7 @@ import { OAuthCallback } from './pages/OAuthCallback'
 import { ResetPassword } from './pages/ResetPassword'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
+import { VerifyEmailPage } from './pages/VerifyEmail/VerifyEmailPage'
 import { VerificacaoEmailPage } from './pages/verificacao-email/VerificacaoEmailPage'
 
 /**
@@ -38,7 +39,12 @@ function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/cadastro" element={<CadastroPage />} />
+      {/* /verificacao-email é o stub original de BEAC-1673/1788;
+          /verify-email é a tela A4 real (BEAC-1812). Mantidas as duas por
+          ora — reconciliar/apontar o navigate() de CadastroPage pra
+          /verify-email num follow-up. */}
       <Route path="/verificacao-email" element={<VerificacaoEmailPage />} />
+      <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/esqueci-senha" element={<ForgotPassword />} />
       <Route path="/redefinir-senha" element={<ResetPassword />} />
       {/* /oauth/callback mantida só por retrocompatibilidade (ver

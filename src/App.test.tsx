@@ -55,6 +55,12 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: /redefinir senha/i })).toBeInTheDocument()
   })
 
+  it('renders the email verification screen at /verify-email (A4)', async () => {
+    setPath('/verify-email')
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: /verificação de e-mail/i })).toBeInTheDocument()
+  })
+
   it('forwards /oauth/callback straight to /login (kept only for backward-compat)', () => {
     // jsdom não permite redefinir window.location.assign com vi.spyOn
     // diretamente (não é configurável) — substitui-se location inteira só
