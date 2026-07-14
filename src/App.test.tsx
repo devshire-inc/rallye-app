@@ -1,6 +1,18 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
+
+const { checkExistingSessionMock } = vi.hoisted(() => ({
+  checkExistingSessionMock: vi.fn(),
+}))
+
+vi.mock('./lib/httpClient', async () => {
+  const actual = await vi.importActual<typeof import('./lib/httpClient')>('./lib/httpClient')
+  return {
+    ...actual,
+    checkExistingSession: checkExistingSessionMock,
+  }
+})
 
 function setPath(path: string) {
   window.history.pushState({}, '', path)
@@ -9,21 +21,26 @@ function setPath(path: string) {
 describe('App', () => {
   beforeEach(() => {
     setPath('/')
+    checkExistingSessionMock.mockResolvedValue(null)
   })
 
   afterEach(() => {
     setPath('/')
   })
 
-  it('renders the login page by default (A1)', () => {
+  it('redirects unknown routes to /login and shows the login form when there is no existing session', async () => {
     render(<App />)
-    expect(screen.getByRole('heading', { name: /entrar/i })).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /entrar/i })).toBeInTheDocument()
+    })
+    expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument()
   })
 
-  it('renders the signup page at /signup (A2)', () => {
+  it('renders the signup page at /signup (A2)', async () => {
     setPath('/signup')
     render(<App />)
-    expect(screen.getByRole('heading', { name: /criar conta/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /criar conta/i })).toBeInTheDocument()
   })
 
   it('forwards /oauth/callback straight to /login (kept only for backward-compat)', () => {
