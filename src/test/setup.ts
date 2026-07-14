@@ -1,6 +1,6 @@
-import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
 import { afterEach } from 'vitest'
+import '@testing-library/jest-dom/vitest'
 
 // @testing-library/react não limpa o DOM entre testes automaticamente a menos
 // que os globals do Vitest estejam habilitados (não estão neste projeto —

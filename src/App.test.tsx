@@ -1,10 +1,28 @@
-import { render, screen } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { render, screen, waitFor } from '@testing-library/react'
+import { describe, expect, it, vi } from 'vitest'
 import App from './App'
 
+const { checkExistingSessionMock } = vi.hoisted(() => ({
+  checkExistingSessionMock: vi.fn(),
+}))
+
+vi.mock('./lib/httpClient', async () => {
+  const actual = await vi.importActual<typeof import('./lib/httpClient')>('./lib/httpClient')
+  return {
+    ...actual,
+    checkExistingSession: checkExistingSessionMock,
+  }
+})
+
 describe('App', () => {
-  it('redirects "/" to the cadastro (A2) screen', async () => {
+  it('redirects unknown routes to /login and shows the login form when there is no existing session', async () => {
+    checkExistingSessionMock.mockResolvedValue(null)
+
     render(<App />)
-    expect(await screen.findByRole('heading', { name: /criar conta/i })).toBeInTheDocument()
+
+    await waitFor(() => {
+      expect(screen.getByRole('heading', { name: /entrar/i })).toBeInTheDocument()
+    })
+    expect(screen.getByLabelText(/e-mail/i)).toBeInTheDocument()
   })
 })
