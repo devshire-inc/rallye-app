@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('App', () => {
-  it('renders the get started heading', () => {
+  it('redirects the root route to the email verification screen', () => {
     render(<App />)
-    expect(screen.getByRole('heading', { name: /get started/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: /verificação de e-mail/i })).toBeInTheDocument()
   })
 })
