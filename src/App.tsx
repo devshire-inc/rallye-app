@@ -1,9 +1,11 @@
 import { useEffect } from 'react'
 import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'
 import { SESSION_EXPIRED_EVENT } from './lib/httpClient'
+import { CadastroPage } from './pages/cadastro/CadastroPage'
 import DashboardPage from './pages/DashboardPage'
 import LoginPage from './pages/LoginPage'
 import S1Page from './pages/S1Page'
+import { VerificacaoEmailPage } from './pages/verificacao-email/VerificacaoEmailPage'
 
 /**
  * Escuta o evento global disparado pelo interceptor HTTP (BEAC-1793) quando
@@ -28,7 +30,10 @@ function AppRoutes() {
 
   return (
     <Routes>
+      <Route path="/" element={<Navigate to="/login" replace />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/cadastro" element={<CadastroPage />} />
+      <Route path="/verificacao-email" element={<VerificacaoEmailPage />} />
       <Route path="/s1" element={<S1Page />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
