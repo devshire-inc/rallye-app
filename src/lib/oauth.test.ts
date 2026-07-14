@@ -1,46 +1,25 @@
-import { describe, expect, it } from 'vitest'
-import { buildAuthorizeUrl, isBase64Url } from './oauth'
+import { describe, expect, it, vi } from 'vitest'
+import { buildAuthorizeUrl, startOAuthLogin } from './oauth'
 
 describe('buildAuthorizeUrl', () => {
-  it('builds a Supabase authorize URL for google with pkce params', () => {
-    const url = buildAuthorizeUrl({
-      supabaseUrl: 'https://project-ref.supabase.co',
-      anonKey: 'anon-key-123',
-      provider: 'google',
-      redirectTo: 'https://app.rallye.com/oauth/callback',
-      codeChallenge: 'challenge-abc',
-    })
-
-    const parsed = new URL(url)
-    expect(parsed.origin + parsed.pathname).toBe(
-      'https://project-ref.supabase.co/auth/v1/authorize',
-    )
-    expect(parsed.searchParams.get('provider')).toBe('google')
-    expect(parsed.searchParams.get('redirect_to')).toBe('https://app.rallye.com/oauth/callback')
-    expect(parsed.searchParams.get('code_challenge')).toBe('challenge-abc')
-    expect(parsed.searchParams.get('code_challenge_method')).toBe('s256')
-    expect(parsed.searchParams.get('apikey')).toBe('anon-key-123')
+  it('points at this backend own /auth/oauth/authorize endpoint, never at Supabase', () => {
+    const url = buildAuthorizeUrl('http://localhost:8080', 'google')
+    expect(url).toBe('http://localhost:8080/auth/oauth/authorize?provider=google')
   })
 
-  it('builds a Supabase authorize URL for apple', () => {
-    const url = buildAuthorizeUrl({
-      supabaseUrl: 'https://project-ref.supabase.co',
-      anonKey: 'anon-key-123',
-      provider: 'apple',
-      redirectTo: 'https://app.rallye.com/oauth/callback',
-      codeChallenge: 'challenge-abc',
-    })
-
-    expect(new URL(url).searchParams.get('provider')).toBe('apple')
+  it('works for apple too, and strips a trailing slash from the base URL', () => {
+    const url = buildAuthorizeUrl('https://api.rallye.app/', 'apple')
+    expect(url).toBe('https://api.rallye.app/auth/oauth/authorize?provider=apple')
   })
 })
 
-describe('isBase64Url', () => {
-  it('accepts base64url-safe strings', () => {
-    expect(isBase64Url('abcXYZ012_-')).toBe(true)
-  })
-
-  it('rejects strings with base64 padding or unsafe chars', () => {
-    expect(isBase64Url('abc+/==')).toBe(false)
+describe('startOAuthLogin', () => {
+  it('performs a single full-page navigation to the backend authorize URL', () => {
+    const navigate = vi.fn()
+    startOAuthLogin('google', 'http://localhost:8080', navigate)
+    expect(navigate).toHaveBeenCalledTimes(1)
+    expect(navigate).toHaveBeenCalledWith(
+      'http://localhost:8080/auth/oauth/authorize?provider=google',
+    )
   })
 })

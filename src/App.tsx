@@ -12,12 +12,15 @@ import './App.css'
 // suficiente para exercitar o fluxo OAuth ponta a ponta manualmente. Quando
 // uma lib de rotas for adotada, estas três páginas (LoginPage, SignupPage,
 // OAuthCallback) devem ser penduradas nela sem precisar mudar de implementação.
+//
+// /oauth/callback é mantida só por retrocompatibilidade (ver
+// pages/OAuthCallback.tsx) — desde a correção de arquitetura de BEAC-1815,
+// o backend redireciona sucesso/falha direto para /dashboard ou /login.
 function App() {
   const path = window.location.pathname
-  const params = new URLSearchParams(window.location.search)
 
   if (path === '/oauth/callback') {
-    return <OAuthCallback code={params.get('code')} />
+    return <OAuthCallback />
   }
 
   if (path === '/signup') {

@@ -1,61 +1,27 @@
-import { useEffect, useState } from 'react'
-import { completeOAuthLogin, getStoredProvider, type OAuthProvider } from '../lib/oauth'
-import { Toast } from '../components/Toast'
-
-const PROVIDER_LABEL: Record<OAuthProvider, string> = {
-  google: 'Google',
-  apple: 'Apple',
-}
+import { useEffect } from 'react'
 
 export interface OAuthCallbackProps {
-  code: string | null
-  fetchImpl?: typeof fetch
+  /** Injetável para testes; default lê window.location.search. */
+  search?: string
   /** Injetável para testes; default é window.location.assign. */
   navigate?: (path: string) => void
 }
 
-function failureMessage(): string {
-  const provider = getStoredProvider() ?? 'google'
-  return `Não foi possível conectar com ${PROVIDER_LABEL[provider]}. Tente novamente.`
-}
-
-// Rota de retorno do provider OAuth (BEAC-1816). Em caso de sucesso navega
-// direto para o Dashboard (S1) — nunca para a tela de verificação de e-mail
-// (A4), conforme AC. Em caso de falha, exibe o toast com o texto exato do
-// doc A1 e permanece na tela (sem navegar).
-export function OAuthCallback({ code, fetchImpl, navigate }: OAuthCallbackProps) {
-  const [errorMessage, setErrorMessage] = useState<string | null>(() =>
-    code ? null : failureMessage(),
-  )
-
+// Rota mantida apenas por segurança/retrocompatibilidade (BEAC-1816,
+// correção de arquitetura) — ex.: um link/bookmark antigo apontando para cá
+// durante a janela de deploy da mudança. NÃO faz mais nenhuma troca de
+// código: o backend (GET /auth/oauth/callback, BEAC-1815) já faz isso
+// sozinho e redireciona direto para /dashboard (sucesso) ou
+// /login?oauth_error=...&provider=... (falha). Esta página só repassa a
+// query string para /login, que é quem sabe ler oauth_error/provider e
+// exibir o toast (ver LoginPage.tsx).
+export function OAuthCallback({ search, navigate }: OAuthCallbackProps = {}) {
   useEffect(() => {
-    if (!code) {
-      return
-    }
-
     const doNavigate = navigate ?? ((path: string) => window.location.assign(path))
-    const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? ''
-
-    let cancelled = false
-
-    completeOAuthLogin(code, apiBaseUrl, fetchImpl).then((result) => {
-      if (cancelled) return
-      if (result.ok) {
-        doNavigate('/dashboard')
-      } else {
-        setErrorMessage(failureMessage())
-      }
-    })
-
-    return () => {
-      cancelled = true
-    }
+    const query = search ?? window.location.search
+    doNavigate(`/login${query}`)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [code])
+  }, [])
 
-  return (
-    <main aria-label="Concluindo login">
-      <Toast message={errorMessage} onDismiss={() => setErrorMessage(null)} />
-    </main>
-  )
+  return null
 }

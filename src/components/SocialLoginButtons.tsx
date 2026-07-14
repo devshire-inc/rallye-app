@@ -5,7 +5,7 @@ export interface SocialLoginButtonsProps {
   /** Apple fica oculto (não desabilitado) até BEAC-1814 desbloquear o provider. */
   appleEnabled?: boolean
   onError: (message: string) => void
-  /** Injetável para testes; default lê import.meta.env. */
+  /** Injetável para testes; default é window.location.assign. */
   navigate?: (url: string) => void
 }
 
@@ -24,28 +24,15 @@ export function SocialLoginButtons({
   onError,
   navigate,
 }: SocialLoginButtonsProps) {
-  const handleClick = async (provider: OAuthProvider) => {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string | undefined
-    const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string | undefined
+  const handleClick = (provider: OAuthProvider) => {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined
 
-    if (!supabaseUrl || !supabaseAnonKey) {
+    if (!apiBaseUrl) {
       onError(toastMessageFor(provider))
       return
     }
 
-    try {
-      await startOAuthLogin(
-        provider,
-        {
-          supabaseUrl,
-          supabaseAnonKey,
-          redirectTo: `${window.location.origin}/oauth/callback`,
-        },
-        navigate,
-      )
-    } catch {
-      onError(toastMessageFor(provider))
-    }
+    startOAuthLogin(provider, apiBaseUrl, navigate)
   }
 
   return (
@@ -53,7 +40,7 @@ export function SocialLoginButtons({
       <button
         type="button"
         className="social-login-button social-login-button--google"
-        onClick={() => void handleClick('google')}
+        onClick={() => handleClick('google')}
       >
         <svg className="social-login-button__icon" role="presentation" aria-hidden="true">
           <use href="/icons.svg#google-icon"></use>
@@ -65,7 +52,7 @@ export function SocialLoginButtons({
         <button
           type="button"
           className="social-login-button social-login-button--apple"
-          onClick={() => void handleClick('apple')}
+          onClick={() => handleClick('apple')}
         >
           <svg className="social-login-button__icon" role="presentation" aria-hidden="true">
             <use href="/icons.svg#apple-icon"></use>
