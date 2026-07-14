@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest'
 import App from './App'
 
 describe('App', () => {
-  it('renders the get started heading', () => {
+  it('redirects "/" to the cadastro (A2) screen', async () => {
     render(<App />)
-    expect(screen.getByRole('heading', { name: /get started/i })).toBeInTheDocument()
+    expect(await screen.findByRole('heading', { name: /criar conta/i })).toBeInTheDocument()
   })
 })
