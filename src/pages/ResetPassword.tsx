@@ -22,7 +22,7 @@ type FieldErrors = {
 export function ResetPassword() {
   const [searchParams] = useSearchParams()
   const navigate = useNavigate()
-  const { toast, showToast } = useToast()
+  const { message, showError, dismiss } = useToast()
 
   const emailFromQuery = searchParams.get('email') ?? ''
   const [email, setEmail] = useState(emailFromQuery)
@@ -61,7 +61,7 @@ export function ResetPassword() {
     setSubmitting(true)
     try {
       const result = await confirmPasswordReset({ email: email.trim(), code, newPassword })
-      showToast('Senha redefinida!')
+      showError('Senha redefinida!')
       setSubmitting(false)
       setTimeout(() => navigate('/'), 1200)
       void result
@@ -104,7 +104,7 @@ export function ResetPassword() {
   return (
     <section aria-labelledby="reset-password-title">
       <h1 id="reset-password-title">Redefinir senha</h1>
-      <Toast toast={toast} />
+      <Toast message={message} onDismiss={dismiss} />
       <form onSubmit={handleSubmit} noValidate>
         {!emailFromQuery && (
           <>

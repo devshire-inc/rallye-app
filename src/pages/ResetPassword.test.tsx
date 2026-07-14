@@ -54,7 +54,7 @@ describe('ResetPassword (A3 etapa 2)', () => {
     await user.click(screen.getByRole('button', { name: /redefinir senha/i }))
 
     await waitFor(() => {
-      expect(screen.getByRole('status')).toHaveTextContent(/senha redefinida!/i)
+      expect(screen.getByRole('alert')).toHaveTextContent(/senha redefinida!/i)
     })
   })
 
