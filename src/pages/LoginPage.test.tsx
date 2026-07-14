@@ -14,11 +14,11 @@ vi.mock('../lib/httpClient', () => ({
   login: loginMock,
 }))
 
-function renderLoginPage() {
+function renderLoginPage(searchParams?: URLSearchParams) {
   return render(
     <MemoryRouter initialEntries={['/login']}>
       <Routes>
-        <Route path="/login" element={<LoginPage />} />
+        <Route path="/login" element={<LoginPage searchParams={searchParams} />} />
         <Route path="/dashboard" element={<div>Dashboard placeholder</div>} />
         <Route path="/s1" element={<div>S1 placeholder</div>} />
       </Routes>
@@ -38,6 +38,16 @@ describe('LoginPage', () => {
 
     await waitFor(() => {
       expect(screen.getByRole('button', { name: /entrar/i })).toBeInTheDocument()
+    })
+  })
+
+  it('renders the Google social login button', async () => {
+    checkExistingSessionMock.mockResolvedValue(null)
+
+    renderLoginPage(new URLSearchParams())
+
+    await waitFor(() => {
+      expect(screen.getByText(/continuar com google/i)).toBeInTheDocument()
     })
   })
 
@@ -110,5 +120,34 @@ describe('LoginPage', () => {
     await waitFor(() => {
       expect(screen.getByText('S1 placeholder')).toBeInTheDocument()
     })
+  })
+
+  it('shows the exact Google toast text when redirected back with oauth_error (backend-initiated failure)', async () => {
+    checkExistingSessionMock.mockResolvedValue(null)
+
+    renderLoginPage(new URLSearchParams('oauth_error=exchange_failed&provider=google'))
+
+    expect(
+      await screen.findByText('Não foi possível conectar com Google. Tente novamente.'),
+    ).toBeInTheDocument()
+  })
+
+  it('defaults to the Google toast text when provider is absent from oauth_error redirect', async () => {
+    checkExistingSessionMock.mockResolvedValue(null)
+
+    renderLoginPage(new URLSearchParams('oauth_error=state_invalid'))
+
+    expect(
+      await screen.findByText('Não foi possível conectar com Google. Tente novamente.'),
+    ).toBeInTheDocument()
+  })
+
+  it('shows no oauth toast when there is no oauth_error param', async () => {
+    checkExistingSessionMock.mockResolvedValue(null)
+
+    renderLoginPage(new URLSearchParams())
+
+    await waitFor(() => screen.getByRole('button', { name: /entrar/i }))
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
   })
 })
