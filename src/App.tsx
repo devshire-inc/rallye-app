@@ -9,8 +9,11 @@ import { OAuthCallback } from './pages/OAuthCallback'
 import { ResetPassword } from './pages/ResetPassword'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
+import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
 import { VerifyEmailPage } from './pages/VerifyEmail/VerifyEmailPage'
 import { VerificacaoEmailPage } from './pages/verificacao-email/VerificacaoEmailPage'
+import { VisitorRequestPage } from './pages/VisitorRequest/VisitorRequestPage'
+import { VisitorVerifyPage } from './pages/VisitorVerify/VisitorVerifyPage'
 
 /**
  * Escuta o evento global disparado pelo interceptor HTTP (BEAC-1793) quando
@@ -54,6 +57,10 @@ function AppRoutes() {
       <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route path="/s1" element={<S1Page />} />
       <Route path="/dashboard" element={<DashboardPage />} />
+      {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
+      <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
+      <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />
+      <Route path="/tournaments/:tournamentId" element={<TournamentViewPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )
