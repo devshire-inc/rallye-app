@@ -43,6 +43,18 @@ describe('App', () => {
     expect(await screen.findByRole('heading', { name: /criar conta/i })).toBeInTheDocument()
   })
 
+  it('renders the forgot-password page at /esqueci-senha', async () => {
+    setPath('/esqueci-senha')
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: /esqueci minha senha/i })).toBeInTheDocument()
+  })
+
+  it('renders the reset-password page at /redefinir-senha', async () => {
+    setPath('/redefinir-senha')
+    render(<App />)
+    expect(await screen.findByRole('heading', { name: /redefinir senha/i })).toBeInTheDocument()
+  })
+
   it('forwards /oauth/callback straight to /login (kept only for backward-compat)', () => {
     // jsdom não permite redefinir window.location.assign com vi.spyOn
     // diretamente (não é configurável) — substitui-se location inteira só

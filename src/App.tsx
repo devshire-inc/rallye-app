@@ -3,8 +3,10 @@ import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-route
 import { SESSION_EXPIRED_EVENT } from './lib/httpClient'
 import { CadastroPage } from './pages/cadastro/CadastroPage'
 import DashboardPage from './pages/DashboardPage'
+import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
 import { OAuthCallback } from './pages/OAuthCallback'
+import { ResetPassword } from './pages/ResetPassword'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
 import { VerificacaoEmailPage } from './pages/verificacao-email/VerificacaoEmailPage'
@@ -37,6 +39,8 @@ function AppRoutes() {
       <Route path="/signup" element={<SignupPage />} />
       <Route path="/cadastro" element={<CadastroPage />} />
       <Route path="/verificacao-email" element={<VerificacaoEmailPage />} />
+      <Route path="/esqueci-senha" element={<ForgotPassword />} />
+      <Route path="/redefinir-senha" element={<ResetPassword />} />
       {/* /oauth/callback mantida só por retrocompatibilidade (ver
           pages/OAuthCallback.tsx) — desde a correção de arquitetura de
           BEAC-1815, o backend redireciona sucesso/falha direto para
