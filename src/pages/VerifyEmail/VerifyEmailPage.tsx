@@ -85,10 +85,10 @@ export function VerifyEmailPage() {
   }, [resendCooldown])
 
   async function handleResend() {
-    if (!userId || resendCooldown > 0) return
+    if (!userId || !email || resendCooldown > 0) return
     setResendMessage(null)
     try {
-      await resendVerification(userId)
+      await resendVerification(userId, email)
       setCode('')
       setStatus('idle')
       setResendCooldown(RESEND_COOLDOWN_SECONDS)

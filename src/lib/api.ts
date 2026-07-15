@@ -41,11 +41,11 @@ export class ResendVerificationError extends Error {
 }
 
 /** POST /auth/verify-email/resend (BEAC-1811). Throws ResendVerificationError on failure. */
-export async function resendVerification(userId: string): Promise<void> {
+export async function resendVerification(userId: string, email: string): Promise<void> {
   const res = await fetch(`${API_BASE_URL}/auth/verify-email/resend`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_id: userId }),
+    body: JSON.stringify({ user_id: userId, email }),
   })
   if (res.ok) return
   throw new ResendVerificationError(await errorCode(res))
