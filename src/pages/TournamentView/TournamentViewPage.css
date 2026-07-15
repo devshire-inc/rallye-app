@@ -1,0 +1,14 @@
+.tournament-view-page {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}
+
+.tournament-view-page p {
+  color: var(--text-muted);
+  max-width: 46ch;
+}

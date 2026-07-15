@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { AuthLayout } from '../../components/AuthLayout/AuthLayout'
 import { VisitorRequestError, requestVisitorCode } from '../../lib/api'
 import { setPendingVisitorRequest } from '../../lib/pendingVisitorRequest'
 
@@ -52,34 +53,53 @@ export function VisitorRequestPage() {
 
   return (
     <section>
-      <h1>Acompanhar torneio</h1>
-      <p>Informe seu e-mail para receber um código de acesso temporário a este torneio.</p>
+      <AuthLayout
+        cornerMark
+        mark="sm"
+        wide
+        title="Acompanhar torneio"
+        subtitle="Informe seu e-mail para receber um código de acesso temporário a este torneio."
+        hint="Sessão de visitante dura 72h ou até o fim do torneio + 24h."
+      >
+        <form onSubmit={handleSubmit} className="stack">
+          <div className="field">
+            <label htmlFor="visitor-email">E-mail</label>
+            <div className="control">
+              <input
+                id="visitor-email"
+                type="email"
+                placeholder="voce@email.com"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={status === 'sending'}
+              />
+            </div>
+          </div>
+          <button
+            type="submit"
+            className="btn btn-primary btn-md btn-full"
+            disabled={status === 'sending' || !email}
+          >
+            Enviar código
+          </button>
+        </form>
 
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="visitor-email">E-mail</label>
-        <input
-          id="visitor-email"
-          type="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={status === 'sending'}
-        />
-        <button type="submit" disabled={status === 'sending' || !email}>
-          Enviar código
+        {status === 'account_exists' && (
+          <p role="alert" className="field-error">
+            Você já tem conta! <button onClick={handleGoToLogin}>Fazer login?</button>
+          </p>
+        )}
+        {status === 'error' && errorMessage && (
+          <p role="alert" className="field-error">
+            {errorMessage}
+          </p>
+        )}
+
+        <button type="button" className="btn btn-ghost btn-md btn-full" onClick={handleViewOnly}>
+          Apenas visualizar
         </button>
-      </form>
-
-      {status === 'account_exists' && (
-        <p role="alert">
-          Você já tem conta! <button onClick={handleGoToLogin}>Fazer login?</button>
-        </p>
-      )}
-      {status === 'error' && errorMessage && <p role="alert">{errorMessage}</p>}
-
-      <button type="button" onClick={handleViewOnly}>
-        Apenas visualizar
-      </button>
+      </AuthLayout>
     </section>
   )
 }

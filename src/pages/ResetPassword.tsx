@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { confirmPasswordReset, PasswordResetApiError } from '../lib/passwordReset'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
+import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 
 const MIN_PASSWORD_LENGTH = 8
 
@@ -92,92 +93,123 @@ export function ResetPassword() {
   if (mustRestart) {
     return (
       <section aria-labelledby="reset-password-title">
-        <h1 id="reset-password-title">Redefinir senha</h1>
-        <p role="alert">{restartMessage}</p>
-        <p>
-          <Link to="/esqueci-senha">Solicitar novo código</Link>
-        </p>
+        <AuthLayout
+          cornerMark
+          mark="none"
+          title={<span id="reset-password-title">Redefinir senha</span>}
+        >
+          <p role="alert" className="field-error">
+            {restartMessage}
+          </p>
+          <p className="footer-link">
+            <Link to="/esqueci-senha">Solicitar novo código</Link>
+          </p>
+        </AuthLayout>
       </section>
     )
   }
 
   return (
     <section aria-labelledby="reset-password-title">
-      <h1 id="reset-password-title">Redefinir senha</h1>
-      <Toast message={message} onDismiss={dismiss} />
-      <form onSubmit={handleSubmit} noValidate>
-        {!emailFromQuery && (
-          <>
-            <label htmlFor="email">E-mail</label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </>
-        )}
-        {emailFromQuery && <p>Código enviado para: {emailFromQuery}</p>}
+      <AuthLayout
+        cornerMark
+        mark="none"
+        title={<span id="reset-password-title">Redefinir senha</span>}
+        subtitle="Etapa 2 de 2 — digite o código recebido e escolha uma nova senha."
+        hint="O link/código expira em 1 hora."
+      >
+        <Toast message={message} onDismiss={dismiss} />
+        <form onSubmit={handleSubmit} noValidate className="stack">
+          {!emailFromQuery && (
+            <div className="field">
+              <label htmlFor="email">E-mail</label>
+              <div className="control">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  placeholder="voce@email.com"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+            </div>
+          )}
+          {emailFromQuery && <p className="section-desc">Código enviado para: {emailFromQuery}</p>}
 
-        <label htmlFor="code">Código</label>
-        <input
-          id="code"
-          name="code"
-          type="text"
-          inputMode="numeric"
-          maxLength={6}
-          value={code}
-          onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-          required
-        />
-        {fieldErrors.code && (
-          <p role="alert" className="error">
-            {fieldErrors.code}
-          </p>
-        )}
+          <div className="field">
+            <label htmlFor="code">Código</label>
+            <div className="control">
+              <input
+                id="code"
+                name="code"
+                type="text"
+                inputMode="numeric"
+                maxLength={6}
+                value={code}
+                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+                required
+              />
+            </div>
+            {fieldErrors.code && (
+              <p role="alert" className="error field-error">
+                {fieldErrors.code}
+              </p>
+            )}
+          </div>
 
-        <label htmlFor="new-password">Nova senha</label>
-        <input
-          id="new-password"
-          name="new-password"
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          required
-        />
-        {fieldErrors.newPassword && (
-          <p role="alert" className="error">
-            {fieldErrors.newPassword}
-          </p>
-        )}
+          <div className="field">
+            <label htmlFor="new-password">Nova senha</label>
+            <div className="control">
+              <input
+                id="new-password"
+                name="new-password"
+                type="password"
+                placeholder="Mínimo 8 caracteres"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                required
+              />
+            </div>
+            {fieldErrors.newPassword && (
+              <p role="alert" className="error field-error">
+                {fieldErrors.newPassword}
+              </p>
+            )}
+          </div>
 
-        <label htmlFor="confirm-password">Confirmar senha</label>
-        <input
-          id="confirm-password"
-          name="confirm-password"
-          type="password"
-          value={confirmPassword}
-          onChange={(e) => setConfirmPassword(e.target.value)}
-          required
-        />
-        {fieldErrors.confirmPassword && (
-          <p role="alert" className="error">
-            {fieldErrors.confirmPassword}
-          </p>
-        )}
+          <div className="field">
+            <label htmlFor="confirm-password">Confirmar senha</label>
+            <div className="control">
+              <input
+                id="confirm-password"
+                name="confirm-password"
+                type="password"
+                placeholder="Repita a senha"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+            </div>
+            {fieldErrors.confirmPassword && (
+              <p role="alert" className="error field-error">
+                {fieldErrors.confirmPassword}
+              </p>
+            )}
+          </div>
 
-        {serverError && (
-          <p role="alert" className="error">
-            {serverError}
-          </p>
-        )}
+          {serverError && (
+            <p role="alert" className="error field-error">
+              {serverError}
+            </p>
+          )}
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Redefinindo...' : 'Redefinir senha'}
-        </button>
-      </form>
+          <button type="submit" className="btn btn-primary btn-md btn-full" disabled={submitting}>
+            {submitting ? 'Redefinindo...' : 'Redefinir senha'}
+          </button>
+        </form>
+      </AuthLayout>
     </section>
   )
 }

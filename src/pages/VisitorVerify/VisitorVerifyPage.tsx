@@ -1,8 +1,12 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import { AuthLayout } from '../../components/AuthLayout/AuthLayout'
 import { OtpInput } from '../../components/OtpInput/OtpInput'
 import { VisitorVerifyError, verifyVisitorCode } from '../../lib/api'
-import { getPendingVisitorRequest, clearPendingVisitorRequest } from '../../lib/pendingVisitorRequest'
+import {
+  getPendingVisitorRequest,
+  clearPendingVisitorRequest,
+} from '../../lib/pendingVisitorRequest'
 import { setVisitorSession } from '../../lib/visitorSession'
 
 type Status = 'idle' | 'verifying' | 'invalid' | 'success' | 'unrecoverable'
@@ -50,32 +54,50 @@ export function VisitorVerifyPage() {
   if (!email || !tournamentId) {
     return (
       <section>
-        <h1>Código de acesso</h1>
-        <p>Não foi possível identificar seu pedido de código. Volte e informe seu e-mail novamente.</p>
+        <AuthLayout cornerMark mark="none" title="Código de acesso">
+          <p className="section-desc">
+            Não foi possível identificar seu pedido de código. Volte e informe seu e-mail novamente.
+          </p>
+        </AuthLayout>
       </section>
     )
   }
 
   return (
     <section>
-      <h1>Código de acesso</h1>
-      <p>
-        Enviamos um código de 6 dígitos para <strong>{email}</strong>.
-      </p>
+      <AuthLayout
+        cornerMark
+        mark="none"
+        title="Digite o código"
+        subtitle={
+          <>
+            Enviamos um código de 6 dígitos para <b style={{ color: 'var(--sky-text)' }}>{email}</b>
+            .
+          </>
+        }
+      >
+        <div className="stack" style={{ alignItems: 'center', textAlign: 'center' }}>
+          <OtpInput
+            value={code}
+            onChange={setCode}
+            onComplete={(full) => void attemptVerify(full)}
+            error={shake}
+            disabled={status === 'verifying' || status === 'success'}
+          />
 
-      <OtpInput
-        value={code}
-        onChange={setCode}
-        onComplete={(full) => void attemptVerify(full)}
-        error={shake}
-        disabled={status === 'verifying' || status === 'success'}
-      />
-
-      {status === 'invalid' && <p role="alert">Código incorreto</p>}
-      {status === 'unrecoverable' && (
-        <p role="alert">Não foi possível verificar agora. Tente novamente.</p>
-      )}
-      {status === 'success' && <div role="status">Acesso liberado!</div>}
+          {status === 'invalid' && (
+            <p role="alert" className="field-error">
+              Código incorreto
+            </p>
+          )}
+          {status === 'unrecoverable' && (
+            <p role="alert" className="field-error">
+              Não foi possível verificar agora. Tente novamente.
+            </p>
+          )}
+          {status === 'success' && <div role="status">Acesso liberado!</div>}
+        </div>
+      </AuthLayout>
     </section>
   )
 }

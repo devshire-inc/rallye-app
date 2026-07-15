@@ -1,6 +1,2 @@
-section {
-  max-width: 28rem;
-  margin: 0 auto;
-  padding: 2rem 1rem;
-  text-align: center;
-}
+/* O shell visual (sky/sand) vem de AuthLayout — esta folha só existe para
+   overrides pontuais desta tela, se necessário. */

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
+import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { PasswordResetApiError, requestPasswordReset } from '../lib/passwordReset'
 
 type Status = 'idle' | 'submitting' | 'success' | 'rate_limited' | 'validation_error'
@@ -57,50 +58,74 @@ export function ForgotPassword() {
   if (status === 'success') {
     return (
       <section aria-labelledby="forgot-password-title">
-        <h1 id="forgot-password-title">Esqueci minha senha</h1>
-        <p role="status">{message}</p>
-        <p>
-          <Link to={`/redefinir-senha?email=${encodeURIComponent(email.trim())}`}>
-            Já tenho um código
-          </Link>
-        </p>
+        <AuthLayout
+          cornerMark
+          mark="none"
+          title={<span id="forgot-password-title">Esqueci minha senha</span>}
+          subtitle="Etapa 1 de 2 — informe seu e-mail e enviamos um código de redefinição."
+        >
+          <p role="status" className="section-desc">
+            {message}
+          </p>
+          <p className="footer-link">
+            <Link to={`/redefinir-senha?email=${encodeURIComponent(email.trim())}`}>
+              Já tenho um código
+            </Link>
+          </p>
+        </AuthLayout>
       </section>
     )
   }
 
   return (
     <section aria-labelledby="forgot-password-title">
-      <h1 id="forgot-password-title">Esqueci minha senha</h1>
-      <form onSubmit={handleSubmit} noValidate>
-        <label htmlFor="email">E-mail</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          disabled={status === 'submitting'}
-          required
-        />
+      <AuthLayout
+        cornerMark
+        mark="none"
+        title={<span id="forgot-password-title">Esqueci minha senha</span>}
+        subtitle="Etapa 1 de 2 — informe seu e-mail e enviamos um código de redefinição."
+        hint="Máx. 3 códigos errados bloqueiam o pedido."
+      >
+        <form onSubmit={handleSubmit} noValidate className="stack">
+          <div className="field">
+            <label htmlFor="email">E-mail</label>
+            <div className="control">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                placeholder="voce@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                disabled={status === 'submitting'}
+                required
+              />
+            </div>
 
-        {status === 'rate_limited' && (
-          <p role="alert" className="error">
-            {message ?? RATE_LIMIT_MESSAGE}
-          </p>
-        )}
-        {status === 'validation_error' && (
-          <p role="alert" className="error">
-            {message}
-          </p>
-        )}
+            {status === 'rate_limited' && (
+              <p role="alert" className="error field-error">
+                {message ?? RATE_LIMIT_MESSAGE}
+              </p>
+            )}
+            {status === 'validation_error' && (
+              <p role="alert" className="error field-error">
+                {message}
+              </p>
+            )}
+          </div>
 
-        <button type="submit" disabled={status === 'submitting'}>
-          {status === 'submitting' ? 'Enviando...' : 'Enviar código'}
-        </button>
-      </form>
-      <p>
-        <Link to="/">Voltar para o login</Link>
-      </p>
+          <button
+            type="submit"
+            className="btn btn-primary btn-md btn-full"
+            disabled={status === 'submitting'}
+          >
+            {status === 'submitting' ? 'Enviando...' : 'Enviar código'}
+          </button>
+        </form>
+        <p className="footer-link">
+          <Link to="/">Voltar para o login</Link>
+        </p>
+      </AuthLayout>
     </section>
   )
 }

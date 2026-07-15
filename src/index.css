@@ -1,109 +1,243 @@
+/* Design tokens extracted from the original Rallye prototype ("Horizon" /
+   "Saque Noturno" theme). Colors, spacing, radii and the two webfonts below
+   are the real values from the prototype's :root block — not approximations.
+   See src/styles/components.css for the shared component classes (buttons,
+   fields, toast, badges, cards, OTP boxes) that consume these tokens, and
+   src/components/AuthLayout for the sky/sand screen shell. */
+
+@font-face {
+  font-family: 'Fredoka';
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('./assets/fonts/fredoka.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Plus Jakarta Sans';
+  font-weight: 400 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('./assets/fonts/plus-jakarta-sans.woff2') format('woff2');
+}
+
 :root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow: rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+  /* Saque Noturno — light ("dia de quadra") */
+  --bg: #f2f7fa;
+  --surface: #ffffff;
+  --border: #d8e4ec;
+  --text-primary: #0d2233;
+  --text-muted: #5a7385;
+  --accent: #d7f235;
+  --on-accent: #081722;
+  --sand: #d9e5ed;
+  --teal: #12699e;
+  --sky: #0d2233;
+  --sky-text: #eff7fb;
+  --sky-muted: #7fa0b5;
+  --hz-top: #eff7fb;
+  --hz-bot: #0d2233;
+  --success-bg: #dcf2e5;
+  --success-fg: #1b7a4a;
+  --warning-bg: #fbf0d2;
+  --warning-fg: #8a6414;
+  --error-bg: #fbe1e1;
+  --error-fg: #a32e2e;
+  --sport-beach-tennis: #e8703f;
+  --sport-padel: #12699e;
+  --sport-futevolei: #c99a1f;
+  --sport-volei: #7b5ea7;
+  --link: var(--teal);
+  --scrim: rgba(2, 10, 16, 0.5);
+  --focus-ring: var(--teal);
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-pill: 999px;
+  --radius-card: 16px;
+  --radius-input: 10px;
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 300ms;
+  --ease-enter: cubic-bezier(0.16, 1, 0.3, 1);
+  --touch-min: 44px;
+  --font-display: 'Fredoka', 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
+  color-scheme: light;
+  font-family: var(--font-body);
+  color: var(--text-primary);
   background: var(--bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow: rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
+    --bg: #0d2233;
+    --surface: #14304a;
+    --border: #1f425f;
+    --text-primary: #eff7fb;
+    --text-muted: #7fa0b5;
+    --accent: #d7f235;
+    --on-accent: #081722;
+    --sand: #24405c;
+    --teal: #4fa3d9;
+    --sky: #081722;
+    --sky-text: #eff7fb;
+    --sky-muted: #7fa0b5;
+    --hz-top: #eff7fb;
+    --hz-bot: #d7f235;
+    --success-bg: #123a2a;
+    --success-fg: #6fe0a8;
+    --warning-bg: #3a3014;
+    --warning-fg: #f2c14e;
+    --error-bg: #40191d;
+    --error-fg: #ff9494;
+    --sport-beach-tennis: #ff8a5c;
+    --sport-padel: #4fa3d9;
+    --sport-futevolei: #f2c14e;
+    --sport-volei: #a88fd9;
+    --scrim: rgba(0, 0, 0, 0.55);
+    color-scheme: dark;
   }
+}
 
-  #social .button-icon {
-    filter: invert(1) brightness(2);
+:root[data-theme='dark'] {
+  --bg: #0d2233;
+  --surface: #14304a;
+  --border: #1f425f;
+  --text-primary: #eff7fb;
+  --text-muted: #7fa0b5;
+  --accent: #d7f235;
+  --on-accent: #081722;
+  --sand: #24405c;
+  --teal: #4fa3d9;
+  --sky: #081722;
+  --sky-text: #eff7fb;
+  --sky-muted: #7fa0b5;
+  --hz-top: #eff7fb;
+  --hz-bot: #d7f235;
+  --success-bg: #123a2a;
+  --success-fg: #6fe0a8;
+  --warning-bg: #3a3014;
+  --warning-fg: #f2c14e;
+  --error-bg: #40191d;
+  --error-fg: #ff9494;
+  --sport-beach-tennis: #ff8a5c;
+  --sport-padel: #4fa3d9;
+  --sport-futevolei: #f2c14e;
+  --sport-volei: #a88fd9;
+  --scrim: rgba(0, 0, 0, 0.55);
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #f2f7fa;
+  --surface: #ffffff;
+  --border: #d8e4ec;
+  --text-primary: #0d2233;
+  --text-muted: #5a7385;
+  --accent: #d7f235;
+  --on-accent: #081722;
+  --sand: #d9e5ed;
+  --teal: #12699e;
+  --sky: #0d2233;
+  --sky-text: #eff7fb;
+  --sky-muted: #7fa0b5;
+  --hz-top: #eff7fb;
+  --hz-bot: #0d2233;
+  --success-bg: #dcf2e5;
+  --success-fg: #1b7a4a;
+  --warning-bg: #fbf0d2;
+  --warning-fg: #8a6414;
+  --error-bg: #fbe1e1;
+  --error-fg: #a32e2e;
+  --sport-beach-tennis: #e8703f;
+  --sport-padel: #12699e;
+  --sport-futevolei: #c99a1f;
+  --sport-volei: #7b5ea7;
+  --scrim: rgba(2, 10, 16, 0.5);
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+html,
+body {
+  margin: 0;
+}
+body {
+  background: var(--bg);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
   }
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+svg.icon {
+  width: 18px;
+  height: 18px;
+  flex: none;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 #root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
   min-height: 100svh;
   display: flex;
   flex-direction: column;
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
 }
 
 h1,
 h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 var(--space-2);
 }
 
 h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
-  }
+  font-size: 24px;
 }
 h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
+  font-size: 18px;
 }
 p {
   margin: 0;
-}
-
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
-}
-
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
 }

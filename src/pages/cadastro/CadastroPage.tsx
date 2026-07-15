@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { AuthLayout } from '../../components/AuthLayout/AuthLayout'
 import { formatBRPhoneInput } from '../../lib/phone'
 import {
   getSignupFieldErrors,
@@ -83,162 +84,174 @@ export function CadastroPage() {
   }
 
   return (
-    <section className="cadastro-page" aria-labelledby="cadastro-title">
-      <h1 id="cadastro-title">Criar conta</h1>
-
-      <div className="oauth-buttons">
-        <button
-          type="button"
-          className="oauth-button"
-          disabled
-          title="Login social em breve (BEAC-1809)"
-        >
-          Continuar com Google
-        </button>
-        <button
-          type="button"
-          className="oauth-button"
-          disabled
-          title="Login social em breve (BEAC-1809)"
-        >
-          Continuar com Apple
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit} noValidate>
-        <div className="field">
-          <label htmlFor="fullName">Nome completo</label>
-          <input
-            id="fullName"
-            name="fullName"
-            type="text"
-            autoComplete="name"
-            value={values.fullName}
-            onChange={(e) => updateField('fullName', e.target.value)}
-            onBlur={() => markTouched('fullName')}
-            aria-invalid={Boolean(errorFor('fullName'))}
-            aria-describedby="fullName-error"
-          />
-          {errorFor('fullName') && (
-            <p id="fullName-error" className="field-error" role="alert">
-              {errorFor('fullName')}
-            </p>
-          )}
+    <section className="cadastro-page" aria-label="Cadastro">
+      <AuthLayout
+        title="Criar sua conta"
+        subtitle="Uma conta só para todas as arenas onde você joga. Esporte e nível a gente define depois."
+        mark="sm"
+        wide
+        hint="Login social cria a conta na hora e pula a verificação de e-mail."
+      >
+        <div className="oauth-buttons">
+          <button
+            type="button"
+            className="oauth-button"
+            disabled
+            title="Login social em breve (BEAC-1809)"
+          >
+            Continuar com Google
+          </button>
+          <button
+            type="button"
+            className="oauth-button"
+            disabled
+            title="Login social em breve (BEAC-1809)"
+          >
+            Continuar com Apple
+          </button>
         </div>
 
-        <div className="field">
-          <label htmlFor="email">E-mail</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            autoComplete="email"
-            value={values.email}
-            onChange={(e) => updateField('email', e.target.value)}
-            onBlur={() => markTouched('email')}
-            aria-invalid={Boolean(errorFor('email'))}
-            aria-describedby="email-error"
-          />
-          {errorFor('email') && (
-            <p id="email-error" className="field-error" role="alert">
-              {errorFor('email')}
-            </p>
-          )}
-          {emailAlreadyRegistered && (
-            <p className="field-error" role="alert">
-              Este email já está cadastrado. <Link to="/login">Fazer login?</Link>
-            </p>
-          )}
-        </div>
+        <div className="divider">ou preencha</div>
 
-        <div className="field">
-          <label htmlFor="phone">Telefone/WhatsApp</label>
-          <input
-            id="phone"
-            name="phone"
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel-national"
-            placeholder="(XX) XXXXX-XXXX"
-            value={values.phone}
-            onChange={(e) => updateField('phone', formatBRPhoneInput(e.target.value))}
-            onBlur={() => markTouched('phone')}
-            aria-invalid={Boolean(errorFor('phone'))}
-            aria-describedby="phone-error"
-          />
-          {errorFor('phone') && (
-            <p id="phone-error" className="field-error" role="alert">
-              {errorFor('phone')}
-            </p>
-          )}
-        </div>
-
-        <div className="field">
-          <label htmlFor="password">Senha</label>
-          <div className="password-input">
+        <form onSubmit={handleSubmit} noValidate>
+          <div className="field">
+            <label htmlFor="fullName">Nome completo</label>
             <input
-              id="password"
-              name="password"
+              id="fullName"
+              name="fullName"
+              type="text"
+              autoComplete="name"
+              value={values.fullName}
+              onChange={(e) => updateField('fullName', e.target.value)}
+              onBlur={() => markTouched('fullName')}
+              aria-invalid={Boolean(errorFor('fullName'))}
+              aria-describedby="fullName-error"
+            />
+            {errorFor('fullName') && (
+              <p id="fullName-error" className="field-error" role="alert">
+                {errorFor('fullName')}
+              </p>
+            )}
+          </div>
+
+          <div className="field">
+            <label htmlFor="email">E-mail</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              autoComplete="email"
+              value={values.email}
+              onChange={(e) => updateField('email', e.target.value)}
+              onBlur={() => markTouched('email')}
+              aria-invalid={Boolean(errorFor('email'))}
+              aria-describedby="email-error"
+            />
+            {errorFor('email') && (
+              <p id="email-error" className="field-error" role="alert">
+                {errorFor('email')}
+              </p>
+            )}
+            {emailAlreadyRegistered && (
+              <p className="field-error" role="alert">
+                Este email já está cadastrado. <Link to="/login">Fazer login?</Link>
+              </p>
+            )}
+          </div>
+
+          <div className="field">
+            <label htmlFor="phone">Telefone/WhatsApp</label>
+            <input
+              id="phone"
+              name="phone"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel-national"
+              placeholder="(XX) XXXXX-XXXX"
+              value={values.phone}
+              onChange={(e) => updateField('phone', formatBRPhoneInput(e.target.value))}
+              onBlur={() => markTouched('phone')}
+              aria-invalid={Boolean(errorFor('phone'))}
+              aria-describedby="phone-error"
+            />
+            {errorFor('phone') && (
+              <p id="phone-error" className="field-error" role="alert">
+                {errorFor('phone')}
+              </p>
+            )}
+          </div>
+
+          <div className="field">
+            <label htmlFor="password">Senha</label>
+            <div className="password-input">
+              <input
+                id="password"
+                name="password"
+                type={showPassword ? 'text' : 'password'}
+                autoComplete="new-password"
+                value={values.password}
+                onChange={(e) => updateField('password', e.target.value)}
+                onBlur={() => markTouched('password')}
+                aria-invalid={Boolean(errorFor('password'))}
+                aria-describedby="password-hint"
+              />
+              <button
+                type="button"
+                className="toggle-password"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
+              >
+                {showPassword ? 'Ocultar' : 'Mostrar'}
+              </button>
+            </div>
+            <p
+              id="password-hint"
+              className={passwordLongEnough ? 'field-hint field-hint--ok' : 'field-hint'}
+            >
+              {passwordLongEnough ? '✓ Mínimo de 8 caracteres' : 'Mínimo de 8 caracteres'}
+            </p>
+          </div>
+
+          <div className="field">
+            <label htmlFor="confirmPassword">Confirmar senha</label>
+            <input
+              id="confirmPassword"
+              name="confirmPassword"
               type={showPassword ? 'text' : 'password'}
               autoComplete="new-password"
-              value={values.password}
-              onChange={(e) => updateField('password', e.target.value)}
-              onBlur={() => markTouched('password')}
-              aria-invalid={Boolean(errorFor('password'))}
-              aria-describedby="password-hint"
+              value={values.confirmPassword}
+              onChange={(e) => updateField('confirmPassword', e.target.value)}
+              onBlur={() => markTouched('confirmPassword')}
+              aria-invalid={Boolean(errorFor('confirmPassword'))}
+              aria-describedby="confirmPassword-error"
             />
-            <button
-              type="button"
-              className="toggle-password"
-              onClick={() => setShowPassword((v) => !v)}
-              aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
-            >
-              {showPassword ? 'Ocultar' : 'Mostrar'}
-            </button>
+            {errorFor('confirmPassword') && (
+              <p id="confirmPassword-error" className="field-error" role="alert">
+                {errorFor('confirmPassword')}
+              </p>
+            )}
           </div>
-          <p
-            id="password-hint"
-            className={passwordLongEnough ? 'field-hint field-hint--ok' : 'field-hint'}
-          >
-            {passwordLongEnough ? '✓ Mínimo de 8 caracteres' : 'Mínimo de 8 caracteres'}
-          </p>
-        </div>
 
-        <div className="field">
-          <label htmlFor="confirmPassword">Confirmar senha</label>
-          <input
-            id="confirmPassword"
-            name="confirmPassword"
-            type={showPassword ? 'text' : 'password'}
-            autoComplete="new-password"
-            value={values.confirmPassword}
-            onChange={(e) => updateField('confirmPassword', e.target.value)}
-            onBlur={() => markTouched('confirmPassword')}
-            aria-invalid={Boolean(errorFor('confirmPassword'))}
-            aria-describedby="confirmPassword-error"
-          />
-          {errorFor('confirmPassword') && (
-            <p id="confirmPassword-error" className="field-error" role="alert">
-              {errorFor('confirmPassword')}
+          {submitError && (
+            <p className="field-error" role="alert">
+              {submitError}
             </p>
           )}
-        </div>
 
-        {submitError && (
-          <p className="field-error" role="alert">
-            {submitError}
-          </p>
-        )}
+          <button
+            type="submit"
+            className="submit-button"
+            disabled={!isValid || submitting}
+            style={{ opacity: !isValid || submitting ? 0.5 : 1 }}
+          >
+            {submitting ? 'Criando conta…' : 'CRIAR MINHA CONTA'}
+          </button>
 
-        <button
-          type="submit"
-          className="submit-button"
-          disabled={!isValid || submitting}
-          style={{ opacity: !isValid || submitting ? 0.5 : 1 }}
-        >
-          {submitting ? 'Criando conta…' : 'CRIAR MINHA CONTA'}
-        </button>
-      </form>
+          <div className="footer-link">
+            Já tem conta? <Link to="/login">Entrar</Link>
+          </div>
+        </form>
+      </AuthLayout>
     </section>
   )
 }

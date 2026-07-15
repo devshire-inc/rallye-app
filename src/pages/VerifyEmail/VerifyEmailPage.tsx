@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
+import { AuthLayout } from '../../components/AuthLayout/AuthLayout'
 import { OtpInput } from '../../components/OtpInput/OtpInput'
 import {
   ResendVerificationError,
@@ -103,8 +104,11 @@ export function VerifyEmailPage() {
   if (!userId) {
     return (
       <section>
-        <h1>Verificação de e-mail</h1>
-        <p>Não foi possível identificar sua conta. Volte para o cadastro e tente novamente.</p>
+        <AuthLayout cornerMark mark="none" title="Verificação de e-mail">
+          <p className="section-desc">
+            Não foi possível identificar sua conta. Volte para o cadastro e tente novamente.
+          </p>
+        </AuthLayout>
       </section>
     )
   }
@@ -112,50 +116,75 @@ export function VerifyEmailPage() {
   if (deepLinkCode && (status === 'verifying' || status === 'success')) {
     return (
       <section>
-        <h1>Verificação de e-mail</h1>
-        <p>{status === 'verifying' ? 'Verificando seu e-mail...' : null}</p>
-        {status === 'success' && <div role="status">Email verificado!</div>}
+        <AuthLayout cornerMark mark="none" title="Verificação de e-mail">
+          <p className="section-desc">
+            {status === 'verifying' ? 'Verificando seu e-mail...' : null}
+          </p>
+          {status === 'success' && <div role="status">Email verificado!</div>}
+        </AuthLayout>
       </section>
     )
   }
 
   return (
     <section>
-      <h1>Verificação de e-mail</h1>
-      <p>
-        Enviamos um código de 6 dígitos para <strong>{email ?? 'seu e-mail'}</strong>.
-      </p>
+      <AuthLayout
+        cornerMark
+        mark="none"
+        title="Confira seu e-mail"
+        subtitle={
+          <>
+            Enviamos um código de 6 dígitos para{' '}
+            <b style={{ color: 'var(--sky-text)' }}>{email ?? 'seu e-mail'}</b>
+          </>
+        }
+        hint={<b>Código de demonstração:</b>}
+      >
+        <div className="stack" style={{ alignItems: 'center', textAlign: 'center' }}>
+          <OtpInput
+            value={code}
+            onChange={setCode}
+            onComplete={(full) => void attemptVerify(full)}
+            error={shake}
+            disabled={status === 'verifying' || status === 'success'}
+          />
 
-      <OtpInput
-        value={code}
-        onChange={setCode}
-        onComplete={(full) => void attemptVerify(full)}
-        error={shake}
-        disabled={status === 'verifying' || status === 'success'}
-      />
+          {status === 'invalid' && (
+            <p role="alert" className="field-error">
+              Código incorreto
+            </p>
+          )}
+          {status === 'expired' && (
+            <p role="alert" className="field-error">
+              Código expirado. <button onClick={handleResend}>Reenviar?</button>
+            </p>
+          )}
+          {status === 'locked' && (
+            <p role="alert" className="field-error">
+              Muitas tentativas. Tente novamente em alguns minutos.
+            </p>
+          )}
+          {status === 'unrecoverable' && (
+            <p role="alert" className="field-error">
+              Não foi possível verificar agora. Tente novamente.
+            </p>
+          )}
+          {status === 'success' && <div role="status">Email verificado!</div>}
 
-      {status === 'invalid' && <p role="alert">Código incorreto</p>}
-      {status === 'expired' && (
-        <p role="alert">
-          Código expirado. <button onClick={handleResend}>Reenviar?</button>
-        </p>
-      )}
-      {status === 'locked' && (
-        <p role="alert">Muitas tentativas. Tente novamente em alguns minutos.</p>
-      )}
-      {status === 'unrecoverable' && (
-        <p role="alert">Não foi possível verificar agora. Tente novamente.</p>
-      )}
-      {status === 'success' && <div role="status">Email verificado!</div>}
-
-      <div>
-        {resendCooldown > 0 ? (
-          <span>Reenviar código em {resendCooldown}s</span>
-        ) : (
-          <button onClick={handleResend}>Reenviar código</button>
-        )}
-        {resendMessage && <p role="alert">{resendMessage}</p>}
-      </div>
+          <div className="footer-link">
+            {resendCooldown > 0 ? (
+              <span>Reenviar código em {resendCooldown}s</span>
+            ) : (
+              <button onClick={handleResend}>Reenviar código</button>
+            )}
+            {resendMessage && (
+              <p role="alert" className="field-error">
+                {resendMessage}
+              </p>
+            )}
+          </div>
+        </div>
+      </AuthLayout>
     </section>
   )
 }

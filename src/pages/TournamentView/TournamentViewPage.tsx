@@ -1,5 +1,6 @@
 import { useParams, useSearchParams } from 'react-router-dom'
 import { TemporarySessionBanner } from '../../components/TemporarySessionBanner/TemporarySessionBanner'
+import './TournamentViewPage.css'
 
 /**
  * Stub da visão pública/leitura de um torneio — a tela real pertence ao
@@ -17,7 +18,7 @@ export function TournamentViewPage() {
   const notificationsEnabled = searchParams.get('notifications') === '1'
 
   return (
-    <section>
+    <section className="tournament-view-page">
       <TemporarySessionBanner tournamentId={tournamentId} />
       <h1>Torneio {tournamentId}</h1>
       <p>Visão pública de leitura do torneio (tela real fora do escopo desta story — Épico 8).</p>

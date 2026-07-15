@@ -5,19 +5,23 @@
   gap: 0.75rem;
   width: 100%;
   padding: 0.75rem 1rem;
-  background: #fff3cd;
-  border-bottom: 1px solid #ffe69c;
-  color: #664d03;
-  font-size: 0.9rem;
+  background: var(--warning-bg, #fbf0d2);
+  border-bottom: 1px solid var(--border, #d8e4ec);
+  color: var(--warning-fg, #8a6414);
+  font-family: var(--font-body, inherit);
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .temporary-session-banner__button {
   border: none;
-  background: #664d03;
-  color: #fff;
-  padding: 0.4rem 0.9rem;
-  border-radius: 999px;
+  background: var(--accent, #d7f235);
+  color: var(--on-accent, #081722);
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-pill, 999px);
   cursor: pointer;
+  font-family: var(--font-display, inherit);
   font-weight: 600;
+  font-size: 13px;
   white-space: nowrap;
 }

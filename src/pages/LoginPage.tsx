@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { SocialLoginButtons } from '../components/SocialLoginButtons'
 import { Toast } from '../components/Toast'
 import { useToast } from '../hooks/useToast'
@@ -107,42 +108,75 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
 
   return (
     <main>
-      <h1>Entrar</h1>
-      <form onSubmit={handleSubmit}>
-        <label htmlFor="email">E-mail</label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
+      <AuthLayout
+        tagline="Sua arena, seu jogo."
+        title={<span className="sr-only">Entrar</span>}
+        mark="lg"
+        hint={
+          <>
+            5 tentativas erradas bloqueiam por 15 min · login social vincula conta existente com o
+            mesmo e-mail.
+          </>
+        }
+      >
+        <SocialLoginButtons appleEnabled={false} onError={showError} />
+        <div className="divider">ou</div>
 
-        <label htmlFor="password">Senha</label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
+        <form onSubmit={handleSubmit} className="stack">
+          <div className="field">
+            <label htmlFor="email">E-mail</label>
+            <div className="control">
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                placeholder="voce@email.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+          </div>
 
-        {error && (
-          <p role="alert" className="login-error">
-            {error}
-          </p>
-        )}
+          <div className="field">
+            <label htmlFor="password">Senha</label>
+            <div className="control">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+            </div>
+          </div>
 
-        <button type="submit" disabled={submitting}>
-          {submitting ? 'Entrando…' : 'Entrar'}
-        </button>
-      </form>
+          {error && (
+            <p role="alert" className="login-error field-error">
+              {error}
+            </p>
+          )}
 
-      <SocialLoginButtons appleEnabled={false} onError={showError} />
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Link to="/esqueci-senha" style={{ fontSize: '13px', fontWeight: 600 }}>
+              Esqueceu a senha?
+            </Link>
+          </div>
+
+          <button type="submit" className="btn btn-primary btn-md btn-full" disabled={submitting}>
+            {submitting ? 'Entrando…' : 'Entrar'}
+          </button>
+
+          <div className="footer-link">
+            Novo por aqui? <Link to="/cadastro">Criar conta</Link>
+          </div>
+        </form>
+      </AuthLayout>
+
       <Toast message={message} onDismiss={dismiss} />
     </main>
   )
