@@ -3,6 +3,7 @@ name: CD (hml)
 on:
   push:
     branches: [develop]
+  workflow_dispatch: {}
 
 concurrency:
   group: cd-hml
