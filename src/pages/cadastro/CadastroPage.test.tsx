@@ -3,6 +3,7 @@ import { MemoryRouter, Routes, Route } from 'react-router-dom'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { CadastroPage } from './CadastroPage'
 import * as signupApi from '../../lib/api/signup'
+import { getPendingVerification } from '../../lib/pendingVerification'
 
 vi.mock('../../lib/api/signup')
 
@@ -11,7 +12,7 @@ function renderCadastroPage() {
     <MemoryRouter initialEntries={['/cadastro']}>
       <Routes>
         <Route path="/cadastro" element={<CadastroPage />} />
-        <Route path="/verificacao-email" element={<div>Tela A4</div>} />
+        <Route path="/verify-email" element={<div>Tela A4</div>} />
         <Route path="/login" element={<div>Tela A1</div>} />
       </Routes>
     </MemoryRouter>,
@@ -30,6 +31,7 @@ function fillValidForm() {
 
 beforeEach(() => {
   vi.resetAllMocks()
+  sessionStorage.clear()
 })
 
 describe('CadastroPage (A2)', () => {
@@ -96,7 +98,7 @@ describe('CadastroPage (A2)', () => {
     expect(phoneInput.value).toBe('(11) 98765-4321')
   })
 
-  it('navigates to /verificacao-email (A4) on successful signup', async () => {
+  it('navigates to /verify-email (A4) on successful signup', async () => {
     vi.mocked(signupApi.signup).mockResolvedValue({
       ok: true,
       userId: 'user-1',
@@ -108,6 +110,22 @@ describe('CadastroPage (A2)', () => {
     fireEvent.click(screen.getByRole('button', { name: /criar minha conta/i }))
 
     await waitFor(() => expect(screen.getByText('Tela A4')).toBeInTheDocument())
+  })
+
+  it('stores the pending verification (user id + email) before navigating to /verify-email', async () => {
+    vi.mocked(signupApi.signup).mockResolvedValue({
+      ok: true,
+      userId: 'user-1',
+      sessionToken: 'token-1',
+    })
+
+    renderCadastroPage()
+    fillValidForm()
+    fireEvent.click(screen.getByRole('button', { name: /criar minha conta/i }))
+
+    await waitFor(() => expect(screen.getByText('Tela A4')).toBeInTheDocument())
+
+    expect(getPendingVerification()).toEqual({ userId: 'user-1', email: 'fulano@example.com' })
   })
 
   it('shows "Este email já está cadastrado. Fazer login?" with a link to /login on 409', async () => {

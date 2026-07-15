@@ -7,6 +7,7 @@ import {
   type SignupFormValues,
 } from '../../lib/validation/signupSchema'
 import { signup } from '../../lib/api/signup'
+import { setPendingVerification } from '../../lib/pendingVerification'
 import './CadastroPage.css'
 
 type FieldName = keyof SignupFormValues
@@ -68,7 +69,8 @@ export function CadastroPage() {
     setSubmitting(false)
 
     if (result.ok) {
-      navigate('/verificacao-email')
+      setPendingVerification({ userId: result.userId, email: values.email })
+      navigate('/verify-email')
       return
     }
 
