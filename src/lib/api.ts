@@ -1,5 +1,7 @@
 // Cliente HTTP da rallye-api (BFF). Padrão travado do projeto: o rallye-app
 // nunca fala com o Supabase diretamente, só com a rallye-api.
+import { apiFetch } from './httpClient'
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
 
 export type VerifyEmailErrorCode =
@@ -72,7 +74,10 @@ export type VisitorRequestResult = {
  * tiver uma conta completa, o back-end sinaliza account_exists=true em vez
  * de enviar um código — a tela sugere login (A1) nesse caso.
  */
-export async function requestVisitorCode(email: string, tournamentId: string): Promise<VisitorRequestResult> {
+export async function requestVisitorCode(
+  email: string,
+  tournamentId: string,
+): Promise<VisitorRequestResult> {
   const res = await fetch(`${API_BASE_URL}/auth/visitor/request`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -123,7 +128,8 @@ export async function verifyVisitorCode(
   return { type: body.type, scope: body.scope, expiresAt: body.expires_at }
 }
 
-export type RedeemInviteErrorCode = 'invite_not_found' | 'invite_expired' | 'already_member' | 'internal_error'
+export type RedeemInviteErrorCode =
+  'invite_not_found' | 'invite_expired' | 'already_member' | 'internal_error'
 
 export class RedeemInviteError extends Error {
   code: RedeemInviteErrorCode
@@ -161,4 +167,85 @@ async function errorCode<T extends string>(res: Response): Promise<T> {
   } catch {
     return 'internal_error' as T
   }
+}
+
+export interface MembershipUnit {
+  name: string
+  /** `public.units` só tem um campo `address` livre — sem colunas
+   * separadas de cidade/estado (gap de dado já documentado em
+   * api/internal/memberships/handler.go, BEAC-1834). Exibido como veio. */
+  address: string | null
+  /** Array de slugs (ex.: `["beach_tennis","padel"]`) — ver `lib/sports.ts`
+   * para o catálogo slug→rótulo/cor conhecido. `unknown` porque
+   * `sports_offered` é JSONB de estrutura livre no banco (comentário da
+   * migration 000005) — validamos o shape só na hora de renderizar. */
+  sportsOffered: unknown
+}
+
+export interface MembershipListItem {
+  unitId: string
+  unit: MembershipUnit
+  /** null quando a membership ainda não tem role atribuído (RBAC é do
+   * Épico 3) — ver comentário de membershipListItem em handler.go. */
+  role: string | null
+  lastAccessedAt: string | null
+  /** Sempre null hoje — indicador de atividade ao vivo é do Épico 6 (ver
+   * handler.go). Mantido no shape para não quebrar quando existir. */
+  liveActivity: string | null
+}
+
+export class ListMembershipsError extends Error {
+  constructor() {
+    super('me/memberships failed')
+  }
+}
+
+type MembershipListItemWire = {
+  unit_id: string
+  unit: { name: string; address: string | null; sports_offered?: unknown }
+  role: string | null
+  last_accessed_at: string | null
+  live_activity: string | null
+}
+
+/**
+ * GET /me/memberships (BEAC-1834), consumido pela tela real S1 (BEAC-1835).
+ * Usa `apiFetch` (não `fetch` cru como o resto deste módulo) porque este é
+ * um endpoint autenticado self-access: `apiFetch` é o único ponto de
+ * entrada HTTP documentado da app (ver httpClient.ts) — cookie web +
+ * bearer token nativo + interceptor de refresh-on-401 de graça.
+ */
+export async function listMyMemberships(): Promise<MembershipListItem[]> {
+  const res = await apiFetch('/me/memberships')
+  if (!res.ok) throw new ListMembershipsError()
+  const body = (await res.json()) as { memberships: MembershipListItemWire[] }
+  return body.memberships.map((m) => ({
+    unitId: m.unit_id,
+    unit: {
+      name: m.unit.name,
+      address: m.unit.address,
+      sportsOffered: m.unit.sports_offered ?? null,
+    },
+    role: m.role,
+    lastAccessedAt: m.last_accessed_at,
+    liveActivity: m.live_activity,
+  }))
+}
+
+export class AccessMembershipError extends Error {
+  constructor() {
+    super('me/memberships/:unit_id/access failed')
+  }
+}
+
+/**
+ * POST /me/memberships/{unit_id}/access (BEAC-1834): marca "acessei essa
+ * arena agora" (last_accessed_at = now()). Chamado pela S1 real ao entrar
+ * numa arena (tap num card, ou pulo automático quando há só 1 membership).
+ */
+export async function accessMembership(unitId: string): Promise<void> {
+  const res = await apiFetch(`/me/memberships/${encodeURIComponent(unitId)}/access`, {
+    method: 'POST',
+  })
+  if (!res.ok) throw new AccessMembershipError()
 }

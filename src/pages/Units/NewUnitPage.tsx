@@ -2,22 +2,11 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { createUnit } from '../../lib/api/units'
+import { SPORTS } from '../../lib/sports'
 import { appendCreatedUnit } from '../../lib/unitsLocalStore'
 import '../../components/AuthLayout/AuthLayout.css'
 import './UnitsPage.css'
 import './NewUnitPage.css'
-
-interface Sport {
-  slug: string
-  label: string
-}
-
-const SPORTS: Sport[] = [
-  { slug: 'beach_tennis', label: 'Beach tennis' },
-  { slug: 'padel', label: 'Padel' },
-  { slug: 'futevolei', label: 'Futevôlei' },
-  { slug: 'volei', label: 'Vôlei' },
-]
 
 const TIMEZONES = ['America/Sao_Paulo', 'America/Recife', 'America/Manaus']
 

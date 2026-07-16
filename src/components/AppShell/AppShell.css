@@ -33,6 +33,11 @@
   color: var(--text-primary);
   margin-bottom: var(--space-5);
 }
+/* BEAC-1835: segurar o logo abre a S1 (ver useLongPress em AppShell.tsx). */
+.sidebar .brand-mark--pressable {
+  cursor: pointer;
+  width: fit-content;
+}
 .sidebar .brand-mark .dot {
   color: var(--accent);
 }

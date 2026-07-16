@@ -1,4 +1,7 @@
 import type { ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useLongPress } from '../../hooks/useLongPress'
+import { S1_PATH } from '../../lib/redirectTarget'
 import './AuthLayout.css'
 
 export interface AuthLayoutProps {
@@ -14,6 +17,13 @@ export interface AuthLayoutProps {
   mark?: 'lg' | 'sm' | 'none'
   /** Formulário mais largo (A2/A5 etapa 1/3). */
   wide?: boolean
+  /**
+   * Override explícito do `max-width` do container de conteúdo, em px.
+   * Usado pela S1 real (BEAC-1835): o protótipo (scr-s1) não usa `.hz-form`
+   * (360/420px) para a grade de arenas — usa um wrapper próprio de até
+   * 820px direto em `.hz-sand`. Tem prioridade sobre `wide` quando setado.
+   */
+  formMaxWidth?: number
   /** Conteúdo do formulário, na faixa "sand" (base). */
   children: ReactNode
   /** Nota de rodapé opcional, abaixo do cartão de formulário. */
@@ -37,14 +47,22 @@ export function AuthLayout({
   cornerMark = false,
   mark = 'lg',
   wide = false,
+  formMaxWidth,
   children,
   hint,
 }: AuthLayoutProps) {
+  const navigate = useNavigate()
+  // BEAC-1835: "Acessível via long-press no logo Rallye, de qualquer tela do
+  // app" — AuthLayout é a shell "Horizon" compartilhada por A1/A2/A3/A4/A5/S1,
+  // então ligar aqui cobre todas essas telas de uma vez. Um toque/clique
+  // curto continua sem fazer nada (só o press sustentado navega).
+  const longPress = useLongPress(() => navigate(S1_PATH))
+
   return (
     <div className="horizon">
       <div className="hz-sky">
         {cornerMark && (
-          <span className="hz-corner" aria-hidden="true">
+          <span className="hz-corner hz-corner--pressable" aria-hidden="true" {...longPress}>
             rallye<span className="dot">.</span>
           </span>
         )}
@@ -52,7 +70,7 @@ export function AuthLayout({
         {title && <h1>{title}</h1>}
         {subtitle && <p className="sub">{subtitle}</p>}
         {mark !== 'none' && (
-          <div className={`hz-mark ${mark}`} aria-hidden="true">
+          <div className={`hz-mark hz-mark--pressable ${mark}`} aria-hidden="true" {...longPress}>
             <span className="m top">
               rallye<span className="dot">.</span>
             </span>
@@ -63,7 +81,12 @@ export function AuthLayout({
         )}
       </div>
       <div className="hz-sand">
-        <div className={`hz-form${wide ? ' wide' : ''}`}>{children}</div>
+        <div
+          className={`hz-form${wide ? ' wide' : ''}`}
+          style={formMaxWidth ? { maxWidth: formMaxWidth } : undefined}
+        >
+          {children}
+        </div>
         {hint && <div className="hint-note">{hint}</div>}
       </div>
     </div>

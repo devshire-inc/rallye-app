@@ -60,6 +60,17 @@
   z-index: 5;
   pointer-events: none;
 }
+/* BEAC-1835: segurar o logo (de qualquer tela) abre a S1 — precisa receber
+   pointer events só onde esse gesto está habilitado (AuthLayout.tsx liga
+   este modifier quando `mark !== 'none'`). Um toque/clique curto não faz
+   nada (ver useLongPress) — só o press sustentado navega. */
+.hz-mark--pressable {
+  pointer-events: auto;
+  cursor: pointer;
+}
+.hz-corner--pressable {
+  cursor: pointer;
+}
 .hz-mark.lg {
   font-size: 54px;
 }

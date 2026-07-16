@@ -1,4 +1,7 @@
 import type { ReactNode } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useLongPress } from '../../hooks/useLongPress'
+import { S1_PATH } from '../../lib/redirectTarget'
 import './AppShell.css'
 
 export interface AppShellProps {
@@ -21,10 +24,17 @@ export interface AppShellProps {
  * própria — não é escopo desta story construí-los.
  */
 export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
+  const navigate = useNavigate()
+  // BEAC-1835: "Acessível via long-press no logo Rallye, de qualquer tela do
+  // app" — cobre Perfil/OW2/OW3, as telas hospedadas por esta shell. Nota:
+  // a sidebar (e este logo) só aparece em telas >=860px (ver AppShell.css) —
+  // gap conhecido de cobertura mobile, não resolvido por esta task.
+  const longPress = useLongPress(() => navigate(S1_PATH))
+
   return (
     <div className="app-shell">
       <aside className="sidebar">
-        <div className="brand-mark">
+        <div className="brand-mark brand-mark--pressable" {...longPress}>
           rallye<span className="dot">.</span>
         </div>
         <div className="side-item inert">Início</div>

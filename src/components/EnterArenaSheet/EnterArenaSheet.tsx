@@ -5,13 +5,22 @@ import './EnterArenaSheet.css'
 export interface EnterArenaSheetProps {
   /**
    * Called once the invite is successfully redeemed. This component only
-   * owns the form itself — the caller (today, the S1 stub, BEAC-1808) is
-   * responsible for closing the surrounding BottomSheet and confirming to
-   * the user, since the real S1 arena list (BEAC-1623) doesn't exist yet.
-   * Once it does, this same callback should also trigger a refresh of the
-   * real list.
+   * owns the form itself — the caller (today, the real S1 screen,
+   * BEAC-1835) is responsible for closing the surrounding BottomSheet and
+   * confirming to the user, and for refreshing its own membership list so
+   * the newly-joined arena shows up.
    */
   onSuccess: (result: RedeemInviteResult) => void
+  /**
+   * Overrides the code input's `id`/`htmlFor` pair. Defaults to
+   * `invite-code`. BEAC-1835 locks the real S1 dialog's exact prototype ids
+   * (`s1Code`/`s1DialogConfirm`) — exposed as props (not hardcoded here) so
+   * this component stays a generic, reusable invite-redemption form for any
+   * future caller, not tied to S1's specific ids.
+   */
+  codeInputId?: string
+  /** Overrides the submit button's `id`. Unset by default (no id). */
+  submitButtonId?: string
 }
 
 type FeedbackKind = 'none' | 'not_found' | 'expired' | 'already_member' | 'internal_error'
@@ -28,7 +37,11 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível entrar na arena agora. Tente n
  * intentionally rendered as neutral/info (role="status", warning-toned, not
  * red) — the user isn't wrong, they're just already in.
  */
-export function EnterArenaSheet({ onSuccess }: EnterArenaSheetProps) {
+export function EnterArenaSheet({
+  onSuccess,
+  codeInputId = 'invite-code',
+  submitButtonId,
+}: EnterArenaSheetProps) {
   const [code, setCode] = useState('')
   const [feedback, setFeedback] = useState<FeedbackKind>('none')
   const [submitting, setSubmitting] = useState(false)
@@ -61,7 +74,8 @@ export function EnterArenaSheet({ onSuccess }: EnterArenaSheetProps) {
     }
   }
 
-  const isError = feedback === 'not_found' || feedback === 'expired' || feedback === 'internal_error'
+  const isError =
+    feedback === 'not_found' || feedback === 'expired' || feedback === 'internal_error'
   const isInfo = feedback === 'already_member'
 
   return (
@@ -71,10 +85,10 @@ export function EnterArenaSheet({ onSuccess }: EnterArenaSheetProps) {
 
       <form onSubmit={handleSubmit} className="stack">
         <div className="field">
-          <label htmlFor="invite-code">Código do convite</label>
+          <label htmlFor={codeInputId}>Código do convite</label>
           <div className="control">
             <input
-              id="invite-code"
+              id={codeInputId}
               name="invite-code"
               type="text"
               autoComplete="off"
@@ -87,7 +101,10 @@ export function EnterArenaSheet({ onSuccess }: EnterArenaSheetProps) {
         </div>
 
         {isError && (
-          <p role="alert" className="enter-arena-sheet__feedback enter-arena-sheet__feedback--error">
+          <p
+            role="alert"
+            className="enter-arena-sheet__feedback enter-arena-sheet__feedback--error"
+          >
             {feedback === 'not_found' && NOT_FOUND_MESSAGE}
             {feedback === 'expired' && EXPIRED_MESSAGE}
             {feedback === 'internal_error' && GENERIC_ERROR_MESSAGE}
@@ -95,12 +112,20 @@ export function EnterArenaSheet({ onSuccess }: EnterArenaSheetProps) {
         )}
 
         {isInfo && (
-          <p role="status" className="enter-arena-sheet__feedback enter-arena-sheet__feedback--info">
+          <p
+            role="status"
+            className="enter-arena-sheet__feedback enter-arena-sheet__feedback--info"
+          >
             {ALREADY_MEMBER_MESSAGE}
           </p>
         )}
 
-        <button type="submit" className="btn btn-primary btn-md btn-full" disabled={submitting || !code.trim()}>
+        <button
+          type="submit"
+          id={submitButtonId}
+          className="btn btn-primary btn-md btn-full"
+          disabled={submitting || !code.trim()}
+        >
           {submitting ? 'Entrando…' : 'Entrar'}
         </button>
       </form>
