@@ -1,0 +1,24 @@
+.enter-arena-sheet h2 {
+  margin: 0 0 4px;
+}
+
+.enter-arena-sheet__feedback {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12.5px;
+  font-weight: 600;
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-input);
+}
+
+.enter-arena-sheet__feedback--error {
+  background: var(--error-bg);
+  color: var(--error-fg);
+}
+
+.enter-arena-sheet__feedback--info {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}

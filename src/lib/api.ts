@@ -123,6 +123,37 @@ export async function verifyVisitorCode(
   return { type: body.type, scope: body.scope, expiresAt: body.expires_at }
 }
 
+export type RedeemInviteErrorCode = 'invite_not_found' | 'invite_expired' | 'already_member' | 'internal_error'
+
+export class RedeemInviteError extends Error {
+  code: RedeemInviteErrorCode
+  constructor(code: RedeemInviteErrorCode) {
+    super(`invites/redeem failed: ${code}`)
+    this.code = code
+  }
+}
+
+export type RedeemInviteResult = {
+  unitId: string
+  roleId: string
+}
+
+/**
+ * POST /invites/{code}/redeem (BEAC-1807, consumido pelo bottom sheet
+ * BEAC-1808). `already_member` (409) é tratado pela UI como informação, não
+ * erro — ver EnterArenaSheet, que o renderiza com um tom neutro, não
+ * vermelho.
+ */
+export async function redeemInvite(code: string): Promise<RedeemInviteResult> {
+  const res = await fetch(`${API_BASE_URL}/invites/${encodeURIComponent(code)}/redeem`, {
+    method: 'POST',
+    credentials: 'include',
+  })
+  if (!res.ok) throw new RedeemInviteError(await errorCode(res))
+  const body = (await res.json()) as { unit_id: string; role_id: string }
+  return { unitId: body.unit_id, roleId: body.role_id }
+}
+
 async function errorCode<T extends string>(res: Response): Promise<T> {
   try {
     const body = (await res.json()) as { error?: string }
