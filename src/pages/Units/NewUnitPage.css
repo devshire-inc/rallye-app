@@ -1,0 +1,35 @@
+.new-unit-form {
+  max-width: 480px;
+  gap: var(--space-4);
+}
+
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.tabs2 {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.tabs2 button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tabs2 button.active {
+  border-color: var(--teal);
+  color: var(--text-primary);
+  background: color-mix(in srgb, var(--teal) 12%, transparent);
+}

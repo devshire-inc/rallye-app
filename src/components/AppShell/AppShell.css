@@ -1,0 +1,124 @@
+/* Shell mínima "PF3" (BEAC-1832) — estrutura `.app-shell` / `.sidebar` /
+   `.bottomnav` do protótipo real (scr-pf3/scr-ow2/scr-ow3), sem os ícones
+   SVG do protótipo (sprite não existe neste repositório — fora do escopo
+   desta task recriá-lo; ver AppShell.tsx). Cores/tipografia usam os tokens
+   reais de src/index.css ("Horizon"/"Saque Noturno"). */
+.app-shell {
+  display: flex;
+  min-height: 100svh;
+  background: var(--bg);
+}
+
+.sidebar {
+  display: none;
+  flex-direction: column;
+  width: 232px;
+  flex: none;
+  padding: var(--space-5) var(--space-4);
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  gap: 2px;
+}
+
+@media (min-width: 860px) {
+  .sidebar {
+    display: flex;
+  }
+}
+
+.sidebar .brand-mark {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  color: var(--text-primary);
+  margin-bottom: var(--space-5);
+}
+.sidebar .brand-mark .dot {
+  color: var(--accent);
+}
+
+.side-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-input);
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+.side-item.inert {
+  opacity: 0.55;
+  cursor: default;
+}
+.side-item.active {
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  color: var(--text-primary);
+}
+
+.side-sep {
+  height: 1px;
+  background: var(--border);
+  margin: var(--space-3) 0;
+}
+
+.side-foot {
+  margin-top: auto;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--border);
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+
+.shell-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  padding: var(--space-5) var(--space-4) 84px;
+}
+
+@media (min-width: 860px) {
+  .shell-main {
+    padding: var(--space-6) var(--space-8);
+  }
+}
+
+.bottomnav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+}
+
+@media (min-width: 860px) {
+  .bottomnav {
+    display: none;
+  }
+}
+
+.bn-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 6px 2px;
+}
+.bn-item.active {
+  color: var(--text-primary);
+}
+.bn-item:disabled {
+  cursor: default;
+}

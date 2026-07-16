@@ -21,6 +21,7 @@ import {
   setRefreshToken,
   setSessionToken,
 } from './secureStorage'
+import { type Membership, setSessionMemberships } from './tenantContext'
 
 export const SESSION_EXPIRED_EVENT = 'rallye:session-expired'
 
@@ -28,15 +29,17 @@ const AUTH_LOGIN_PATH = '/auth/login'
 const AUTH_REFRESH_PATH = '/auth/refresh'
 const AUTH_LOGOUT_PATH = '/auth/logout'
 
+export type { Membership }
+
 export interface SessionResponse {
   session_token: string
   refresh_token: string
-  memberships: string[]
+  memberships: Membership[]
 }
 
 export interface LoginResult {
   ok: boolean
-  memberships: string[]
+  memberships: Membership[]
 }
 
 function apiBaseUrl(): string {
@@ -50,6 +53,11 @@ function dispatchSessionExpired(): void {
 }
 
 async function persistSessionResponse(data: SessionResponse): Promise<void> {
+  // Memberships (com tenant_id) viajam no corpo JSON em ambas plataformas —
+  // persistidas sempre, para que tenantContext.getActiveTenantId() as
+  // encontre independentemente de web/mobile.
+  setSessionMemberships(data.memberships ?? [])
+
   if (!isNativePlatform()) return
   await Promise.all([setSessionToken(data.session_token), setRefreshToken(data.refresh_token)])
 }

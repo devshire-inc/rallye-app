@@ -33,6 +33,7 @@ describe('httpClient', () => {
   beforeEach(() => {
     vi.clearAllMocks()
     isNativePlatformMock.mockReturnValue(false)
+    window.sessionStorage.clear()
   })
 
   afterEach(() => {
@@ -40,20 +41,40 @@ describe('httpClient', () => {
   })
 
   it('login: sends credentials include and returns ok + memberships on success', async () => {
+    const memberships = [
+      { unit_id: 'unit-a', tenant_id: 'tenant-a' },
+      { unit_id: 'unit-b', tenant_id: 'tenant-b' },
+    ]
     const fetchMock = vi
       .fn()
       .mockResolvedValue(
-        jsonResponse(200, { session_token: 'st', refresh_token: 'rt', memberships: ['a', 'b'] }),
+        jsonResponse(200, { session_token: 'st', refresh_token: 'rt', memberships }),
       )
     vi.stubGlobal('fetch', fetchMock)
 
     const { login } = await import('./httpClient')
     const result = await login('user@example.com', 'secret')
 
-    expect(result).toEqual({ ok: true, memberships: ['a', 'b'] })
+    expect(result).toEqual({ ok: true, memberships })
     const [, options] = fetchMock.mock.calls[0]
     expect(options.credentials).toBe('include')
     expect(JSON.parse(options.body)).toEqual({ email: 'user@example.com', password: 'secret' })
+  })
+
+  it('login: persists memberships (with tenant_id) so tenantContext can derive the active tenant', async () => {
+    const memberships = [{ unit_id: 'unit-a', tenant_id: 'tenant-a' }]
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue(
+        jsonResponse(200, { session_token: 'st', refresh_token: 'rt', memberships }),
+      )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { login } = await import('./httpClient')
+    await login('user@example.com', 'secret')
+
+    const { getActiveTenantId } = await import('./tenantContext')
+    expect(getActiveTenantId()).toBe('tenant-a')
   })
 
   it('login: returns generic failure on 401 without retrying refresh', async () => {
@@ -135,11 +156,15 @@ describe('httpClient', () => {
   })
 
   it('checkExistingSession: returns memberships when a valid session/refresh token already exists', async () => {
+    const memberships = [
+      { unit_id: 'unit-a', tenant_id: 'tenant-a' },
+      { unit_id: 'unit-b', tenant_id: 'tenant-b' },
+    ]
     const fetchMock = vi.fn().mockResolvedValue(
       jsonResponse(200, {
         session_token: 'st',
         refresh_token: 'rt',
-        memberships: ['tenant-a', 'tenant-b'],
+        memberships,
       }),
     )
     vi.stubGlobal('fetch', fetchMock)
@@ -147,7 +172,7 @@ describe('httpClient', () => {
     const { checkExistingSession } = await import('./httpClient')
     const result = await checkExistingSession()
 
-    expect(result).toEqual({ ok: true, memberships: ['tenant-a', 'tenant-b'] })
+    expect(result).toEqual({ ok: true, memberships })
     expect(fetchMock.mock.calls[0][0]).toContain('/auth/refresh')
   })
 

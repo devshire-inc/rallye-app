@@ -1,0 +1,103 @@
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+.pg-head h1 {
+  font-size: 20px;
+  margin: 0;
+}
+.pg-head .count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  border-radius: var(--radius-pill);
+  background: var(--sand);
+  color: var(--text-primary);
+  font-size: 12px;
+  font-weight: 700;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+.pg-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 560px;
+}
+
+.unit-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3);
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+}
+.unit-card:hover {
+  border-color: var(--teal);
+}
+
+.uc-img {
+  width: 44px;
+  height: 44px;
+  flex: none;
+  border-radius: var(--radius-input);
+  background: var(--sand);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+.uw {
+  flex: 1;
+  min-width: 0;
+}
+.un {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+.um {
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-flex;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+.badge-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.badge-muted {
+  background: var(--sand);
+  color: var(--text-muted);
+}

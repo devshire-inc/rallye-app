@@ -6,10 +6,13 @@ import DashboardPage from './pages/DashboardPage'
 import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
 import { OAuthCallback } from './pages/OAuthCallback'
+import ProfilePage from './pages/Profile/ProfilePage'
 import { ResetPassword } from './pages/ResetPassword'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
+import NewUnitPage from './pages/Units/NewUnitPage'
+import UnitsPage from './pages/Units/UnitsPage'
 import { VerifyEmailPage } from './pages/VerifyEmail/VerifyEmailPage'
 import { VisitorRequestPage } from './pages/VisitorRequest/VisitorRequestPage'
 import { VisitorVerifyPage } from './pages/VisitorVerify/VisitorVerifyPage'
@@ -54,6 +57,11 @@ function AppRoutes() {
       <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route path="/s1" element={<S1Page />} />
       <Route path="/dashboard" element={<DashboardPage />} />
+      {/* PF3/OW2/OW3 — story BEAC-1680 (BEAC-1832): shell mínima de perfil e
+          o fluxo de criação de Unit adicional em rede existente. */}
+      <Route path="/perfil" element={<ProfilePage />} />
+      <Route path="/tenants/:tenantId/units" element={<UnitsPage />} />
+      <Route path="/tenants/:tenantId/units/new" element={<NewUnitPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />
