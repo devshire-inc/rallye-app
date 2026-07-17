@@ -1,13 +1,17 @@
 import { useEffect } from 'react'
 import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'
+import { PermissionsProvider } from './context/PermissionsContext'
 import { SESSION_EXPIRED_EVENT } from './lib/httpClient'
 import { CadastroPage } from './pages/cadastro/CadastroPage'
 import DashboardPage from './pages/DashboardPage'
 import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
+import MembersPage from './pages/Members/MembersPage'
 import { OAuthCallback } from './pages/OAuthCallback'
 import ProfilePage from './pages/Profile/ProfilePage'
 import { ResetPassword } from './pages/ResetPassword'
+import RoleAuditPage from './pages/RoleAudit/RoleAuditPage'
+import RolesPage from './pages/Roles/RolesPage'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
@@ -60,8 +64,20 @@ function AppRoutes() {
       {/* PF3/OW2/OW3 — story BEAC-1680 (BEAC-1832): shell mínima de perfil e
           o fluxo de criação de Unit adicional em rede existente. */}
       <Route path="/perfil" element={<ProfilePage />} />
+      {/* BEAC-1844/1845 (story BEAC-1686, "Aba Papéis em C3: atribuição de
+          papel a usuário"): unit-scoped, mesma forma da rota do endpoint
+          que consome (GET/PATCH /units/{id}/members). */}
+      <Route path="/units/:unitId/members" element={<MembersPage />} />
+      {/* BEAC-1847/1848 (story BEAC-1687, "Aba Auditoria em C3: timeline de
+          mudanças de papel"): unit-scoped, mesma forma da rota do endpoint
+          que consome (GET /units/{id}/role-audit-log). */}
+      <Route path="/units/:unitId/role-audit-log" element={<RoleAuditPage />} />
       <Route path="/tenants/:tenantId/units" element={<UnitsPage />} />
       <Route path="/tenants/:tenantId/units/new" element={<NewUnitPage />} />
+      {/* C3 — Papéis e permissões (BEAC-1843, story BEAC-1684). Rota
+          unit-scoped (não tenant-scoped): espelha o endpoint que ela
+          consome, POST/GET/PATCH /units/{id}/roles (BEAC-1842). */}
+      <Route path="/units/:unitId/roles" element={<RolesPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />
@@ -74,7 +90,13 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      {/* PermissionsProvider (BEAC-1841) precisa envolver toda a árvore de
+          rotas autenticadas: usePermission é o mecanismo de UI de permissão
+          do qual todo outro épico/feature depende, então nenhuma tela pode
+          ficar fora do seu alcance. */}
+      <PermissionsProvider>
+        <AppRoutes />
+      </PermissionsProvider>
     </BrowserRouter>
   )
 }

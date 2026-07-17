@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { BottomSheet } from '../components/BottomSheet/BottomSheet'
 import { EnterArenaSheet } from '../components/EnterArenaSheet/EnterArenaSheet'
+import { usePermissionsContext } from '../hooks/usePermissionsContext'
 import { accessMembership, listMyMemberships, type MembershipListItem } from '../lib/api'
 import { dashboardPathForRole } from '../lib/dashboardTarget'
 import { sportCssVar, sportLabel } from '../lib/sports'
@@ -62,15 +63,19 @@ function sportSlugs(sportsOffered: unknown): string[] {
  */
 export default function S1Page() {
   const navigate = useNavigate()
+  const { refetch: refetchPermissions } = usePermissionsContext()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [sheetOpen, setSheetOpen] = useState(false)
   const [confirmation, setConfirmation] = useState<string | null>(null)
   const [enteringUnitId, setEnteringUnitId] = useState<string | null>(null)
 
-  // Tocar num card (ou o pulo automático de "só 1 membership") chamam o
-  // mesmo caminho: marca last_accessed_at (best-effort — uma falha nessa
-  // chamada de bookkeeping não deve travar o usuário do lado de fora da
-  // arena) e navega pro dashboard do role NAQUELA unit.
+  // Tocar num card (ou o pulo automático de "só 1 membership") é a troca de
+  // unit ativa (AC de BEAC-1841): marca last_accessed_at (best-effort — uma
+  // falha nessa chamada de bookkeeping não deve travar o usuário do lado de
+  // fora da arena), re-busca GET /me/permissions da NOVA unit e só então
+  // navega — nessa ordem, pra garantir que o dashboard da nova unit nunca
+  // renderiza com o cache de permissions da unit anterior (AC: "antes de
+  // qualquer tela da nova unit renderizar").
   const enterMembership = useCallback(
     async (membership: MembershipListItem) => {
       setEnteringUnitId(membership.unitId)
@@ -79,9 +84,10 @@ export default function S1Page() {
       } catch {
         // ver comentário acima — best-effort.
       }
+      await refetchPermissions()
       navigate(dashboardPathForRole(membership.role), { replace: true })
     },
-    [navigate],
+    [navigate, refetchPermissions],
   )
 
   // Carga "inicial" (mount + botão Retry): se a resposta tiver exatamente 1
