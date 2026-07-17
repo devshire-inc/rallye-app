@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import { OAuthCallback } from './pages/OAuthCallback'
 import ProfilePage from './pages/Profile/ProfilePage'
 import { ResetPassword } from './pages/ResetPassword'
+import RoleAuditPage from './pages/RoleAudit/RoleAuditPage'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
@@ -60,6 +61,10 @@ function AppRoutes() {
       {/* PF3/OW2/OW3 — story BEAC-1680 (BEAC-1832): shell mínima de perfil e
           o fluxo de criação de Unit adicional em rede existente. */}
       <Route path="/perfil" element={<ProfilePage />} />
+      {/* BEAC-1847/1848 (story BEAC-1687, "Aba Auditoria em C3: timeline de
+          mudanças de papel"): unit-scoped, mesma forma da rota do endpoint
+          que consome (GET /units/{id}/role-audit-log). */}
+      <Route path="/units/:unitId/role-audit-log" element={<RoleAuditPage />} />
       <Route path="/tenants/:tenantId/units" element={<UnitsPage />} />
       <Route path="/tenants/:tenantId/units/new" element={<NewUnitPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}

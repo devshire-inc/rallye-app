@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import LogoutButton from '../../components/LogoutButton'
-import { getActiveTenantId } from '../../lib/tenantContext'
+import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
 import './ProfilePage.css'
 
@@ -21,9 +21,17 @@ import './ProfilePage.css'
  * mostrado aqui (igual ao protótipo, que também sempre mostra pra Tenant
  * Owner) — a gate real de "só se for Tenant Owner" fica pendente da mesma
  * decisão de arquitetura.
+ *
+ * "Histórico" (BEAC-1848, story BEAC-1687): entrada escolhida por esta task
+ * para a aba de auditoria de troca de papel — mesmo raciocínio de "Membros
+ * e papéis" em BEAC-1845 (C3/RolesPage não existe neste branch, BEAC-1684
+ * não está mergeada, então um item de PF3 é o caminho que não depende de
+ * reproduzir C3 inteira). Mesmo padrão condicional de `getActiveUnitId`:
+ * só vira link real quando há uma unit ativa conhecida, senão fica inerte.
  */
 export default function ProfilePage() {
   const tenantId = getActiveTenantId()
+  const unitId = getActiveUnitId()
 
   return (
     <AppShell orgLabel="Arena Areia Dourada" userLabel="Perfil">
@@ -41,6 +49,18 @@ export default function ProfilePage() {
             <MenuRow label="Configurações da arena" />
             <MenuRow label="Quadras" />
             <MenuRow label="Papéis e permissões" />
+            {unitId ? (
+              <Link
+                className="menu-row"
+                to={`/units/${unitId}/role-audit-log`}
+                data-testid="menu-historico"
+              >
+                <span>Histórico</span>
+                <span className="chev">›</span>
+              </Link>
+            ) : (
+              <MenuRow label="Histórico" />
+            )}
             <Link
               className="menu-row"
               to={`/tenants/${tenantId ?? 'unknown'}/units`}
