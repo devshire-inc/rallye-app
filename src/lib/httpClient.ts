@@ -24,6 +24,15 @@ import {
 import { type Membership, setSessionMemberships } from './tenantContext'
 
 export const SESSION_EXPIRED_EVENT = 'rallye:session-expired'
+/**
+ * Disparado sempre que uma sessão (memberships) é persistida com sucesso —
+ * login e checkExistingSession (refresh no boot), ver persistSessionResponse
+ * abaixo. PermissionsContext (BEAC-1841) escuta este evento para buscar
+ * GET /me/permissions assim que uma sessão fica disponível, sem acoplar
+ * este módulo (livre de React) a nenhum contexto/estado de UI — mesmo
+ * padrão já usado por SESSION_EXPIRED_EVENT/App.tsx.
+ */
+export const SESSION_ESTABLISHED_EVENT = 'rallye:session-established'
 
 const AUTH_LOGIN_PATH = '/auth/login'
 const AUTH_REFRESH_PATH = '/auth/refresh'
@@ -52,11 +61,18 @@ function dispatchSessionExpired(): void {
   }
 }
 
+function dispatchSessionEstablished(): void {
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new Event(SESSION_ESTABLISHED_EVENT))
+  }
+}
+
 async function persistSessionResponse(data: SessionResponse): Promise<void> {
   // Memberships (com tenant_id) viajam no corpo JSON em ambas plataformas —
   // persistidas sempre, para que tenantContext.getActiveTenantId() as
   // encontre independentemente de web/mobile.
   setSessionMemberships(data.memberships ?? [])
+  dispatchSessionEstablished()
 
   if (!isNativePlatform()) return
   await Promise.all([setSessionToken(data.session_token), setRefreshToken(data.refresh_token)])

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'
+import { PermissionsProvider } from './context/PermissionsContext'
 import { SESSION_EXPIRED_EVENT } from './lib/httpClient'
 import { CadastroPage } from './pages/cadastro/CadastroPage'
 import DashboardPage from './pages/DashboardPage'
@@ -74,7 +75,13 @@ function AppRoutes() {
 function App() {
   return (
     <BrowserRouter>
-      <AppRoutes />
+      {/* PermissionsProvider (BEAC-1841) precisa envolver toda a árvore de
+          rotas autenticadas: usePermission é o mecanismo de UI de permissão
+          do qual todo outro épico/feature depende, então nenhuma tela pode
+          ficar fora do seu alcance. */}
+      <PermissionsProvider>
+        <AppRoutes />
+      </PermissionsProvider>
     </BrowserRouter>
   )
 }

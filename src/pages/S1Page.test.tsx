@@ -1,10 +1,34 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { PermissionsProvider } from '../context/PermissionsContext'
 import * as api from '../lib/api'
 import type { MembershipListItem } from '../lib/api'
+import * as permissionsApi from '../lib/api/permissions'
 import S1Page from './S1Page'
+
+beforeEach(() => {
+  // enterMembership (troca de unit ativa, BEAC-1841) re-busca
+  // GET /me/permissions antes de navegar — as suítes deste arquivo testam
+  // o fluxo de S1 em si, não PermissionsContext (ver
+  // src/context/PermissionsContext.test.tsx), então a chamada real de rede
+  // é sempre mockada aqui pra não vazar `fetch` real num teste de unidade.
+  vi.spyOn(permissionsApi, 'fetchMePermissions').mockResolvedValue({
+    kind: 'full',
+    permissions: {
+      alunos: [],
+      professores: [],
+      agenda: [],
+      financeiro: [],
+      torneios: [],
+      loja: [],
+      config: [],
+      relatorios: [],
+      quadras: [],
+    },
+  })
+})
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -27,12 +51,14 @@ function membership(overrides: Partial<MembershipListItem> = {}): MembershipList
 
 function renderPage() {
   return render(
-    <MemoryRouter initialEntries={['/s1']}>
-      <Routes>
-        <Route path="/s1" element={<S1Page />} />
-        <Route path="/dashboard" element={<div>Dashboard placeholder</div>} />
-      </Routes>
-    </MemoryRouter>,
+    <PermissionsProvider>
+      <MemoryRouter initialEntries={['/s1']}>
+        <Routes>
+          <Route path="/s1" element={<S1Page />} />
+          <Route path="/dashboard" element={<div>Dashboard placeholder</div>} />
+        </Routes>
+      </MemoryRouter>
+    </PermissionsProvider>,
   )
 }
 
@@ -175,6 +201,53 @@ describe('S1Page — 2+ memberships', () => {
     await user.click(card)
 
     await waitFor(() => expect(accessSpy).toHaveBeenCalledWith('unit-aluno'))
+    expect(await screen.findByText('Dashboard placeholder')).toBeInTheDocument()
+  })
+
+  // AC de BEAC-1841: "QUANDO o usuário troca de unit ativa, O SISTEMA DEVE
+  // re-buscar /me/permissions e atualizar o contexto antes de qualquer
+  // tela da nova unit renderizar" — prova a ORDEM, não só que a chamada
+  // aconteceu em algum momento: o dashboard da nova unit não pode aparecer
+  // antes de GET /me/permissions resolver.
+  it('re-fetches GET /me/permissions and waits for it before navigating to the new unit dashboard', async () => {
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue(twoMemberships())
+    vi.spyOn(api, 'accessMembership').mockResolvedValue(undefined)
+    let resolvePermissions: (() => void) | undefined
+    const permissionsSpy = vi
+      .spyOn(permissionsApi, 'fetchMePermissions')
+      .mockReturnValue(
+        new Promise((resolve) => {
+          resolvePermissions = () =>
+            resolve({
+              kind: 'full',
+              permissions: {
+                alunos: [],
+                professores: [],
+                agenda: [],
+                financeiro: [],
+                torneios: [],
+                loja: [],
+                config: [],
+                relatorios: [],
+                quadras: [],
+              },
+            })
+        }),
+      )
+    const user = userEvent.setup()
+
+    renderPage()
+
+    const card = await screen.findByRole('button', { name: /praia clube ipanema/i })
+    await user.click(card)
+
+    await waitFor(() => expect(permissionsSpy).toHaveBeenCalledTimes(1))
+    // GET /me/permissions ainda não resolveu — a tela da nova unit não pode
+    // ter aparecido ainda.
+    expect(screen.queryByText('Dashboard placeholder')).not.toBeInTheDocument()
+
+    resolvePermissions?.()
+
     expect(await screen.findByText('Dashboard placeholder')).toBeInTheDocument()
   })
 })
