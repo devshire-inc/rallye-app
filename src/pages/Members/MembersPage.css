@@ -1,0 +1,203 @@
+/* Classes traduzidas diretamente do CSS real dos dois Artifacts lidos para
+   esta story (ver comentário de pacote em MembersPage.tsx) — mesmos nomes de
+   classe, mesmos tokens (var(--surface)/var(--border)/var(--text-muted)/etc.
+   já definidos em src/index.css), sem paráfrase. */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+  flex-wrap: wrap;
+}
+.pg-head h1 {
+  font-size: 20px;
+  margin: 0;
+}
+.pg-head .back {
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 560px;
+}
+
+/* .searchbar — AL1 (scr-al1): placeholder "Nome, e-mail ou telefone...". */
+.searchbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0 14px;
+  min-height: 40px;
+  max-width: 340px;
+  flex: 1;
+}
+.searchbar input {
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  flex: 1;
+  outline: none;
+}
+
+.ag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* .p-row/.avatar-sm/.pw/.nm/.mt/.tail — AL1 (scr-al1), linhas ~740-744 do
+   Artifact "Rallye — Pessoas & Turmas": linha de lista clicável. */
+.p-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: border-color var(--motion-fast);
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.p-row:hover {
+  border-color: var(--teal);
+}
+.p-row .avatar-sm {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  flex: none;
+}
+.p-row .pw {
+  flex: 1;
+  min-width: 0;
+}
+.p-row .pw .nm {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.p-row .pw .mt {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.p-row .tail {
+  text-align: right;
+  flex: none;
+}
+
+/* .badge/.badge-neutral — não existiam ainda neste app (só inline style no
+   protótipo); reproduzidas como classes reais, mesmos valores visuais.
+   Neutra (não success/error): o badge aqui é o NOME do papel atual, não um
+   estado ativo/inativo. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+.badge-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}
+
+.hint-note {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: var(--space-4);
+}
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+/* Conteúdo do BottomSheet de troca de papel (RolePickerSheet.tsx) — reusa
+   .role-row/.rn/.badge-neutral ("Sistema") do padrão de C3 (scr-c3),
+   .menu-list já usado por outras telas administrativas deste app. */
+.role-picker {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.role-picker__head .nm {
+  font-size: 15px;
+  font-weight: 600;
+}
+.role-picker__head .mt {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.role-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.role-row:last-child {
+  border-bottom: none;
+}
+.role-row--clickable {
+  cursor: pointer;
+}
+.role-row--clickable:hover:not(:disabled) {
+  background: var(--sand);
+}
+.role-row:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.role-row .rn {
+  font-size: 13.5px;
+  font-weight: 600;
+}

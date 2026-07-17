@@ -10,10 +10,20 @@ import './ProfilePage.css'
  * relatório de execução de BEAC-1680). Markup segue scr-pf3 do protótipo
  * real ("Rallye — Perfil & Config · Saque Noturno"): cabeçalho de perfil +
  * dois grupos de menu (Gestão / Conta). Escopo mínimo: só os itens que já
- * têm destino real nesta story (Minhas unidades -> OW2, e agora Papéis e
- * permissões -> C3, BEAC-1843) ou que fazem sentido como placeholder ficam
- * aqui — Config da arena (C1) e Quadras (C2) são de outras stories e
- * continuam inertes.
+ * têm destino real nesta story (Minhas unidades -> OW2, Papéis e permissões
+ * -> C3/RolesPage, BEAC-1843, e Membros e papéis -> MembersPage, BEAC-1845)
+ * ou que fazem sentido como placeholder ficam aqui — Config da arena (C1) e
+ * Quadras (C2) são de outras stories e continuam inertes.
+ *
+ * "Membros e papéis" (BEAC-1845, story BEAC-1686): entrada escolhida por
+ * essa task para a tela de membros/atribuição de papel — decisão explícita
+ * (a task deixa em aberto "aba Papéis em C3 ou novo item em PF3"; a
+ * reconciliação deste épico manteve os dois itens separados em vez de
+ * dobrar "Membros e papéis" dentro de C3/RolesPage, já que nenhuma das duas
+ * stories foi escrita esperando essa fusão — ver comentário de pacote em
+ * MembersPage.tsx). Mesmo padrão condicional de "Minhas unidades"/
+ * `getActiveTenantId`: só vira link real quando há uma unit ativa conhecida
+ * (`getActiveUnitId`), senão fica inerte — evita link morto.
  *
  * "Minhas unidades" (decisão 4): deveria aparecer só para o Tenant Owner —
  * mas o rallye-app ainda não tem, hoje, nenhuma forma de saber o papel do
@@ -21,11 +31,11 @@ import './ProfilePage.css'
  * gap reportado no relatório de execução). Por isso o item é sempre
  * mostrado aqui (igual ao protótipo, que também sempre mostra pra Tenant
  * Owner) — a gate real de "só se for Tenant Owner" fica pendente da mesma
- * decisão de arquitetura. "Papéis e permissões" (BEAC-1843) herda a mesma
- * limitação: sempre mostrado, sem gate por permission real ainda (o próprio
- * backend, via middleware.TenantContextForUnit + config:write, é quem
- * efetivamente barra quem não pode — a UI só evita link morto quando há
- * unit ativa).
+ * decisão de arquitetura. "Papéis e permissões" (BEAC-1843) e "Membros e
+ * papéis" (BEAC-1845) herdam a mesma limitação: sempre mostrados, sem gate
+ * por permission real ainda (o próprio backend, via
+ * middleware.TenantContextForUnit + config:write, é quem efetivamente barra
+ * quem não pode — a UI só evita link morto quando há unit ativa).
  */
 export default function ProfilePage() {
   const tenantId = getActiveTenantId()
@@ -57,6 +67,18 @@ export default function ProfilePage() {
               </Link>
             ) : (
               <MenuRow label="Papéis e permissões" />
+            )}
+            {unitId ? (
+              <Link
+                className="menu-row"
+                to={`/units/${unitId}/members`}
+                data-testid="menu-membros-papeis"
+              >
+                <span>Membros e papéis</span>
+                <span className="chev">›</span>
+              </Link>
+            ) : (
+              <MenuRow label="Membros e papéis" />
             )}
             <Link
               className="menu-row"

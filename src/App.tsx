@@ -6,6 +6,7 @@ import { CadastroPage } from './pages/cadastro/CadastroPage'
 import DashboardPage from './pages/DashboardPage'
 import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
+import MembersPage from './pages/Members/MembersPage'
 import { OAuthCallback } from './pages/OAuthCallback'
 import ProfilePage from './pages/Profile/ProfilePage'
 import { ResetPassword } from './pages/ResetPassword'
@@ -62,6 +63,10 @@ function AppRoutes() {
       {/* PF3/OW2/OW3 — story BEAC-1680 (BEAC-1832): shell mínima de perfil e
           o fluxo de criação de Unit adicional em rede existente. */}
       <Route path="/perfil" element={<ProfilePage />} />
+      {/* BEAC-1844/1845 (story BEAC-1686, "Aba Papéis em C3: atribuição de
+          papel a usuário"): unit-scoped, mesma forma da rota do endpoint
+          que consome (GET/PATCH /units/{id}/members). */}
+      <Route path="/units/:unitId/members" element={<MembersPage />} />
       <Route path="/tenants/:tenantId/units" element={<UnitsPage />} />
       <Route path="/tenants/:tenantId/units/new" element={<NewUnitPage />} />
       {/* C3 — Papéis e permissões (BEAC-1843, story BEAC-1684). Rota

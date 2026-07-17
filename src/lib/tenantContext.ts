@@ -66,15 +66,15 @@ export function setActiveTenantId(tenantId: string): void {
 }
 
 /**
- * Retorna o unit_id ativo do usuário logado (BEAC-1843, story BEAC-1684:
- * "CRUD de papel customizado com checklist de módulos"), mesma derivação de
- * getActiveTenantId acima (primeira membership persistida por
- * setSessionMemberships) — não existia ainda um equivalente "unit ativa"
- * neste módulo (só tenant), e a tela C3 (Papéis e permissões) precisa de um
- * unit_id para montar sua rota `/units/:unitId/roles`, que espelha o
- * endpoint unit-scoped `/units/{id}/roles` (BEAC-1842). Sem override manual
- * dedicado (ao contrário de setActiveTenantId): nenhum consumidor desta
- * função precisou de um ainda — adicionar se/quando um caso de uso pedir.
+ * Retorna o unit_id ativo do usuário logado (BEAC-1843/BEAC-1845, stories
+ * BEAC-1684 e BEAC-1686), mesma derivação de getActiveTenantId acima
+ * (primeira membership persistida por setSessionMemberships) — não existia
+ * ainda um equivalente "unit ativa" neste módulo (só tenant). Consumido pela
+ * tela C3 (Papéis e permissões, rota `/units/:unitId/roles`) e pela tela de
+ * membros da unidade (rota `/units/:unitId/members`), ambas unit-scoped no
+ * backend. Sem override manual dedicado (ao contrário de setActiveTenantId):
+ * nenhum consumidor desta função precisou de um ainda — adicionar se/quando
+ * um caso de uso pedir.
  */
 export function getActiveUnitId(): string | null {
   if (typeof window === 'undefined') return null
