@@ -8,6 +8,7 @@ import LoginPage from './pages/LoginPage'
 import { OAuthCallback } from './pages/OAuthCallback'
 import ProfilePage from './pages/Profile/ProfilePage'
 import { ResetPassword } from './pages/ResetPassword'
+import RolesPage from './pages/Roles/RolesPage'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
@@ -62,6 +63,10 @@ function AppRoutes() {
       <Route path="/perfil" element={<ProfilePage />} />
       <Route path="/tenants/:tenantId/units" element={<UnitsPage />} />
       <Route path="/tenants/:tenantId/units/new" element={<NewUnitPage />} />
+      {/* C3 — Papéis e permissões (BEAC-1843, story BEAC-1684). Rota
+          unit-scoped (não tenant-scoped): espelha o endpoint que ela
+          consome, POST/GET/PATCH /units/{id}/roles (BEAC-1842). */}
+      <Route path="/units/:unitId/roles" element={<RolesPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />

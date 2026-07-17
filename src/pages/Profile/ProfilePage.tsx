@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import LogoutButton from '../../components/LogoutButton'
-import { getActiveTenantId } from '../../lib/tenantContext'
+import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
 import './ProfilePage.css'
 
@@ -10,9 +10,10 @@ import './ProfilePage.css'
  * relatório de execução de BEAC-1680). Markup segue scr-pf3 do protótipo
  * real ("Rallye — Perfil & Config · Saque Noturno"): cabeçalho de perfil +
  * dois grupos de menu (Gestão / Conta). Escopo mínimo: só os itens que já
- * têm destino real nesta story (Minhas unidades -> OW2) ou que fazem
- * sentido como placeholder ficam aqui — Config da arena (C1), Quadras (C2)
- * e Papéis e permissões (C3) são de outras stories e ficam inertes.
+ * têm destino real nesta story (Minhas unidades -> OW2, e agora Papéis e
+ * permissões -> C3, BEAC-1843) ou que fazem sentido como placeholder ficam
+ * aqui — Config da arena (C1) e Quadras (C2) são de outras stories e
+ * continuam inertes.
  *
  * "Minhas unidades" (decisão 4): deveria aparecer só para o Tenant Owner —
  * mas o rallye-app ainda não tem, hoje, nenhuma forma de saber o papel do
@@ -20,10 +21,15 @@ import './ProfilePage.css'
  * gap reportado no relatório de execução). Por isso o item é sempre
  * mostrado aqui (igual ao protótipo, que também sempre mostra pra Tenant
  * Owner) — a gate real de "só se for Tenant Owner" fica pendente da mesma
- * decisão de arquitetura.
+ * decisão de arquitetura. "Papéis e permissões" (BEAC-1843) herda a mesma
+ * limitação: sempre mostrado, sem gate por permission real ainda (o próprio
+ * backend, via middleware.TenantContextForUnit + config:write, é quem
+ * efetivamente barra quem não pode — a UI só evita link morto quando há
+ * unit ativa).
  */
 export default function ProfilePage() {
   const tenantId = getActiveTenantId()
+  const unitId = getActiveUnitId()
 
   return (
     <AppShell orgLabel="Arena Areia Dourada" userLabel="Perfil">
@@ -40,7 +46,18 @@ export default function ProfilePage() {
           <div className="menu-list">
             <MenuRow label="Configurações da arena" />
             <MenuRow label="Quadras" />
-            <MenuRow label="Papéis e permissões" />
+            {unitId ? (
+              <Link
+                className="menu-row"
+                to={`/units/${unitId}/roles`}
+                data-testid="menu-papeis-permissoes"
+              >
+                <span>Papéis e permissões</span>
+                <span className="chev">›</span>
+              </Link>
+            ) : (
+              <MenuRow label="Papéis e permissões" />
+            )}
             <Link
               className="menu-row"
               to={`/tenants/${tenantId ?? 'unknown'}/units`}
