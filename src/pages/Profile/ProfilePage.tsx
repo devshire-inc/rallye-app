@@ -31,11 +31,12 @@ import './ProfilePage.css'
  * gap reportado no relatório de execução). Por isso o item é sempre
  * mostrado aqui (igual ao protótipo, que também sempre mostra pra Tenant
  * Owner) — a gate real de "só se for Tenant Owner" fica pendente da mesma
- * decisão de arquitetura. "Papéis e permissões" (BEAC-1843) e "Membros e
- * papéis" (BEAC-1845) herdam a mesma limitação: sempre mostrados, sem gate
- * por permission real ainda (o próprio backend, via
- * middleware.TenantContextForUnit + config:write, é quem efetivamente barra
- * quem não pode — a UI só evita link morto quando há unit ativa).
+ * decisão de arquitetura. "Papéis e permissões" (BEAC-1843), "Membros e
+ * papéis" (BEAC-1845) e "Histórico" (BEAC-1848) herdam a mesma limitação:
+ * sempre mostrados, sem gate por permission real ainda (o próprio backend,
+ * via middleware.TenantContextForUnit + config:write/config:read, é quem
+ * efetivamente barra quem não pode — a UI só evita link morto quando há
+ * unit ativa).
  */
 export default function ProfilePage() {
   const tenantId = getActiveTenantId()
@@ -79,6 +80,18 @@ export default function ProfilePage() {
               </Link>
             ) : (
               <MenuRow label="Membros e papéis" />
+            )}
+            {unitId ? (
+              <Link
+                className="menu-row"
+                to={`/units/${unitId}/role-audit-log`}
+                data-testid="menu-historico"
+              >
+                <span>Histórico</span>
+                <span className="chev">›</span>
+              </Link>
+            ) : (
+              <MenuRow label="Histórico" />
             )}
             <Link
               className="menu-row"
