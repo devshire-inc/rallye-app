@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as rolesApi from '../../lib/api/roles'
 import type { Role } from '../../lib/api/roles'
+import * as roleAuditApi from '../../lib/api/roleAudit'
 import RolesPage from './RolesPage'
 
 afterEach(() => {
@@ -189,6 +190,11 @@ describe('RolesPage — editing a custom role', () => {
 describe('RolesPage — tabs', () => {
   it('switches between Papéis and Histórico without breaking the tab structure', async () => {
     vi.spyOn(rolesApi, 'listRoles').mockResolvedValue({ ok: true, roles: [systemRole()] })
+    vi.spyOn(roleAuditApi, 'listRoleAuditLog').mockResolvedValue({
+      ok: true,
+      entries: [],
+      nextOffset: null,
+    })
     const user = userEvent.setup()
 
     renderPage()
@@ -200,6 +206,44 @@ describe('RolesPage — tabs', () => {
 
     expect(screen.getByRole('tab', { name: 'Histórico' })).toHaveAttribute('aria-selected', 'true')
     expect(screen.queryByText('Admin')).not.toBeInTheDocument()
+  })
+
+  // Reconciliação do épico: a aba Histórico costumava ser um placeholder
+  // morto ("outra story, BEAC-1848") porque BEAC-1687 foi construída num
+  // branch isolado, sem visibilidade desta tela. Este teste prova que a
+  // integração aconteceu de verdade — RoleAuditPanel renderiza conteúdo
+  // real dentro da aba, não o texto placeholder antigo.
+  it('renders real RoleAuditPanel content in the Histórico tab, not a stub placeholder', async () => {
+    vi.spyOn(rolesApi, 'listRoles').mockResolvedValue({ ok: true, roles: [systemRole()] })
+    const auditSpy = vi.spyOn(roleAuditApi, 'listRoleAuditLog').mockResolvedValue({
+      ok: true,
+      entries: [
+        {
+          id: 'entry-1',
+          createdAt: new Date().toISOString(),
+          actor: { id: 'user-admin', name: 'Rafael Andrade' },
+          target: { id: 'user-target', name: 'Juliana Santos' },
+          oldRole: { id: 'role-old', name: 'Estagiária' },
+          newRole: { id: 'role-new', name: 'Recepção' },
+          text: 'Rafael Andrade alterou o papel de Juliana Santos: Estagiária → Recepção',
+        },
+      ],
+      nextOffset: null,
+    })
+    const user = userEvent.setup()
+
+    renderPage()
+    await screen.findByText('Admin')
+
+    await user.click(screen.getByRole('tab', { name: 'Histórico' }))
+
+    expect(auditSpy).toHaveBeenCalledWith('unit-1', { limit: 20 })
+    expect(
+      await screen.findByText(
+        'Rafael Andrade alterou o papel de Juliana Santos: Estagiária → Recepção',
+      ),
+    ).toBeInTheDocument()
+    expect(screen.queryByText(/outra story/i)).not.toBeInTheDocument()
   })
 })
 
