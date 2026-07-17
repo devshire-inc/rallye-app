@@ -64,3 +64,21 @@ export function setActiveTenantId(tenantId: string): void {
   if (typeof window === 'undefined') return
   window.sessionStorage.setItem(ACTIVE_TENANT_OVERRIDE_KEY, tenantId)
 }
+
+/**
+ * Retorna o unit_id ativo do usuário logado (BEAC-1845, story BEAC-1686:
+ * "Aba Papéis em C3: atribuição de papel a usuário"), mesma derivação de
+ * getActiveTenantId acima (primeira membership persistida por
+ * setSessionMemberships) — não existia ainda um equivalente "unit ativa"
+ * neste módulo (só tenant), e a tela de membros da unidade precisa de um
+ * unit_id para montar sua rota `/units/:unitId/members`, que espelha o
+ * endpoint unit-scoped `/units/{id}/members` (BEAC-1844). Sem override
+ * manual dedicado (ao contrário de setActiveTenantId): nenhum consumidor
+ * desta função precisou de um ainda — adicionar se/quando um caso de uso
+ * pedir.
+ */
+export function getActiveUnitId(): string | null {
+  if (typeof window === 'undefined') return null
+  const [firstMembership] = readSessionMemberships()
+  return firstMembership?.unit_id ?? null
+}

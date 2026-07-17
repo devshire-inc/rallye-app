@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import LogoutButton from '../../components/LogoutButton'
-import { getActiveTenantId } from '../../lib/tenantContext'
+import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
 import './ProfilePage.css'
 
@@ -10,9 +10,20 @@ import './ProfilePage.css'
  * relatório de execução de BEAC-1680). Markup segue scr-pf3 do protótipo
  * real ("Rallye — Perfil & Config · Saque Noturno"): cabeçalho de perfil +
  * dois grupos de menu (Gestão / Conta). Escopo mínimo: só os itens que já
- * têm destino real nesta story (Minhas unidades -> OW2) ou que fazem
- * sentido como placeholder ficam aqui — Config da arena (C1), Quadras (C2)
- * e Papéis e permissões (C3) são de outras stories e ficam inertes.
+ * têm destino real nesta story (Minhas unidades -> OW2, e agora Membros e
+ * papéis -> BEAC-1845) ou que fazem sentido como placeholder ficam aqui —
+ * Config da arena (C1), Quadras (C2) e Papéis e permissões (C3, BEAC-1684 —
+ * story irmã não mergeada neste branch) continuam inertes.
+ *
+ * "Membros e papéis" (BEAC-1845, story BEAC-1686): entrada escolhida por
+ * esta task para a tela de membros/atribuição de papel — decisão explícita
+ * (a task deixa em aberto "aba Papéis em C3 ou novo item em PF3"; C3/
+ * RolesPage não existe neste branch, BEAC-1684 não está mergeada, então um
+ * item de PF3 é o caminho que não depende de reproduzir aquela tela inteira
+ * — ver comentário de pacote em MembersPage.tsx). Mesmo padrão condicional
+ * de "Minhas unidades"/`getActiveTenantId`: só vira link real quando há uma
+ * unit ativa conhecida (`getActiveUnitId`), senão fica inerte — evita link
+ * morto.
  *
  * "Minhas unidades" (decisão 4): deveria aparecer só para o Tenant Owner —
  * mas o rallye-app ainda não tem, hoje, nenhuma forma de saber o papel do
@@ -20,10 +31,14 @@ import './ProfilePage.css'
  * gap reportado no relatório de execução). Por isso o item é sempre
  * mostrado aqui (igual ao protótipo, que também sempre mostra pra Tenant
  * Owner) — a gate real de "só se for Tenant Owner" fica pendente da mesma
- * decisão de arquitetura.
+ * decisão de arquitetura. "Membros e papéis" herda a mesma limitação: o
+ * próprio backend (middleware.TenantContextForUnit + config:write) é quem
+ * efetivamente barra quem não pode — a UI só evita link morto quando há
+ * unit ativa.
  */
 export default function ProfilePage() {
   const tenantId = getActiveTenantId()
+  const unitId = getActiveUnitId()
 
   return (
     <AppShell orgLabel="Arena Areia Dourada" userLabel="Perfil">
@@ -41,6 +56,18 @@ export default function ProfilePage() {
             <MenuRow label="Configurações da arena" />
             <MenuRow label="Quadras" />
             <MenuRow label="Papéis e permissões" />
+            {unitId ? (
+              <Link
+                className="menu-row"
+                to={`/units/${unitId}/members`}
+                data-testid="menu-membros-papeis"
+              >
+                <span>Membros e papéis</span>
+                <span className="chev">›</span>
+              </Link>
+            ) : (
+              <MenuRow label="Membros e papéis" />
+            )}
             <Link
               className="menu-row"
               to={`/tenants/${tenantId ?? 'unknown'}/units`}
