@@ -10,7 +10,6 @@ import MembersPage from './pages/Members/MembersPage'
 import { OAuthCallback } from './pages/OAuthCallback'
 import ProfilePage from './pages/Profile/ProfilePage'
 import { ResetPassword } from './pages/ResetPassword'
-import RoleAuditPage from './pages/RoleAudit/RoleAuditPage'
 import RolesPage from './pages/Roles/RolesPage'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
@@ -68,13 +67,10 @@ function AppRoutes() {
           papel a usuário"): unit-scoped, mesma forma da rota do endpoint
           que consome (GET/PATCH /units/{id}/members). */}
       <Route path="/units/:unitId/members" element={<MembersPage />} />
-      {/* BEAC-1847/1848 (story BEAC-1687, "Aba Auditoria em C3: timeline de
-          mudanças de papel"): unit-scoped, mesma forma da rota do endpoint
-          que consome (GET /units/{id}/role-audit-log). */}
-      <Route path="/units/:unitId/role-audit-log" element={<RoleAuditPage />} />
       <Route path="/tenants/:tenantId/units" element={<UnitsPage />} />
       <Route path="/tenants/:tenantId/units/new" element={<NewUnitPage />} />
-      {/* C3 — Papéis e permissões (BEAC-1843, story BEAC-1684). Rota
+      {/* C3 — Papéis e permissões (BEAC-1843, story BEAC-1684), com a aba
+          Histórico (BEAC-1848, story BEAC-1687) hospedada ao lado. Rota
           unit-scoped (não tenant-scoped): espelha o endpoint que ela
           consome, POST/GET/PATCH /units/{id}/roles (BEAC-1842). */}
       <Route path="/units/:unitId/roles" element={<RolesPage />} />

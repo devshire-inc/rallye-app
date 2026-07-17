@@ -1,10 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as roleAuditApi from '../../lib/api/roleAudit'
 import type { RoleAuditEntry } from '../../lib/api/roleAudit'
-import RoleAuditPage from './RoleAuditPage'
+import RoleAuditPanel from './RoleAuditPanel'
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -23,22 +22,20 @@ function entry(overrides: Partial<RoleAuditEntry> = {}): RoleAuditEntry {
   }
 }
 
-function renderPage(unitId = 'unit-1') {
-  return render(
-    <MemoryRouter initialEntries={[`/units/${unitId}/role-audit-log`]}>
-      <Routes>
-        <Route path="/units/:unitId/role-audit-log" element={<RoleAuditPage />} />
-        <Route path="/perfil" element={<div>Perfil placeholder</div>} />
-      </Routes>
-    </MemoryRouter>,
-  )
+// Renderiza o painel isolado, sem Router/AppShell — desde a reconciliação
+// do épico, RoleAuditPanel é hospedado por RolesPage.tsx (aba "historico"),
+// que já tem sua própria cobertura de integração (RolesPage.test.tsx,
+// describe "RolesPage — tabs"). Este arquivo cobre só o comportamento do
+// painel em si.
+function renderPanel(unitId = 'unit-1') {
+  return render(<RoleAuditPanel unitId={unitId} />)
 }
 
-describe('RoleAuditPage — loading and error', () => {
+describe('RoleAuditPanel — loading and error', () => {
   it('shows a loading status while the audit log is being fetched', () => {
     vi.spyOn(roleAuditApi, 'listRoleAuditLog').mockReturnValue(new Promise(() => {}))
 
-    renderPage()
+    renderPanel()
 
     expect(screen.getByRole('status')).toBeInTheDocument()
   })
@@ -50,7 +47,7 @@ describe('RoleAuditPage — loading and error', () => {
       error: 'internal_error',
     })
 
-    renderPage()
+    renderPanel()
 
     expect(await screen.findByRole('alert')).toHaveTextContent(
       /não foi possível carregar o histórico/i,
@@ -58,7 +55,7 @@ describe('RoleAuditPage — loading and error', () => {
   })
 })
 
-describe('RoleAuditPage — context toast (exact prototype copy)', () => {
+describe('RoleAuditPanel — context toast (exact prototype copy)', () => {
   it('shows the neutral toast with the exact copy from the real prototype', async () => {
     vi.spyOn(roleAuditApi, 'listRoleAuditLog').mockResolvedValue({
       ok: true,
@@ -66,7 +63,7 @@ describe('RoleAuditPage — context toast (exact prototype copy)', () => {
       nextOffset: null,
     })
 
-    renderPage()
+    renderPanel()
 
     expect(
       await screen.findByText(
@@ -76,7 +73,7 @@ describe('RoleAuditPage — context toast (exact prototype copy)', () => {
   })
 })
 
-describe('RoleAuditPage — timeline rendering', () => {
+describe('RoleAuditPanel — timeline rendering', () => {
   it('renders each entry with its backend-formatted text and a relative timestamp', async () => {
     const recent = entry({ createdAt: new Date().toISOString() })
     vi.spyOn(roleAuditApi, 'listRoleAuditLog').mockResolvedValue({
@@ -85,7 +82,7 @@ describe('RoleAuditPage — timeline rendering', () => {
       nextOffset: null,
     })
 
-    renderPage()
+    renderPanel()
 
     expect(
       await screen.findByText(
@@ -102,7 +99,7 @@ describe('RoleAuditPage — timeline rendering', () => {
       nextOffset: null,
     })
 
-    renderPage()
+    renderPanel()
 
     expect(await screen.findByText(/nenhuma mudança de papel registrada/i)).toBeInTheDocument()
   })
@@ -114,7 +111,7 @@ describe('RoleAuditPage — timeline rendering', () => {
       nextOffset: null,
     })
 
-    renderPage()
+    renderPanel()
     await screen.findByText(/Rafael Andrade alterou o papel de Juliana Santos/)
 
     expect(screen.queryByRole('button', { name: /editar/i })).not.toBeInTheDocument()
@@ -123,7 +120,7 @@ describe('RoleAuditPage — timeline rendering', () => {
   })
 })
 
-describe('RoleAuditPage — pagination', () => {
+describe('RoleAuditPanel — pagination', () => {
   it('shows a "Carregar mais" button when there is a next page, and appends results on click', async () => {
     const listSpy = vi
       .spyOn(roleAuditApi, 'listRoleAuditLog')
@@ -144,7 +141,7 @@ describe('RoleAuditPage — pagination', () => {
       })
     const user = userEvent.setup()
 
-    renderPage()
+    renderPanel()
     await screen.findByText(/Rafael Andrade alterou o papel de Juliana Santos/)
 
     const loadMore = screen.getByRole('button', { name: /carregar mais/i })
@@ -169,7 +166,7 @@ describe('RoleAuditPage — pagination', () => {
       nextOffset: null,
     })
 
-    renderPage()
+    renderPanel()
     await screen.findByText(/Rafael Andrade alterou o papel de Juliana Santos/)
 
     expect(screen.queryByRole('button', { name: /carregar mais/i })).not.toBeInTheDocument()

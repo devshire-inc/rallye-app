@@ -5,6 +5,7 @@ import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { listRoles, type Role } from '../../lib/api/roles'
 import { permissionSummary } from './moduleCatalog'
 import { RoleFormSheet } from './RoleFormSheet'
+import RoleAuditPanel from '../RoleAudit/RoleAuditPanel'
 import '../../components/AuthLayout/AuthLayout.css'
 import './RolesPage.css'
 
@@ -23,15 +24,21 @@ const NEUTRAL_TOAST_TEXT =
   'Permissões granulares em 9 módulos: alunos, professores, agenda, financeiro, torneios, loja, config, relatórios e quadras. 1 papel por pessoa por arena.'
 const HINT_NOTE_TEXT =
   'Papéis personalizados são da arena (não vazam pra outras). Tocar num personalizado abre o checklist de permissões por módulo. Toda mudança de papel/permissão fica no Histórico: quem, quando, antes/depois.'
+const HISTORICO_HINT_NOTE_TEXT =
+  'Registro de auditoria imutável — sem edição ou exclusão, nesta tela ou em qualquer outra.'
 
 /**
- * C3 — Papéis e permissões (BEAC-1843, story BEAC-1684). Markup segue
- * scr-c3 do protótipo real (Artifact "Rallye — Perfil & Config · Saque
- * Noturno", `claude.ai/code/artifact/3a67a9a8-70b7-4af1-bc1a-96dabfbc70a5`):
- * cabeçalho com botão "Criar papel", tabs Papéis/Histórico, seção "Papéis
- * do sistema (imutáveis)" e "Papéis personalizados". A aba Histórico
- * pertence a outra story (BEAC-1848) — só a estrutura de tabs é mantida
- * aqui, o conteúdo real daquela aba não é desta task.
+ * C3 — Papéis e permissões (BEAC-1843/BEAC-1848, stories BEAC-1684 e
+ * BEAC-1687). Markup segue scr-c3 do protótipo real (Artifact "Rallye —
+ * Perfil & Config · Saque Noturno",
+ * `claude.ai/code/artifact/3a67a9a8-70b7-4af1-bc1a-96dabfbc70a5`): cabeçalho
+ * com botão "Criar papel", tabs Papéis/Histórico, seção "Papéis do sistema
+ * (imutáveis)" e "Papéis personalizados". A aba Histórico renderiza
+ * RoleAuditPanel (BEAC-1848) — conteúdo real, não mais um placeholder: as
+ * duas abas foram construídas em branches isolados (BEAC-1684/BEAC-1687,
+ * cada um sem visibilidade do outro) e reconciliadas aqui na integração do
+ * épico, exatamente como o protótipo sempre desenhou — uma tela só, duas
+ * abas.
  *
  * Rota `/units/:unitId/roles` (não `/tenants/:tenantId/...` como OW2/OW3):
  * o endpoint que esta tela consome (BEAC-1842) é unit-scoped por `{id}` no
@@ -192,12 +199,12 @@ export default function RolesPage() {
           </div>
         ) : (
           <div className="ptab-panel">
-            <p className="hint">Histórico de alterações de papéis — outra story (BEAC-1848).</p>
+            <RoleAuditPanel unitId={unitId} />
           </div>
         )}
       </div>
 
-      <p className="hint-note">{HINT_NOTE_TEXT}</p>
+      <p className="hint-note">{tab === 'papeis' ? HINT_NOTE_TEXT : HISTORICO_HINT_NOTE_TEXT}</p>
 
       <BottomSheet
         open={sheet.kind !== 'closed'}

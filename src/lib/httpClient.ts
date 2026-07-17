@@ -26,11 +26,16 @@ import { type Membership, setSessionMemberships } from './tenantContext'
 export const SESSION_EXPIRED_EVENT = 'rallye:session-expired'
 /**
  * Disparado sempre que uma sessão (memberships) é persistida com sucesso —
- * login e checkExistingSession (refresh no boot), ver persistSessionResponse
- * abaixo. PermissionsContext (BEAC-1841) escuta este evento para buscar
- * GET /me/permissions assim que uma sessão fica disponível, sem acoplar
- * este módulo (livre de React) a nenhum contexto/estado de UI — mesmo
- * padrão já usado por SESSION_EXPIRED_EVENT/App.tsx.
+ * login, checkExistingSession (refresh no boot), E tryRefresh (todo refresh
+ * silencioso de token, em qualquer chamada de API cujo access token tenha
+ * expirado durante a navegação normal — não só login/boot), ver
+ * persistSessionResponse abaixo, chamada pelos três. PermissionsContext
+ * (BEAC-1841) escuta este evento para buscar GET /me/permissions assim que
+ * uma sessão fica disponível, sem acoplar este módulo (livre de React) a
+ * nenhum contexto/estado de UI — mesmo padrão já usado por
+ * SESSION_EXPIRED_EVENT/App.tsx. Refetch redundante em todo refresh
+ * silencioso é aceitável: permissions raramente mudam no meio de uma
+ * sessão e o refetch é idempotente (ver PermissionsContext).
  */
 export const SESSION_ESTABLISHED_EVENT = 'rallye:session-established'
 
