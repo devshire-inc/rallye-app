@@ -1,0 +1,181 @@
+/* C3 — Papéis e permissões (BEAC-1843). Self-contained: redefine as classes
+ * genéricas que esta página usa (mesmo padrão de ProfilePage.css, que
+ * redefine .dash-body/.set-title/.menu-list em vez de depender de outra
+ * página já ter carregado o CSS equivalente) — não assume que
+ * UnitsPage.css/ProfilePage.css estejam carregados só porque, hoje, o
+ * bundling do app (App.tsx importa todas as páginas de forma eager) faz
+ * isso acontecer na prática. */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.pg-head h1 {
+  font-size: 18px;
+  margin: 0;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+.pg-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.ptabs {
+  display: flex;
+  gap: var(--space-2);
+  border-bottom: 1px solid var(--border);
+  margin-bottom: var(--space-5);
+}
+.ptabs button {
+  background: none;
+  border: none;
+  padding: 10px var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.ptabs button.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 560px;
+}
+
+.set-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-2);
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.role-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 11px var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  text-align: left;
+  font-family: var(--font-body);
+  color: inherit;
+}
+.role-row:last-child {
+  border-bottom: none;
+}
+.role-row--clickable {
+  cursor: pointer;
+}
+.role-row--clickable:hover {
+  background: var(--sand);
+}
+
+.role-row__icon {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--sand);
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.role-row__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.rn {
+  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--text-primary);
+}
+.rm {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 1px;
+}
+
+.role-row__badge {
+  flex: none;
+}
+
+.badge {
+  display: inline-flex;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  background: var(--sand);
+  color: var(--text-primary);
+}
+
+.chev {
+  flex: none;
+  color: var(--text-muted);
+  font-size: 16px;
+}
+
+.toast-neutral {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  border-radius: var(--radius-input);
+  padding: 11px 14px;
+  font-size: 12.5px;
+  font-weight: 500;
+  background: var(--sand);
+  color: var(--text-primary);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: var(--space-2);
+}
+
+.hint-note {
+  font-size: 11px;
+  color: var(--text-muted);
+  max-width: 560px;
+  margin-top: var(--space-6);
+}
