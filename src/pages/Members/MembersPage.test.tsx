@@ -33,6 +33,7 @@ function systemRole(overrides: Partial<Role> = {}): Role {
     name: 'Professor',
     isSystemRole: true,
     isCustom: false,
+    permissions: {},
     ...overrides,
   }
 }
