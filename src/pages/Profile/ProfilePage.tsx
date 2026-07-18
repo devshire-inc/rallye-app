@@ -12,14 +12,21 @@ import './ProfilePage.css'
  * dois grupos de menu (Gestão / Conta). Escopo mínimo: só os itens que já
  * têm destino real nesta story (Minhas unidades -> OW2, Papéis e permissões
  * -> C3/RolesPage, BEAC-1843, e Membros e papéis -> MembersPage, BEAC-1845)
- * ou que fazem sentido como placeholder ficam aqui — Config da arena (C1) e
- * Quadras (C2) são de outras stories e continuam inertes. Não há item
- * "Histórico" aqui: essa aba (BEAC-1848) vive dentro de C3/RolesPage, ao
- * lado de "Papéis" — na reconciliação do épico, um item de menu PF3
- * separado (existente antes só porque BEAC-1687 foi construída num branch
- * isolado sem visibilidade da estrutura de abas de BEAC-1684) foi removido
- * em favor de consolidar as duas abas na mesma tela, como o protótipo
- * sempre desenhou.
+ * ou que fazem sentido como placeholder ficam aqui — Quadras (C2) é de
+ * outra story e continua inerte. Não há item "Histórico" aqui: essa aba
+ * (BEAC-1848) vive dentro de C3/RolesPage, ao lado de "Papéis" — na
+ * reconciliação do épico, um item de menu PF3 separado (existente antes só
+ * porque BEAC-1687 foi construída num branch isolado sem visibilidade da
+ * estrutura de abas de BEAC-1684) foi removido em favor de consolidar as
+ * duas abas na mesma tela, como o protótipo sempre desenhou.
+ *
+ * "Configurações da arena" (C1) deixou de ser inerte com BEAC-1867 (story
+ * BEAC-1694, "Configuração dos 3 níveis de bloqueio por inadimplência") —
+ * mesmo padrão condicional a `getActiveUnitId()` de "Papéis e permissões"/
+ * "Membros e papéis" logo abaixo. C1 em si segue mínima (só a seção
+ * "Bloqueio por inadimplência" — Dados/Regras de agendamento são de outras
+ * stories, ainda não construídas), então o link aponta pra essa tela
+ * mínima, não pro C1 completo do protótipo.
  *
  * "Membros e papéis" (BEAC-1845, story BEAC-1686): entrada escolhida por
  * essa task para a tela de membros/atribuição de papel — decisão explícita
@@ -43,7 +50,11 @@ import './ProfilePage.css'
  * por permission real ainda (o próprio backend, via
  * middleware.TenantContextForUnit + config:write/config:read, é quem
  * efetivamente barra quem não pode — a UI só evita link morto quando há
- * unit ativa).
+ * unit ativa). "Configurações da arena" (C1, BEAC-1867) é diferente: a
+ * própria ArenaSettingsPage já faz o gate real via `usePermission('config',
+ * ...)` (Épico 3) — este item de menu, como os outros, só evita link morto
+ * (gate por `unitId`); quem não tem `config:read` ainda vê o link aqui, mas
+ * a seção em si não renderiza nada ao entrar.
  */
 export default function ProfilePage() {
   const tenantId = getActiveTenantId()
@@ -62,7 +73,18 @@ export default function ProfilePage() {
         <div>
           <div className="set-title">Gestão</div>
           <div className="menu-list">
-            <MenuRow label="Configurações da arena" />
+            {unitId ? (
+              <Link
+                className="menu-row"
+                to={`/units/${unitId}/settings`}
+                data-testid="menu-config-arena"
+              >
+                <span>Configurações da arena</span>
+                <span className="chev">›</span>
+              </Link>
+            ) : (
+              <MenuRow label="Configurações da arena" />
+            )}
             <MenuRow label="Quadras" />
             {unitId ? (
               <Link

@@ -2,7 +2,9 @@ import { useEffect } from 'react'
 import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'
 import { PermissionsProvider } from './context/PermissionsContext'
 import { SESSION_EXPIRED_EVENT } from './lib/httpClient'
+import ArenaSettingsPage from './pages/ArenaSettings/ArenaSettingsPage'
 import { CadastroPage } from './pages/cadastro/CadastroPage'
+import { CompletarCadastro } from './pages/CompletarCadastro'
 import DashboardPage from './pages/DashboardPage'
 import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
@@ -13,6 +15,8 @@ import { ResetPassword } from './pages/ResetPassword'
 import RolesPage from './pages/Roles/RolesPage'
 import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
+import NewStudentPage from './pages/Students/NewStudentPage'
+import StudentProfilePage from './pages/Students/StudentProfilePage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
 import NewUnitPage from './pages/Units/NewUnitPage'
 import UnitsPage from './pages/Units/UnitsPage'
@@ -53,6 +57,10 @@ function AppRoutes() {
       <Route path="/verify-email" element={<VerifyEmailPage />} />
       <Route path="/esqueci-senha" element={<ForgotPassword />} />
       <Route path="/redefinir-senha" element={<ResetPassword />} />
+      {/* Tela de completar cadastro via convite (BEAC-1860, story BEAC-1689)
+          — o aluno chega aqui pelo link de convite criado por BEAC-1858
+          (Admin cadastra aluno), com ?email=...&invite=<código do convite>. */}
+      <Route path="/completar-cadastro" element={<CompletarCadastro />} />
       {/* /oauth/callback mantida só por retrocompatibilidade (ver
           pages/OAuthCallback.tsx) — desde a correção de arquitetura de
           BEAC-1815, o backend redireciona sucesso/falha direto para
@@ -67,6 +75,16 @@ function AppRoutes() {
           papel a usuário"): unit-scoped, mesma forma da rota do endpoint
           que consome (GET/PATCH /units/{id}/members). */}
       <Route path="/units/:unitId/members" element={<MembersPage />} />
+      {/* AL3 — Novo aluno (BEAC-1858/1859, story BEAC-1688: "Formulário de
+          cadastro de aluno com responsável legal"). Unit-scoped, mesma
+          forma do endpoint que consome (POST /units/{id}/students). */}
+      <Route path="/units/:unitId/students/new" element={<NewStudentPage />} />
+      {/* AL2 — Perfil do Aluno, scaffold (BEAC-1871, story BEAC-1691) +
+          seção "Nível por esporte" (BEAC-1856). Rota unit-scoped, mesma
+          convenção de /units/:unitId/students/new (BEAC-1858/1859, story
+          irmã BEAC-1688) — react-router prioriza o segmento literal "new"
+          acima sobre o :studentId dinâmico aqui, então não há colisão. */}
+      <Route path="/units/:unitId/students/:studentId" element={<StudentProfilePage />} />
       <Route path="/tenants/:tenantId/units" element={<UnitsPage />} />
       <Route path="/tenants/:tenantId/units/new" element={<NewUnitPage />} />
       {/* C3 — Papéis e permissões (BEAC-1843, story BEAC-1684), com a aba
@@ -74,6 +92,12 @@ function AppRoutes() {
           unit-scoped (não tenant-scoped): espelha o endpoint que ela
           consome, POST/GET/PATCH /units/{id}/roles (BEAC-1842). */}
       <Route path="/units/:unitId/roles" element={<RolesPage />} />
+      {/* C1 — Configurações da arena (BEAC-1867, story BEAC-1694), seção
+          "Bloqueio por inadimplência" nesta etapa. Rota unit-scoped (não
+          tenant-scoped): espelha o endpoint que ela consome, GET/PATCH
+          /units/{id}/settings/delinquency-block-level (BEAC-1866), mesmo
+          padrão de /units/:unitId/roles e /units/:unitId/members. */}
+      <Route path="/units/:unitId/settings" element={<ArenaSettingsPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />

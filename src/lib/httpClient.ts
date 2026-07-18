@@ -42,6 +42,7 @@ export const SESSION_ESTABLISHED_EVENT = 'rallye:session-established'
 const AUTH_LOGIN_PATH = '/auth/login'
 const AUTH_REFRESH_PATH = '/auth/refresh'
 const AUTH_LOGOUT_PATH = '/auth/logout'
+const AUTH_INVITE_COMPLETE_PATH = '/auth/invite/complete'
 
 export type { Membership }
 
@@ -146,7 +147,8 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
     headers,
   })
 
-  const isAuthEndpoint = path === AUTH_LOGIN_PATH || path === AUTH_REFRESH_PATH
+  const isAuthEndpoint =
+    path === AUTH_LOGIN_PATH || path === AUTH_REFRESH_PATH || path === AUTH_INVITE_COMPLETE_PATH
   if (response.status !== 401 || isAuthEndpoint) {
     return response
   }
@@ -179,6 +181,62 @@ export async function login(email: string, password: string): Promise<LoginResul
   const data = (await response.json()) as SessionResponse
   await persistSessionResponse(data)
   return { ok: true, memberships: data.memberships ?? [] }
+}
+
+export type CompleteInviteErrorCode =
+  'invalid_code' | 'code_expired' | 'too_many_attempts' | 'validation' | 'upstream_error'
+
+export class CompleteInviteError extends Error {
+  code: CompleteInviteErrorCode
+  constructor(code: CompleteInviteErrorCode, message: string) {
+    super(message)
+    this.code = code
+  }
+}
+
+/**
+ * POST /auth/invite/complete (BEAC-1860): "definir senha" da tela de
+ * completar cadastro via convite. Mesma mecânica de verificação por código
+ * de 6 dígitos do fluxo A3/Esqueci Senha (BEAC-1675 — RequestRecovery +
+ * VerifyRecoveryOTP + UpdatePassword no Supabase, reaproveitada sem
+ * mudanças para a ETAPA DE ENVIO do código: ver requestPasswordReset em
+ * lib/passwordReset.ts, chamada por esta tela para disparar o e-mail com o
+ * código), mas com uma diferença deliberada na etapa de confirmação: A3
+ * encerra todas as sessões (SignOutGlobal) porque é alguém redefinindo a
+ * senha de uma conta já ativa; aqui é a ATIVAÇÃO inicial de uma conta criada
+ * pelo Admin via convite (BEAC-1858) — o aluno precisa ficar autenticado
+ * (esta chamada estabelece sessão) para então chamar POST /invites/{code}/redeem
+ * (BEAC-1807, inalterado) e criar sua membership. Por isso a resposta de
+ * sucesso aqui tem o MESMO formato de /auth/login (SessionResponse) em vez
+ * de simplesmente uma mensagem de confirmação.
+ *
+ * Endpoint implementado em BEAC-1870 (api/auth/invite_complete_handler.go,
+ * rallye-api) — mesmo contrato que esta função já esperava (verificado
+ * campo a campo na reconciliação final do épico).
+ */
+export async function completeInviteSignup(
+  email: string,
+  code: string,
+  newPassword: string,
+): Promise<void> {
+  const response = await apiFetch(AUTH_INVITE_COMPLETE_PATH, {
+    method: 'POST',
+    body: JSON.stringify({ email, code, new_password: newPassword }),
+  })
+
+  if (!response.ok) {
+    const body = (await response.json().catch(() => ({}))) as Partial<{
+      error: CompleteInviteErrorCode
+      message: string
+    }>
+    throw new CompleteInviteError(
+      body.error ?? 'upstream_error',
+      body.message ?? 'Não foi possível concluir seu cadastro. Tente novamente.',
+    )
+  }
+
+  const data = (await response.json()) as SessionResponse
+  await persistSessionResponse(data)
 }
 
 /**

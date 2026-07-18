@@ -1,0 +1,227 @@
+/* AL2 — Perfil do Aluno, scaffold (BEAC-1871) + seção "Nível por esporte"
+ * (BEAC-1856). Self-contained: redefine as classes genéricas que esta
+ * página usa (mesmo padrão documentado em RolesPage.css — não assume que
+ * outra página já carregou o CSS equivalente). Valores de .kv/.chiprow/
+ * .chip/.sdot/.sec-head/.prof-head/.avatar-lg/.ptabs/.ptab-panel copiados
+ * diretamente das regras reais do protótipo (Artifact "Rallye — Pessoas &
+ * Turmas · Saque Noturno", seção scr-al2) — lidos do arquivo salvo, não
+ * inventados. */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-6);
+  margin-bottom: var(--space-2);
+}
+.pg-head .spacer {
+  flex: 1;
+}
+.pg-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.prof-head {
+  display: flex;
+  gap: 14px;
+  padding: var(--space-5) var(--space-6) var(--space-4);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.avatar-lg {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  flex: none;
+}
+.ph-main {
+  flex: 1;
+  min-width: 200px;
+}
+.ph-main h1 {
+  font-size: 18px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ph-main .mt {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+/* Tradução real das variantes de badge que o protótipo só marcava com
+ * inline style (mesmo padrão já aceito em MembersPage.css/BEAC-1845) —
+ * classes de verdade, não estilo ad-hoc. */
+.badge.b-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.badge.b-warning {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+.badge.b-muted {
+  background: var(--sand);
+  color: var(--text-muted);
+}
+
+.ptabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-6);
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+}
+.ptabs button {
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.ptabs button.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.dash-body {
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 560px;
+}
+.ptab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.kv {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 8px 14px;
+  font-size: 13px;
+  margin: 0;
+}
+.kv dt {
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+.kv dd {
+  margin: 0;
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.level-section {
+  display: flex;
+  flex-direction: column;
+}
+.level-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.level-row-label {
+  font-size: 12px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.chiprow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+}
+button.chip {
+  cursor: pointer;
+}
+button.chip[aria-pressed='true'] {
+  background: var(--sand);
+  border-color: var(--sand);
+}
+button.chip:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+/* Variante somente-leitura (sem alunos:write) — <span>, não <button>, sem
+ * aria-pressed (inválido em elemento sem role=button); a seleção atual é
+ * marcada só visualmente por esta classe. */
+span.chip {
+  cursor: default;
+}
+span.chip.chip--selected {
+  background: var(--sand);
+  border-color: var(--sand);
+}
