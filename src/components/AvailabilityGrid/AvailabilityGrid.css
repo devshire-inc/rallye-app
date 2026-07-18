@@ -1,0 +1,100 @@
+.availability-grid__table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+}
+
+.availability-grid__table th,
+.availability-grid__table td {
+  padding: var(--space-1);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.availability-grid__corner {
+  width: 3rem;
+}
+
+.availability-grid__row-label {
+  font-weight: 500;
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.availability-cell {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: var(--touch-min);
+  min-height: 28px;
+  border-radius: var(--radius-input);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 0;
+}
+
+.availability-cell--edit {
+  cursor: pointer;
+  transition: background-color var(--motion-fast) var(--ease-enter);
+}
+
+.availability-cell[data-status='available'] {
+  background: var(--success-bg);
+  border-color: var(--success-fg);
+}
+
+.availability-cell[data-status='busy'] {
+  background: color-mix(in srgb, var(--teal) 22%, var(--surface));
+  border-color: var(--teal);
+}
+
+.availability-cell[data-status='unavailable'] {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.availability-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+  list-style: none;
+  margin: var(--space-4) 0 0;
+  padding: 0;
+  font-size: 0.8125rem;
+  color: var(--text-primary);
+}
+
+.availability-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.availability-legend__swatch {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+  border: 1px solid var(--border);
+}
+
+.availability-legend__swatch[data-status='available'] {
+  background: var(--success-bg);
+  border-color: var(--success-fg);
+}
+
+.availability-legend__swatch[data-status='busy'] {
+  background: color-mix(in srgb, var(--teal) 22%, var(--surface));
+  border-color: var(--teal);
+}
+
+.availability-legend__swatch[data-status='unavailable'] {
+  background: var(--surface);
+  border-color: var(--border);
+}
+
+.availability-grid__hint {
+  margin: var(--space-2) 0 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
