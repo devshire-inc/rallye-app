@@ -151,6 +151,7 @@ export default function CheckinPage() {
   }
 
   async function handleSave() {
+    if (!bookingId) return
     const attendances = participants
       .filter((p) => statuses[p.studentId] != null)
       .map((p) => ({ studentId: p.studentId, status: statuses[p.studentId] as AttendanceStatus }))
