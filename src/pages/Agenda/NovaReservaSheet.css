@@ -1,0 +1,86 @@
+/* AG6 — Nova reserva (BEAC-1904). Classes copiadas do protótipo real
+ * (sheet-ag6, artifact "Rallye — Agenda"): .type-pills/.chip, .fgroup, .hint —
+ * self-contained (mesmo padrão de StudentProfilePage.css: não assume que
+ * outra página já carregou o CSS equivalente). */
+.sclose {
+  position: absolute;
+  top: var(--space-4);
+  right: var(--space-4);
+  background: none;
+  border: none;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+.ssub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 0 0 var(--space-3);
+}
+
+.type-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.type-pills .chip {
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+.type-pills .chip[aria-pressed='true'] {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--on-accent);
+}
+
+.ag6-grid2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.fgroup {
+  display: none;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.fgroup.on {
+  display: flex;
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.block-hint {
+  color: var(--warning-fg);
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-input);
+  font-size: 12.5px;
+}
+.toast-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.toast-error {
+  background: var(--error-bg);
+  color: var(--error-fg);
+}
+.toast-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}

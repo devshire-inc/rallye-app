@@ -47,6 +47,12 @@
   --sport-padel: #12699e;
   --sport-futevolei: #c99a1f;
   --sport-volei: #7b5ea7;
+  /* --data: cor neutra de "dado/ocupação" do protótipo real (Artifact
+     "Rallye — Pessoas & Turmas", :root do HTML salvo) — usada pela barra de
+     ocupação de T1/T2 (.occ .fill azul <100%, ver TurmasListPage.css), não
+     pelo esporte da turma. Valor lido direto do artifact, não aproximado. */
+  --data: #12699e;
+  --data-soft: rgba(18, 105, 158, 0.14);
   --link: var(--teal);
   --scrim: rgba(2, 10, 16, 0.5);
   --focus-ring: var(--teal);
@@ -106,6 +112,8 @@
     --sport-padel: #4fa3d9;
     --sport-futevolei: #f2c14e;
     --sport-volei: #a88fd9;
+    --data: #4fa3d9;
+    --data-soft: rgba(79, 163, 217, 0.18);
     --scrim: rgba(0, 0, 0, 0.55);
     color-scheme: dark;
   }
@@ -136,6 +144,8 @@
   --sport-padel: #4fa3d9;
   --sport-futevolei: #f2c14e;
   --sport-volei: #a88fd9;
+  --data: #4fa3d9;
+  --data-soft: rgba(79, 163, 217, 0.18);
   --scrim: rgba(0, 0, 0, 0.55);
   color-scheme: dark;
 }
@@ -165,6 +175,8 @@
   --sport-padel: #12699e;
   --sport-futevolei: #c99a1f;
   --sport-volei: #7b5ea7;
+  --data: #12699e;
+  --data-soft: rgba(18, 105, 158, 0.14);
   --scrim: rgba(2, 10, 16, 0.5);
   color-scheme: light;
 }

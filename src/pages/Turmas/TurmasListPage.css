@@ -1,0 +1,227 @@
+/* T1 — Lista de turmas (BEAC-1900). Classes/valores traduzidos diretamente
+   do CSS real do protótipo (Artifact "Rallye — Pessoas & Turmas", ver
+   comentário de pacote em TurmasListPage.tsx para o caminho do arquivo
+   salvo) — `.tabs2`/`.turma-card`/`.occ`/`.pg-head`/`.searchbar`, sem
+   paráfrase. Self-contained (não assume que outra página já carregou o CSS
+   equivalente), mesmo padrão de StudentProfilePage.css/MembersPage.css. */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--space-6) var(--space-3);
+  flex-wrap: wrap;
+}
+.pg-head h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0;
+}
+.pg-head .count {
+  font-size: 12px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+
+.searchbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0 14px;
+  min-height: 40px;
+  max-width: 320px;
+  flex: 1;
+}
+.searchbar input {
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  flex: 1;
+  outline: none;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+.tabs2 {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tabs2 button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 15px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+.tabs2 button.active {
+  background: var(--sand);
+  border-color: var(--sand);
+  color: var(--text-primary);
+}
+
+.sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.ag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.turma-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color var(--motion-fast);
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.turma-card:hover {
+  border-color: var(--teal);
+}
+.turma-card .strip {
+  width: 4px;
+  align-self: stretch;
+  border-radius: var(--radius-pill);
+  flex: none;
+}
+.turma-card .tc-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.turma-card h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  margin: 0 0 2px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.turma-card .mt {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.turma-card.inactive {
+  opacity: 0.55;
+}
+
+/* .badge — mesma tradução de classe inline->real já usada em
+   StudentProfilePage.css/MembersPage.css. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-pill);
+}
+.badge.badge-inativa {
+  background: var(--sand);
+  font-size: 9.5px;
+  padding: 2px 8px;
+}
+
+.occ {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.occ .track {
+  flex: 1;
+  max-width: 180px;
+  height: 5px;
+  border-radius: var(--radius-pill);
+  background: var(--sand);
+  overflow: hidden;
+  display: block;
+}
+.occ .fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  display: block;
+  background: var(--data);
+}
+/* Ocupação real (matrícula) é desconhecida — public.class_enrollments não
+   existe no backend (ver comentário de pacote em TurmasListPage.tsx). A
+   barra fica com largura 0 (nunca inventamos um preenchimento), cor neutra
+   em vez de azul (--data) ou âmbar (--warning-fg) — não sabemos se está
+   lotada. */
+.occ .fill--unknown {
+  background: var(--border);
+}
+.occ .lbl {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.hint-note {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: var(--space-4) var(--space-6) 0;
+}
+.hint-note code {
+  font-size: inherit;
+}
+
+.sec-head-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

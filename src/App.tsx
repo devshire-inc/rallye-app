@@ -2,6 +2,11 @@ import { useEffect } from 'react'
 import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'
 import { PermissionsProvider } from './context/PermissionsContext'
 import { SESSION_EXPIRED_EVENT } from './lib/httpClient'
+import AG1DayPage from './pages/Agenda/AG1DayPage'
+import AG2WeekPage from './pages/Agenda/AG2WeekPage'
+import AG3StudentAgendaPage from './pages/Agenda/AG3StudentAgendaPage'
+import AG5BookingDetailPage from './pages/Agenda/AG5BookingDetailPage'
+import CheckinPage from './pages/Agenda/CheckinPage'
 import ArenaSettingsPage from './pages/ArenaSettings/ArenaSettingsPage'
 import { CadastroPage } from './pages/cadastro/CadastroPage'
 import { CompletarCadastro } from './pages/CompletarCadastro'
@@ -18,6 +23,8 @@ import { SignupPage } from './pages/SignupPage'
 import NewStudentPage from './pages/Students/NewStudentPage'
 import StudentProfilePage from './pages/Students/StudentProfilePage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
+import TurmaDetailPage from './pages/Turmas/TurmaDetailPage'
+import TurmasListPage from './pages/Turmas/TurmasListPage'
 import NewUnitPage from './pages/Units/NewUnitPage'
 import UnitsPage from './pages/Units/UnitsPage'
 import { VerifyEmailPage } from './pages/VerifyEmail/VerifyEmailPage'
@@ -98,6 +105,36 @@ function AppRoutes() {
           /units/{id}/settings/delinquency-block-level (BEAC-1866), mesmo
           padrão de /units/:unitId/roles e /units/:unitId/members. */}
       <Route path="/units/:unitId/settings" element={<ArenaSettingsPage />} />
+      {/* AG1/AG2 — Calendário Dia/Semana (BEAC-1903, story BEAC-1704 "CRUD de
+          turma com recorrência semanal"). Dois componentes deliberadamente
+          separados (decisão travada do dispatch) — não uma variação de props
+          de um só. Rota unit-scoped, mesmo padrão de /units/:unitId/roles. */}
+      <Route path="/units/:unitId/agenda" element={<AG1DayPage />} />
+      <Route path="/units/:unitId/agenda/semana" element={<AG2WeekPage />} />
+      {/* AG3 — Minha agenda (Aluno) (BEAC-1926, mesma story). */}
+      <Route path="/units/:unitId/agenda/minha" element={<AG3StudentAgendaPage />} />
+      {/* AG5 — Detalhe da Aula/Reserva, base only (BEAC-1905, mesma story).
+          AG1DayPage/AG2WeekPage navegam pra cá passando o Booking já
+          carregado via router state (ver comentário de pacote de
+          AG5BookingDetailPage.tsx — sem GET /bookings/{id} para deep link
+          direto). */}
+      <Route path="/units/:unitId/bookings/:bookingId" element={<AG5BookingDetailPage />} />
+      {/* T3 — Check-in de Presença (BEAC-1907, mesma story). Alcançada a
+          partir de AG5 ("Abrir Check-in", Professor) — mesmo padrão de
+          router state de AG5 acima (sem GET /bookings/{id}, ver comentário
+          de pacote de CheckinPage.tsx). */}
+      <Route path="/units/:unitId/bookings/:bookingId/checkin" element={<CheckinPage />} />
+      {/* T1/T2 — Lista de turmas / Detalhe da turma (BEAC-1900/1901, mesma
+          story BEAC-1704 "CRUD de turma com recorrência semanal"). Rotas
+          unit-scoped, mesmo padrão de /units/:unitId/agenda(/semana) acima:
+          T1 consome GET /units/{id}/classes (endpoint de listagem adicionado
+          nesta mesma dispatch, ver comentário de pacote em
+          lib/api/classes.ts/TurmasListPage.tsx); T2 reaproveita a mesma
+          listagem (sem GET /classes/{id} dedicado) e localiza a turma por
+          :classId client-side. "new"/segmentos literais não colidem aqui
+          (T2 usa :classId como segundo segmento dinâmico, não um literal). */}
+      <Route path="/units/:unitId/classes" element={<TurmasListPage />} />
+      <Route path="/units/:unitId/classes/:classId" element={<TurmaDetailPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />

@@ -22,3 +22,8 @@
   background: var(--error-bg);
   color: var(--error-fg);
 }
+
+.toast--success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}

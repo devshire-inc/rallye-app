@@ -1,0 +1,281 @@
+/* T2 — Detalhe da turma (BEAC-1901). Classes/valores traduzidos diretamente
+   do CSS real do protótipo (mesmo Artifact de T1 — ver comentário de
+   pacote em TurmaDetailPage.tsx) — self-contained, mesmo padrão de
+   StudentProfilePage.css/MembersPage.css (não assume que outra página já
+   carregou o CSS equivalente). */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-6);
+  margin-bottom: var(--space-2);
+}
+.pg-head .spacer {
+  flex: 1;
+}
+.pg-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.iconbtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+.iconbtn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.prof-head {
+  display: flex;
+  gap: 14px;
+  padding: var(--space-5) var(--space-6) var(--space-4);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.ph-main {
+  flex: 1;
+  min-width: 200px;
+}
+.ph-main h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ph-main .mt {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  margin-top: 2px;
+}
+
+.sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+.badge.b-sport {
+  background: var(--sand);
+  color: var(--text-primary);
+}
+
+.ptabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-6);
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+}
+.ptabs button {
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.ptabs button.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.dash-body {
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 560px;
+}
+.ptab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.hint code {
+  font-size: inherit;
+}
+
+.ag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* .ag-row — não tem CSS próprio neste artifact específico (só aparece
+   marcado com classes, sem regras .ag-row/.when/.what na seção de estilos
+   salva) — provavelmente definido no artifact irmão de Agenda, fora do
+   escopo desta task. Estilo autoral aqui, seguindo os mesmos tokens/
+   proporções de .turma-card/.p-row já usados nesta base (surface/border/
+   radius-card), não inventado do zero. */
+.ag-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: border-color var(--motion-fast);
+}
+.ag-row:hover {
+  border-color: var(--teal);
+}
+.ag-row .when {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  flex: none;
+  width: 44px;
+}
+.ag-row .what {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ag-row .what .nm {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.ag-row .what .mt {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* Bottom sheet [⚙️] (ClassSettingsSheet.tsx) — .menu-list/.role-row mesmo
+   padrão de MembersPage.css (RolePickerSheet), reproduzido aqui porque
+   TurmaDetailPage não importa aquele CSS (self-contained). */
+.settings-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.settings-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.sec-head-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
+}
+.role-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: none;
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.role-row:last-child {
+  border-bottom: none;
+}
+.role-row--clickable {
+  cursor: pointer;
+}
+.role-row--clickable:hover {
+  background: var(--sand);
+}
+.role-row:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.role-row .rn {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.role-row .hint {
+  text-align: right;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.field input,
+.field select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--surface);
+}
+
+.sheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

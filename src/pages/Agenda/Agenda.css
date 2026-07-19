@@ -1,0 +1,344 @@
+/* AG1/AG2/AG3/AG5 — Agenda (BEAC-1903/1904/1905/1926, story BEAC-1704).
+ * Classes copiadas do protótipo real (Artifact "Rallye — Agenda",
+ * tool-results/artifact-*.html, scr-ag1/scr-ag2/scr-ag3 lidos integralmente
+ * antes de implementar) — self-contained, mesmo padrão de
+ * StudentProfilePage.css (não assume que outra página já carregou o CSS
+ * equivalente). Compartilhado entre as 4 telas de propósito: são as MESMAS
+ * classes reais do protótipo em telas irmãs (ag-head/date-nav/seg2/dgroup/
+ * ag-list/ag-row aparecem identicamente em scr-ag1/ag2/ag3) — isso não
+ * contradiz a decisão travada "AG1 e AG2 são componentes JSX separados", que
+ * é sobre estrutura de COMPONENTE, não sobre reuso de folha de estilo (mesmo
+ * espírito de AuthLayout.css, já compartilhado por várias páginas não
+ * relacionadas). */
+
+.ag-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  flex-wrap: wrap;
+}
+.ag-head .spacer {
+  flex: 1;
+}
+.iconbtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 15px;
+}
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dlabel {
+  font-weight: 600;
+  font-size: 13.5px;
+  min-width: 140px;
+  text-align: center;
+}
+.seg2 {
+  display: inline-flex;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  overflow: hidden;
+}
+.seg2 button {
+  border: none;
+  background: var(--surface);
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12.5px;
+  padding: 8px 14px;
+  cursor: pointer;
+}
+.seg2 button.active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.ag-search {
+  min-height: 36px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  padding: 0 var(--space-3);
+  font-size: 13px;
+  max-width: 220px;
+}
+
+.legend {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  padding: 0 var(--space-6) var(--space-3);
+  font-size: 11.5px;
+  color: var(--text-muted);
+  align-items: center;
+}
+.legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.sq {
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  display: inline-block;
+  border: 1px solid transparent;
+}
+.sq-conf {
+  background: color-mix(in srgb, var(--success-fg) 25%, var(--surface));
+  border-color: var(--success-fg);
+}
+.sq-pend {
+  background: color-mix(in srgb, var(--warning-fg) 25%, var(--surface));
+  border-color: var(--warning-fg);
+}
+.sq-part {
+  background: color-mix(in srgb, var(--teal) 25%, var(--surface));
+  border-color: var(--teal);
+}
+.sq-block {
+  background: color-mix(in srgb, var(--error-fg) 25%, var(--surface));
+  border-color: var(--error-fg);
+}
+.sq-free {
+  border: 1px dashed var(--border);
+}
+
+.cal-wrap {
+  padding: 0 var(--space-6) var(--space-6);
+  overflow-x: auto;
+}
+
+.cal-grid,
+.week-grid {
+  display: grid;
+  position: relative;
+  grid-template-rows: 40px repeat(16, 48px);
+  min-width: 640px;
+  border-top: 1px solid var(--border);
+  border-left: 1px solid var(--border);
+}
+.head {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 8px;
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.head.today {
+  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+}
+.head small {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 10.5px;
+}
+.cq {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.hr {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  font-size: 10.5px;
+  color: var(--text-muted);
+  padding: 4px 6px;
+  display: flex;
+  align-items: flex-start;
+}
+.cal-cell {
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+.cal-cell:hover {
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+.cal-cell[aria-disabled='true'] {
+  cursor: default;
+  pointer-events: none;
+}
+
+.booking {
+  margin: 1px;
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  cursor: pointer;
+  overflow: hidden;
+  border: 1px solid transparent;
+}
+.booking b {
+  font-size: 11.5px;
+  line-height: 1.2;
+}
+.bmeta {
+  color: var(--text-muted);
+  font-size: 10px;
+}
+.booking.bk-conf {
+  background: color-mix(in srgb, var(--success-fg) 18%, var(--surface));
+  border-color: var(--success-fg);
+}
+.booking.bk-pend {
+  background: color-mix(in srgb, var(--warning-fg) 18%, var(--surface));
+  border-color: var(--warning-fg);
+}
+.booking.bk-part {
+  background: color-mix(in srgb, var(--teal) 18%, var(--surface));
+  border-color: var(--teal);
+}
+.booking.bk-block {
+  background: color-mix(in srgb, var(--error-fg) 18%, var(--surface));
+  border-color: var(--error-fg);
+}
+
+.col-blocked {
+  grid-row: 2 / span 16;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--error-fg) 8%, transparent),
+    color-mix(in srgb, var(--error-fg) 8%, transparent) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  border-right: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: var(--space-3);
+}
+.col-blocked span {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--error-fg);
+}
+
+.now-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--error-fg);
+  pointer-events: none;
+  z-index: 2;
+}
+
+.fab {
+  position: fixed;
+  right: 20px;
+  bottom: 84px;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: var(--on-accent);
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(2, 10, 16, 0.25);
+  z-index: 20;
+}
+
+.wk-stats {
+  display: flex;
+  gap: var(--space-5);
+  flex-wrap: wrap;
+  padding: 0 var(--space-6) var(--space-6);
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.wk-stats b {
+  color: var(--text-primary);
+}
+
+/* ---------- AG3 — Minha agenda ---------- */
+.dgroup {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: var(--space-4) var(--space-6) var(--space-2);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.ag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin: 0 var(--space-6);
+}
+.ag-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  background: var(--surface);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+}
+.ag-row .when {
+  font-weight: 700;
+  font-size: 13px;
+  min-width: 44px;
+}
+.ag-row .strip {
+  width: 4px;
+  align-self: stretch;
+  border-radius: 2px;
+  min-height: 32px;
+}
+.ag-row .what {
+  flex: 1;
+  min-width: 0;
+}
+.ag-row .nm {
+  font-weight: 600;
+  font-size: 13.5px;
+}
+.ag-row .mt {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+.ag-row .tail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  font-size: 11.5px;
+}
+.linkbtn {
+  background: none;
+  border: none;
+  color: var(--link);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}

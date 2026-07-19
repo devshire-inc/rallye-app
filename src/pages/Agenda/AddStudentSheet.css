@@ -1,0 +1,92 @@
+/* AddStudentSheet (BEAC-1918, story BEAC-1707) — classes PRÓPRIAS (não
+   reaproveita .p-row/.avatar-sm/.searchbar de src/pages/Members/MembersPage.css
+   nem .ag-list de Agenda.css, que já tem um significado DIFERENTE nesta
+   página — AG3's lista de agenda). Mesmos design tokens (var(--surface)/
+   var(--border)/var(--text-muted)/etc., já definidos em src/index.css), só
+   nomes de classe isolados para não colidir com o resto do app. */
+
+.add-student-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.add-student-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0 14px;
+  min-height: 40px;
+}
+.add-student-search input {
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  flex: 1;
+  outline: none;
+}
+
+.add-student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+.add-student-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.add-student-row:hover:not(:disabled) {
+  border-color: var(--teal);
+}
+.add-student-row:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+.add-student-row .avatar-sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 12px;
+  flex: none;
+}
+.add-student-row .nm {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.add-student-row .mt {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.add-student-warning {
+  background: var(--sand);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: var(--space-4);
+  font-size: 12.5px;
+}

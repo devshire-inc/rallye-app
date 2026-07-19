@@ -1,0 +1,35 @@
+/* AG3 — Minha agenda (Aluno), BEAC-1926. .dgroup/.ag-list/.ag-row já vêm de
+ * Agenda.css (compartilhado com AG1/AG2, mesmas classes reais do
+ * protótipo); aqui só o que é específico desta tela. */
+.dash-body {
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+.badge.b-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.badge.b-error {
+  background: var(--error-bg);
+  color: var(--error-fg);
+}
+.badge.b-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}

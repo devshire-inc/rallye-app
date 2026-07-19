@@ -7,13 +7,17 @@ import './Toast.css'
 export interface ToastProps {
   message: string | null
   onDismiss: () => void
+  /** BEAC-1907 (T3 — toast "Presença registrada!" de sucesso): default
+   * 'error' preserva o visual/comportamento anterior para todo chamador que
+   * não passa esta prop (LoginPage/SignupPage/ResetPassword). */
+  variant?: 'error' | 'success'
 }
 
-export function Toast({ message, onDismiss }: ToastProps) {
+export function Toast({ message, onDismiss, variant = 'error' }: ToastProps) {
   if (!message) return null
 
   return (
-    <div role="alert" className="toast toast--error" onClick={onDismiss}>
+    <div role="alert" className={`toast toast--${variant}`} onClick={onDismiss}>
       {message}
     </div>
   )
