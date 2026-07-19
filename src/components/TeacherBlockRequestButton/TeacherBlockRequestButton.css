@@ -1,0 +1,48 @@
+.teacher-block-request-sheet h2 {
+  margin: 0 0 4px;
+}
+
+.teacher-block-request-sheet__date-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3, 12px);
+}
+
+.teacher-block-request-sheet__affected-box {
+  font-size: 12.5px;
+  color: var(--text-primary);
+  background: var(--surface-muted, var(--surface));
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 12px;
+}
+
+.teacher-block-request-sheet__affected-box ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+}
+
+.teacher-block-request-sheet__submit-error {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--error-fg);
+  background: var(--error-bg);
+  border-radius: var(--radius-input);
+  padding: 10px 12px;
+  margin: 0;
+}
+
+.teacher-block-request-sheet__success {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--success-fg);
+  background: var(--success-bg);
+  border-radius: var(--radius-input);
+  padding: 10px 12px;
+}
+
+.teacher-block-request-sheet__disclaimer {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 0;
+}
