@@ -7,6 +7,7 @@ import { getMe } from '../../lib/api/me'
 import { listRescheduleCredits } from '../../lib/api/reschedule'
 import { formatWeekdayDate, isSameDay } from './agendaShared'
 import { RemarcarSheet, type RemarcarResult } from './RemarcarSheet'
+import { WaitlistSheet, type WaitlistJoinedResult } from './WaitlistSheet'
 import '../../components/AuthLayout/AuthLayout.css'
 import './Agenda.css'
 import './AG3StudentAgendaPage.css'
@@ -106,6 +107,16 @@ export default function AG3StudentAgendaPage() {
   const [remarcarMessage, setRemarcarMessage] = useState<string | null>(null)
   const [refreshKey, setRefreshKey] = useState(0)
 
+  // waitlistOpen/waitlistTarget: sheet AG8 "Fila de espera" (BEAC-1922, story
+  // BEAC-1708), aberto a partir de uma linha lotada dentro do sheet AG7
+  // "Remarcar" (RemarcarSheet.onRequestWaitlist) — correção desta rodada
+  // (handover: "conectar Lista de Espera ao fluxo de Remarcar"). Nunca
+  // aninhado no sheet Remarcar: fecha um, abre o outro, mesmo padrão de
+  // controle-pela-página já usado pelos outros sheets desta página.
+  const [waitlistOpen, setWaitlistOpen] = useState(false)
+  const [waitlistTarget, setWaitlistTarget] = useState<{ classId: string; classSchedule: string } | null>(null)
+  const [waitlistMessage, setWaitlistMessage] = useState<string | null>(null)
+
   // creditsState (BEAC-1706/1915): contagem REAL de créditos de
   // reagendamento disponíveis, pro footer e pro gate do botão "Remarcar".
   // Falha aberto (fail-open) em loading/error — igual ao resto desta
@@ -180,6 +191,18 @@ export default function AG3StudentAgendaPage() {
     setRefreshKey((k) => k + 1)
   }
 
+  function handleRequestWaitlist(classId: string, classSchedule: string) {
+    setRemarcarOpen(false)
+    setWaitlistMessage(null)
+    setWaitlistTarget({ classId, classSchedule })
+    setWaitlistOpen(true)
+  }
+
+  function handleWaitlistJoined(result: WaitlistJoinedResult) {
+    setWaitlistOpen(false)
+    setWaitlistMessage(`Você entrou na fila de espera — posição #${result.position}.`)
+  }
+
   return (
     <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
       <div className="ag-head">
@@ -211,6 +234,11 @@ export default function AG3StudentAgendaPage() {
       {remarcarMessage ? (
         <p role="status" className="hint">
           {remarcarMessage}
+        </p>
+      ) : null}
+      {waitlistMessage ? (
+        <p role="status" className="hint">
+          {waitlistMessage}
         </p>
       ) : null}
 
@@ -280,10 +308,25 @@ export default function AG3StudentAgendaPage() {
             unitId={unitId}
             studentId={loggedInStudentId}
             onRescheduled={handleRescheduled}
+            onRequestWaitlist={handleRequestWaitlist}
             onCancel={() => setRemarcarOpen(false)}
           />
         ) : (
           <p role="alert">Não foi possível identificar sua conta para remarcar (tente recarregar a página).</p>
+        )}
+      </BottomSheet>
+
+      <BottomSheet open={waitlistOpen} onClose={() => setWaitlistOpen(false)} label="Fila de espera">
+        {waitlistTarget && loggedInStudentId ? (
+          <WaitlistSheet
+            classId={waitlistTarget.classId}
+            studentId={loggedInStudentId}
+            classSchedule={waitlistTarget.classSchedule}
+            onJoined={handleWaitlistJoined}
+            onCancel={() => setWaitlistOpen(false)}
+          />
+        ) : (
+          <p role="alert">Não foi possível identificar sua conta para entrar na fila (tente recarregar a página).</p>
         )}
       </BottomSheet>
     </AppShell>

@@ -7,6 +7,7 @@ import { cancelBooking, type Booking, type Participant } from '../../lib/api/boo
 import { getMe } from '../../lib/api/me'
 import { AddStudentSheet } from './AddStudentSheet'
 import { RemarcarSheet, type RemarcarResult } from './RemarcarSheet'
+import { WaitlistSheet, type WaitlistJoinedResult } from './WaitlistSheet'
 import { bookingTitle, bookingTypeLabel } from './agendaShared'
 import '../../components/AuthLayout/AuthLayout.css'
 import './Agenda.css'
@@ -76,6 +77,14 @@ export default function AG5BookingDetailPage() {
   const [remarcarOpen, setRemarcarOpen] = useState(false)
   const [remarcarMessage, setRemarcarMessage] = useState<string | null>(null)
   const [loggedInStudentId, setLoggedInStudentId] = useState<string | undefined>(undefined)
+
+  // waitlistOpen/waitlistTarget: sheet AG8 "Fila de espera" (BEAC-1922, story
+  // BEAC-1708), aberto a partir de uma linha lotada dentro do sheet AG7
+  // "Remarcar" (RemarcarSheet.onRequestWaitlist) — mesmo padrão de
+  // AG3StudentAgendaPage.tsx (correção desta rodada).
+  const [waitlistOpen, setWaitlistOpen] = useState(false)
+  const [waitlistTarget, setWaitlistTarget] = useState<{ classId: string; classSchedule: string } | null>(null)
+  const [waitlistMessage, setWaitlistMessage] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
@@ -213,6 +222,12 @@ export default function AG5BookingDetailPage() {
           </p>
         ) : null}
 
+        {waitlistMessage ? (
+          <p role="status" className="hint">
+            {waitlistMessage}
+          </p>
+        ) : null}
+
         {isAluno ? (
           <div className="row ag5-actions">
             <button className="btn btn-ghost btn-sm" type="button" onClick={() => setRemarcarOpen(true)}>
@@ -345,10 +360,33 @@ export default function AG5BookingDetailPage() {
                   : 'Remarcação aplicada com sucesso!',
               )
             }}
+            onRequestWaitlist={(classId, classSchedule) => {
+              setRemarcarOpen(false)
+              setWaitlistMessage(null)
+              setWaitlistTarget({ classId, classSchedule })
+              setWaitlistOpen(true)
+            }}
             onCancel={() => setRemarcarOpen(false)}
           />
         ) : (
           <p role="alert">Não foi possível identificar sua conta para remarcar (tente recarregar a página).</p>
+        )}
+      </BottomSheet>
+
+      <BottomSheet open={waitlistOpen} onClose={() => setWaitlistOpen(false)} label="Fila de espera">
+        {waitlistTarget && loggedInStudentId ? (
+          <WaitlistSheet
+            classId={waitlistTarget.classId}
+            studentId={loggedInStudentId}
+            classSchedule={waitlistTarget.classSchedule}
+            onJoined={(result: WaitlistJoinedResult) => {
+              setWaitlistOpen(false)
+              setWaitlistMessage(`Você entrou na fila de espera — posição #${result.position}.`)
+            }}
+            onCancel={() => setWaitlistOpen(false)}
+          />
+        ) : (
+          <p role="alert">Não foi possível identificar sua conta para entrar na fila (tente recarregar a página).</p>
         )}
       </BottomSheet>
     </AppShell>

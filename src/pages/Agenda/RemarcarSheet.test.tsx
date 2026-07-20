@@ -89,11 +89,17 @@ function mockHappyPath(overrides: { participantCount?: number; capacity?: number
   })
 }
 
-function renderSheet(onRescheduled = vi.fn(), onCancel = vi.fn()) {
+function renderSheet(onRescheduled = vi.fn(), onCancel = vi.fn(), onRequestWaitlist = vi.fn()) {
   render(
-    <RemarcarSheet unitId="unit-1" studentId="student-1" onRescheduled={onRescheduled} onCancel={onCancel} />,
+    <RemarcarSheet
+      unitId="unit-1"
+      studentId="student-1"
+      onRescheduled={onRescheduled}
+      onRequestWaitlist={onRequestWaitlist}
+      onCancel={onCancel}
+    />,
   )
-  return { onRescheduled, onCancel }
+  return { onRescheduled, onCancel, onRequestWaitlist }
 }
 
 describe('RemarcarSheet — toast com contagem real de créditos', () => {
@@ -138,12 +144,40 @@ describe('RemarcarSheet — lista de slots com vaga', () => {
     expect(screen.getByText(/Quadra 1/)).toBeInTheDocument()
   })
 
-  it('excludes a slot with no remaining capacity', async () => {
+  it('shows a message when there are no occurrences at all in the window', async () => {
+    vi.spyOn(rescheduleApi, 'listRescheduleCredits').mockResolvedValue({ ok: true, credits: [credit()] })
+    vi.spyOn(rescheduleApi, 'getRescheduleConfig').mockResolvedValue({ ok: true, requiresApproval: false })
+    vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
+    vi.spyOn(classesApi, 'listClasses').mockResolvedValue({ ok: true, classes: [] })
+
+    renderSheet()
+
+    expect(await screen.findByText(/nenhum horário disponível/i)).toBeInTheDocument()
+  })
+})
+
+describe('RemarcarSheet — slot lotado ("Entrar na fila")', () => {
+  it('keeps a full slot in the list, showing "Lotada" and an "Entrar na fila" button instead of "Remarcar"', async () => {
     mockHappyPath({ capacity: 8, participantCount: 8 })
     renderSheet()
 
-    expect(await screen.findByText(/nenhum horário com vaga disponível/i)).toBeInTheDocument()
-    expect(screen.queryByText('Turma Beach Tennis')).not.toBeInTheDocument()
+    expect(await screen.findByText('Turma Beach Tennis')).toBeInTheDocument()
+    expect(screen.getByText(/Lotada/)).toBeInTheDocument()
+    expect(screen.queryByText(/0 vagas/)).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Entrar na fila' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Remarcar' })).not.toBeInTheDocument()
+  })
+
+  it('calls onRequestWaitlist with the classId and a WaitlistSheet-formatted classSchedule when clicked', async () => {
+    mockHappyPath({ capacity: 8, participantCount: 8 })
+    const { onRequestWaitlist } = renderSheet()
+
+    await userEvent.click(await screen.findByRole('button', { name: 'Entrar na fila' }))
+
+    expect(onRequestWaitlist).toHaveBeenCalledWith(
+      'class-1',
+      'Turma Beach Tennis · seg 27 jul, 15:00 · Quadra 1',
+    )
   })
 })
 

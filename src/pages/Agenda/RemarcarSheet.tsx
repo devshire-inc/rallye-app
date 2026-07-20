@@ -23,12 +23,31 @@ export interface RemarcarSheetProps {
    * mostra uma mensagem de sucesso na página (ver AG5BookingDetailPage.tsx,
    * handleStudentAdded). */
   onRescheduled: (result: RemarcarResult) => void
+  /** Chamado quando o aluno toca "Entrar na fila" numa linha lotada — quem
+   * usa este sheet decide como abrir o WaitlistSheet (AG8), mesmo espírito
+   * de onRescheduled. `classSchedule` já vem formatado no mesmo padrão
+   * esperado por WaitlistSheetProps.classSchedule ("Turma · data/hora ·
+   * Quadra"). */
+  onRequestWaitlist: (classId: string, classSchedule: string) => void
   onCancel: () => void
 }
 
 interface SlotOption {
   booking: Booking
+  classId: string
   vagas: number
+}
+
+const WEEKDAY_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb']
+const MONTH_SHORT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+
+/** "Turma Beach Tennis · sáb 12 jul, 09:00 · Quadra 1" — mesmo padrão de
+ * WaitlistSheetProps.classSchedule (ver comentário de módulo daquele
+ * componente), usado como texto de handover pro sheet AG8. */
+function formatClassSchedule(booking: Booking): string {
+  const d = new Date(booking.startAt)
+  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${booking.className ?? 'Aula'} · ${WEEKDAY_SHORT[d.getDay()]} ${String(d.getDate()).padStart(2, '0')} ${MONTH_SHORT[d.getMonth()]}, ${time} · ${booking.courtName}`
 }
 
 type LoadState =
@@ -79,8 +98,18 @@ const ERROR_MESSAGES: Record<string, string> = {
  * "data, quadra, vagas"), este sheet busca as turmas da unit (listClasses,
  * capacity por class_id) e, para cada ocorrência candidata dentro da janela
  * de {@link SLOT_WINDOW_DAYS} dias, conta os participantes já registrados
- * (listBookingParticipants) — vagas = capacity - participantes. Slots sem
- * vaga (vagas <= 0) são filtrados fora da lista.
+ * (listBookingParticipants) — vagas = capacity - participantes.
+ *
+ * # Slot lotado — "Entrar na fila" em vez de filtrar fora
+ *
+ * Correção (handover desta rodada): slots sem vaga (vagas <= 0) NÃO são mais
+ * filtrados fora da lista — ficam visíveis com "Lotada" no lugar da
+ * contagem e um botão "Entrar na fila" (em vez de "Remarcar") que aciona
+ * {@link RemarcarSheetProps.onRequestWaitlist} com o classId da ocorrência e
+ * uma cópia formatada no mesmo padrão de WaitlistSheetProps.classSchedule.
+ * Continuam de fora apenas os candidatos sem classId ou sem capacity
+ * conhecida (mesmo critério de antes) — sem esses dois dados não há como
+ * oferecer nem "Remarcar" nem "Entrar na fila" com segurança.
  *
  * # GAP CONHECIDO — sem filtro por "mesmo esporte/turma da aula cancelada"
  *
@@ -96,7 +125,7 @@ const ERROR_MESSAGES: Record<string, string> = {
  * uma chamada que o backend não suporta. Adicionar esse filtro exigiria um
  * novo endpoint de leitura (GET /bookings/{id}), fora do escopo desta task.
  */
-export function RemarcarSheet({ unitId, studentId, onRescheduled, onCancel }: RemarcarSheetProps) {
+export function RemarcarSheet({ unitId, studentId, onRescheduled, onRequestWaitlist, onCancel }: RemarcarSheetProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [submittingId, setSubmittingId] = useState<string | null>(null)
   const [submitError, setSubmitError] = useState<string | null>(null)
@@ -140,12 +169,14 @@ export function RemarcarSheet({ unitId, studentId, onRescheduled, onCancel }: Re
 
           const slotsWithCapacity = await Promise.all(
             candidates.map(async (booking): Promise<SlotOption | null> => {
-              const capacity = booking.classId ? capacityByClassId.get(booking.classId) : undefined
+              const classId = booking.classId
+              if (!classId) return null
+              const capacity = capacityByClassId.get(classId)
               if (capacity === undefined) return null
               const participantsResult = await listBookingParticipants(booking.id)
               if (!participantsResult.ok) return null
               const vagas = capacity - participantsResult.participants.length
-              return vagas > 0 ? { booking, vagas } : null
+              return { booking, classId, vagas }
             }),
           )
           if (onCancelled()) return
@@ -211,34 +242,47 @@ export function RemarcarSheet({ unitId, studentId, onRescheduled, onCancel }: Re
           </p>
 
           {state.slots.length === 0 ? (
-            <p className="hint">Nenhum horário com vaga disponível nos próximos {SLOT_WINDOW_DAYS} dias.</p>
+            <p className="hint">Nenhum horário disponível nos próximos {SLOT_WINDOW_DAYS} dias.</p>
           ) : (
             <div className="remarcar-slot-list">
-              {state.slots.map(({ booking, vagas }) => (
-                <div className="remarcar-slot-row" key={booking.id}>
-                  <div>
-                    <div className="nm">{booking.className ?? 'Aula'}</div>
-                    <div className="mt">
-                      {new Date(booking.startAt).toLocaleString('pt-BR', {
-                        weekday: 'short',
-                        day: '2-digit',
-                        month: '2-digit',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}{' '}
-                      · {booking.courtName} · {vagas} vaga{vagas === 1 ? '' : 's'}
+              {state.slots.map(({ booking, classId, vagas }) => {
+                const lotada = vagas <= 0
+                return (
+                  <div className="remarcar-slot-row" key={booking.id}>
+                    <div>
+                      <div className="nm">{booking.className ?? 'Aula'}</div>
+                      <div className="mt">
+                        {new Date(booking.startAt).toLocaleString('pt-BR', {
+                          weekday: 'short',
+                          day: '2-digit',
+                          month: '2-digit',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}{' '}
+                        · {booking.courtName} · {lotada ? 'Lotada' : `${vagas} vaga${vagas === 1 ? '' : 's'}`}
+                      </div>
                     </div>
+                    {lotada ? (
+                      <button
+                        type="button"
+                        className="btn btn-secondary btn-sm"
+                        onClick={() => onRequestWaitlist(classId, formatClassSchedule(booking))}
+                      >
+                        Entrar na fila
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        className="btn btn-primary btn-sm"
+                        disabled={submittingId !== null}
+                        onClick={() => handleReschedule(booking.id)}
+                      >
+                        {submittingId === booking.id ? 'Remarcando…' : 'Remarcar'}
+                      </button>
+                    )}
                   </div>
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-sm"
-                    disabled={submittingId !== null}
-                    onClick={() => handleReschedule(booking.id)}
-                  >
-                    {submittingId === booking.id ? 'Remarcando…' : 'Remarcar'}
-                  </button>
-                </div>
-              ))}
+                )
+              })}
             </div>
           )}
 
