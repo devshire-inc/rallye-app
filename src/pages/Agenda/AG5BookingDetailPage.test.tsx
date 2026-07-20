@@ -1,12 +1,21 @@
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as usePermissionModule from '../../hooks/usePermission'
 import * as bookingsApi from '../../lib/api/bookings'
+import * as meApi from '../../lib/api/me'
 import * as membersApi from '../../lib/api/members'
 import type { Booking, Participant } from '../../lib/api/bookings'
 import AG5BookingDetailPage from './AG5BookingDetailPage'
+
+beforeEach(() => {
+  // Default: GET /me resolves normally (BEAC-1912, sheet AG7 "Remarcar" —
+  // mesmo padrão de AG3StudentAgendaPage.test.tsx) — this page now calls
+  // getMe() to resolve the caller's own profile id for the self-only
+  // POST /students/{id}/reschedule endpoint.
+  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'self-student-id' })
+})
 
 afterEach(() => {
   vi.restoreAllMocks()

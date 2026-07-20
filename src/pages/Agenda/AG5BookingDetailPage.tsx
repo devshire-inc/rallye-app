@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { cancelBooking, type Booking, type Participant } from '../../lib/api/bookings'
+import { getMe } from '../../lib/api/me'
 import { AddStudentSheet } from './AddStudentSheet'
+import { RemarcarSheet, type RemarcarResult } from './RemarcarSheet'
 import { bookingTitle, bookingTypeLabel } from './agendaShared'
 import '../../components/AuthLayout/AuthLayout.css'
 import './Agenda.css'
@@ -66,6 +68,25 @@ export default function AG5BookingDetailPage() {
   const [message, setMessage] = useState<string | null>(null)
   const [addStudentOpen, setAddStudentOpen] = useState(false)
   const [addStudentSuccessMessage, setAddStudentSuccessMessage] = useState<string | null>(null)
+
+  // remarcarOpen/loggedInStudentId: sheet AG7 "Remarcar" (BEAC-1912, story
+  // BEAC-1705) — mesmo componente reaproveitado por AG3StudentAgendaPage.tsx.
+  // GET /me (mesmo padrão de AG3) resolve o profile id do chamador — este
+  // endpoint self-only (POST /students/{id}/reschedule) precisa dele.
+  const [remarcarOpen, setRemarcarOpen] = useState(false)
+  const [remarcarMessage, setRemarcarMessage] = useState<string | null>(null)
+  const [loggedInStudentId, setLoggedInStudentId] = useState<string | undefined>(undefined)
+
+  useEffect(() => {
+    let cancelled = false
+    getMe().then((result) => {
+      if (cancelled) return
+      if (result.ok) setLoggedInStudentId(result.id)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
 
   if (!unitId || !bookingId) return null
 
@@ -186,16 +207,22 @@ export default function AG5BookingDetailPage() {
           </p>
         ) : null}
 
+        {remarcarMessage ? (
+          <p role="status" className="hint">
+            {remarcarMessage}
+          </p>
+        ) : null}
+
         {isAluno ? (
           <div className="row ag5-actions">
-            <button className="btn btn-ghost btn-sm" type="button" disabled title="AG7, não implementado neste dispatch">
+            <button className="btn btn-ghost btn-sm" type="button" onClick={() => setRemarcarOpen(true)}>
               Remarcar
             </button>
             <button
               className="btn btn-ghost btn-sm"
               type="button"
               disabled
-              title="Depende de geração de crédito (BEAC-1705/1909/1913) — fora de escopo deste dispatch"
+              title="POST /bookings/{id}/cancel-attendance já existe (BEAC-1909), mas fiar este botão a ele não fazia parte da task BEAC-1912 (só o sheet Remarcar) — não implementado neste dispatch"
             >
               Cancelar presença
             </button>
@@ -287,8 +314,9 @@ export default function AG5BookingDetailPage() {
             {cancelling ? 'Cancelando…' : 'Cancelar aula'}
           </button>
           <div className="foot-note">
-            Cancelamento básico (status=cancelled). A geração de crédito para o aluno reagendar depende de
-            BEAC-1909/1913 (story BEAC-1705) — NÃO implementada neste dispatch, ver relatório.
+            Cancelamento (status=cancelled). Desde BEAC-1913 (story BEAC-1705), o backend gera automaticamente
+            um crédito de reagendamento para CADA aluno matriculado nesta ocorrência — sem ação adicional
+            aqui na UI (o crédito aparece pro aluno no sheet Remarcar, AG7).
           </div>
         </div>
       </BottomSheet>
@@ -302,6 +330,26 @@ export default function AG5BookingDetailPage() {
             onCancel={() => setAddStudentOpen(false)}
           />
         ) : null}
+      </BottomSheet>
+
+      <BottomSheet open={remarcarOpen} onClose={() => setRemarcarOpen(false)} label="Remarcar">
+        {unitId && loggedInStudentId ? (
+          <RemarcarSheet
+            unitId={unitId}
+            studentId={loggedInStudentId}
+            onRescheduled={(result: RemarcarResult) => {
+              setRemarcarOpen(false)
+              setRemarcarMessage(
+                result.status === 'pending_approval'
+                  ? 'Pedido de remarcação enviado — aguardando aprovação do admin.'
+                  : 'Remarcação aplicada com sucesso!',
+              )
+            }}
+            onCancel={() => setRemarcarOpen(false)}
+          />
+        ) : (
+          <p role="alert">Não foi possível identificar sua conta para remarcar (tente recarregar a página).</p>
+        )}
       </BottomSheet>
     </AppShell>
   )

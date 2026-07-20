@@ -3,12 +3,19 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as bookingsApi from '../../lib/api/bookings'
 import * as meApi from '../../lib/api/me'
+import * as rescheduleApi from '../../lib/api/reschedule'
 import AG3StudentAgendaPage from './AG3StudentAgendaPage'
 
 beforeEach(() => {
   // Default: GET /me resolves normally — mirrors a logged-in Aluno session.
   // Overridden per-test when a specific id or failure mode matters.
   vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'self-student-id' })
+  // Default: 1 crédito disponível — mirrors the common case. Overridden
+  // per-test for the 0-credits/error/loading scenarios.
+  vi.spyOn(rescheduleApi, 'listRescheduleCredits').mockResolvedValue({
+    ok: true,
+    credits: [{ id: 'credit-1', grantedAt: new Date().toISOString(), expiresAt: new Date().toISOString(), sourceBookingId: 'b1' }],
+  })
 })
 
 afterEach(() => {
@@ -56,18 +63,127 @@ describe('AG3StudentAgendaPage', () => {
     expect(screen.getByText('Confirmada')).toBeInTheDocument()
   })
 
-  it('does NOT show the old fixed "Remarcações usadas este mês: 1/2" text, and marks the credits footer as TODO(BEAC-1706)', async () => {
+  it('does NOT show the old fixed "Remarcações usadas este mês: 1/2" text, and shows the real credit count instead (BEAC-1706)', async () => {
     const gridSpy = vi
       .spyOn(bookingsApi, 'getBookingsGrid')
       .mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
 
     renderPage()
 
-    expect(await screen.findByText(/TODO\(BEAC-1706\)/)).toBeInTheDocument()
+    expect(await screen.findByText('1 crédito disponível este mês')).toBeInTheDocument()
     expect(screen.queryByText(/Remarcações usadas este mês/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/TODO\(BEAC-1706\)/)).not.toBeInTheDocument()
     // Ver comentário no teste "switches to Histórico" — espera a cadeia
     // getMe -> getBookingsGrid assentar antes do teste terminar/desmontar.
     await waitFor(() => expect(gridSpy).toHaveBeenCalled())
+  })
+
+  it('shows the plural credit count in the footer when more than 1 credit is available', async () => {
+    vi.spyOn(rescheduleApi, 'listRescheduleCredits').mockResolvedValue({
+      ok: true,
+      credits: [
+        { id: 'credit-1', grantedAt: new Date().toISOString(), expiresAt: new Date().toISOString(), sourceBookingId: 'b1' },
+        { id: 'credit-2', grantedAt: new Date().toISOString(), expiresAt: new Date().toISOString(), sourceBookingId: 'b2' },
+      ],
+    })
+    vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
+
+    renderPage()
+
+    expect(await screen.findByText('2 créditos disponíveis este mês')).toBeInTheDocument()
+  })
+
+  it('disables "Remarcar" with an explanatory tooltip when the student has no reschedule credits available', async () => {
+    vi.spyOn(rescheduleApi, 'listRescheduleCredits').mockResolvedValue({ ok: true, credits: [] })
+    vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({
+      ok: true,
+      viewOnly: false,
+      bookings: [
+        {
+          id: 'b1',
+          courtId: 'c1',
+          courtName: 'Quadra 2',
+          type: 'class_occurrence',
+          classId: 'cl1',
+          className: 'Beach tennis intermediária',
+          startAt: new Date().toISOString(),
+          endAt: new Date(Date.now() + 3600_000).toISOString(),
+          status: 'confirmed',
+          teacherName: 'Marcus Lima',
+          studentName: null,
+          responsibleName: null,
+          reason: null,
+        },
+      ],
+    })
+
+    renderPage()
+
+    expect(await screen.findByText('0 créditos disponíveis este mês')).toBeInTheDocument()
+    const remarcarButton = await screen.findByRole('button', { name: 'Remarcar' })
+    expect(remarcarButton).toBeDisabled()
+    expect(remarcarButton).toHaveAttribute('title', expect.stringMatching(/crédito/i))
+  })
+
+  it('keeps "Remarcar" enabled without a tooltip when the student has credits available', async () => {
+    vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({
+      ok: true,
+      viewOnly: false,
+      bookings: [
+        {
+          id: 'b1',
+          courtId: 'c1',
+          courtName: 'Quadra 2',
+          type: 'class_occurrence',
+          classId: 'cl1',
+          className: 'Beach tennis intermediária',
+          startAt: new Date().toISOString(),
+          endAt: new Date(Date.now() + 3600_000).toISOString(),
+          status: 'confirmed',
+          teacherName: 'Marcus Lima',
+          studentName: null,
+          responsibleName: null,
+          reason: null,
+        },
+      ],
+    })
+
+    renderPage()
+
+    const remarcarButton = await screen.findByRole('button', { name: 'Remarcar' })
+    await waitFor(() => expect(screen.getByText('1 crédito disponível este mês')).toBeInTheDocument())
+    expect(remarcarButton).not.toBeDisabled()
+    expect(remarcarButton).not.toHaveAttribute('title')
+  })
+
+  it('does not disable "Remarcar" while credits are still loading or if the credits fetch fails (fail-open)', async () => {
+    vi.spyOn(rescheduleApi, 'listRescheduleCredits').mockResolvedValue({ ok: false, status: 500, error: 'server_error' })
+    vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({
+      ok: true,
+      viewOnly: false,
+      bookings: [
+        {
+          id: 'b1',
+          courtId: 'c1',
+          courtName: 'Quadra 2',
+          type: 'class_occurrence',
+          classId: 'cl1',
+          className: 'Beach tennis intermediária',
+          startAt: new Date().toISOString(),
+          endAt: new Date(Date.now() + 3600_000).toISOString(),
+          status: 'confirmed',
+          teacherName: 'Marcus Lima',
+          studentName: null,
+          responsibleName: null,
+          reason: null,
+        },
+      ],
+    })
+
+    renderPage()
+
+    const remarcarButton = await screen.findByRole('button', { name: 'Remarcar' })
+    expect(remarcarButton).not.toBeDisabled()
   })
 
   it('switches to "Histórico" and shows the known-gap placeholder instead of invented attendance data', async () => {

@@ -1,14 +1,24 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { getMe } from '../../lib/api/me'
+import { listRescheduleCredits } from '../../lib/api/reschedule'
 import { formatWeekdayDate, isSameDay } from './agendaShared'
+import { RemarcarSheet, type RemarcarResult } from './RemarcarSheet'
 import '../../components/AuthLayout/AuthLayout.css'
 import './Agenda.css'
 import './AG3StudentAgendaPage.css'
 
 type Tab = 'prox' | 'hist'
+
+type CreditsState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; count: number }
+
+function creditsFootNote(state: CreditsState): string | null {
+  if (state.status !== 'ready') return null
+  return `${state.count} ${state.count === 1 ? 'crédito disponível' : 'créditos disponíveis'} este mês`
+}
 
 function groupByDate(bookings: Booking[]): { label: string; items: Booking[] }[] {
   const groups = new Map<string, Booking[]>()
@@ -84,6 +94,27 @@ export default function AG3StudentAgendaPage() {
   const [loggedInStudentId, setLoggedInStudentId] = useState<string | undefined>(undefined)
   const [identityResolved, setIdentityResolved] = useState(false)
 
+  // remarcarOpen/remarcarMessage: sheet AG7 "Remarcar" (BEAC-1912, story
+  // BEAC-1705). Não é escopado a UMA linha específica — opera sobre os
+  // créditos de reagendamento JÁ concedidos ao aluno (gerados por um
+  // cancelamento anterior, BEAC-1909/1913), não sobre o booking da linha
+  // clicada — por isso qualquer botão "Remarcar" da lista abre a MESMA
+  // instância do sheet. refreshKey força o useEffect de busca de bookings
+  // abaixo a rodar de novo depois de uma remarcação aplicada (novo booking
+  // de destino pode não estar refletido na lista atual ainda).
+  const [remarcarOpen, setRemarcarOpen] = useState(false)
+  const [remarcarMessage, setRemarcarMessage] = useState<string | null>(null)
+  const [refreshKey, setRefreshKey] = useState(0)
+
+  // creditsState (BEAC-1706/1915): contagem REAL de créditos de
+  // reagendamento disponíveis, pro footer e pro gate do botão "Remarcar".
+  // Falha aberto (fail-open) em loading/error — igual ao resto desta
+  // página (ver loggedInStudentId acima): nunca bloqueia a tela por causa
+  // desta info secundária. RemarcarSheet ainda revalida os créditos ao
+  // abrir o sheet, então este gate é só uma camada extra de UX, não a
+  // única proteção contra remarcar sem crédito.
+  const [creditsState, setCreditsState] = useState<CreditsState>({ status: 'loading' })
+
   useEffect(() => {
     let cancelled = false
     getMe().then((result) => {
@@ -118,9 +149,36 @@ export default function AG3StudentAgendaPage() {
     return () => {
       cancelled = true
     }
-  }, [unitId, identityResolved, loggedInStudentId])
+  }, [unitId, identityResolved, loggedInStudentId, refreshKey])
+
+  useEffect(() => {
+    if (!identityResolved || !loggedInStudentId) return
+    let cancelled = false
+    listRescheduleCredits(loggedInStudentId).then((result) => {
+      if (cancelled) return
+      if (!result.ok) {
+        setCreditsState({ status: 'error' })
+        return
+      }
+      setCreditsState({ status: 'ready', count: result.credits.length })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [identityResolved, loggedInStudentId, refreshKey])
 
   const groups = useMemo(() => groupByDate(bookings), [bookings])
+  const hasNoCredits = creditsState.status === 'ready' && creditsState.count === 0
+
+  function handleRescheduled(result: RemarcarResult) {
+    setRemarcarOpen(false)
+    setRemarcarMessage(
+      result.status === 'pending_approval'
+        ? 'Pedido de remarcação enviado — aguardando aprovação do admin.'
+        : 'Remarcação aplicada com sucesso!',
+    )
+    setRefreshKey((k) => k + 1)
+  }
 
   return (
     <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
@@ -150,6 +208,11 @@ export default function AG3StudentAgendaPage() {
       </div>
 
       {loadError ? <p role="alert">{loadError}</p> : null}
+      {remarcarMessage ? (
+        <p role="status" className="hint">
+          {remarcarMessage}
+        </p>
+      ) : null}
 
       {tab === 'prox' ? (
         <div className="dash-body">
@@ -174,7 +237,17 @@ export default function AG3StudentAgendaPage() {
                       </div>
                     </div>
                     <div className="tail">
-                      <button className="linkbtn" type="button" data-sheet="ag7" disabled title="AG7, não implementado neste dispatch">
+                      <button
+                        className="linkbtn"
+                        type="button"
+                        data-sheet="ag7"
+                        disabled={hasNoCredits}
+                        title={hasNoCredits ? 'Nenhum crédito de reagendamento disponível este mês' : undefined}
+                        onClick={() => {
+                          setRemarcarMessage(null)
+                          setRemarcarOpen(true)
+                        }}
+                      >
                         Remarcar
                       </button>
                       <span className="badge b-success">Confirmada</span>
@@ -188,7 +261,7 @@ export default function AG3StudentAgendaPage() {
           <button className="btn btn-primary btn-md btn-full" type="button" disabled title="Sem endpoint de agendamento self-service ainda — ver relatório de dispatch">
             Agendar aula
           </button>
-          <div className="foot-note">TODO(BEAC-1706): créditos do plano.</div>
+          {creditsFootNote(creditsState) ? <div className="foot-note">{creditsFootNote(creditsState)}</div> : null}
         </div>
       ) : (
         <div className="dash-body">
@@ -200,6 +273,19 @@ export default function AG3StudentAgendaPage() {
           </p>
         </div>
       )}
+
+      <BottomSheet open={remarcarOpen} onClose={() => setRemarcarOpen(false)} label="Remarcar">
+        {unitId && loggedInStudentId ? (
+          <RemarcarSheet
+            unitId={unitId}
+            studentId={loggedInStudentId}
+            onRescheduled={handleRescheduled}
+            onCancel={() => setRemarcarOpen(false)}
+          />
+        ) : (
+          <p role="alert">Não foi possível identificar sua conta para remarcar (tente recarregar a página).</p>
+        )}
+      </BottomSheet>
     </AppShell>
   )
 }
