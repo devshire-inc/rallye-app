@@ -1,0 +1,96 @@
+/* OfferSheet — AG9 (BEAC-1923, story BEAC-1708). Classes .srow/.lbl/.ssub/
+   .toast*/.row copiadas do protótipo real (`#sheet-ag9`, Artifact "Rallye —
+   Agenda") — self-contained, mesmo padrão de WaitlistSheet.css/
+   NovaReservaSheet.css (não assume que outra página já carregou o CSS
+   equivalente). Classes próprias prefixadas `.offer-sheet-*`. */
+
+.offer-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.offer-sheet-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+}
+.offer-sheet-head h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  margin: 0;
+}
+.offer-sheet-icon {
+  width: 52px;
+  height: 52px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--accent) 20%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.ssub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.srow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.srow .lbl {
+  min-width: 70px;
+  color: var(--text-muted);
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+.offer-sheet-actions button {
+  flex: 1;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-input);
+  font-size: 12.5px;
+  margin: 0;
+}
+.toast-warning {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+.toast-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.toast-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}
+.toast-error {
+  background: var(--error-bg);
+  color: var(--error-fg);
+}
