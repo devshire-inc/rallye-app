@@ -22,6 +22,8 @@ import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
 import NewStudentPage from './pages/Students/NewStudentPage'
 import StudentProfilePage from './pages/Students/StudentProfilePage'
+import TeacherProfilePage from './pages/Teachers/TeacherProfilePage'
+import TeachersListPage from './pages/Teachers/TeachersListPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
 import TurmaDetailPage from './pages/Turmas/TurmaDetailPage'
 import TurmasListPage from './pages/Turmas/TurmasListPage'
@@ -135,6 +137,14 @@ function AppRoutes() {
           (T2 usa :classId como segundo segmento dinâmico, não um literal). */}
       <Route path="/units/:unitId/classes" element={<TurmasListPage />} />
       <Route path="/units/:unitId/classes/:classId" element={<TurmaDetailPage />} />
+      {/* PR1/PR2 — Lista de professores / Perfil do professor (BEAC-1880,
+          épico 5). Rotas unit-scoped, mesmo padrão de
+          /units/:unitId/classes(/:classId) acima. PR3 (BEAC-1875, cadastro)
+          NÃO está registrada aqui — "+ Novo professor" (TeachersListPage)
+          navega para uma rota que não existe ainda, fora do escopo desta
+          dispatch (ver comentário de pacote em TeachersListPage.tsx). */}
+      <Route path="/units/:unitId/teachers" element={<TeachersListPage />} />
+      <Route path="/units/:unitId/teachers/:teacherId" element={<TeacherProfilePage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />

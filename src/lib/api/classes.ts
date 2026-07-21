@@ -108,7 +108,12 @@ export interface ApiFailure {
 
 async function failureFrom(response: Response): Promise<ApiFailure> {
   const body = await response.json().catch(() => ({}))
-  return { ok: false, status: response.status, error: body.error ?? 'unknown_error', message: body.message }
+  return {
+    ok: false,
+    status: response.status,
+    error: body.error ?? 'unknown_error',
+    message: body.message,
+  }
 }
 
 export interface CreateClassSuccess {
@@ -155,9 +160,14 @@ export interface ListClassesSuccess {
 export type ListClassesResult = ListClassesSuccess | ApiFailure
 
 /** GET /units/{id}/classes — lista turmas da unit (ativas e inativas;
- * Professor vê só as suas — decidido pelo backend, não por este cliente). */
-export async function listClasses(unitId: string): Promise<ListClassesResult> {
-  const response = await apiFetch(`/units/${encodeURIComponent(unitId)}/classes`)
+ * Professor vê só as suas — decidido pelo backend, não por este cliente).
+ * `teacherId` opcional (BEAC-1880/PR2, aba Turmas): filtra pelas turmas de um
+ * professor específico — ignorado pelo backend quando o CHAMADOR é
+ * Professor (self-filter sempre prevalece, ver comentário de
+ * ListHandler/api/internal/classes/handler.go). */
+export async function listClasses(unitId: string, teacherId?: string): Promise<ListClassesResult> {
+  const query = teacherId ? `?teacher_id=${encodeURIComponent(teacherId)}` : ''
+  const response = await apiFetch(`/units/${encodeURIComponent(unitId)}/classes${query}`)
 
   if (!response.ok) return failureFrom(response)
 

@@ -1,0 +1,334 @@
+/* PR2 — Perfil do Professor (Admin View) (BEAC-1880). Classes/valores
+   traduzidos diretamente do CSS real do protótipo (Artifact "Rallye —
+   Pessoas & Turmas", seção `scr-pr2`) — self-contained (não assume que
+   outra página já carregou o CSS equivalente), mesmo padrão de
+   TurmaDetailPage.css/StudentProfilePage.css. `.stat4`/`.mini-bars` (aba
+   Comissão) e `.bio-text` (aba Bio) são autorais — não existia CSS próprio
+   dessas seções no arquivo salvo do protótipo além do inline style visto
+   diretamente em cada elemento, reproduzido aqui como classes reais. */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-6);
+  margin-bottom: var(--space-2);
+}
+.pg-head .spacer {
+  flex: 1;
+}
+.pg-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.iconbtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+.iconbtn:hover {
+  border-color: var(--teal);
+  color: var(--teal);
+}
+
+.prof-head {
+  display: flex;
+  gap: 14px;
+  padding: var(--space-5) var(--space-6) var(--space-4);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.avatar-lg {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  flex: none;
+}
+.ph-main {
+  flex: 1;
+  min-width: 200px;
+}
+.ph-main h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.ph-main .mt {
+  color: var(--text-muted);
+  font-size: 12.5px;
+  margin-top: 2px;
+}
+
+.sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+.badge.b-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}
+
+.ptabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-6);
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+}
+.ptabs button {
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.ptabs button.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.dash-body {
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 560px;
+}
+.ptab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.hint {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.ag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.ag-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: border-color var(--motion-fast);
+}
+.ag-row:hover {
+  border-color: var(--teal);
+}
+.ag-row .what {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.ag-row .what .nm {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.ag-row .what .mt {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+/* .stat4 — grid 2x2 (aba Comissão): Modelo/Aulas no mês/Receita gerada/
+   Comissão do mês. */
+.stat4 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+}
+.stat4 .s {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 12px 14px;
+}
+.stat4 .l {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+.stat4 .v {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 17px;
+}
+.stat4 .v--highlight {
+  color: var(--success-fg);
+}
+
+.sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.sec-head h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  margin: 0;
+}
+
+/* .mini-bars — gráfico de barras simples dos últimos 3 meses. */
+.mini-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--space-4);
+  height: 68px;
+  margin-top: 8px;
+}
+.mb {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+}
+.mb .bar {
+  width: 100%;
+  max-width: 32px;
+  border-radius: var(--radius-pill) var(--radius-pill) 2px 2px;
+  background: var(--sand);
+}
+.mb span {
+  font-size: 10.5px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.bio-text {
+  font-size: 13.5px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.settings-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+.settings-sheet__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.sec-head-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--radius-card);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  background: var(--surface);
+}
+.role-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px var(--space-4);
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.role-row--clickable {
+  cursor: pointer;
+}
+.role-row--clickable:hover {
+  background: var(--sand);
+}
+.role-row .rn {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+.field input,
+.field select {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 8px 12px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--surface);
+}
+.sheet-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
