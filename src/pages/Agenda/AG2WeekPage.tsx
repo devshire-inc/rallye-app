@@ -74,16 +74,24 @@ export default function AG2WeekPage() {
 
   const reloadBookings = useCallback(() => {
     if (!unitId || !selectedCourtId) return
-    getBookingsGrid(unitId, from, to, selectedCourtId).then((result) => {
-      if (!mountedRef.current) return
-      if (!result.ok) {
-        setLoadError(`Não foi possível carregar a agenda (${result.error}).`)
-        return
-      }
-      setLoadError(null)
-      setBookings(result.bookings)
-      setViewOnly(result.viewOnly)
-    })
+    getBookingsGrid(unitId, from, to, selectedCourtId)
+      .then((result) => {
+        if (!mountedRef.current) return
+        if (!result.ok) {
+          setLoadError(`Não foi possível carregar a agenda (${result.error}).`)
+          return
+        }
+        setLoadError(null)
+        setBookings(result.bookings)
+        setViewOnly(result.viewOnly)
+      })
+      .catch(() => {
+        // getBookingsGrid não deveria rejeitar (erros de API já viram
+        // {ok: false} tratado acima) — mas uma falha de rede real (fetch
+        // lançando) não pode virar unhandled rejection no app rodando.
+        if (!mountedRef.current) return
+        setLoadError('Não foi possível carregar a agenda (falha de rede).')
+      })
   }, [unitId, selectedCourtId, from, to])
 
   useEffect(() => {
