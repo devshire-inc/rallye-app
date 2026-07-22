@@ -6,14 +6,20 @@ import { DASHBOARD_PATH } from './redirectTarget'
  * Professor / D3 Admin / OW1 Tenant Owner conforme o role NAQUELA unit
  * (BEAC-1681/1835).
  *
- * Nenhum desses dashboards por role existe de verdade no app ainda (só o
- * `/dashboard` genérico de BEAC-1674/DashboardPage) — o próprio AC de
- * BEAC-1835 permite navegação stub/placeholder nesse caso ("fora de
- * escopo desta task"). Este é o ÚNICO ponto de extensão: quando D1/D2/D3/
- * OW1 existirem, o mapeamento role → path entra aqui, sem tocar em quem
- * chama esta função.
+ * D1/D2/OW1 ainda não existem (só o `/dashboard` genérico de
+ * BEAC-1674/DashboardPage). D3 passou a existir PARCIALMENTE nesta story
+ * (BEAC-1893, card "Central de Pendências") — o dashboard admin completo
+ * (stat tiles, ações rápidas etc., ver protótipo real) continua fora de
+ * escopo, só o card foi construído. Como o card é gated por PERMISSION
+ * (read em agenda OU professores — AC da story), não por nome de role,
+ * navegar QUALQUER role para o dashboard unit-scoped é seguro: quem não
+ * tiver a permission simplesmente não vê o card (mesmo comportamento do
+ * placeholder genérico que já existia). `role` fica sem uso por ora
+ * (mantido na assinatura — é o ponto de extensão documentado quando D1/D2/
+ * OW1 existirem de verdade e precisarem de paths distintos).
  */
-export function dashboardPathForRole(role: string | null): string {
-  void role // stub — ver comentário acima; nenhum dashboard por role existe ainda.
-  return DASHBOARD_PATH
+export function dashboardPathForRole(role: string | null, unitId: string | null): string {
+  void role
+  if (!unitId) return DASHBOARD_PATH
+  return `/units/${unitId}/dashboard`
 }

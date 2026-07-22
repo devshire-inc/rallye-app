@@ -29,6 +29,22 @@ export interface EarningsHistoryEntry {
   amount: number
 }
 
+// EarningsBreakdownEntry (BEAC-1885/BEAC-1701): detalhamento do período
+// CORRENTE por turma. SÓ populado para contribuições do modelo per_class —
+// fixed não é computado por turma (um único valor agregado por mês);
+// commission depende de RevenueSource, indisponível até o Épico 7 existir
+// (mesmo gap de revenueGenerated). Decisão travada via AskUserQuestion
+// durante a execução de BEAC-1885 (ver comentário de pacote de
+// rallye-api/api/internal/commission/service.go, PeriodBreakdownByClass): a
+// soma de breakdown só bate com pendingAmount+paidAmount quando o período
+// inteiro é per_class — não é um total garantido para os outros modelos.
+export interface EarningsBreakdownEntry {
+  classId: string
+  className: string
+  classCount: number
+  amount: number
+}
+
 export interface Earnings {
   remunerationModel: RemunerationModel
   classesGivenInPeriod: number
@@ -37,6 +53,7 @@ export interface Earnings {
   paidAmount: number
   currentMonthAmount: number | null
   history: EarningsHistoryEntry[]
+  breakdown: EarningsBreakdownEntry[]
 }
 
 type EarningsWire = {
@@ -47,6 +64,7 @@ type EarningsWire = {
   paid_amount: number
   current_month_amount: number | null
   history: { period: string; amount: number }[]
+  breakdown: { class_id: string; class_name: string; class_count: number; amount: number }[]
 }
 
 function fromWire(wire: EarningsWire): Earnings {
@@ -58,6 +76,12 @@ function fromWire(wire: EarningsWire): Earnings {
     paidAmount: wire.paid_amount,
     currentMonthAmount: wire.current_month_amount,
     history: wire.history,
+    breakdown: (wire.breakdown ?? []).map((b) => ({
+      classId: b.class_id,
+      className: b.class_name,
+      classCount: b.class_count,
+      amount: b.amount,
+    })),
   }
 }
 

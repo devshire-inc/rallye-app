@@ -35,11 +35,12 @@ type Tab = 'turmas' | 'horarios' | 'comissao' | 'bio'
  *
  * ## Engrenagem [⚙️]
  *
- * Abre um menu simples com SÓ a ação "Alterar remuneração" (BottomSheet +
- * RemunerationSheet.tsx, PATCH /teachers/{id}/remuneration) — as demais
- * ações do doc real (Editar dados, Relatório de performance, Desativar
- * professor) não têm endpoint correspondente e ficam fora de escopo (ver
- * comentário de pacote de RemunerationSheet.tsx). Só visível com
+ * Abre um menu (BottomSheet + RemunerationSheet.tsx) com "Editar dados"
+ * (BEAC-1875, navega para PR3 em modo editar,
+ * `/units/:unitId/teachers/:teacherId/edit`) e "Alterar remuneração" (PATCH
+ * /teachers/{id}/remuneration) — "Relatório de performance" e "Desativar
+ * professor" do doc real continuam sem endpoint correspondente, fora de
+ * escopo (ver comentário de pacote de RemunerationSheet.tsx). Só visível com
  * `professores:write` — "esconder sempre, nunca desabilitar".
  *
  * ## Aba Turmas
@@ -66,8 +67,8 @@ type Tab = 'turmas' | 'horarios' | 'comissao' | 'bio'
  * aplicável)/Comissão do mês (currentMonthAmount, achado desta story — ver
  * comentário de pacote de earnings.ts), gráfico de barras dos ÚLTIMOS 3
  * meses (o endpoint devolve 6, usamos só os 3 mais recentes pra bater com o
- * protótipo), hint fixo e botão para PR4 (TODO(BEAC-1700) — rota ainda não
- * registrada, PR4/Meus Ganhos não existe nesta base).
+ * protótipo), hint fixo e botão para PR4 (BEAC-1700/BEAC-1884, "Meus
+ * Ganhos" — TeacherEarningsPage.tsx, usa os 6 meses inteiros).
  *
  * ## Aba Bio
  *
@@ -76,6 +77,7 @@ type Tab = 'turmas' | 'horarios' | 'comissao' | 'bio'
  */
 export default function TeacherProfilePage() {
   const { unitId, teacherId } = useParams<{ unitId: string; teacherId: string }>()
+  const navigate = useNavigate()
   const canManageRemuneration = usePermission('professores', 'write')
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [tab, setTab] = useState<Tab>('turmas')
@@ -210,6 +212,10 @@ export default function TeacherProfilePage() {
               setRemunerationOpen(false)
             }}
             onClose={() => setRemunerationOpen(false)}
+            onEditData={() => {
+              setRemunerationOpen(false)
+              if (unitId) navigate(`/units/${unitId}/teachers/${teacher.id}/edit`)
+            }}
           />
         ) : null}
       </BottomSheet>
@@ -444,12 +450,8 @@ function ComissaoTab({
         Comissão calculada automaticamente por cron mensal (registro em commission_records).
       </p>
 
-      {/* TODO(BEAC-1700): PR4 (Meus Ganhos, visão do professor) ainda não
-          existe nesta base — rota abaixo (4 segmentos) não casa com nenhuma
-          rota registrada em App.tsx, então cai no catch-all ("*" ->
-          /login); como a sessão do admin já é válida, LoginPage redireciona
-          de volta pro dashboard dele — efeito visível (sai da aba Comissão),
-          mas não desloga ninguém. */}
+      {/* PR4 — Meus Ganhos (BEAC-1700/BEAC-1884), agora registrada em
+          App.tsx (TeacherEarningsPage.tsx). */}
       <button
         type="button"
         className="btn btn-ghost btn-sm"

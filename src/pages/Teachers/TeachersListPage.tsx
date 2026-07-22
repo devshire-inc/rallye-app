@@ -27,14 +27,8 @@ type LoadState =
  * respostas obsoletas) — aceitável no volume desta tela, mas revisitar se
  * a lista de professores crescer o bastante para o custo de rede pesar.
  *
- * "+ Novo professor" navega para PR3 (BEAC-1875, cadastro de professor) —
- * TODO(BEAC-1875): PR3 ainda não existe nesta base (nenhuma rota registrada
- * em App.tsx). O botão é sempre visível para quem tem `professores:write`
- * (aponta para uma rota ainda não registrada; como só existe a rota dinâmica
- * `/units/:unitId/teachers/:teacherId`, react-router casa "new" como
- * teacherId e a navegação renderiza TeacherProfilePage com um 404 "Professor
- * não encontrado" — efeito visível, mas inofensivo, até PR3 ser construído
- * numa task própria, fora do escopo desta dispatch).
+ * "+ Novo professor" navega para PR3 (BEAC-1875, cadastro de professor —
+ * `/units/:unitId/teachers/new`, TeacherFormPage.tsx em modo criar).
  *
  * Permissão: `professores:write` controla o botão "+ Novo professor" —
  * "esconder sempre, nunca desabilitar" (usePermission.ts). A leitura da

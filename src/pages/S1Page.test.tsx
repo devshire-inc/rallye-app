@@ -56,6 +56,7 @@ function renderPage() {
         <Routes>
           <Route path="/s1" element={<S1Page />} />
           <Route path="/dashboard" element={<div>Dashboard placeholder</div>} />
+          <Route path="/units/:unitId/dashboard" element={<div>Dashboard placeholder</div>} />
         </Routes>
       </MemoryRouter>
     </PermissionsProvider>,

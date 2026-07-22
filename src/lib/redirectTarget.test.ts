@@ -14,8 +14,8 @@ describe('redirectPathForMemberships', () => {
     )
   })
 
-  it('goes straight to the dashboard when there is exactly 1 membership', () => {
-    expect(redirectPathForMemberships([membership('a')])).toBe(DASHBOARD_PATH)
+  it('goes straight to the unit-scoped dashboard when there is exactly 1 membership', () => {
+    expect(redirectPathForMemberships([membership('a')])).toBe('/units/a/dashboard')
   })
 
   it('goes to the dashboard when there are no memberships (fallback)', () => {

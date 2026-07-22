@@ -12,6 +12,19 @@ import type { Membership } from './tenantContext'
 export const S1_PATH = '/s1'
 export const DASHBOARD_PATH = '/dashboard'
 
+/**
+ * BEAC-1893 (Central de Pendências no D3): quando há exatamente 1
+ * membership, navega direto para o dashboard UNIT-SCOPED
+ * (`/units/{unitId}/dashboard`) em vez do `/dashboard` genérico — D3 (card
+ * de Pendências) precisa de um unitId no path pra chamar GET
+ * /units/{id}/pending-approvals (não existe nenhum mecanismo de "unit
+ * ativa" acessível no frontend fora de route params, ver comentário de
+ * pacote de DashboardPage.tsx). Sem memberships (fallback raro) continua
+ * indo para o `/dashboard` genérico — não há unitId nenhum pra montar o
+ * path.
+ */
 export function redirectPathForMemberships(memberships: Membership[]): string {
-  return memberships.length >= 2 ? S1_PATH : DASHBOARD_PATH
+  if (memberships.length >= 2) return S1_PATH
+  if (memberships.length === 1) return `/units/${memberships[0].unit_id}/dashboard`
+  return DASHBOARD_PATH
 }

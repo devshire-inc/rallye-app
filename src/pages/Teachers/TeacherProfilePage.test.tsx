@@ -53,6 +53,7 @@ function earnings(overrides: Partial<Earnings> = {}): Earnings {
       { period: '2026-06-01', amount: 3560 },
       { period: '2026-07-01', amount: 3720 },
     ],
+    breakdown: [],
     ...overrides,
   }
 }
@@ -66,6 +67,10 @@ function renderPage(unitId = 'unit-1', teacherId = 'teacher-1') {
           element={<div>Lista de professores placeholder</div>}
         />
         <Route path="/units/:unitId/teachers/:teacherId" element={<TeacherProfilePage />} />
+        <Route
+          path="/units/:unitId/teachers/:teacherId/edit"
+          element={<div>PR3 edição placeholder</div>}
+        />
       </Routes>
     </MemoryRouter>,
   )
@@ -163,6 +168,21 @@ describe('TeacherProfilePage — gear menu permission gate', () => {
     await user.click(screen.getByRole('button', { name: 'Ações' }))
 
     expect(screen.getByText('Alterar remuneração')).toBeInTheDocument()
+  })
+
+  it('navigates to PR3 edit mode when "Editar dados" is clicked (BEAC-1875)', async () => {
+    mockPermissions({ 'professores:write': true })
+    vi.spyOn(teachersApi, 'getTeacher').mockResolvedValue({ ok: true, teacher: teacher() })
+    mockClassesAndAvailabilityIdle()
+
+    renderPage('unit-1', 'teacher-1')
+    await screen.findByText('Marcus Lima')
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Ações' }))
+    await user.click(screen.getByText('Editar dados'))
+
+    expect(await screen.findByText('PR3 edição placeholder')).toBeInTheDocument()
   })
 })
 

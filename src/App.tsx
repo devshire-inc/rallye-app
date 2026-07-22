@@ -22,6 +22,8 @@ import S1Page from './pages/S1Page'
 import { SignupPage } from './pages/SignupPage'
 import NewStudentPage from './pages/Students/NewStudentPage'
 import StudentProfilePage from './pages/Students/StudentProfilePage'
+import TeacherEarningsPage from './pages/Teachers/TeacherEarningsPage'
+import TeacherFormPage from './pages/Teachers/TeacherFormPage'
 import TeacherProfilePage from './pages/Teachers/TeacherProfilePage'
 import TeachersListPage from './pages/Teachers/TeachersListPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
@@ -77,6 +79,12 @@ function AppRoutes() {
       <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route path="/s1" element={<S1Page />} />
       <Route path="/dashboard" element={<DashboardPage />} />
+      {/* D3 — Dashboard Admin, parcial (BEAC-1893: só o card "Central de
+          Pendências", ver comentário de pacote de DashboardPage.tsx e
+          lib/dashboardTarget.ts). Unit-scoped porque o card precisa de um
+          unitId no path — não existe mecanismo de "unit ativa" acessível
+          no frontend fora de route params. */}
+      <Route path="/units/:unitId/dashboard" element={<DashboardPage />} />
       {/* PF3/OW2/OW3 — story BEAC-1680 (BEAC-1832): shell mínima de perfil e
           o fluxo de criação de Unit adicional em rede existente. */}
       <Route path="/perfil" element={<ProfilePage />} />
@@ -139,12 +147,22 @@ function AppRoutes() {
       <Route path="/units/:unitId/classes/:classId" element={<TurmaDetailPage />} />
       {/* PR1/PR2 — Lista de professores / Perfil do professor (BEAC-1880,
           épico 5). Rotas unit-scoped, mesmo padrão de
-          /units/:unitId/classes(/:classId) acima. PR3 (BEAC-1875, cadastro)
-          NÃO está registrada aqui — "+ Novo professor" (TeachersListPage)
-          navega para uma rota que não existe ainda, fora do escopo desta
-          dispatch (ver comentário de pacote em TeachersListPage.tsx). */}
+          /units/:unitId/classes(/:classId) acima. */}
       <Route path="/units/:unitId/teachers" element={<TeachersListPage />} />
+      {/* PR3 — Cadastro/Edição de Professor (BEAC-1875, mesma story). Mesmo
+          componente para os dois modos (TeacherFormPage deriva o modo da
+          presença de :teacherId no path) — segmentos literais "new"/"edit"
+          casam antes do :teacherId dinâmico (mesma prioridade de rota
+          estática > dinâmica de react-router v6 já documentada em
+          /units/:unitId/students/new). */}
+      <Route path="/units/:unitId/teachers/new" element={<TeacherFormPage />} />
+      <Route path="/units/:unitId/teachers/:teacherId/edit" element={<TeacherFormPage />} />
       <Route path="/units/:unitId/teachers/:teacherId" element={<TeacherProfilePage />} />
+      {/* PR4 — Meus Ganhos (BEAC-1700/BEAC-1884, feature BEAC-1635 wave 1).
+          Sem PF2 nesta base ainda (comment de pacote em
+          TeacherEarningsPage.tsx) — alcançada hoje via o botão "Ver como o
+          professor vê" da aba Comissão de PR2. */}
+      <Route path="/units/:unitId/teachers/:teacherId/earnings" element={<TeacherEarningsPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />

@@ -85,7 +85,7 @@ export default function S1Page() {
         // ver comentário acima — best-effort.
       }
       await refetchPermissions()
-      navigate(dashboardPathForRole(membership.role), { replace: true })
+      navigate(dashboardPathForRole(membership.role, membership.unitId), { replace: true })
     },
     [navigate, refetchPermissions],
   )

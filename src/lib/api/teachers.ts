@@ -137,3 +137,174 @@ export async function getTeacher(teacherId: string): Promise<GetTeacherResult> {
   const body = (await response.json()) as TeacherWire
   return { ok: true, teacher: fromWire(body) }
 }
+
+// ---------------------------------------------------------------------------
+// POST /units/{id}/teachers — cadastro + convite (BEAC-1874/PR3 modo criar).
+// Mesmo contrato de 3 cenários de src/lib/api/students.ts createStudent (ver
+// comentário de módulo lá) — reproduzido aqui deliberadamente não
+// compartilhado entre pacotes, mesma convenção do backend
+// (api/internal/teachers/handler.go vs. api/internal/students/handler.go).
+// ---------------------------------------------------------------------------
+
+export interface InviteChannelsPayload {
+  email: boolean
+  whatsapp: boolean
+}
+
+export interface CreateTeacherPayload {
+  fullName: string
+  email: string
+  phone?: string
+  remunerationModel: RemunerationModel
+  remunerationValue: number
+  sports: string[]
+  certifications?: string
+  bio?: string
+  inviteChannels: InviteChannelsPayload
+  confirmExistingAccount?: boolean
+}
+
+export interface CreateTeacherCreated {
+  ok: true
+  kind: 'created'
+  teacherId: string
+  status: string
+  inviteSentVia: string[]
+}
+
+export interface CreateTeacherMembershipCreated {
+  ok: true
+  kind: 'membership_created'
+  email: string
+}
+
+export type CreateTeacherSuccess = CreateTeacherCreated | CreateTeacherMembershipCreated
+
+export interface CreateTeacherAccountExists {
+  ok: false
+  status: 409
+  error: 'account_exists'
+  message: string
+  email: string
+}
+
+export interface CreateTeacherAlreadyRegistered {
+  ok: false
+  status: 409
+  error: 'already_registered'
+  message: string
+}
+
+export interface CreateTeacherGenericFailure {
+  ok: false
+  status: number
+  error: string
+  message?: string
+}
+
+export type CreateTeacherFailure =
+  | CreateTeacherAccountExists
+  | CreateTeacherAlreadyRegistered
+  | CreateTeacherGenericFailure
+
+export type CreateTeacherResult = CreateTeacherSuccess | CreateTeacherFailure
+
+function toCreateWireBody(payload: CreateTeacherPayload): Record<string, unknown> {
+  return {
+    full_name: payload.fullName,
+    email: payload.email,
+    phone: payload.phone,
+    remuneration_model: payload.remunerationModel,
+    remuneration_value: payload.remunerationValue,
+    sports: payload.sports,
+    certifications: payload.certifications,
+    bio: payload.bio,
+    invite_channels: { email: payload.inviteChannels.email, whatsapp: payload.inviteChannels.whatsapp },
+    confirm_existing_account: payload.confirmExistingAccount ?? false,
+  }
+}
+
+/** POST /units/{id}/teachers — cadastra professor e convida (ver comentário de módulo). */
+export async function createTeacher(
+  unitId: string,
+  payload: CreateTeacherPayload,
+): Promise<CreateTeacherResult> {
+  const response = await apiFetch(`/units/${encodeURIComponent(unitId)}/teachers`, {
+    method: 'POST',
+    body: JSON.stringify(toCreateWireBody(payload)),
+  })
+
+  const body = await response.json().catch(() => ({}))
+
+  if (response.ok) {
+    if (body.membership_created === true) {
+      return { ok: true, kind: 'membership_created', email: body.email ?? payload.email }
+    }
+    return {
+      ok: true,
+      kind: 'created',
+      teacherId: body.teacher_id,
+      status: body.status,
+      inviteSentVia: body.invite_sent_via ?? [],
+    }
+  }
+
+  if (response.status === 409 && body.error === 'account_exists') {
+    return {
+      ok: false,
+      status: 409,
+      error: 'account_exists',
+      message: body.message ?? 'Já existe uma conta com este e-mail.',
+      email: body.email ?? payload.email,
+    }
+  }
+  if (response.status === 409 && body.error === 'already_registered') {
+    return {
+      ok: false,
+      status: 409,
+      error: 'already_registered',
+      message: body.message ?? 'Este e-mail já está cadastrado nesta unidade.',
+    }
+  }
+
+  return { ok: false, status: response.status, error: body.error ?? 'unknown_error', message: body.message }
+}
+
+// ---------------------------------------------------------------------------
+// PATCH /teachers/{id} — edição de dados básicos (BEAC-1875/PR3 modo editar).
+// NÃO inclui e-mail (imutável) nem remuneração (endpoint próprio, ver
+// src/lib/api/remuneration.ts) — ver comentário de pacote do handler real
+// (rallye-api/api/internal/teachers/patch_handler.go).
+// ---------------------------------------------------------------------------
+
+export interface PatchTeacherPayload {
+  fullName: string
+  phone?: string
+  sports: string[]
+  certifications?: string
+  bio?: string
+}
+
+export type PatchTeacherResult = GetTeacherSuccess | ApiFailure
+
+/** PATCH /teachers/{id}. */
+export async function patchTeacher(
+  teacherId: string,
+  payload: PatchTeacherPayload,
+): Promise<PatchTeacherResult> {
+  const response = await apiFetch(`/teachers/${encodeURIComponent(teacherId)}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      full_name: payload.fullName,
+      phone: payload.phone,
+      sports: payload.sports,
+      certifications: payload.certifications,
+      bio: payload.bio,
+    }),
+  })
+
+  if (!response.ok) return failureFrom(response)
+
+  const body = (await response.json()) as TeacherWire
+  return { ok: true, teacher: fromWire(body) }
+}
