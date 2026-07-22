@@ -73,6 +73,7 @@ function participant(id: string): BookingParticipant {
     source: 'manual',
     attendanceStatus: null,
     checkedInAt: null,
+    tier: null,
   }
 }
 
