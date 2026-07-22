@@ -34,6 +34,10 @@ const wireBooking = {
   status: 'confirmed',
   teacher_name: 'Ana Beltrão',
   student_name: 'João',
+  unit_id: 'unit-1',
+  unit_name: 'Unit Teste',
+  checked_in: false,
+  student_count: 0,
 }
 
 describe('getBookingsGrid', () => {
@@ -65,6 +69,10 @@ describe('getBookingsGrid', () => {
           studentName: 'João',
           responsibleName: null,
           reason: null,
+          unitId: 'unit-1',
+          unitName: 'Unit Teste',
+          checkedIn: false,
+          studentCount: 0,
         },
       ],
     })
@@ -77,6 +85,16 @@ describe('getBookingsGrid', () => {
 
     expect(apiFetchMock).toHaveBeenCalledWith(
       '/units/unit-1/bookings?from=2026-07-10T00%3A00%3A00Z&to=2026-07-11T00%3A00%3A00Z&student_id=student-9',
+    )
+  })
+
+  it('includes teacher_id in the query string when provided (AG4)', async () => {
+    apiFetchMock.mockResolvedValue(jsonResponse(200, { bookings: [], view_only: false }))
+
+    await getBookingsGrid('unit-1', '2026-07-10T00:00:00Z', '2026-07-11T00:00:00Z', undefined, undefined, 'teacher-9')
+
+    expect(apiFetchMock).toHaveBeenCalledWith(
+      '/units/unit-1/bookings?from=2026-07-10T00%3A00%3A00Z&to=2026-07-11T00%3A00%3A00Z&teacher_id=teacher-9',
     )
   })
 
@@ -241,9 +259,32 @@ describe('listBookingParticipants', () => {
           source: 'manual',
           attendanceStatus: null,
           checkedInAt: null,
+          tier: null,
         },
       ],
     })
+  })
+
+  it('maps tier when the student has a skill level registered for the class sport (AG4)', async () => {
+    apiFetchMock.mockResolvedValue(
+      jsonResponse(200, {
+        participants: [
+          {
+            id: 'participant-1',
+            booking_id: 'booking-1',
+            student_id: 'student-1',
+            student_name: 'Marina Costa',
+            source: 'manual',
+            tier: 'b',
+          },
+        ],
+      }),
+    )
+
+    const result = await listBookingParticipants('booking-1')
+
+    expect(result.ok).toBe(true)
+    if (result.ok) expect(result.participants[0].tier).toBe('b')
   })
 
   it('maps attendance_status/checked_in_at when already checked in', async () => {

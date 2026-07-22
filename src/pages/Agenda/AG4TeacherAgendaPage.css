@@ -1,0 +1,97 @@
+/* AG4 — Minha Agenda (Professor). .dgroup/.ag-list/.ag-row/.date-nav/
+ * .iconbtn/.dlabel já vêm de Agenda.css (compartilhado com AG1/AG2/AG3);
+ * .dash-body/.hint/.badge são redefinidos aqui (mesmo padrão de
+ * AG3StudentAgendaPage.css — cada tela de agenda possui seu próprio CSS
+ * scoped, sem um arquivo verdadeiramente global para essas classes ainda). */
+.dash-body {
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+.badge.b-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.badge.b-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}
+
+/* Linha de agenda de AG4: mais alta que uma .ag-row normal (72px, AC da
+ * tela) por ter até 2 botões de ação lado a lado. */
+.ag4-row {
+  min-height: 72px;
+}
+.ag4-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.ag4-future-hint {
+  white-space: nowrap;
+}
+
+/* Cabeçalho de grupo por arena (AG4, professor cross-arena) — só aparece
+ * quando há mais de 1 arena nos resultados; 14px bold per AC (diferente do
+ * .dgroup padrão de 12px, usado pelos grupos por dia da aba Semana). */
+.ag4-arena-header {
+  font-size: 14px;
+}
+
+/* .btn-xs: variante 28px (AuthLayout.css só define .btn-sm/.btn-md, 36px/
+ * 44px) — os botões [CHECK-IN]/[ALUNOS] de AG4 são menores por caber 2 lado
+ * a lado numa linha de 72px. */
+.btn-xs {
+  min-height: 28px;
+  padding: 0 12px;
+  font-size: 12px;
+}
+
+.ag4-participants-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 280px;
+}
+.ag4-participants-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.ag4-participant-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface);
+  border: none;
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.ag4-participant-name {
+  font-size: 13.5px;
+  font-weight: 600;
+}

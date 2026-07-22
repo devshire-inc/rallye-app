@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it } from 'vitest'
 import {
   getActiveTenantId,
   getActiveUnitId,
+  getSessionMemberships,
   setActiveTenantId,
   setSessionMemberships,
 } from './tenantContext'
@@ -60,5 +61,21 @@ describe('tenantContext', () => {
     setSessionMemberships([])
 
     expect(getActiveUnitId()).toBeNull()
+  })
+
+  it('getSessionMemberships: returns an empty array when there is no session data yet', () => {
+    expect(getSessionMemberships()).toEqual([])
+  })
+
+  it('getSessionMemberships: returns ALL memberships, not just the first (AG4 cross-arena)', () => {
+    setSessionMemberships([
+      { unit_id: 'unit-1', tenant_id: 'tenant-1' },
+      { unit_id: 'unit-2', tenant_id: 'tenant-1' },
+    ])
+
+    expect(getSessionMemberships()).toEqual([
+      { unit_id: 'unit-1', tenant_id: 'tenant-1' },
+      { unit_id: 'unit-2', tenant_id: 'tenant-1' },
+    ])
   })
 })

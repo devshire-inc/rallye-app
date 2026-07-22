@@ -5,6 +5,7 @@ import { SESSION_EXPIRED_EVENT } from './lib/httpClient'
 import AG1DayPage from './pages/Agenda/AG1DayPage'
 import AG2WeekPage from './pages/Agenda/AG2WeekPage'
 import AG3StudentAgendaPage from './pages/Agenda/AG3StudentAgendaPage'
+import AG4TeacherAgendaPage from './pages/Agenda/AG4TeacherAgendaPage'
 import AG5BookingDetailPage from './pages/Agenda/AG5BookingDetailPage'
 import CheckinPage from './pages/Agenda/CheckinPage'
 import ArenaSettingsPage from './pages/ArenaSettings/ArenaSettingsPage'
@@ -123,6 +124,15 @@ function AppRoutes() {
       <Route path="/units/:unitId/agenda/semana" element={<AG2WeekPage />} />
       {/* AG3 — Minha agenda (Aluno) (BEAC-1926, mesma story). */}
       <Route path="/units/:unitId/agenda/minha" element={<AG3StudentAgendaPage />} />
+      {/* AG4 — Minha Agenda (Professor). Buraco de planejamento do Épico 6
+          (Agendamento, já Done) — a descrição do épico cita esta tela no
+          escopo, mas nenhuma story/task específica chegou a ser criada.
+          Construída sem story/task no Allye, por pedido direto do usuário
+          (ver AG4TeacherAgendaPage.tsx para o relatório completo). Mesmo
+          padrão de rota unit-scoped das demais telas de agenda — o :unitId
+          é só convenção de URL, o componente busca cross-arena (ver
+          comentário de pacote do componente). */}
+      <Route path="/units/:unitId/agenda/professor" element={<AG4TeacherAgendaPage />} />
       {/* AG5 — Detalhe da Aula/Reserva, base only (BEAC-1905, mesma story).
           AG1DayPage/AG2WeekPage navegam pra cá passando o Booking já
           carregado via router state (ver comentário de pacote de

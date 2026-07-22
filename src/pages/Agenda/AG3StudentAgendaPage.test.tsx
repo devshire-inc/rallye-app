@@ -52,6 +52,10 @@ describe('AG3StudentAgendaPage', () => {
           studentName: null,
           responsibleName: null,
           reason: null,
+          unitId: 'unit-1',
+          unitName: 'Arena Areia Dourada',
+          checkedIn: false,
+          studentCount: 1,
         },
       ],
     })
@@ -113,6 +117,10 @@ describe('AG3StudentAgendaPage', () => {
           studentName: null,
           responsibleName: null,
           reason: null,
+          unitId: 'unit-1',
+          unitName: 'Arena Areia Dourada',
+          checkedIn: false,
+          studentCount: 1,
         },
       ],
     })
@@ -144,6 +152,10 @@ describe('AG3StudentAgendaPage', () => {
           studentName: null,
           responsibleName: null,
           reason: null,
+          unitId: 'unit-1',
+          unitName: 'Arena Areia Dourada',
+          checkedIn: false,
+          studentCount: 1,
         },
       ],
     })
@@ -176,6 +188,10 @@ describe('AG3StudentAgendaPage', () => {
           studentName: null,
           responsibleName: null,
           reason: null,
+          unitId: 'unit-1',
+          unitName: 'Arena Areia Dourada',
+          checkedIn: false,
+          studentCount: 1,
         },
       ],
     })

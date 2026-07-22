@@ -12,6 +12,7 @@
 // continua sendo criado via POST /units/{id}/classes (../api/classes.ts), não
 // por aqui.
 import { apiFetch } from '../httpClient'
+import type { SkillTier } from './skillLevels'
 
 /** Espelha o CHECK de public.bookings.type (migrations/000034). */
 export type BookingType = 'class_occurrence' | 'private' | 'rental' | 'adhoc' | 'block'
@@ -35,6 +36,23 @@ export interface Booking {
   studentName: string | null
   responsibleName: string | null
   reason: string | null
+  /** Arena/unit a que este booking pertence (AG4, dispatch avulso — sem
+   * story/task no Allye): o grid é buscado por unit, mas AG4 precisa saber
+   * a qual arena cada booking pertence pra agrupar visualmente quando o
+   * professor dá aula em mais de uma. Constante por chamada de
+   * getBookingsGrid (sempre a unit pedida), mas necessário quando várias
+   * chamadas — uma por membership — são mescladas do lado do cliente. */
+  unitId: string
+  unitName: string
+  /** true quando QUALQUER participante deste booking já tem check-in feito
+   * (public.booking_participants.checked_in_at) — estado de linha "✅
+   * Check-in feito" de AG4. */
+  checkedIn: boolean
+  /** Contagem de public.booking_participants para este booking — "Q4 · N
+   * alunos" de AG4. Para type=private fica 0 (o aluno vem de studentName,
+   * não de booking_participants) — AG4 usa studentName no lugar da
+   * contagem para esse tipo, mesma regra já documentada no doc da tela. */
+  studentCount: number
 }
 
 type BookingWire = {
@@ -51,6 +69,10 @@ type BookingWire = {
   student_name?: string
   responsible_name?: string
   reason?: string
+  unit_id: string
+  unit_name: string
+  checked_in: boolean
+  student_count: number
 }
 
 function fromWire(wire: BookingWire): Booking {
@@ -68,6 +90,10 @@ function fromWire(wire: BookingWire): Booking {
     studentName: wire.student_name ?? null,
     responsibleName: wire.responsible_name ?? null,
     reason: wire.reason ?? null,
+    unitId: wire.unit_id,
+    unitName: wire.unit_name,
+    checkedIn: wire.checked_in,
+    studentCount: wire.student_count,
   }
 }
 
@@ -94,8 +120,8 @@ export interface GetBookingsGridSuccess {
 export type GetBookingsGridResult = GetBookingsGridSuccess | ApiFailure
 
 /**
- * GET /units/{id}/bookings?from&to&court_id&student_id= — grid de agenda
- * por período.
+ * GET /units/{id}/bookings?from&to&court_id&student_id&teacher_id= — grid
+ * de agenda por período.
  *
  * `studentId` (correção de review de BEAC-1926/"Minha Agenda") escopa a
  * resposta às reservas cujo `student_id` bate — hoje isso só filtra
@@ -109,6 +135,12 @@ export type GetBookingsGridResult = GetBookingsGridSuccess | ApiFailure
  * unit — ver AG3StudentAgendaPage.tsx para o halt-and-report completo
  * sobre por que esta função não consegue, hoje, ser chamada com o id do
  * PRÓPRIO usuário logado.
+ *
+ * `teacherId` (AG4, dispatch avulso — sem story/task no Allye) escopa a
+ * resposta às reservas de um professor, cobrindo tanto aula particular
+ * quanto ocorrência de turma (ver comentário de `queryBookings` no
+ * backend para o alcance exato — não sofre do mesmo gap de
+ * class_enrollments que `studentId` sofre).
  */
 export async function getBookingsGrid(
   unitId: string,
@@ -116,10 +148,12 @@ export async function getBookingsGrid(
   to: string,
   courtId?: string,
   studentId?: string,
+  teacherId?: string,
 ): Promise<GetBookingsGridResult> {
   const params = new URLSearchParams({ from, to })
   if (courtId) params.set('court_id', courtId)
   if (studentId) params.set('student_id', studentId)
+  if (teacherId) params.set('teacher_id', teacherId)
 
   const response = await apiFetch(
     `/units/${encodeURIComponent(unitId)}/bookings?${params.toString()}`,
@@ -317,6 +351,15 @@ export interface BookingParticipant {
   attendanceStatus: AttendanceStatus | null
   /** ISO/RFC3339, ou null até o check-in acontecer. */
   checkedInAt: string | null
+  /** Tier real de public.student_skill_levels (SkillTier, ../skillLevels.ts)
+   * — tag de nível do bottom sheet "Alunos da Aula" de AG4 (dispatch avulso,
+   * sem story/task no Allye). Decisão explícita de reaproveitar o sistema
+   * real de 6 tiers em vez de inventar um agrupamento de 3 buckets (INIC./
+   * INTER./AVANÇ.) sugerido pelo doc da tela mas que não existe em nenhum
+   * lugar do schema — use SKILL_TIERS pra resolver o rótulo de exibição.
+   * null quando o aluno não tem tier cadastrado no esporte da turma, ou
+   * quando o booking não tem turma associada (type=private/adhoc). */
+  tier: SkillTier | null
 }
 
 type BookingParticipantWire = {
@@ -327,6 +370,7 @@ type BookingParticipantWire = {
   source: 'enrollment' | 'manual'
   attendance_status?: AttendanceStatus
   checked_in_at?: string
+  tier?: SkillTier
 }
 
 function bookingParticipantFromWire(wire: BookingParticipantWire): BookingParticipant {
@@ -338,6 +382,7 @@ function bookingParticipantFromWire(wire: BookingParticipantWire): BookingPartic
     source: wire.source,
     attendanceStatus: wire.attendance_status ?? null,
     checkedInAt: wire.checked_in_at ?? null,
+    tier: wire.tier ?? null,
   }
 }
 
