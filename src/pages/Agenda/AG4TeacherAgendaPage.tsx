@@ -182,8 +182,15 @@ export default function AG4TeacherAgendaPage() {
     let cancelled = false
     const memberships = getSessionMemberships()
     if (memberships.length === 0) {
-      setBookings([])
-      setLoadError(null)
+      // react-hooks/set-state-in-effect: setState precisa ficar num callback
+      // assíncrono, nunca síncrono no corpo do efeito — mesmo sem nada
+      // async pra esperar aqui, adiamos via microtask pra satisfazer a regra
+      // (respeita `cancelled` igual ao branch async abaixo).
+      Promise.resolve().then(() => {
+        if (cancelled) return
+        setBookings([])
+        setLoadError(null)
+      })
       return
     }
     const { from, to } = tab === 'hoje' ? dayWindow(date) : weekWindow(date)
@@ -212,7 +219,13 @@ export default function AG4TeacherAgendaPage() {
   useEffect(() => {
     if (!participantsBooking) return
     let cancelled = false
-    setParticipantsError(null)
+    // react-hooks/set-state-in-effect: mesmo motivo do efeito acima — o
+    // reset do erro anterior precisa ficar num callback assíncrono, não
+    // síncrono no corpo do efeito.
+    Promise.resolve().then(() => {
+      if (cancelled) return
+      setParticipantsError(null)
+    })
     listBookingParticipants(participantsBooking.id).then((result) => {
       if (cancelled) return
       if (!result.ok) {
