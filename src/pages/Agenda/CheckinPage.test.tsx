@@ -31,6 +31,10 @@ const booking: Booking = {
   studentName: null,
   responsibleName: null,
   reason: null,
+  unitId: 'unit-1',
+  unitName: 'Unit Teste',
+  checkedIn: false,
+  studentCount: 6,
 }
 
 function participant(overrides: Partial<BookingParticipant> = {}): BookingParticipant {
@@ -42,6 +46,7 @@ function participant(overrides: Partial<BookingParticipant> = {}): BookingPartic
     source: 'manual',
     attendanceStatus: null,
     checkedInAt: null,
+    tier: null,
     ...overrides,
   }
 }

@@ -54,6 +54,10 @@ function booking(overrides: Partial<Booking> = {}): Booking {
     studentName: null,
     responsibleName: null,
     reason: null,
+    unitId: 'unit-1',
+    unitName: 'Unit Teste',
+    checkedIn: false,
+    studentCount: 6,
     ...overrides,
   }
 }

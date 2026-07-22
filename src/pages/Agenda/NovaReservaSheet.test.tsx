@@ -63,6 +63,10 @@ describe('NovaReservaSheet (AG6)', () => {
         studentName: null,
         responsibleName: 'Carlos',
         reason: null,
+        unitId: 'unit-1',
+        unitName: 'Arena Areia Dourada',
+        checkedIn: false,
+        studentCount: 0,
       },
     })
     const onCreated = vi.fn()

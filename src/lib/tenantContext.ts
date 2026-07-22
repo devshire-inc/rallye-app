@@ -82,3 +82,14 @@ export function getActiveUnitId(): string | null {
   const [firstMembership] = readSessionMemberships()
   return firstMembership?.unit_id ?? null
 }
+
+/**
+ * Retorna TODAS as memberships da sessão atual (AG4, dispatch avulso — sem
+ * story/task no Allye): um professor cross-arena precisa buscar bookings em
+ * cada unit onde tem membership, não só a "ativa" (primeira). Simplesmente
+ * expõe o que readSessionMemberships já fazia internamente — nenhuma lógica
+ * nova, só visibilidade pra fora deste módulo.
+ */
+export function getSessionMemberships(): Membership[] {
+  return readSessionMemberships()
+}

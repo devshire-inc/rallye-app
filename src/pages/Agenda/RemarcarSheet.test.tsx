@@ -38,6 +38,10 @@ function booking(overrides: Partial<Booking> = {}): Booking {
     studentName: null,
     responsibleName: null,
     reason: null,
+    unitId: 'unit-1',
+    unitName: 'Arena Areia Dourada',
+    checkedIn: false,
+    studentCount: 1,
     ...overrides,
   }
 }
@@ -69,6 +73,7 @@ function participant(id: string): BookingParticipant {
     source: 'manual',
     attendanceStatus: null,
     checkedInAt: null,
+    tier: null,
   }
 }
 

@@ -105,6 +105,10 @@ describe('AG1DayPage', () => {
           studentName: null,
           responsibleName: null,
           reason: null,
+          unitId: 'unit-1',
+          unitName: 'Arena Areia Dourada',
+          checkedIn: false,
+          studentCount: 1,
         },
       ],
     })
