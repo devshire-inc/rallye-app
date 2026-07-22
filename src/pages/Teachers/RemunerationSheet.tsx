@@ -10,6 +10,11 @@ export interface RemunerationSheetProps {
   currentValue: number
   onUpdated: (model: RemunerationModel, value: number) => void
   onClose: () => void
+  /** BEAC-1875 (PR3 modo editar): quando informado, adiciona "Editar dados"
+   * ao menu — navega para PR3 em modo edição (nome/telefone/esportes/
+   * certificações/bio). Opcional para não quebrar nenhum outro chamador que
+   * ainda não tenha essa rota disponível. */
+  onEditData?: () => void
 }
 
 const MODEL_OPTIONS: { value: RemunerationModel; label: string }[] = [
@@ -19,17 +24,19 @@ const MODEL_OPTIONS: { value: RemunerationModel; label: string }[] = [
 ]
 
 /**
- * Conteúdo do BottomSheet [⚙️] de PR2 (BEAC-1880): AC pede um "menu simples
- * com só a ação 'Alterar remuneração'" — as demais ações do menu ⚙️ do doc
- * real (PR2, seção "Ações via [⚙️]": "Editar dados", "Atualizar
- * disponibilidade", "Relatório de performance", "Desativar professor") NÃO
- * são implementadas aqui: nenhum dos endpoints correspondentes existe
- * (PATCH /teachers/{id} genérico, endpoint de desativação, relatório de
- * performance) — fora de escopo desta task, ficam como follow-up futuro.
- * "Atualizar disponibilidade" já é editável diretamente na própria aba
- * Horários (AvailabilityGrid mode="edit" seria o caminho, não este menu —
- * mas PR2 usa mode="read", ver TeacherProfilePage.tsx), então nem faria
- * sentido duplicar aqui.
+ * Conteúdo do BottomSheet [⚙️] de PR2. O AC original de BEAC-1880 pedia um
+ * "menu simples com só a ação 'Alterar remuneração'" porque, na época,
+ * nenhum outro endpoint do menu ⚙️ do doc real (PR2, seção "Ações via [⚙️]":
+ * "Editar dados", "Atualizar disponibilidade", "Relatório de performance",
+ * "Desativar professor") existia. BEAC-1875 resolveu "Editar dados" (PATCH
+ * /teachers/{id} genérico, ver rallye-api/api/internal/teachers/
+ * patch_handler.go) — item adicionado condicionalmente via `onEditData`
+ * (prop opcional, ver comentário de RemunerationSheetProps). "Atualizar
+ * disponibilidade", "Relatório de performance" e "Desativar professor"
+ * continuam fora de escopo (sem endpoint correspondente) — "Atualizar
+ * disponibilidade" já é editável diretamente na própria aba Horários da
+ * PR3/PR2 em modo edição (AvailabilityGrid mode="edit"), não precisa de
+ * duplicação aqui.
  *
  * Chama PATCH /teachers/{id}/remuneration (BEAC-1879, já implementado e
  * testado no backend, ver rallye-api/api/internal/remuneration/handler.go)
@@ -41,6 +48,7 @@ export function RemunerationSheet({
   currentValue,
   onUpdated,
   onClose,
+  onEditData,
 }: RemunerationSheetProps) {
   const [view, setView] = useState<View>('menu')
   const [model, setModel] = useState<RemunerationModel>(currentModel)
@@ -74,6 +82,11 @@ export function RemunerationSheet({
           </button>
         </div>
         <div className="menu-list">
+          {onEditData ? (
+            <button type="button" className="role-row role-row--clickable" onClick={onEditData}>
+              <span className="rn">Editar dados</span>
+            </button>
+          ) : null}
           <button
             type="button"
             className="role-row role-row--clickable"

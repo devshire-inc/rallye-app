@@ -20,6 +20,7 @@ function renderLoginPage(searchParams?: URLSearchParams) {
       <Routes>
         <Route path="/login" element={<LoginPage searchParams={searchParams} />} />
         <Route path="/dashboard" element={<div>Dashboard placeholder</div>} />
+        <Route path="/units/:unitId/dashboard" element={<div>Dashboard placeholder</div>} />
         <Route path="/s1" element={<div>S1 placeholder</div>} />
       </Routes>
     </MemoryRouter>,

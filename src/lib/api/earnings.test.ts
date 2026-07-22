@@ -39,6 +39,9 @@ describe('getEarnings', () => {
           { period: '2026-06-01', amount: 3560 },
           { period: '2026-07-01', amount: 0 },
         ],
+        breakdown: [
+          { class_id: 'class-1', class_name: 'BT intermediária', class_count: 18, amount: 1620 },
+        ],
       }),
     )
 
@@ -61,9 +64,30 @@ describe('getEarnings', () => {
           { period: '2026-06-01', amount: 3560 },
           { period: '2026-07-01', amount: 0 },
         ],
+        breakdown: [
+          { classId: 'class-1', className: 'BT intermediária', classCount: 18, amount: 1620 },
+        ],
       },
     })
     expect(apiFetchMock).toHaveBeenCalledWith('/teachers/teacher-1/earnings')
+  })
+
+  it('defaults breakdown to an empty array when the wire body omits it', async () => {
+    apiFetchMock.mockResolvedValue(
+      jsonResponse(200, {
+        remuneration_model: 'fixed',
+        classes_given_in_period: 0,
+        revenue_generated: null,
+        pending_amount: 0,
+        paid_amount: 0,
+        current_month_amount: 3000,
+        history: [],
+      }),
+    )
+
+    const result = await getEarnings('teacher-1')
+
+    expect(result.ok && result.earnings.breakdown).toEqual([])
   })
 
   it('returns a failure result on 403', async () => {
