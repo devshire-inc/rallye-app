@@ -46,6 +46,7 @@ import TeacherProfilePage from './pages/Teachers/TeacherProfilePage'
 import TeachersListPage from './pages/Teachers/TeachersListPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
 import TournamentFormPage from './pages/Tournaments/TournamentFormPage'
+import TO4RegisterPage from './pages/Torneios/TO4RegisterPage'
 import TurmaDetailPage from './pages/Turmas/TurmaDetailPage'
 import TurmasListPage from './pages/Turmas/TurmasListPage'
 import NewUnitPage from './pages/Units/NewUnitPage'
@@ -282,6 +283,14 @@ function AppRoutes() {
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />
+      {/* TO4 — Inscrição em torneio (BEAC-1990, story BEAC-1717 — "Sugestão de
+          categoria com base no nível de habilidade"). Chegada natural do
+          botão "Inscrever-se" de TO3 (BEAC-1718, feature em paralelo) —
+          rota unit-agnóstica, mesmo padrão de /tournaments/:tournamentId
+          acima: `{tournamentId}` já resolve tudo que a tela precisa (torneio
+          + categorias via GET /tournaments/{id}), sem exigir :unitId no
+          path. */}
+      <Route path="/tournaments/:tournamentId/register" element={<TO4RegisterPage />} />
       <Route path="/tournaments/:tournamentId" element={<TournamentViewPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>

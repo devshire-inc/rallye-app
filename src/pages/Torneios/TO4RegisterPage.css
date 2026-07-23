@@ -1,0 +1,112 @@
+/* TO4 — Inscrição em torneio (BEAC-1717/BEAC-1990). Self-contained: redefine
+ * as classes genéricas que esta página usa (.pg-head/.dash-body/.card/
+ * .inv-row) em vez de depender de outra página já ter carregado o CSS
+ * equivalente — mesmo padrão de Financeiro.css/DayUseConfigPage.css. Valores
+ * copiados do protótipo real (Artifact "Rallye", `#scr-to4`).
+ */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--space-6) var(--space-3);
+  flex-wrap: wrap;
+}
+.pg-head h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  margin: 0;
+}
+.pg-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 520px;
+}
+
+.to4-loading {
+  padding: var(--space-6);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+}
+
+.to4-partner-results {
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inv-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: none;
+  border: none;
+  border-radius: var(--radius-input);
+  padding: 8px 10px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: background-color var(--motion-fast);
+}
+.inv-row:hover {
+  background: var(--bg);
+}
+.inv-row .iw {
+  flex: 1;
+  min-width: 0;
+}
+.inv-row .iw .nm {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.inv-row .iw .desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.to4-summary {
+  padding: 14px 16px;
+  font-size: 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.to4-summary-row {
+  display: flex;
+  justify-content: space-between;
+}
+.to4-summary-total {
+  border-top: 1px solid var(--border);
+  padding-top: 8px;
+  font-weight: 700;
+}
