@@ -418,3 +418,91 @@ export async function publishTournament(tournamentId: string): Promise<Tournamen
   const body = (await response.json()) as TournamentDetailWire
   return { ok: true, tournament: fromTournamentWire(body) }
 }
+
+// ---------------------------------------------------------------------------
+// GET /units/{id}/tournaments?scope=... — listagem (BEAC-2013)
+// ---------------------------------------------------------------------------
+
+export type TournamentListScope = 'mine' | 'abertos' | 'encerrados'
+
+export interface TournamentChampion {
+  categoryName: string
+  championName: string
+}
+
+/** Item de TO1 — bem mais enxuto que TournamentDetail (sem categorias,
+ * quadras, regulamento etc., ver contrato de BEAC-2013): a listagem não
+ * devolve unit/arena, contagem de categorias nem de duplas inscritas — TO1
+ * não pode mostrar esses dados do protótipo (mesmo princípio de "nunca
+ * fabricar" já documentado em TurmasListPage.tsx pra ocupação). */
+export interface TournamentListItem {
+  id: string
+  name: string
+  sport: TournamentSport
+  type: TournamentType
+  status: TournamentStatus
+  startDate: string
+  endDate: string
+  registrationOpensAt: string | null
+  registrationClosesAt: string | null
+  /** Só vem preenchido (não-null) quando scope=encerrados, e só com as
+   * categorias que já têm campeão definido (contrato de BEAC-2013). */
+  champions: TournamentChampion[] | null
+}
+
+type TournamentChampionWire = { category_name: string; champion_name: string }
+
+type TournamentListItemWire = {
+  id: string
+  name: string
+  sport: TournamentSport
+  type: TournamentType
+  status: TournamentStatus
+  start_date: string
+  end_date: string
+  registration_opens_at: string | null
+  registration_closes_at: string | null
+  champions: TournamentChampionWire[] | null
+}
+
+function fromListItemWire(wire: TournamentListItemWire): TournamentListItem {
+  return {
+    id: wire.id,
+    name: wire.name,
+    sport: wire.sport,
+    type: wire.type,
+    status: wire.status,
+    startDate: wire.start_date,
+    endDate: wire.end_date,
+    registrationOpensAt: wire.registration_opens_at,
+    registrationClosesAt: wire.registration_closes_at,
+    champions: wire.champions
+      ? wire.champions.map((c) => ({ categoryName: c.category_name, championName: c.champion_name }))
+      : null,
+  }
+}
+
+export interface TournamentListSuccess {
+  ok: true
+  scope: TournamentListScope
+  tournaments: TournamentListItem[]
+}
+
+export type TournamentListResult = TournamentListSuccess | ApiFailure
+
+/** GET /units/{id}/tournaments?scope=mine|abertos|encerrados (BEAC-2013) —
+ * scope=mine: torneios da unit, exceto rascunho (rascunho só pra quem tem
+ * torneios:write na própria unit). scope=abertos: cross-arena de verdade,
+ * de qualquer unit do tenant. scope=encerrados: só da própria unit do
+ * chamador (decisão deliberada do backend, não cross-arena). */
+export async function listTournaments(
+  unitId: string,
+  scope: TournamentListScope,
+): Promise<TournamentListResult> {
+  const response = await apiFetch(
+    `/units/${encodeURIComponent(unitId)}/tournaments?scope=${encodeURIComponent(scope)}`,
+  )
+  if (!response.ok) return failureFrom(response)
+  const body = (await response.json()) as { scope: TournamentListScope; tournaments: TournamentListItemWire[] }
+  return { ok: true, scope: body.scope, tournaments: body.tournaments.map(fromListItemWire) }
+}

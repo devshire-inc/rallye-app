@@ -49,6 +49,7 @@ import TeacherProfilePage from './pages/Teachers/TeacherProfilePage'
 import TeachersListPage from './pages/Teachers/TeachersListPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
 import TournamentFormPage from './pages/Tournaments/TournamentFormPage'
+import TournamentsListPage from './pages/Tournaments/TournamentsListPage'
 import TO4RegisterPage from './pages/Torneios/TO4RegisterPage'
 import TurmaDetailPage from './pages/Turmas/TurmaDetailPage'
 import TurmasListPage from './pages/Turmas/TurmasListPage'
@@ -270,18 +271,19 @@ function AppRoutes() {
       <Route path="/units/:unitId/invoices/new" element={<F4CreateInvoicePage />} />
       <Route path="/units/:unitId/my-invoices" element={<F5MyInvoicesPage />} />
       <Route path="/invoices/:invoiceId" element={<F3InvoiceDetailPage />} />
+      {/* TO1 — Lista de Torneios (BEAC-1984, story BEAC-1716), destravada
+          pela BEAC-2013 (GET /units/{id}/tournaments?scope=..., o endpoint
+          de listagem que não existia quando TO2/TO3 foram construídas — ver
+          comentário de pacote de TournamentsListPage.tsx). Precisa vir
+          ANTES de /units/:unitId/tournaments/new na leitura, mas react-router
+          resolve por segmento estático vs. dinâmico, não por ordem — sem
+          ambiguidade real entre as duas (mesma prioridade já documentada em
+          /units/:unitId/teachers/new vs /teachers/:teacherId). */}
+      <Route path="/units/:unitId/tournaments" element={<TournamentsListPage />} />
       {/* TO2 — Criar Torneio (BEAC-1985, story BEAC-1716). Rota unit-scoped,
           mesmo padrão de /units/:unitId/plans/new: criar exige a unit (POST
           /units/{id}/tournaments). O back link de TournamentFormPage e o
-          "Criar" de TO1 (BEAC-1984) apontam pra
-          /units/:unitId/tournaments — rota AINDA NÃO registrada aqui: TO1
-          (lista) ficou parada nesta dispatch por falta de um endpoint de
-          listagem no backend (nenhum GET /units/{id}/tournaments ou
-          GET /tournaments existe em rallye-api ainda, confirmado lendo
-          api/cmd/server/main.go) — reportado como bloqueio pro Orchestrator
-          em vez de fabricar um endpoint. Até essa rota existir, o link "‹
-          Torneios" leva a uma tela em branco (nenhuma Route casa) — sem
-          impacto no fluxo de criação em si. */}
+          "Criar" de TO1 acima apontam pra cá. */}
       <Route path="/units/:unitId/tournaments/new" element={<TournamentFormPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />

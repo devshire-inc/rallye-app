@@ -11,6 +11,7 @@ vi.mock('../httpClient', () => ({
 import {
   createTournament,
   getTournament,
+  listTournaments,
   patchTournament,
   patchTournamentCategories,
   patchTournamentRankingRules,
@@ -291,5 +292,87 @@ describe('publishTournament', () => {
       error: 'tournament_not_draft',
       message: 'torneio já está em status publicado',
     })
+  })
+})
+
+describe('listTournaments', () => {
+  function listItemWire(overrides: Record<string, unknown> = {}) {
+    return {
+      id: 'tournament-1',
+      name: 'Copa Areia Dourada',
+      sport: 'beach_tennis',
+      type: 'fechado',
+      status: 'em_andamento',
+      start_date: '2026-07-12',
+      end_date: '2026-07-14',
+      registration_opens_at: null,
+      registration_closes_at: null,
+      champions: null,
+      ...overrides,
+    }
+  }
+
+  it('GETs /units/{id}/tournaments?scope=mine and maps the response', async () => {
+    apiFetchMock.mockResolvedValue(
+      jsonResponse(200, { scope: 'mine', tournaments: [listItemWire()] }),
+    )
+
+    const result = await listTournaments('unit-1', 'mine')
+
+    expect(apiFetchMock).toHaveBeenCalledWith('/units/unit-1/tournaments?scope=mine')
+    expect(result).toEqual({
+      ok: true,
+      scope: 'mine',
+      tournaments: [
+        {
+          id: 'tournament-1',
+          name: 'Copa Areia Dourada',
+          sport: 'beach_tennis',
+          type: 'fechado',
+          status: 'em_andamento',
+          startDate: '2026-07-12',
+          endDate: '2026-07-14',
+          registrationOpensAt: null,
+          registrationClosesAt: null,
+          champions: null,
+        },
+      ],
+    })
+  })
+
+  it('GETs with scope=abertos', async () => {
+    apiFetchMock.mockResolvedValue(jsonResponse(200, { scope: 'abertos', tournaments: [] }))
+
+    await listTournaments('unit-1', 'abertos')
+
+    expect(apiFetchMock).toHaveBeenCalledWith('/units/unit-1/tournaments?scope=abertos')
+  })
+
+  it('maps champions (only populated for scope=encerrados)', async () => {
+    apiFetchMock.mockResolvedValue(
+      jsonResponse(200, {
+        scope: 'encerrados',
+        tournaments: [
+          listItemWire({
+            status: 'encerrado',
+            champions: [{ category_name: 'Fem B', champion_name: 'Marina & Carla' }],
+          }),
+        ],
+      }),
+    )
+
+    const result = await listTournaments('unit-1', 'encerrados')
+
+    expect(result.ok && result.tournaments[0].champions).toEqual([
+      { categoryName: 'Fem B', championName: 'Marina & Carla' },
+    ])
+  })
+
+  it('returns ok=false on failure', async () => {
+    apiFetchMock.mockResolvedValue(jsonResponse(500, { error: 'internal_error' }))
+
+    const result = await listTournaments('unit-1', 'mine')
+
+    expect(result).toEqual({ ok: false, status: 500, error: 'internal_error', message: undefined })
   })
 })
