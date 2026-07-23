@@ -45,6 +45,7 @@ import TeacherFormPage from './pages/Teachers/TeacherFormPage'
 import TeacherProfilePage from './pages/Teachers/TeacherProfilePage'
 import TeachersListPage from './pages/Teachers/TeachersListPage'
 import { TournamentViewPage } from './pages/TournamentView/TournamentViewPage'
+import TournamentFormPage from './pages/Tournaments/TournamentFormPage'
 import TurmaDetailPage from './pages/Turmas/TurmaDetailPage'
 import TurmasListPage from './pages/Turmas/TurmasListPage'
 import NewUnitPage from './pages/Units/NewUnitPage'
@@ -265,6 +266,19 @@ function AppRoutes() {
       <Route path="/units/:unitId/invoices/new" element={<F4CreateInvoicePage />} />
       <Route path="/units/:unitId/my-invoices" element={<F5MyInvoicesPage />} />
       <Route path="/invoices/:invoiceId" element={<F3InvoiceDetailPage />} />
+      {/* TO2 — Criar Torneio (BEAC-1985, story BEAC-1716). Rota unit-scoped,
+          mesmo padrão de /units/:unitId/plans/new: criar exige a unit (POST
+          /units/{id}/tournaments). O back link de TournamentFormPage e o
+          "Criar" de TO1 (BEAC-1984) apontam pra
+          /units/:unitId/tournaments — rota AINDA NÃO registrada aqui: TO1
+          (lista) ficou parada nesta dispatch por falta de um endpoint de
+          listagem no backend (nenhum GET /units/{id}/tournaments ou
+          GET /tournaments existe em rallye-api ainda, confirmado lendo
+          api/cmd/server/main.go) — reportado como bloqueio pro Orchestrator
+          em vez de fabricar um endpoint. Até essa rota existir, o link "‹
+          Torneios" leva a uma tela em branco (nenhuma Route casa) — sem
+          impacto no fluxo de criação em si. */}
+      <Route path="/units/:unitId/tournaments/new" element={<TournamentFormPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />
