@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { usePermission } from '../../hooks/usePermission'
 import { getStudent, type Student, type StudentStatus } from '../../lib/api/students'
+import { ClassHistorySection } from './ClassHistorySection'
 import { SkillLevelsSection } from './SkillLevelsSection'
 import '../../components/AuthLayout/AuthLayout.css'
 import './StudentProfilePage.css'
@@ -43,11 +44,13 @@ function formatDate(iso: string): string {
 
 /**
  * AL2 — Perfil do Aluno (Admin View), scaffold (BEAC-1871, story BEAC-1691
- * "Tela AL2 com chips de nível por esporte"). Escopo deliberadamente
- * mínimo (decisão do usuário, ver handover de dispatch): só o suficiente
- * pra hospedar uma aba "Dados" funcional — Plano/Faturas/Turmas/Progresso
- * são placeholders "Em breve", sem chamada de API nenhuma, reservados pra
- * features futuras (financeiro, matrícula/turmas, feedback de progresso).
+ * "Tela AL2 com chips de nível por esporte") + aba "Turmas" real (BEAC-1864,
+ * story BEAC-1693 "Histórico de turmas do aluno" — ver ClassHistorySection).
+ * Escopo deliberadamente mínimo pro resto (decisão do usuário, ver handover
+ * de dispatch): só o suficiente pra hospedar uma aba "Dados" funcional e a
+ * aba "Turmas" — Plano/Faturas/Progresso continuam placeholders "Em breve",
+ * sem chamada de API nenhuma, reservados pra features futuras (financeiro,
+ * feedback de progresso).
  *
  * Markup segue o doc real "AL2 — Perfil do Aluno (Admin View)" (Allye, ID
  * f73c6c73-ba0c-41ac-b0bb-5de38b9ca093) + o protótipo real (scr-al2,
@@ -248,10 +251,10 @@ export default function StudentProfilePage() {
               </div>
             ) : null}
 
-            {/* Plano/Faturas/Turmas/Progresso: stubs "Em breve" — sem
-                chamada de API, reservados pras features futuras
-                correspondentes (Épicos 5/6/7 do produto). Escopo
-                deliberadamente mínimo desta task. */}
+            {/* Plano/Faturas/Progresso: stubs "Em breve" — sem chamada de
+                API, reservados pras features futuras correspondentes
+                (Épicos 5/7 do produto). Escopo deliberadamente mínimo desta
+                task. Turmas (BEAC-1864) é real — ver ClassHistorySection. */}
             {activeTab === 'plano' && canSeeFinance ? (
               <div className="ptab-panel">
                 <p className="hint">Em breve.</p>
@@ -262,10 +265,8 @@ export default function StudentProfilePage() {
                 <p className="hint">Em breve.</p>
               </div>
             ) : null}
-            {activeTab === 'turmas' ? (
-              <div className="ptab-panel">
-                <p className="hint">Em breve.</p>
-              </div>
+            {activeTab === 'turmas' && unitId ? (
+              <ClassHistorySection unitId={unitId} studentId={state.student.id} />
             ) : null}
             {activeTab === 'progresso' ? (
               <div className="ptab-panel">

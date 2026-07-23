@@ -3,6 +3,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as studentsApi from '../../lib/api/students'
 import * as skillLevelsApi from '../../lib/api/skillLevels'
+import * as classHistoryApi from '../../lib/api/classHistory'
 import * as usePermissionModule from '../../hooks/usePermission'
 import StudentProfilePage from './StudentProfilePage'
 
@@ -135,5 +136,37 @@ describe('StudentProfilePage — header and Dados tab', () => {
     expect(planoTab).toBeInTheDocument()
     await userEvent.click(planoTab)
     expect(screen.getByText('Em breve.')).toBeInTheDocument()
+  })
+
+  it('hosts the real class-history section under the Turmas tab (BEAC-1864, no longer "Em breve")', async () => {
+    const { default: userEvent } = await import('@testing-library/user-event')
+    mockPermissions({ 'alunos:read': true, 'alunos:write': true })
+    mockReadyStudent()
+    vi.spyOn(classHistoryApi, 'listClassHistory').mockResolvedValue({
+      ok: true,
+      classHistory: [
+        {
+          enrollmentId: 'enr-1',
+          classId: 'class-1',
+          className: 'BT intermediária',
+          sport: 'beach_tennis',
+          rrule: 'FREQ=WEEKLY;BYDAY=TU,TH',
+          startTime: '18:00',
+          endTime: '19:00',
+          teacherId: 'teacher-1',
+          teacherName: 'Marcus Lima',
+          enrolledAt: '2026-06-01T00:00:00Z',
+          status: 'active',
+        },
+      ],
+    })
+
+    renderPage()
+
+    await screen.findByText('Marina Costa')
+    await userEvent.click(screen.getByRole('tab', { name: 'Turmas' }))
+
+    expect(await screen.findByText('BT intermediária')).toBeInTheDocument()
+    expect(screen.getByText('ter & qui 18:00 · Prof. Marcus Lima')).toBeInTheDocument()
   })
 })
