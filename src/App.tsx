@@ -12,11 +12,28 @@ import ArenaSettingsPage from './pages/ArenaSettings/ArenaSettingsPage'
 import { CadastroPage } from './pages/cadastro/CadastroPage'
 import { CompletarCadastro } from './pages/CompletarCadastro'
 import DashboardPage from './pages/DashboardPage'
+import DayUseBookingsPage from './pages/DayUse/DayUseBookingsPage'
+import DayUseConfigPage from './pages/DayUse/DayUseConfigPage'
+import DayUseConfirmPage from './pages/DayUse/DayUseConfirmPage'
+import DayUseDetailPage from './pages/DayUse/DayUseDetailPage'
+import DayUseDiscoveryPage from './pages/DayUse/DayUseDiscoveryPage'
+import DayUseQrPage from './pages/DayUse/DayUseQrPage'
+import F1CashFlowPage from './pages/Financeiro/F1CashFlowPage'
+import F2InvoiceListPage from './pages/Financeiro/F2InvoiceListPage'
+import F3InvoiceDetailPage from './pages/Financeiro/F3InvoiceDetailPage'
+import F4CreateInvoicePage from './pages/Financeiro/F4CreateInvoicePage'
+import F5MyInvoicesPage from './pages/Financeiro/F5MyInvoicesPage'
 import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/Members/MembersPage'
 import { OAuthCallback } from './pages/OAuthCallback'
+import PL4MySubscriptionPage from './pages/Planos/PL4MySubscriptionPage'
+import PL5ChangePlanPage from './pages/Planos/PL5ChangePlanPage'
+import PlanoFormPage from './pages/Planos/PlanoFormPage'
+import PlanosListPage from './pages/Planos/PlanosListPage'
 import ProfilePage from './pages/Profile/ProfilePage'
+import ReportDetailPage from './pages/Reports/ReportDetailPage'
+import ReportsHubPage from './pages/Reports/ReportsHubPage'
 import { ResetPassword } from './pages/ResetPassword'
 import RolesPage from './pages/Roles/RolesPage'
 import S1Page from './pages/S1Page'
@@ -116,6 +133,40 @@ function AppRoutes() {
           /units/{id}/settings/delinquency-block-level (BEAC-1866), mesmo
           padrão de /units/:unitId/roles e /units/:unitId/members. */}
       <Route path="/units/:unitId/settings" element={<ArenaSettingsPage />} />
+      {/* DU5 — Config Day Use (BEAC-1955, story BEAC-1712 "Toggle de Day Use
+          por quadra em DU5"). Rota unit-scoped (não tenant-scoped): espelha
+          o endpoint GET /units/{id}/day-use-configs (BEAC-1954), mesmo
+          padrão de /units/:unitId/settings acima. Tela própria, FORA de
+          /units/:unitId/settings (AC explícito — toast fixo na própria tela
+          reforça isso). */}
+      <Route path="/units/:unitId/day-use" element={<DayUseConfigPage />} />
+      {/* DU6 — Reservas Day Use (BEAC-1966, story BEAC-1713 "Listagem de
+          reservas Day Use com status de check-in"). Mesmo caminho que o
+          botão "Ver reservas" de DU5 já navegava desde aquela task
+          (DayUseConfigPage.tsx) — esta task só registra a rota de verdade,
+          sem mexer no link existente. Rota unit-scoped, mesmo padrão de
+          /units/:unitId/day-use acima: espelha GET
+          /units/{id}/day-use-bookings (BEAC-1964). */}
+      <Route path="/units/:unitId/day-use/reservas" element={<DayUseBookingsPage />} />
+      {/* DU1/DU2/DU3 — Discovery / Detalhe / Confirmar de arena Day Use
+          (BEAC-1960/1961/1962, story BEAC-1928 "Fluxo de reserva de Day Use
+          para usuário"). Rotas DELIBERADAMENTE NÃO unit-scoped (sem :unitId
+          no path de DU1): Day Use é cross-tenant (GET /day-use/discover não
+          filtra por tenant do usuário logado, ver comentário de pacote em
+          rallye-api/api/internal/dayuse/discover.go) — diferente de toda
+          rota /units/:unitId/* acima. DU2/DU3 usam :unitId só porque É o
+          alvo direto da consulta (GET /units/{id}/day-use-detail, POST
+          /units/{id}/day-use-bookings), não porque a tela pertence à unit
+          ativa do chamador. */}
+      <Route path="/day-use" element={<DayUseDiscoveryPage />} />
+      <Route path="/day-use/:unitId" element={<DayUseDetailPage />} />
+      <Route path="/day-use/:unitId/confirm" element={<DayUseConfirmPage />} />
+      {/* DU4 — QR Code de Acesso (BEAC-1963, mesma story). Rota SEM :unitId
+          (unit-agnóstica de propósito): o backend (GET /day-use-bookings/
+          {id}/qr, BEAC-1959) resolve a unit certa a partir só do id do
+          booking — ver comentário de pacote em
+          rallye-api/api/internal/dayuse/checkin.go. */}
+      <Route path="/day-use-bookings/:bookingId" element={<DayUseQrPage />} />
       {/* AG1/AG2 — Calendário Dia/Semana (BEAC-1903, story BEAC-1704 "CRUD de
           turma com recorrência semanal"). Dois componentes deliberadamente
           separados (decisão travada do dispatch) — não uma variação de props
@@ -155,6 +206,25 @@ function AppRoutes() {
           (T2 usa :classId como segundo segmento dinâmico, não um literal). */}
       <Route path="/units/:unitId/classes" element={<TurmasListPage />} />
       <Route path="/units/:unitId/classes/:classId" element={<TurmaDetailPage />} />
+      {/* PL1/PL2 — Catálogo de Planos / Criar-editar Plano (BEAC-1934/1935,
+          story BEAC-1927 "Planos e Assinaturas"). Rotas unit-scoped, mesmo
+          padrão de /units/:unitId/classes(/:classId) acima. "new" (criação)
+          é um segmento estático que casa ANTES de :planId (dinâmico, edição)
+          — mesma prioridade de rota já usada em
+          /units/:unitId/teachers/new vs /teachers/:teacherId abaixo. */}
+      <Route path="/units/:unitId/plans" element={<PlanosListPage />} />
+      <Route path="/units/:unitId/plans/new" element={<PlanoFormPage />} />
+      <Route path="/units/:unitId/plans/:planId" element={<PlanoFormPage />} />
+      {/* PL4 — Minha Assinatura (Aluno) (BEAC-1937, mesma story). Padrão
+          "my-X" (não "/plans/*", que é o namespace de catálogo do Admin) —
+          espelha /units/:unitId/my-invoices (F5MyInvoicesPage) abaixo, a
+          tela irmã mais próxima em natureza (financeiro, self-service).
+          PL5 — Upgrade/Downgrade de Plano (BEAC-1938, mesma story) é o
+          destino do botão [TROCAR PLANO] de PL4, na mesma sub-rota
+          "/change-plan" já referenciada por PL4MySubscriptionPage.tsx antes
+          desta task existir (o gap ficou documentado lá até agora). */}
+      <Route path="/units/:unitId/my-subscription" element={<PL4MySubscriptionPage />} />
+      <Route path="/units/:unitId/my-subscription/change-plan" element={<PL5ChangePlanPage />} />
       {/* PR1/PR2 — Lista de professores / Perfil do professor (BEAC-1880,
           épico 5). Rotas unit-scoped, mesmo padrão de
           /units/:unitId/classes(/:classId) acima. */}
@@ -173,6 +243,28 @@ function AppRoutes() {
           TeacherEarningsPage.tsx) — alcançada hoje via o botão "Ver como o
           professor vê" da aba Comissão de PR2. */}
       <Route path="/units/:unitId/teachers/:teacherId/earnings" element={<TeacherEarningsPage />} />
+      {/* F7 — hub de Relatórios Financeiros + detalhe (BEAC-1968, story
+          BEAC-1714). Rotas unit-scoped, mesmo padrão de
+          /units/:unitId/teachers(/:teacherId) acima — segmento literal
+          ":type" do detalhe é o slug do relatório (ex.: "receita-por-
+          professor"), validado contra REPORT_CATALOG dentro da própria
+          página (tipo desconhecido -> mensagem de erro, não 404 de rota). */}
+      <Route path="/units/:unitId/reports" element={<ReportsHubPage />} />
+      <Route path="/units/:unitId/reports/:type" element={<ReportDetailPage />} />
+      {/* F1-F5 — Financeiro (BEAC-1946/1947/1948/1949/1950, story BEAC-1710
+          "Modelo unificado de fatura"). Rotas unit-scoped, mesmo padrão de
+          /units/:unitId/plans(/:planId) acima — "new" (F4, criação) casa
+          ANTES de qualquer segmento dinâmico, mesma prioridade estática >
+          dinâmica já documentada em /units/:unitId/teachers/new.
+          /invoices/:invoiceId (F3) NÃO é unit-scoped — espelha
+          GET /invoices/{id} (BEAC-1944), que resolve a unit da SESSÃO do
+          chamador, não do path (mesmo padrão de /teachers/:teacherId vs.
+          rotas unit-scoped irmãs). */}
+      <Route path="/units/:unitId/cashflow" element={<F1CashFlowPage />} />
+      <Route path="/units/:unitId/invoices" element={<F2InvoiceListPage />} />
+      <Route path="/units/:unitId/invoices/new" element={<F4CreateInvoicePage />} />
+      <Route path="/units/:unitId/my-invoices" element={<F5MyInvoicesPage />} />
+      <Route path="/invoices/:invoiceId" element={<F3InvoiceDetailPage />} />
       {/* A5 — Magic link de visitante de torneio (BEAC-1817). */}
       <Route path="/tournaments/:tournamentId/visitor" element={<VisitorRequestPage />} />
       <Route path="/tournaments/:tournamentId/visitor/verify" element={<VisitorVerifyPage />} />

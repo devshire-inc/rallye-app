@@ -1,0 +1,177 @@
+/* DU1 — Discovery Day Use (BEAC-1960, story BEAC-1928). Self-contained:
+ * redefine as classes genéricas que esta página usa (.pg-head/.dash-body/
+ * .searchbar/.tabs2/.hint/.card) em vez de depender de outra página já ter
+ * carregado o CSS equivalente — mesmo padrão de DayUseConfigPage.css/
+ * TeachersListPage.css.
+ */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.pg-head .spacer {
+  flex: 1;
+}
+.pg-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.du-date-pill {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 600px;
+}
+
+.searchbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0 14px;
+  min-height: 40px;
+}
+.searchbar input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.tabs2 {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tabs2 button {
+  padding: 7px 15px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+.tabs2 button.active {
+  background: var(--sand);
+  border-color: var(--sand);
+  color: var(--text-primary);
+}
+
+.du-arena-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.card.du-arena-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 10px 14px;
+  min-height: 72px;
+}
+.card.du-arena-lotada {
+  opacity: 0.4;
+}
+
+.du-arena-main {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  color: inherit;
+}
+
+.du-arena-photo {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+}
+.du-arena-photo .sdot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+}
+
+.du-arena-info {
+  min-width: 0;
+}
+.du-arena-info b {
+  font-size: 13px;
+}
+.du-arena-address {
+  font-size: 11px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.du-arena-sports {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.du-arena-sports .sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.du-arena-tail {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex: none;
+}
+.du-arena-price {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}

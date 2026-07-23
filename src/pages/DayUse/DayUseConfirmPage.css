@@ -1,0 +1,45 @@
+/* DU3 — Confirmar e Pagar Day Use (BEAC-1962, story BEAC-1928). Self-contained,
+ * mesmo padrão de DayUseDetailPage.css/DayUseDiscoveryPage.css. .pg-head/
+ * .dash-body/.hint/.card vêm de DayUseDetailPage.css (importado junto nesta
+ * página) — só as classes específicas de DU3 ficam aqui.
+ */
+
+.du3-arena-summary,
+.du3-reservation-summary,
+.du3-payment-summary {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.du3-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.du3-total {
+  font-weight: 700;
+  font-size: 15px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.du3-cta {
+  width: 100%;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+.du3-slot-taken {
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 24px 16px;
+}

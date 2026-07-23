@@ -1,0 +1,109 @@
+/* DU2 — Detalhe Arena Day Use (BEAC-1961, story BEAC-1928). Self-contained,
+ * mesmo padrão de DayUseDiscoveryPage.css/DayUseConfigPage.css.
+ */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.pg-head .back {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 600px;
+}
+
+.du2-photo {
+  height: 200px;
+  border-radius: var(--radius-card);
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.du2-photo-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+}
+
+.du2-sports {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.du2-address {
+  font-size: 13px;
+  color: var(--text-primary);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.card.du2-day-use-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.du2-price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--teal);
+}
+
+.du2-slots {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.du2-progress {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--sand);
+  overflow: hidden;
+}
+.du2-progress-fill {
+  height: 100%;
+  background: var(--teal);
+  border-radius: var(--radius-pill);
+}
+
+.du2-cta {
+  width: 100%;
+  min-height: 44px;
+  font-weight: 700;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 600;
+}
+.badge.b-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}

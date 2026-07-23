@@ -1,0 +1,105 @@
+/* VincularPlanoSheet (BEAC-1936, story BEAC-1927) — classes PRÓPRIAS
+   prefixadas `vp-`, mesmo espírito de isolamento de
+   src/pages/Agenda/AddStudentSheet.css (não reaproveita .add-student-* nem
+   nada específico de outra tela). Reaproveita classes já globais deste app
+   (bundle único, sem CSS modules): .field/.tabs2 (PlanoFormPage.css),
+   .sec-head-title/.hint (PlanosListPage.css/TeacherProfilePage.css),
+   .btn/.btn-primary/.btn-ghost/.btn-sm/.btn-full, .avatar-sm/.nm/.mt. */
+
+.vp-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.vp-student-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.vp-student-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.vp-student-row:hover {
+  border-color: var(--teal);
+}
+
+.vp-selected-student {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+}
+.vp-selected-student-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.vp-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.vp-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+}
+.vp-summary-line {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+.vp-summary-total {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  color: var(--text-primary);
+  margin: 4px 0 0;
+}
+
+.vp-success-msg {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+/* Aviso "aluno já tem plano ativo" (BEAC-1974, regra 6 parcial) — mesmo
+   par de tokens --warning-bg/--warning-fg usado pelo .toast-warning de
+   outras sheets (ex.: Agenda/OfferSheet.css), mas sem reaproveitar a classe
+   .toast em si (esta tela não tem outras variantes de toast). Puramente
+   informativo: não é role="alert" (não é um erro), o submit continua
+   habilitado. */
+.vp-warning {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+  font-size: 12.5px;
+  margin: 8px 0 0;
+}

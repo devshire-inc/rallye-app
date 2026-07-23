@@ -1,0 +1,454 @@
+/* F1-F5 — Financeiro (BEAC-1710, épico 7). Shared CSS entre as 5 telas
+   desta feature (mesmo padrão de pages/Agenda/Agenda.css, compartilhado
+   entre AG1/AG2): todas navegam entre si no mesmo fluxo (F1->F2->F3->F4,
+   F5 paralela pro aluno), então uma folha só reduz duplicação sem repetir
+   o "self-contained por página" que só faz sentido pra páginas isoladas
+   (ver StudentProfilePage.css/RolesPage.css). Classes genéricas (.pg-head/
+   .dash-body/.badge/.hint) com os MESMOS valores/tokens já usados nas
+   outras telas desta base (Teachers/Turmas/Students) — não uma variação
+   nova. */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--space-6) var(--space-3);
+  flex-wrap: wrap;
+}
+.pg-head h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0;
+}
+.pg-head .back {
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+/* Tabs (pills horizontais) — status/mês/etc. */
+.tabs2 {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tabs2 button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition:
+    border-color var(--motion-fast),
+    color var(--motion-fast);
+}
+.tabs2 button.active {
+  border-color: var(--teal);
+  color: var(--text-primary);
+  background: var(--data-soft);
+}
+.tabs2 button .count {
+  margin-left: 4px;
+  opacity: 0.75;
+}
+
+.month-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  font-weight: 600;
+  font-size: 13px;
+}
+.month-nav button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+}
+.month-nav button:hover {
+  border-color: var(--teal);
+}
+
+.unit-filter select,
+.month-select {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  border-radius: var(--radius-input);
+  padding: 6px 10px;
+  font: inherit;
+  font-size: 12px;
+}
+
+/* Cards genéricos */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+}
+.card h2 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  margin: 0 0 var(--space-3);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+.badge.b-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.badge.b-warning {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+.badge.b-error {
+  background: var(--error-bg);
+  color: var(--error-fg);
+}
+.badge.b-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}
+.badge.b-info {
+  background: var(--data-soft);
+  color: var(--data);
+}
+
+/* Lista de faturas (F2/F5) */
+.ag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.inv-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 12px 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: border-color var(--motion-fast);
+}
+.inv-row:hover {
+  border-color: var(--teal);
+}
+.inv-row .iw {
+  flex: 1;
+  min-width: 0;
+}
+.inv-row .iw .nm {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.inv-row .iw .desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.inv-row .tail {
+  text-align: right;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+.inv-row .tail .amt {
+  font-size: 13px;
+  font-weight: 700;
+}
+.inv-row .tail .due {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.list-total {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+  padding: 0 var(--space-1);
+}
+
+.searchbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-pill);
+  padding: 0 14px;
+  min-height: 40px;
+  max-width: 320px;
+  flex: 1;
+}
+.searchbar input {
+  border: none;
+  background: none;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  font-size: 13px;
+  flex: 1;
+  outline: none;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.kv {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.kv:last-child {
+  border-bottom: none;
+}
+.kv .k {
+  color: var(--text-muted);
+}
+.kv .v {
+  font-weight: 600;
+  text-align: right;
+}
+
+.timeline {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.timeline .ev {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
+}
+.timeline .ev .date {
+  flex: none;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pay-link-box {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 12px;
+  font-size: 12px;
+}
+.pay-link-box code {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.pills button {
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+.pills button.active {
+  border-color: var(--teal);
+  color: var(--on-accent);
+  background: var(--accent);
+}
+
+.checkrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.balance-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+.balance-card .full {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-2);
+  margin-top: 2px;
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.balance-card .lbl {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.balance-card .val {
+  font-size: 15px;
+  font-weight: 700;
+}
+.balance-card .val.success {
+  color: var(--success-fg);
+}
+.balance-card .val.error {
+  color: var(--error-fg);
+}
+.balance-card .delta {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.recv-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12.5px;
+  padding: 6px 0;
+}
+
+.cat-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  padding: 4px 0;
+}
+.cat-bar-row .lbl {
+  flex: none;
+  width: 110px;
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cat-bar-row .track {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--sand);
+  overflow: hidden;
+}
+.cat-bar-row .fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--data);
+}
+.cat-bar-row .amt {
+  flex: none;
+  font-weight: 600;
+  width: 70px;
+  text-align: right;
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.group-header {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin: var(--space-2) 0 4px;
+}
+
+/* Sheet de estorno (F3, BEAC-1952/BEAC-1711) — .ssub/.refund-rule-toast
+   copiadas do protótipo real (`#sheet-estorno`, Artifact "Rallye —
+   Financeiro"), mesmo padrão self-contained já usado por
+   WaitlistSheet.css/DayUseConfigPage.css (cada família de tela replica os
+   valores em vez de depender de um CSS global). .btn-danger idem (mesmos
+   valores de AG5BookingDetailPage.css/PL4MySubscriptionPage.css).
+
+   Nome `.refund-rule-toast` (não `.toast`, correction round pós-review):
+   F3 é a primeira tela deste app a renderizar tanto esse banner
+   self-contained quanto o snackbar compartilhado `Toast`
+   (src/components/Toast.tsx, classe `toast toast--success|error`) — usar a
+   mesma classe `.toast` aqui colidia e sobrescrevia padding/font-size/gap
+   do snackbar real sempre que os dois carregavam juntos (confirmado no CSS
+   de build). */
+.ssub {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.refund-rule-toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-input);
+  font-size: 12.5px;
+  margin: 0;
+  background: var(--sand);
+  color: var(--text-primary);
+}
+
+.btn-danger {
+  background: var(--error-fg);
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+}

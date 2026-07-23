@@ -1,0 +1,138 @@
+/* PL1 — Catálogo de Planos (Admin) (BEAC-1934). Reaproveita o vocabulário de
+   tokens/classes já estabelecido por TurmasListPage.css (.pg-head, .sdot,
+   .dash-body, .hint, .badge, .sec-head-title) — self-contained (não assume
+   que outra página já carregou o CSS equivalente). */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--space-6) var(--space-3);
+  flex-wrap: wrap;
+}
+.pg-head h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+.plan-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.plan-section-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0;
+}
+.sdot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.plan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.plan-card {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 14px 16px;
+  cursor: pointer;
+  transition: border-color var(--motion-fast);
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+}
+.plan-card:hover {
+  border-color: var(--teal);
+}
+.plan-card.inactive {
+  opacity: 0.55;
+}
+.plan-card .pc-main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+.plan-card h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  margin: 0 0 2px;
+}
+.plan-card .mt {
+  font-size: 11.5px;
+  color: var(--text-muted);
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-pill);
+  font-size: 9.5px;
+  padding: 2px 8px;
+  flex: none;
+}
+.badge-ativo {
+  background: var(--positive-bg, var(--sand));
+  color: var(--positive-fg, var(--text-primary));
+}
+.badge-inativa {
+  background: var(--sand);
+  color: var(--text-muted);
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+  padding: 0 var(--space-6);
+}
+
+.sec-head-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}

@@ -1,0 +1,213 @@
+/* PL4 — Minha Assinatura (Aluno) (BEAC-1937). Self-contained (não assume que
+   outra página já carregou o CSS equivalente) — mesmo padrão de
+   PlanosListPage.css/PlanoFormPage.css neste mesmo pacote. Tokens e valores
+   (badges, .card, .kv, .actions-row, .ag-list/.inv-row, .empty-state,
+   .btn-danger) copiados 1:1 dos MESMOS valores já usados em
+   pages/Financeiro/Financeiro.css e pages/Agenda/AG5BookingDetailPage.css —
+   duplicação mínima intencional, não uma variação nova. */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--space-6) var(--space-3);
+  flex-wrap: wrap;
+}
+.pg-head h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0;
+}
+.btn-back {
+  background: none;
+  border: none;
+  color: var(--text-primary);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+  line-height: 1;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+.sec-head-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.empty-state {
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+/* Card genérico + card da assinatura */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+}
+.sub-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.sub-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.sub-card-head h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0;
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+  flex: none;
+}
+.badge.b-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.badge.b-warning {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+.badge.b-error {
+  background: var(--error-bg);
+  color: var(--error-fg);
+}
+.badge.b-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}
+.badge.b-info {
+  background: var(--data-soft);
+  color: var(--data);
+}
+
+/* Linhas chave/valor (Recorrência, Período, Renova em, Renovação automática) */
+.kv {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 13px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--border);
+}
+.kv:last-of-type {
+  border-bottom: none;
+}
+.kv .k {
+  color: var(--text-muted);
+}
+.kv .v {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* Barra de progresso do período */
+.period-progress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+.period-progress-track {
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--sand);
+  overflow: hidden;
+}
+.period-progress-fill {
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--data);
+}
+.period-progress-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-align: right;
+}
+
+/* Ações — Trocar plano / Cancelar assinatura */
+.actions-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.btn-danger {
+  background: var(--error-fg);
+  color: #fff;
+}
+.btn-danger:hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+
+/* Lista de faturas (Pagamentos) */
+.ag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.inv-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 12px 14px;
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: border-color var(--motion-fast);
+}
+.inv-row:hover {
+  border-color: var(--teal);
+}
+.inv-row .iw {
+  flex: 1;
+  min-width: 0;
+}
+.inv-row .iw .nm {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.inv-row .iw .desc {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+.inv-row .tail {
+  flex: none;
+}
