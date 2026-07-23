@@ -9,6 +9,7 @@ import AG4TeacherAgendaPage from './pages/Agenda/AG4TeacherAgendaPage'
 import AG5BookingDetailPage from './pages/Agenda/AG5BookingDetailPage'
 import CheckinPage from './pages/Agenda/CheckinPage'
 import ArenaSettingsPage from './pages/ArenaSettings/ArenaSettingsPage'
+import BracketPage from './pages/Bracket/BracketPage'
 import { CadastroPage } from './pages/cadastro/CadastroPage'
 import { CompletarCadastro } from './pages/CompletarCadastro'
 import DashboardPage from './pages/DashboardPage'
@@ -26,12 +27,14 @@ import F5MyInvoicesPage from './pages/Financeiro/F5MyInvoicesPage'
 import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/Members/MembersPage'
+import MatchDetailPage from './pages/MatchDetail/MatchDetailPage'
 import { OAuthCallback } from './pages/OAuthCallback'
 import PL4MySubscriptionPage from './pages/Planos/PL4MySubscriptionPage'
 import PL5ChangePlanPage from './pages/Planos/PL5ChangePlanPage'
 import PlanoFormPage from './pages/Planos/PlanoFormPage'
 import PlanosListPage from './pages/Planos/PlanosListPage'
 import ProfilePage from './pages/Profile/ProfilePage'
+import RankingsPage from './pages/Rankings/RankingsPage'
 import ReportDetailPage from './pages/Reports/ReportDetailPage'
 import ReportsHubPage from './pages/Reports/ReportsHubPage'
 import { ResetPassword } from './pages/ResetPassword'
@@ -291,7 +294,22 @@ function AppRoutes() {
           + categorias via GET /tournaments/{id}), sem exigir :unitId no
           path. */}
       <Route path="/tournaments/:tournamentId/register" element={<TO4RegisterPage />} />
+      {/* TO5 — Chaves/Bracket (BEAC-2006, story BEAC-1719). Rota já referenciada
+          pelo link "Ver chaves" da aba Chaves de TO3 (TournamentViewPage,
+          feature em paralelo). Um segmento a mais que
+          /tournaments/:tournamentId abaixo — sem ambiguidade de match entre
+          os dois, react-router resolve por profundidade de path, não por
+          ordem de declaração aqui. */}
+      <Route path="/tournaments/:tournamentId/bracket" element={<BracketPage />} />
+      {/* TO6 — Detalhe da Partida (BEAC-2007, story BEAC-1719). Chegada
+          natural do tap num match card de TO5 (BracketPage acima). */}
+      <Route path="/tournaments/:tournamentId/matches/:matchId" element={<MatchDetailPage />} />
       <Route path="/tournaments/:tournamentId" element={<TournamentViewPage />} />
+      {/* TO8 — Rankings (BEAC-2009, story BEAC-1719). Rota de nível superior
+          (não aninhada em /tournaments/:id): o ranking agrega vários
+          torneios via GET /rankings (Épico 4, BEAC-1855), não pertence a
+          um torneio específico. */}
+      <Route path="/rankings" element={<RankingsPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )

@@ -1,0 +1,175 @@
+/* TO8 — Rankings (BEAC-2009). Self-contained: redefine as classes genéricas
+ * que esta página usa, mesmo padrão de RolesPage.css/ProfilePage.css. Classes
+ * .tabs2/.podium/.rk-row traduzidas 1:1 do protótipo real (scr-to8, linhas
+ * 902-938 do artifact). */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.pg-head h1 {
+  font-size: 18px;
+  margin: 0;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+
+.tabs2 {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+.tabs2 button {
+  padding: 7px 15px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-muted);
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 12px;
+  cursor: pointer;
+}
+.tabs2 button.active {
+  background: var(--sand);
+  border-color: var(--sand);
+  color: var(--text-primary);
+}
+.tabs2 button:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.podium {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 0 4px;
+}
+.podium .p {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  max-width: 110px;
+}
+.podium .p .avatar-sm {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+}
+.podium .p.first .avatar-sm {
+  width: 56px;
+  height: 56px;
+  border: 2px solid var(--accent);
+}
+.podium .p .pn {
+  font-size: 11.5px;
+  font-weight: 600;
+  text-align: center;
+}
+.podium .p .pp {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--data);
+  font-variant-numeric: tabular-nums;
+}
+.podium .p .base {
+  width: 100%;
+  border-radius: 8px 8px 0 0;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+}
+.podium .p.first .base {
+  height: 44px;
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.podium .p.second .base {
+  height: 32px;
+}
+.podium .p.third .base {
+  height: 24px;
+}
+
+.rk-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 9px 14px;
+  font-size: 13px;
+}
+.rk-row .pos {
+  font-family: var(--font-display);
+  font-weight: 600;
+  width: 30px;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+.rk-row .avatar-sm {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--sand);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 10.5px;
+  flex: none;
+}
+.rk-row .rn {
+  flex: 1;
+  font-weight: 600;
+}
+.rk-row .rp {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--data);
+  font-variant-numeric: tabular-nums;
+}
+.rk-row.me {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 7%, var(--surface));
+}
+
+.me-badge {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: var(--teal);
+  margin-left: 4px;
+}
+
+.foot-note {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-align: center;
+}
