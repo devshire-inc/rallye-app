@@ -1,14 +1,240 @@
+/* TO3 — Detalhe do Torneio (BEAC-1993, story BEAC-1718). Classes copiadas do
+   protótipo real (`#scr-to3`/`#sheet-desistencia`) — self-contained, mesmo
+   padrão de TurmaDetailPage.css/Financeiro.css (não assume que outra tela já
+   carregou o CSS equivalente). */
+
 .tournament-view-page {
   flex: 1;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-8) var(--space-4);
-  text-align: center;
 }
 
-.tournament-view-page p {
+.tournament-view-page > p[role='status'],
+.tournament-view-page > p[role='alert'] {
   color: var(--text-muted);
-  max-width: 46ch;
+  text-align: center;
+  padding: var(--space-8) var(--space-4);
+}
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-6);
+  margin-bottom: var(--space-2);
+}
+.pg-head .spacer {
+  flex: 1;
+}
+
+.iconbtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+}
+
+.prof-head {
+  display: flex;
+  gap: 14px;
+  padding: var(--space-4) var(--space-6);
+  align-items: center;
+  flex-wrap: wrap;
+}
+.ph-main {
+  flex: 1;
+  min-width: 220px;
+}
+.ph-main h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 20px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.ph-main .mt {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  padding: 4px 11px;
+  border-radius: var(--radius-pill);
+}
+.badge-live {
+  color: var(--error-fg);
+  background: none;
+  padding: 0;
+}
+.live-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--error-fg);
+  display: inline-block;
+}
+.badge-success {
+  background: var(--success-bg);
+  color: var(--success-fg);
+}
+.badge-warning {
+  background: var(--warning-bg);
+  color: var(--warning-fg);
+}
+
+.ptabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  padding: 0 var(--space-6);
+  overflow-x: auto;
+  margin-bottom: var(--space-4);
+}
+.ptabs button {
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--text-muted);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+}
+.ptabs button.active {
+  color: var(--text-primary);
+  border-bottom-color: var(--accent);
+}
+
+.dash-body {
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 560px;
+}
+.ptab-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  padding: 10px 14px;
+}
+.cat-row .cn {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.cat-row .cv {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: var(--space-4);
+}
+.sec-head-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+}
+
+.hint {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
+
+.dgroup {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  margin: var(--space-3) 0 var(--space-2);
+}
+.ag-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-input);
+  font-size: 12.5px;
+  margin: 0;
+}
+.toast-neutral {
+  background: var(--sand);
+  color: var(--text-primary);
+}
+
+.btn {
+  font-family: var(--font-display);
+  font-weight: 600;
+  border-radius: var(--radius-pill);
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.btn-md {
+  min-height: 44px;
+  padding: 0 22px;
+  font-size: 14px;
+}
+.btn-sm {
+  min-height: 36px;
+  padding: 0 16px;
+  font-size: 13px;
+}
+.btn-primary {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+.btn-ghost {
+  background: transparent;
+  border: 1.5px solid var(--border);
+  color: var(--text-primary);
+  font-family: var(--font-body);
 }
