@@ -1,0 +1,94 @@
+/* TO7 — sheet "Registrar resultado" (BEAC-2008). Self-contained: redefine
+ * as classes genéricas que este componente usa. .ssub/.stack/.set-in/
+ * .radio-opt traduzidas 1:1 do protótipo real (#sheet-to7). */
+
+.register-result-sheet h2 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 18px;
+  margin: 0 0 4px;
+}
+
+.register-result-sheet .ssub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin: 0 0 14px;
+}
+
+.register-result-sheet .stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.set-in {
+  display: grid;
+  grid-template-columns: 1fr repeat(3, 54px);
+  gap: 8px;
+  align-items: center;
+  font-size: 12.5px;
+}
+.set-in .tn {
+  font-weight: 600;
+}
+.set-in .set-label {
+  text-align: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+.set-in input {
+  min-height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-primary);
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  width: 100%;
+}
+.set-in input:disabled {
+  opacity: 0.5;
+}
+
+.radio-opt {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  cursor: pointer;
+  font-size: 13px;
+}
+.radio-opt input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--teal);
+  flex: none;
+}
+.radio-opt.checked {
+  border-color: var(--teal);
+  background: color-mix(in srgb, var(--teal) 8%, var(--surface));
+}
+
+.wo-winner-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.detected-winner {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--success-fg);
+  margin: 0;
+}
+
+.foot-note {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-align: center;
+}
