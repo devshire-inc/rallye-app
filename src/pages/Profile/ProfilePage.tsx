@@ -20,6 +20,17 @@ import './ProfilePage.css'
  * estrutura de abas de BEAC-1684) foi removido em favor de consolidar as
  * duas abas na mesma tela, como o protótipo sempre desenhou.
  *
+ * "Configurações" (grupo "Conta") deixou de ser inerte com BEAC-2035 (story
+ * BEAC-1727, Épico 10) — aponta pra PF5/SettingsPage.tsx (`/configuracoes`,
+ * escopo mínimo: só a seção "Notificações" do protótipo PF5, ver comentário
+ * de pacote lá). "Editar perfil" e "Notificações" continuam inertes —
+ * "Editar perfil" é PF4 (fora de escopo de qualquer story até agora) e
+ * "Notificações" aqui se refere a uma tela ainda não mapeada por nenhuma
+ * story (N1/Centro de Notificações, BEAC-1723, já existe em `/notificacoes`,
+ * mas nenhuma story pediu explicitamente pra ligar este item de menu a ela
+ * — decisão deixada pra quando essa lacuna for endereçada, pra não
+ * expandir o escopo desta task silenciosamente).
+ *
  * "Configurações da arena" (C1) deixou de ser inerte com BEAC-1867 (story
  * BEAC-1694, "Configuração dos 3 níveis de bloqueio por inadimplência") —
  * mesmo padrão condicional a `getActiveUnitId()` de "Papéis e permissões"/
@@ -129,7 +140,10 @@ export default function ProfilePage() {
           <div className="menu-list">
             <MenuRow label="Editar perfil" />
             <MenuRow label="Notificações" />
-            <MenuRow label="Configurações" />
+            <Link className="menu-row" to="/configuracoes" data-testid="menu-configuracoes">
+              <span>Configurações</span>
+              <span className="chev">›</span>
+            </Link>
           </div>
         </div>
         <LogoutButton />
