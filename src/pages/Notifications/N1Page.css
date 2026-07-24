@@ -1,0 +1,141 @@
+/* N1 — Centro de Notificações (BEAC-2021). Sem stylesheet de componentes
+   compartilhado ainda (ver comentário de topo de S1Page.css) — este arquivo
+   segue a mesma convenção de cada página definir seu próprio namespace
+   (`.n1-*`), reusando só os tokens globais de src/index.css e as classes
+   .btn* de AuthLayout.css. */
+
+.n1-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+.n1-header h1 {
+  font-size: 20px;
+  margin: 0;
+}
+
+.n1-group {
+  margin-bottom: var(--space-4);
+}
+.n1-group-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  padding: 0 2px var(--space-2);
+}
+
+.n1-row {
+  width: 100%;
+  min-height: 64px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-body);
+  color: var(--text-primary);
+  transition: border-color var(--motion-fast);
+}
+.n1-row:hover {
+  border-color: var(--teal);
+}
+
+.n1-row-icon {
+  flex: none;
+  font-size: 22px;
+  line-height: 1;
+}
+
+.n1-row-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.n1-row-title {
+  font-size: 13px;
+  font-weight: 700;
+}
+.n1-row-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.n1-row-time {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.n1-row-dot {
+  flex: none;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--teal);
+}
+
+/* ---------- Loading skeleton ---------- */
+.n1-skeleton-row {
+  height: 64px;
+  border-radius: var(--radius-card);
+  margin-bottom: 8px;
+  background: linear-gradient(
+    100deg,
+    var(--surface) 30%,
+    color-mix(in srgb, var(--sand) 55%, var(--surface)) 50%,
+    var(--surface) 70%
+  );
+  background-size: 200% 100%;
+  animation: n1-skeleton-shimmer 1.4s ease-in-out infinite;
+}
+@keyframes n1-skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .n1-skeleton-row {
+    animation: none;
+  }
+}
+
+/* ---------- Error state ---------- */
+.n1-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  padding: var(--space-6) 0;
+  color: var(--text-muted);
+}
+
+/* ---------- Empty state ---------- */
+.n1-empty {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13.5px;
+  padding: var(--space-6) 0;
+}
+
+.n1-load-more-row {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--space-3);
+}
