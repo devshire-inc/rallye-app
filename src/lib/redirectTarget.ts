@@ -11,6 +11,10 @@ import type { Membership } from './tenantContext'
  */
 export const S1_PATH = '/s1'
 export const DASHBOARD_PATH = '/dashboard'
+/** N1 — Centro de Notificações (BEAC-2021), alcançada pelo sino no topbar de
+ * AppShell.tsx a partir de qualquer tela. Vive aqui (não em N1Page.tsx) pra
+ * ser importável por AppShell sem depender da página. */
+export const N1_PATH = '/notificacoes'
 
 /**
  * BEAC-1893 (Central de Pendências no D3): quando há exatamente 1

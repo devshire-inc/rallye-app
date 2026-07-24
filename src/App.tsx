@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
 import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'
 import { PermissionsProvider } from './context/PermissionsContext'
-import { SESSION_EXPIRED_EVENT } from './lib/httpClient'
+import { SESSION_ESTABLISHED_EVENT, SESSION_EXPIRED_EVENT } from './lib/httpClient'
+import { resolveNotificationRoute } from './lib/notificationRouting'
+import { PUSH_NOTIFICATION_TAPPED_EVENT, setupPushNotifications } from './lib/push'
 import AG1DayPage from './pages/Agenda/AG1DayPage'
 import AG2WeekPage from './pages/Agenda/AG2WeekPage'
 import AG3StudentAgendaPage from './pages/Agenda/AG3StudentAgendaPage'
@@ -28,6 +30,7 @@ import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/Members/MembersPage'
 import MatchDetailPage from './pages/MatchDetail/MatchDetailPage'
+import N1Page from './pages/Notifications/N1Page'
 import { OAuthCallback } from './pages/OAuthCallback'
 import PL4MySubscriptionPage from './pages/Planos/PL4MySubscriptionPage'
 import PL5ChangePlanPage from './pages/Planos/PL5ChangePlanPage'
@@ -77,8 +80,65 @@ function useSessionExpiredRedirect() {
   }, [navigate])
 }
 
+/** Atraso antes de disparar o fluxo de permissão de push depois de uma
+ * sessão estabelecida (login, refresh no boot, refresh silencioso) — AC da
+ * story (BEAC-1723/BEAC-2019/BEAC-2020): "disparado num momento
+ * não-intrusivo... depois da primeira ação relevante do usuário, não no
+ * carregamento da página". SESSION_ESTABLISHED_EVENT já garante que não é
+ * o carregamento cru (só dispara pós-auth); o atraso adicional evita
+ * competir com o primeiro render da tela pós-login. */
+const PUSH_SETUP_DELAY_MS = 3000
+
+/** BEAC-2019/BEAC-2020: dispara o fluxo de permissão + registro de push
+ * (web ou nativo, ver src/lib/push.ts) toda vez que uma sessão é
+ * estabelecida — cobre login, boot com sessão existente e qualquer refresh
+ * silencioso (os 3 disparam SESSION_ESTABLISHED_EVENT, ver httpClient.ts).
+ * setupPushNotifications() é idempotente (só faz POST /me/push-tokens se o
+ * token mudou desde o último registro), então disparar de novo em todo
+ * refresh silencioso é seguro. */
+function usePushNotificationsSetup() {
+  useEffect(() => {
+    let timeoutId: number | undefined
+
+    function handleSessionEstablished() {
+      timeoutId = window.setTimeout(() => {
+        void setupPushNotifications()
+      }, PUSH_SETUP_DELAY_MS)
+    }
+
+    window.addEventListener(SESSION_ESTABLISHED_EVENT, handleSessionEstablished)
+    return () => {
+      window.removeEventListener(SESSION_ESTABLISHED_EVENT, handleSessionEstablished)
+      if (timeoutId !== undefined) window.clearTimeout(timeoutId)
+    }
+  }, [])
+}
+
+/** BEAC-2020: tap numa notificação nativa (app em background/fechado) —
+ * PUSH_NOTIFICATION_TAPPED_EVENT carrega reference_type/reference_id (ver
+ * src/lib/push.ts), resolvidos pra uma rota via
+ * src/lib/notificationRouting.ts (mesma resolução usada pela N1Page pro tap
+ * na lista). reference_type sem rota resolvível (gap estrutural documentado
+ * em notificationRouting.ts) simplesmente não navega. */
+function usePushNotificationDeepLink() {
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    function handleTap(event: Event) {
+      const detail = (event as CustomEvent<Record<string, string> | undefined>).detail
+      const route = resolveNotificationRoute(detail?.reference_type, detail?.reference_id)
+      if (route) navigate(route)
+    }
+
+    window.addEventListener(PUSH_NOTIFICATION_TAPPED_EVENT, handleTap)
+    return () => window.removeEventListener(PUSH_NOTIFICATION_TAPPED_EVENT, handleTap)
+  }, [navigate])
+}
+
 function AppRoutes() {
   useSessionExpiredRedirect()
+  usePushNotificationsSetup()
+  usePushNotificationDeepLink()
 
   return (
     <Routes>
@@ -312,6 +372,11 @@ function AppRoutes() {
           torneios via GET /rankings (Épico 4, BEAC-1855), não pertence a
           um torneio específico. */}
       <Route path="/rankings" element={<RankingsPage />} />
+      {/* N1 — Centro de Notificações (BEAC-2021, story BEAC-1723). Rota de
+          nível superior (não unit-scoped, mesmo padrão de /perfil): o sino no
+          topbar de AppShell.tsx alcança daqui de qualquer tela, e GET
+          /me/notifications (BEAC-2018) é escopado só por usuário. */}
+      <Route path="/notificacoes" element={<N1Page />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )

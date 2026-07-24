@@ -5,8 +5,70 @@
    reais de src/index.css ("Horizon"/"Saque Noturno"). */
 .app-shell {
   display: flex;
+  flex-direction: column;
   min-height: 100svh;
   background: var(--bg);
+}
+
+/* Topbar (BEAC-2021) — sino + badge de não lidas, sempre visível (ver
+   comentário de pacote de AppShell.tsx), diferente de sidebar/bottomnav que
+   se alternam por breakpoint. */
+.shell-topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex: none;
+  height: 48px;
+  padding: 0 var(--space-4);
+  border-bottom: 1px solid var(--border);
+  background: var(--surface);
+}
+@media (min-width: 860px) {
+  .shell-topbar {
+    padding: 0 var(--space-8);
+  }
+}
+
+.shell-bell {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: none;
+  border-radius: 50%;
+  background: none;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--text-primary);
+}
+.shell-bell:hover {
+  background: var(--sand);
+}
+
+.shell-bell-badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: var(--radius-pill);
+  background: var(--error-bg);
+  color: var(--error-fg);
+  font-size: 9.5px;
+  font-weight: 700;
+  line-height: 16px;
+  text-align: center;
+}
+
+/* Sidebar + conteúdo principal, lado a lado — abaixo do topbar. */
+.shell-body {
+  display: flex;
+  flex: 1;
+  min-height: 0;
 }
 
 .sidebar {
