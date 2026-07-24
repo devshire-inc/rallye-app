@@ -31,6 +31,7 @@ import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/Members/MembersPage'
 import MatchDetailPage from './pages/MatchDetail/MatchDetailPage'
 import N1Page from './pages/Notifications/N1Page'
+import NotificationPreferencesPage from './pages/Settings/NotificationPreferencesPage'
 import { OAuthCallback } from './pages/OAuthCallback'
 import PL4MySubscriptionPage from './pages/Planos/PL4MySubscriptionPage'
 import PL5ChangePlanPage from './pages/Planos/PL5ChangePlanPage'
@@ -377,6 +378,12 @@ function AppRoutes() {
           topbar de AppShell.tsx alcança daqui de qualquer tela, e GET
           /me/notifications (BEAC-2018) é escopado só por usuário. */}
       <Route path="/notificacoes" element={<N1Page />} />
+      {/* PF6 — Preferências de Notificação (BEAC-2034, story BEAC-1727).
+          Rota de nível superior (mesmo padrão de /notificacoes/perfil): as
+          preferências são escopadas só por usuário (self_access), sem
+          unit/tenant ativo necessário. Alcançada a partir de PF5
+          (/configuracoes, "Gerenciar preferências por evento →"). */}
+      <Route path="/configuracoes/notificacoes" element={<NotificationPreferencesPage />} />
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   )
