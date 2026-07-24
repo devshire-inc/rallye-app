@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { getMe } from '../../lib/api/me'
 import { listRescheduleCredits } from '../../lib/api/reschedule'
+import { getOfferDetail, type OfferDetailResult, type OfferDetailSuccess } from '../../lib/api/waitlist'
 import { formatWeekdayDate, isSameDay } from './agendaShared'
+import { OfferSheet, type OfferResolvedResult } from './OfferSheet'
 import { RemarcarSheet, type RemarcarResult } from './RemarcarSheet'
 import { WaitlistSheet, type WaitlistJoinedResult } from './WaitlistSheet'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -13,6 +15,28 @@ import './Agenda.css'
 import './AG3StudentAgendaPage.css'
 
 type Tab = 'prox' | 'hist'
+
+type OfferState =
+  | { status: 'idle' }
+  | { status: 'loading' }
+  | { status: 'error'; message: string }
+  | { status: 'ready'; offer: OfferDetailSuccess }
+
+const OFFER_WEEKDAY_SHORT = ['dom', 'seg', 'ter', 'qua', 'qui', 'sex', 'sáb']
+const OFFER_MONTH_SHORT = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+
+/** "Turma Waitlist · sáb 12 jul, 09:00 · Quadra 1" — mesmo padrão de
+ * RemarcarSheet.formatClassSchedule/WaitlistSheetProps.classSchedule (ver
+ * comentário daquele componente). Sem nextOccurrenceAt (turma sem ocorrência
+ * futura na janela de busca do backend, "avisa, não bloqueia" — ver
+ * comentário de pacote em offer_detail_handler.go/rallye-api), cai pra
+ * turma + quadra, sem data/hora. */
+function formatOfferClassSchedule(offer: OfferDetailSuccess): string {
+  if (!offer.nextOccurrenceAt) return `${offer.className} · ${offer.courtName}`
+  const d = new Date(offer.nextOccurrenceAt)
+  const time = d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${offer.className} · ${OFFER_WEEKDAY_SHORT[d.getDay()]} ${String(d.getDate()).padStart(2, '0')} ${OFFER_MONTH_SHORT[d.getMonth()]}, ${time} · ${offer.courtName}`
+}
 
 type CreditsState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; count: number }
 
@@ -83,6 +107,7 @@ function groupByDate(bookings: Booking[]): { label: string; items: Booking[] }[]
  */
 export default function AG3StudentAgendaPage() {
   const { unitId } = useParams<{ unitId: string }>()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [tab, setTab] = useState<Tab>('prox')
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -125,6 +150,46 @@ export default function AG3StudentAgendaPage() {
   // abrir o sheet, então este gate é só uma camada extra de UX, não a
   // única proteção contra remarcar sem crédito.
   const [creditsState, setCreditsState] = useState<CreditsState>({ status: 'loading' })
+
+  // offerState/offerMessage: sheet AG9 "Confirmação de vaga" (BEAC-1923),
+  // aberto a partir de ?offer=<entryId> na URL (BEAC-1724/BEAC-2023) — o tap
+  // numa notificação vaga_waitlist (push nativo ou N1) navega pra cá com
+  // esse param via notificationRouting.ts. entryId é o único dado que a
+  // notificação carrega; o resto (turma, professor, ocupação, expires_at)
+  // é buscado aqui via GET /waitlist/{id} antes do sheet abrir.
+  const offerEntryId = searchParams.get('offer')
+  // offerFetch guarda o ÚLTIMO resultado buscado JUNTO com o entryId a que
+  // ele pertence — offerState (abaixo) deriva 'loading' puramente comparando
+  // offerFetch.entryId com offerEntryId atual, em vez do efeito chamar
+  // setState síncrono pra marcar "carregando" (o que dispararia o lint
+  // react-hooks/set-state-in-effect — só é permitido chamar setState de
+  // dentro do callback assíncrono, mesma regra já documentada em
+  // OfferSheet.tsx). Isso também resolve de graça o caso de trocar de uma
+  // oferta pra outra sem passar por "idle" no meio: enquanto a busca da
+  // nova entryId não volta, offerFetch ainda aponta pra entryId antiga,
+  // então o derive abaixo cai em 'loading', nunca mostra o resultado stale.
+  const [offerFetch, setOfferFetch] = useState<{ entryId: string; result: OfferDetailResult } | null>(null)
+  const [offerMessage, setOfferMessage] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (!offerEntryId) return
+    let cancelled = false
+    getOfferDetail(offerEntryId).then((result) => {
+      if (cancelled) return
+      setOfferFetch({ entryId: offerEntryId, result })
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [offerEntryId])
+
+  const offerState: OfferState = !offerEntryId
+    ? { status: 'idle' }
+    : offerFetch?.entryId !== offerEntryId
+      ? { status: 'loading' }
+      : !offerFetch.result.ok
+        ? { status: 'error', message: 'Não foi possível carregar esta oferta — ela pode já ter sido resolvida ou expirado.' }
+        : { status: 'ready', offer: offerFetch.result }
 
   useEffect(() => {
     let cancelled = false
@@ -203,6 +268,29 @@ export default function AG3StudentAgendaPage() {
     setWaitlistMessage(`Você entrou na fila de espera — posição #${result.position}.`)
   }
 
+  // closeOfferSheet remove ?offer= da URL (replace: não empilha histórico) —
+  // offerState deriva pra 'idle' sozinho quando offerEntryId some, nenhum
+  // setState direto necessário aqui. Reabrir a página sem o param nunca
+  // reabre o sheet sozinho. Usado tanto por onCancel (fecha sem resolver, a
+  // oferta continua 'offered' no servidor) quanto depois de onResolved.
+  function closeOfferSheet() {
+    const next = new URLSearchParams(searchParams)
+    next.delete('offer')
+    setSearchParams(next, { replace: true })
+  }
+
+  function handleOfferResolved(result: OfferResolvedResult) {
+    setOfferMessage(
+      result.status === 'accepted'
+        ? 'Vaga confirmada! A aula já apareceu na sua agenda.'
+        : result.status === 'declined'
+          ? 'Você recusou a vaga — ela passou pro próximo da fila.'
+          : 'O prazo pra confirmar expirou — a vaga passou pro próximo da fila.',
+    )
+    closeOfferSheet()
+    setRefreshKey((k) => k + 1)
+  }
+
   return (
     <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
       <div className="ag-head">
@@ -239,6 +327,11 @@ export default function AG3StudentAgendaPage() {
       {waitlistMessage ? (
         <p role="status" className="hint">
           {waitlistMessage}
+        </p>
+      ) : null}
+      {offerMessage ? (
+        <p role="status" className="hint">
+          {offerMessage}
         </p>
       ) : null}
 
@@ -328,6 +421,23 @@ export default function AG3StudentAgendaPage() {
         ) : (
           <p role="alert">Não foi possível identificar sua conta para entrar na fila (tente recarregar a página).</p>
         )}
+      </BottomSheet>
+
+      <BottomSheet open={offerState.status !== 'idle'} onClose={closeOfferSheet} label="Vaga disponível">
+        {offerState.status === 'loading' ? <p className="hint">Carregando oferta…</p> : null}
+        {offerState.status === 'error' ? <p role="alert">{offerState.message}</p> : null}
+        {offerState.status === 'ready' ? (
+          <OfferSheet
+            entryId={offerState.offer.entryId}
+            expiresAt={offerState.offer.expiresAt}
+            classSchedule={formatOfferClassSchedule(offerState.offer)}
+            teacherName={offerState.offer.teacherName}
+            activeEnrollments={offerState.offer.activeEnrollments}
+            capacity={offerState.offer.capacity}
+            onResolved={handleOfferResolved}
+            onCancel={closeOfferSheet}
+          />
+        ) : null}
       </BottomSheet>
     </AppShell>
   )
