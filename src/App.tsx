@@ -44,6 +44,7 @@ import ReportsHubPage from './pages/Reports/ReportsHubPage'
 import { ResetPassword } from './pages/ResetPassword'
 import RolesPage from './pages/Roles/RolesPage'
 import S1Page from './pages/S1Page'
+import SettingsPage from './pages/Settings/SettingsPage'
 import { SignupPage } from './pages/SignupPage'
 import NewStudentPage from './pages/Students/NewStudentPage'
 import StudentProfilePage from './pages/Students/StudentProfilePage'
@@ -378,6 +379,12 @@ function AppRoutes() {
           topbar de AppShell.tsx alcança daqui de qualquer tela, e GET
           /me/notifications (BEAC-2018) é escopado só por usuário. */}
       <Route path="/notificacoes" element={<N1Page />} />
+      {/* PF5 — Configurações, seção mínima "Notificações" (BEAC-2035, story
+          BEAC-1727). Escopo mínimo documentado em SettingsPage.tsx — só a
+          seção de canais de notificação, não a tela PF5 inteira do
+          protótipo. Alcançável a partir de ProfilePage.tsx
+          ("Configurações"). */}
+      <Route path="/configuracoes" element={<SettingsPage />} />
       {/* PF6 — Preferências de Notificação (BEAC-2034, story BEAC-1727).
           Rota de nível superior (mesmo padrão de /notificacoes/perfil): as
           preferências são escopadas só por usuário (self_access), sem
