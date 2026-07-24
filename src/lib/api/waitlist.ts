@@ -94,6 +94,60 @@ export async function leaveWaitlist(classId: string, studentId: string): Promise
   return { ok: true }
 }
 
+export interface OfferDetailSuccess {
+  ok: true
+  entryId: string
+  classId: string
+  /** ISO/RFC3339 — mesma fonte de verdade que OfferSheetProps.expiresAt. */
+  expiresAt: string
+  className: string
+  courtName: string
+  teacherName: string
+  activeEnrollments: number
+  capacity: number
+  /** ISO/RFC3339 da próxima ocorrência materializável da turma, ou null
+   * quando nenhuma foi encontrada na janela de busca do backend (turma sem
+   * ocorrência futura próxima — "avisa, não bloqueia", ver comentário de
+   * pacote em offer_detail_handler.go/rallye-api). */
+  nextOccurrenceAt: string | null
+}
+
+export type OfferDetailResult = OfferDetailSuccess | ApiFailure
+
+/** GET /waitlist/{id} (BEAC-2023) — resolve os dados que OfferSheet.tsx
+ * (AG9) precisa a partir só do entryId, o único dado que uma notificação
+ * vaga_waitlist carrega (reference_id). Self-only: devolve offer_not_found
+ * (404) tanto pra entrada inexistente quanto pra oferta de outro aluno —
+ * mesmo disfarce fail-closed de acceptOffer/declineOffer. */
+export async function getOfferDetail(entryId: string): Promise<OfferDetailResult> {
+  const response = await apiFetch(`/waitlist/${encodeURIComponent(entryId)}`)
+  if (!response.ok) return failureFrom(response)
+
+  const body = (await response.json()) as {
+    entry_id: string
+    class_id: string
+    expires_at: string
+    class_name: string
+    court_name: string
+    teacher_name: string
+    active_enrollments: number
+    capacity: number
+    next_occurrence_at?: string
+  }
+  return {
+    ok: true,
+    entryId: body.entry_id,
+    classId: body.class_id,
+    expiresAt: body.expires_at,
+    className: body.class_name,
+    courtName: body.court_name,
+    teacherName: body.teacher_name,
+    activeEnrollments: body.active_enrollments,
+    capacity: body.capacity,
+    nextOccurrenceAt: body.next_occurrence_at ?? null,
+  }
+}
+
 export type OfferStatus = 'accepted' | 'expired'
 
 export interface AcceptOfferSuccess {

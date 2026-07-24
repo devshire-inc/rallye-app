@@ -1,9 +1,23 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it } from 'vitest'
 import { resolveNotificationRoute } from './notificationRouting'
+import { setSessionMemberships } from './tenantContext'
+
+afterEach(() => {
+  window.sessionStorage.clear()
+})
 
 describe('resolveNotificationRoute', () => {
   it('resolves invoice to /invoices/:id', () => {
     expect(resolveNotificationRoute('invoice', 'inv-1')).toBe('/invoices/inv-1')
+  })
+
+  it('resolves waitlist_entry to AG3 (Minha agenda) with ?offer=<entryId>, using the active unit from the session', () => {
+    setSessionMemberships([{ unit_id: 'unit-1', tenant_id: 'tenant-1' }])
+    expect(resolveNotificationRoute('waitlist_entry', 'entry-1')).toBe('/units/unit-1/agenda/minha?offer=entry-1')
+  })
+
+  it('returns null for waitlist_entry when there is no active unit in the session', () => {
+    expect(resolveNotificationRoute('waitlist_entry', 'entry-1')).toBeNull()
   })
 
   it('returns null for reference types that need params the notification does not carry', () => {

@@ -146,11 +146,12 @@ export default function N1Page() {
 
     // resolveNotificationRoute (lib/notificationRouting.ts) é a mesma fonte
     // de verdade usada pelo tap em push nativo (BEAC-2020) — só resolve
-    // reference_type cuja rota existente precisa APENAS do próprio id; os
-    // demais (booking/tournament_match/pending_approval/pedido/feedback,
-    // além de vaga_waitlist -> AG9, que hoje não tem rota/caller nenhum,
-    // BEAC-1724) ficam null de propósito, ver comentário de pacote daquele
-    // arquivo — este componente só marca como lida nesses casos, sem navegar.
+    // reference_type cuja rota existente precisa APENAS do próprio id, OU de
+    // dados já disponíveis no cliente (vaga_waitlist -> AG9/OfferSheet.tsx,
+    // BEAC-1724/BEAC-2023, via getActiveUnitId()). Os demais tipos
+    // (booking/tournament_match/pending_approval/pedido/feedback) ficam null
+    // de propósito, ver comentário de pacote daquele arquivo — este
+    // componente só marca como lida nesses casos, sem navegar.
     const target = resolveNotificationRoute(notification.referenceType, notification.referenceId)
     if (target) navigate(target)
   }
