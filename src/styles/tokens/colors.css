@@ -1,0 +1,141 @@
+:root {
+  /* Base — extraída do logo Rallye */
+  --orange-700: #C74609;
+  --orange-600: #E05312;
+  --orange-500: #F96420;
+  --orange-200: #FFC7A3;
+  --orange-100: #FFE4D1;
+  --orange-50: #FFF3EA;
+  --navy-950: #0F1B26;
+  --navy-900: #182838;
+  --navy-800: #22354A;
+  --navy-700: #33475C;
+  --navy-500: #5D7186;
+  --navy-300: #9AA9BB;
+  --navy-200: #C2CCD8;
+  --navy-100: #E1E7ED;
+  --sand-50: #FBF6ED;
+  --sand-100: #F8EDDA;
+  --sand-200: #F3E0C2;
+  --sand-300: #E8CFA4;
+  --sand-400: #D8B87F;
+  --amber-500: #F6A821;
+  --amber-100: #FDEFCF;
+  --white: #FFFFFF;
+
+  /* Semânticas de estado */
+  --green-600: #17915B;
+  --green-100: #DCF3E7;
+  --red-600: #D8452B;
+  --red-100: #FAE2DC;
+  --blue-600: #1E7FB5;
+  --blue-100: #DEEFF8;
+
+  /* Cores por esporte */
+  --sport-beach-tennis: #F96420;
+  --sport-padel: #1E7FB5;
+  --sport-futevolei: #17915B;
+  --sport-volei: #F6A821;
+  --sport-tenis: #7A6FB8;
+  --sport-outro: #5D7186;
+
+  /* Aliases semânticos — tema claro */
+  --surface-page: var(--sand-50);
+  --surface-card: var(--white);
+  --surface-sunken: var(--sand-100);
+  --surface-inverse: var(--navy-900);
+  --surface-brand: var(--orange-500);
+  --surface-brand-soft: var(--orange-50);
+  --text-heading: var(--navy-900);
+  --text-body: var(--navy-700);
+  --text-muted: var(--navy-500);
+  --text-brand: var(--orange-600);
+  --text-on-brand: #FFFFFF;
+  --text-inverse: #FDF8F0;
+  --border-default: #EBDFC9;
+  --border-strong: var(--sand-400);
+  --interactive-primary: var(--orange-500);
+  --interactive-primary-hover: var(--orange-600);
+  --interactive-primary-press: var(--orange-700);
+  --focus-ring-color: rgba(249,100,32,.4);
+  --state-success: var(--green-600);
+  --state-success-soft: var(--green-100);
+  --state-warning: var(--amber-500);
+  --state-warning-soft: var(--amber-100);
+  --state-warning-text: #926400;
+  --state-danger: var(--red-600);
+  --state-danger-soft: var(--red-100);
+  --state-info: var(--blue-600);
+  --state-info-soft: var(--blue-100);
+
+  /* Linhas de quadra (motivo decorativo sobre cores de esporte) */
+  --court-line: rgba(255,255,255,.35);
+  --court-line-subtle: rgba(24,40,56,.08);
+
+  /* Ponte de compatibilidade legada — Saque Noturno -> Claude Design (temporária, ver BEAC-2063) */
+  --bg: var(--surface-page);
+  --surface: var(--surface-card);
+  --border: var(--border-default);
+  --text-primary: var(--text-heading);
+  --accent: var(--interactive-primary);
+  --on-accent: var(--text-on-brand);
+  --sand: var(--sand-200);
+  --teal: var(--interactive-primary);
+  --sky: var(--surface-inverse);
+  --sky-text: var(--text-inverse);
+  --sky-muted: var(--text-muted);
+  --hz-top: var(--surface-page);
+  --hz-bot: var(--surface-inverse);
+  --success-bg: var(--state-success-soft);
+  --success-fg: var(--state-success);
+  --warning-bg: var(--state-warning-soft);
+  --warning-fg: var(--state-warning);
+  --error-bg: var(--state-danger-soft);
+  --error-fg: var(--state-danger);
+  --data: var(--state-info);
+  --data-soft: var(--state-info-soft);
+  --link: var(--interactive-primary);
+  --scrim: rgba(15,27,38,.5);
+}
+
+[data-theme="dark"] {
+  --surface-page: var(--navy-950);
+  --surface-card: var(--navy-900);
+  --surface-sunken: #122030;
+  --surface-inverse: var(--sand-100);
+  --surface-brand: var(--orange-500);
+  --surface-brand-soft: rgba(249,100,32,.14);
+  --text-heading: #FDF8F0;
+  --text-body: #D9E0E8;
+  --text-muted: #8FA0B2;
+  --text-brand: #FF9257;
+  --text-inverse: var(--navy-900);
+  --border-default: #2A3D52;
+  --border-strong: #3D5169;
+  --court-line-subtle: rgba(253,248,240,.09);
+
+  /* Ponte de compatibilidade legada — recalculada no escuro via os aliases acima */
+  --bg: var(--surface-page);
+  --surface: var(--surface-card);
+  --border: var(--border-default);
+  --text-primary: var(--text-heading);
+  --accent: var(--interactive-primary);
+  --on-accent: var(--text-on-brand);
+  --sand: var(--sand-200);
+  --teal: var(--interactive-primary);
+  --sky: var(--surface-inverse);
+  --sky-text: var(--text-inverse);
+  --sky-muted: var(--text-muted);
+  --hz-top: var(--surface-page);
+  --hz-bot: var(--surface-inverse);
+  --success-bg: var(--state-success-soft);
+  --success-fg: var(--state-success);
+  --warning-bg: var(--state-warning-soft);
+  --warning-fg: var(--state-warning);
+  --error-bg: var(--state-danger-soft);
+  --error-fg: var(--state-danger);
+  --data: var(--state-info);
+  --data-soft: var(--state-info-soft);
+  --link: var(--interactive-primary);
+  --scrim: rgba(15,27,38,.5);
+}

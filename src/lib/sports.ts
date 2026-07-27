@@ -1,6 +1,6 @@
 /**
  * Catálogo de esportes oferecidos por uma unit (slug ⇄ rótulo em PT-BR ⇄ cor
- * do "dot" — ver `--sport-*` em src/index.css). Extraído de
+ * do "dot" — ver `--sport-*` em src/styles/tokens/colors.css). Extraído de
  * `pages/Units/NewUnitPage.tsx` (BEAC-1832, onde esta lista nasceu como o
  * multi-select "Esportes oferecidos") para ser reaproveitado por S1
  * (BEAC-1835, `arena-sports`/`sporttag` do protótipo real) sem duplicar a
@@ -22,6 +22,8 @@ export const SPORTS: Sport[] = [
   { slug: 'padel', label: 'Padel', cssVar: '--sport-padel' },
   { slug: 'futevolei', label: 'Futevôlei', cssVar: '--sport-futevolei' },
   { slug: 'volei', label: 'Vôlei', cssVar: '--sport-volei' },
+  { slug: 'tenis', label: 'Tênis', cssVar: '--sport-tenis' },
+  { slug: 'outro', label: 'Outro', cssVar: '--sport-outro' },
 ]
 
 const SPORTS_BY_SLUG = new Map(SPORTS.map((sport) => [sport.slug, sport]))
@@ -31,8 +33,8 @@ export function sportLabel(slug: string): string {
   return SPORTS_BY_SLUG.get(slug)?.label ?? slug
 }
 
-/** Var CSS do dot colorido para um slug conhecido; cinza neutro (`--border`)
- * como fallback para slugs fora do catálogo conhecido. */
+/** Var CSS do dot colorido para um slug conhecido; cinza neutro
+ * (`--border-default`) como fallback para slugs fora do catálogo conhecido. */
 export function sportCssVar(slug: string): string {
-  return SPORTS_BY_SLUG.get(slug)?.cssVar ?? '--border'
+  return SPORTS_BY_SLUG.get(slug)?.cssVar ?? '--border-default'
 }
