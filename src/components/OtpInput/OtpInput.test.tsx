@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from '@testing-library/react'
+import { axe } from 'jest-axe'
 import { describe, expect, it, vi } from 'vitest'
 import { OtpInput } from './OtpInput'
 
@@ -66,5 +67,39 @@ describe('OtpInput', () => {
     for (const input of boxes()) {
       expect(input).toHaveAttribute('inputMode', 'numeric')
     }
+  })
+
+  describe('live region (BEAC-2082)', () => {
+    it('announces progress as digits are filled', () => {
+      const onChange = vi.fn()
+      const { rerender } = render(<OtpInput value="" onChange={onChange} />)
+      expect(screen.getByRole('status')).toHaveTextContent('0 de 6')
+
+      fireEvent.change(boxes()[0], { target: { value: '1' } })
+      rerender(<OtpInput value={onChange.mock.calls[0][0]} onChange={onChange} />)
+      expect(screen.getByRole('status')).toHaveTextContent('1 de 6')
+    })
+
+    it('announces progress going back down when a digit is removed', () => {
+      const onChange = vi.fn()
+      const { rerender } = render(<OtpInput value="12" onChange={onChange} />)
+      expect(screen.getByRole('status')).toHaveTextContent('2 de 6')
+
+      rerender(<OtpInput value="1" onChange={onChange} />)
+      expect(screen.getByRole('status')).toHaveTextContent('1 de 6')
+    })
+
+    it('announces a distinct completion message once all digits are filled', () => {
+      const onChange = vi.fn()
+      const { rerender } = render(<OtpInput value="12345" onChange={onChange} />)
+      fireEvent.change(boxes()[5], { target: { value: '6' } })
+      rerender(<OtpInput value={onChange.mock.calls[0][0]} onChange={onChange} />)
+      expect(screen.getByRole('status')).toHaveTextContent('Código completo')
+    })
+
+    it('has no accessibility violations', async () => {
+      const { container } = render(<OtpInput value="123" onChange={() => {}} />)
+      expect(await axe(container)).toHaveNoViolations()
+    })
   })
 })
