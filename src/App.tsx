@@ -1,6 +1,8 @@
 import { useEffect } from 'react'
 import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'
+import { ThemeToggle } from './components/ThemeToggle/ThemeToggle'
 import { PermissionsProvider } from './context/PermissionsContext'
+import { ThemeProvider } from './context/ThemeContext'
 import { SESSION_ESTABLISHED_EVENT, SESSION_EXPIRED_EVENT } from './lib/httpClient'
 import { resolveNotificationRoute } from './lib/notificationRouting'
 import { PUSH_NOTIFICATION_TAPPED_EVENT, setupPushNotifications } from './lib/push'
@@ -398,15 +400,22 @@ function AppRoutes() {
 
 function App() {
   return (
-    <BrowserRouter>
-      {/* PermissionsProvider (BEAC-1841) precisa envolver toda a árvore de
-          rotas autenticadas: usePermission é o mecanismo de UI de permissão
-          do qual todo outro épico/feature depende, então nenhuma tela pode
-          ficar fora do seu alcance. */}
-      <PermissionsProvider>
-        <AppRoutes />
-      </PermissionsProvider>
-    </BrowserRouter>
+    // ThemeProvider (BEAC-2065) envolve TODA a árvore, inclusive fora de
+    // BrowserRouter: ThemeToggle precisa alcançar rotas públicas (login,
+    // signup) que ficam fora do AppShell autenticado, então não pode viver
+    // dentro de PermissionsProvider nem de AppRoutes.
+    <ThemeProvider>
+      <ThemeToggle />
+      <BrowserRouter>
+        {/* PermissionsProvider (BEAC-1841) precisa envolver toda a árvore de
+            rotas autenticadas: usePermission é o mecanismo de UI de permissão
+            do qual todo outro épico/feature depende, então nenhuma tela pode
+            ficar fora do seu alcance. */}
+        <PermissionsProvider>
+          <AppRoutes />
+        </PermissionsProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 
