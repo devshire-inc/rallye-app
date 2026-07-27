@@ -207,13 +207,15 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
               {item.label}
             </button>
           ))}
-          {canConfig && (
+          {canConfig && visibleGestaoSubItems.length > 0 && (
             <>
               <div className="side-sep" />
               <div className="side-gestao">
                 <button
                   type="button"
                   className={`side-item${gestaoActive ? ' active' : ''}`}
+                  aria-haspopup="menu"
+                  aria-expanded={gestaoOpen}
                   onClick={() => setGestaoOpen((open) => !open)}
                 >
                   Gestão
@@ -255,7 +257,7 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
             {item.label}
           </button>
         ))}
-        {canConfig && (
+        {canConfig && visibleGestaoSubItems.length > 0 && (
           <button
             type="button"
             className={`bn-item${gestaoActive ? ' active' : ''}`}
@@ -265,7 +267,7 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
           </button>
         )}
       </nav>
-      {canConfig && (
+      {canConfig && visibleGestaoSubItems.length > 0 && (
         <div className="gestao-sheet-wrapper">
           <BottomSheet open={gestaoOpen} onClose={() => setGestaoOpen(false)} label="Gestão">
             <div className="gestao-sheet">

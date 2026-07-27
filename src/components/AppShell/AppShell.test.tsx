@@ -292,6 +292,17 @@ describe('AppShell — menu "Gestão" (BEAC-2087)', () => {
     expect(itemsWithLabel(container, 'Gestão')).toHaveLength(0)
   })
 
+  it('config:read concedida mas sem unitId/tenantId ativos (0 sub-itens visíveis): "Gestão" fica oculta em vez de abrir vazia', () => {
+    vi.mocked(usePermission).mockImplementation((module) => module === 'config')
+    // getActiveUnitId()/getActiveTenantId() já são null por padrão (beforeEach) —
+    // os 4 sub-itens de Gestão exigem unitId ou tenantId, então nenhum fica
+    // visível. Mesmo padrão de Agenda/Torneios/Relatórios: esconder sempre,
+    // nunca mostrar um affordance que abre num menu vazio.
+    const { container } = renderShellAt('/perfil')
+    expect(itemsWithLabel(container, 'Gestão')).toHaveLength(0)
+    expect(container.querySelector('.gestao-sheet-wrapper')).not.toBeInTheDocument()
+  })
+
   it('config:read: clicar em "Gestão" (sidebar) abre um dropdown listando os 4 destinos, cada um navegando pra sua rota real e fechando o menu', async () => {
     vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
     vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
