@@ -1,0 +1,24 @@
+.segmented {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--surface-sunken);
+  border-radius: var(--radius-pill);
+}
+
+.segmented__option {
+  height: 36px;
+  padding: 0 18px;
+  font: var(--type-label);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.segmented__option--active {
+  background: var(--surface-card);
+  color: var(--text-heading);
+  box-shadow: var(--shadow-card);
+}

@@ -1,0 +1,46 @@
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.input label {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.input__field {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  height: var(--control-h-md);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+
+.input__control {
+  flex: 1;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: var(--type-body);
+  color: var(--text-heading);
+}
+
+.input__prefix {
+  font: var(--type-body);
+  color: var(--text-muted);
+}
+
+.input__helper {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.input__error {
+  font: var(--type-small);
+  color: var(--state-danger);
+}
