@@ -64,4 +64,12 @@ describe('ProductCard', () => {
     await user.keyboard('{Enter}')
     expect(onClick).toHaveBeenCalledTimes(1)
   })
+
+  it('CSS: media uses a 4/3 aspect-ratio, price is highlighted with --text-brand, no hex literals', () => {
+    const css = readFileSync('src/components/ui/ProductCard/ProductCard.css', 'utf8')
+    expect(css).toMatch(/aspect-ratio:\s*4\s*\/\s*3/)
+    const priceBlock = /\.product-card__price\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+    expect(priceBlock).toMatch(/color:\s*var\(--text-brand\)/)
+    expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+  })
 })

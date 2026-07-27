@@ -21,7 +21,7 @@ button.product-card {
   display: flex;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 3;
   background: var(--surface-sunken);
 }
 
@@ -64,7 +64,7 @@ button.product-card {
 
 .product-card__price {
   font: var(--type-numeric);
-  color: var(--text-heading);
+  color: var(--text-brand);
 }
 
 .product-card__old-price {

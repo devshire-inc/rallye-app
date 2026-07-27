@@ -9,12 +9,14 @@
 }
 
 .stat-card__label {
-  font: var(--type-small);
+  font: var(--type-overline);
+  text-transform: uppercase;
+  letter-spacing: var(--tracking-overline);
   color: var(--text-muted);
 }
 
 .stat-card__value {
-  font: var(--type-title);
+  font: 800 30px var(--font-display);
   color: var(--text-heading);
 }
 

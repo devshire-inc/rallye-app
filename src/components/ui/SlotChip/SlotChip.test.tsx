@@ -46,4 +46,13 @@ describe('SlotChip', () => {
     expect(css).toMatch(/color:\s*var\(--text-on-brand\)/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
+
+  it('CSS: busy state uses --surface-sunken background, transparent border, line-through and --text-muted', () => {
+    const css = readFileSync('src/components/ui/SlotChip/SlotChip.css', 'utf8')
+    const busyBlock = /\.slot-chip--busy\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+    expect(busyBlock).toMatch(/background:\s*var\(--surface-sunken\)/)
+    expect(busyBlock).toMatch(/border:\s*1px solid transparent/)
+    expect(busyBlock).toMatch(/text-decoration:\s*line-through/)
+    expect(busyBlock).toMatch(/color:\s*var\(--text-muted\)/)
+  })
 })

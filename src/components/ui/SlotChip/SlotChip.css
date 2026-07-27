@@ -10,8 +10,10 @@
 }
 
 .slot-chip--busy {
+  background: var(--surface-sunken);
+  border: 1px solid transparent;
   color: var(--text-muted);
-  opacity: 0.4;
+  text-decoration: line-through;
   cursor: not-allowed;
 }
 
