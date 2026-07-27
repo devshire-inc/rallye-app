@@ -43,7 +43,7 @@ describe('VerifyEmailPage', () => {
     renderPage('/verify-email?user_id=user-1&code=123456')
 
     await waitFor(() => expect(verifySpy).toHaveBeenCalledWith('user-1', '123456'))
-    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Email verificado!'))
+    await waitFor(() => expect(screen.getByText('Email verificado!')).toBeInTheDocument())
   })
 
   it('on success shows a toast and redirects to the dashboard', async () => {
@@ -52,7 +52,7 @@ describe('VerifyEmailPage', () => {
 
     fillOtp('123456')
 
-    await waitFor(() => expect(screen.getByRole('status')).toHaveTextContent('Email verificado!'))
+    await waitFor(() => expect(screen.getByText('Email verificado!')).toBeInTheDocument())
     await waitFor(() => expect(screen.getByText('Dashboard stub')).toBeInTheDocument(), {
       timeout: 2000,
     })

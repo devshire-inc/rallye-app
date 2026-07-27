@@ -44,6 +44,9 @@ export function OtpInput({
   }, [])
 
   const digits = Array.from({ length }, (_, i) => value[i] ?? '')
+  const filledCount = digits.filter((d) => d !== '').length
+  const progressMessage =
+    filledCount === length ? 'Código completo' : `Dígito ${filledCount} de ${length} preenchido`
 
   function setDigitAt(index: number, digit: string) {
     const next = digits.slice()
@@ -123,6 +126,9 @@ export function OtpInput({
           aria-label={`Dígito ${index + 1} de ${length}`}
         />
       ))}
+      <span role="status" aria-live="polite" className="otp-input__sr-only">
+        {progressMessage}
+      </span>
     </div>
   )
 }
