@@ -1,11 +1,12 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import { BottomSheet } from '../BottomSheet/BottomSheet'
 import { useLongPress } from '../../hooks/useLongPress'
 import { usePermission } from '../../hooks/usePermission'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getUnreadNotificationCount } from '../../lib/api/notifications'
 import { N1_PATH, S1_PATH } from '../../lib/redirectTarget'
-import { getActiveUnitId } from '../../lib/tenantContext'
+import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import './AppShell.css'
 
 export interface AppShellProps {
@@ -38,6 +39,46 @@ function isActivePath(pathname: string, itemPath: string): boolean {
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`)
 }
 
+/** Os 4 destinos de "Gestão" (BEAC-2087). Não existe módulo de permissão
+ * dedicado por sub-item no catálogo real (src/lib/api/permissions.ts) além
+ * de 'config' (módulo representativo das 4 telas administrativas) — os 3
+ * primeiros, unit-scoped, usam a mesma `canConfig` do item pai "Gestão"
+ * (redundante com o gate do pai, mas cada um também exige `unitId` real,
+ * já que suas rotas são `/units/:unitId/...`). "Minhas unidades" é
+ * tenant-scoped: exige `tenantId`, não `unitId`. */
+function gestaoSubItemsFor(
+  unitId: string | null,
+  tenantId: string | null,
+  canConfig: boolean,
+): NavItem[] {
+  return [
+    {
+      key: 'membros',
+      label: 'Membros',
+      path: unitId ? `/units/${unitId}/members` : '',
+      visible: canConfig && unitId !== null,
+    },
+    {
+      key: 'papeis',
+      label: 'Papéis',
+      path: unitId ? `/units/${unitId}/roles` : '',
+      visible: canConfig && unitId !== null,
+    },
+    {
+      key: 'config-arena',
+      label: 'Configurações da arena',
+      path: unitId ? `/units/${unitId}/settings` : '',
+      visible: canConfig && unitId !== null,
+    },
+    {
+      key: 'minhas-unidades',
+      label: 'Minhas unidades',
+      path: tenantId ? `/tenants/${tenantId}/units` : '',
+      visible: canConfig && tenantId !== null,
+    },
+  ]
+}
+
 /**
  * Shell "PF3" (BEAC-1832) — sidebar (>=860px) + bottomnav (mobile) no
  * padrão `.app-shell`/`.sidebar`/`.bottomnav` do protótipo real. Navegação
@@ -68,12 +109,15 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
   // gap conhecido de cobertura mobile, não resolvido por esta task.
   const longPress = useLongPress(() => navigate(S1_PATH))
   const [unreadCount, setUnreadCount] = useState(0)
+  const [gestaoOpen, setGestaoOpen] = useState(false)
 
   const { role } = useShellIdentity()
   const unitId = getActiveUnitId()
+  const tenantId = getActiveTenantId()
   const canAgenda = usePermission('agenda', 'read')
   const canTorneios = usePermission('torneios', 'read')
   const canRelatorios = usePermission('relatorios', 'read')
+  const canConfig = usePermission('config', 'read')
 
   useEffect(() => {
     let cancelled = false
@@ -123,6 +167,16 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
   ]
   const visibleNavItems = navItems.filter((item) => item.visible)
 
+  const visibleGestaoSubItems = gestaoSubItemsFor(unitId, tenantId, canConfig).filter(
+    (item) => item.visible,
+  )
+  const gestaoActive = visibleGestaoSubItems.some((item) => isActivePath(location.pathname, item.path))
+
+  function navigateToGestaoItem(path: string) {
+    navigate(path)
+    setGestaoOpen(false)
+  }
+
   return (
     <div className="app-shell">
       <div className="shell-topbar">
@@ -153,6 +207,35 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
               {item.label}
             </button>
           ))}
+          {canConfig && (
+            <>
+              <div className="side-sep" />
+              <div className="side-gestao">
+                <button
+                  type="button"
+                  className={`side-item${gestaoActive ? ' active' : ''}`}
+                  onClick={() => setGestaoOpen((open) => !open)}
+                >
+                  Gestão
+                </button>
+                {gestaoOpen && (
+                  <div className="side-gestao-menu" role="menu">
+                    {visibleGestaoSubItems.map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        role="menuitem"
+                        className="side-gestao-menu-item"
+                        onClick={() => navigateToGestaoItem(item.path)}
+                      >
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </>
+          )}
           <div className="side-foot">
             {orgLabel}
             <br />
@@ -172,7 +255,34 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
             {item.label}
           </button>
         ))}
+        {canConfig && (
+          <button
+            type="button"
+            className={`bn-item${gestaoActive ? ' active' : ''}`}
+            onClick={() => setGestaoOpen((open) => !open)}
+          >
+            Gestão
+          </button>
+        )}
       </nav>
+      {canConfig && (
+        <div className="gestao-sheet-wrapper">
+          <BottomSheet open={gestaoOpen} onClose={() => setGestaoOpen(false)} label="Gestão">
+            <div className="gestao-sheet">
+              {visibleGestaoSubItems.map((item) => (
+                <button
+                  key={item.key}
+                  type="button"
+                  className="gestao-sheet-item"
+                  onClick={() => navigateToGestaoItem(item.path)}
+                >
+                  {item.label}
+                </button>
+              ))}
+            </div>
+          </BottomSheet>
+        </div>
+      )}
     </div>
   )
 }

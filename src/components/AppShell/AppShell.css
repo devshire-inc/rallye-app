@@ -131,6 +131,69 @@
   margin: var(--space-3) 0;
 }
 
+/* Dropdown de "Gestão" (BEAC-2087) — posicionado relativo ao próprio item,
+   nested dentro de .sidebar: fica escondido no mobile de graça, já que
+   .sidebar já é display:none abaixo de 860px (ver acima). */
+.side-gestao {
+  position: relative;
+}
+.side-gestao-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+  margin-top: 4px;
+  padding: 6px;
+  gap: 2px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-input);
+  background: var(--surface);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+.side-gestao-menu-item {
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--radius-input);
+  background: none;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+.side-gestao-menu-item:hover {
+  background: var(--sand);
+}
+
+/* Sheet de "Gestão" no mobile (mesmo BottomSheet de BEAC-1808) — o wrapper
+   se esconde no mesmo breakpoint em que .bottomnav se esconde, pra não
+   coexistir com o dropdown desktop acima. */
+@media (min-width: 860px) {
+  .gestao-sheet-wrapper {
+    display: none;
+  }
+}
+.gestao-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gestao-sheet-item {
+  padding: 12px 8px;
+  border: none;
+  background: none;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: left;
+  cursor: pointer;
+}
+
 .side-foot {
   margin-top: auto;
   padding-top: var(--space-4);

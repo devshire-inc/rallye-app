@@ -273,3 +273,110 @@ describe('AppShell — navegação real dos itens de topo (BEAC-2086)', () => {
     expect(activeLabels(container, '.bn-item')).toEqual(['Torneios'])
   })
 })
+
+function subLabelsOf(menu: HTMLElement, itemSelector: string) {
+  return Array.from(menu.querySelectorAll(itemSelector)).map((el) => el.textContent)
+}
+
+function clickLabel(menu: HTMLElement, itemSelector: string, label: string) {
+  const target = Array.from(menu.querySelectorAll(itemSelector)).find((el) => el.textContent === label)
+  if (!target) throw new Error(`"${label}" não encontrado em ${itemSelector}`)
+  return target as HTMLElement
+}
+
+describe('AppShell — menu "Gestão" (BEAC-2087)', () => {
+  it('"Gestão" fica oculta sem config:read', () => {
+    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+    vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
+    const { container } = renderShellAt('/perfil')
+    expect(itemsWithLabel(container, 'Gestão')).toHaveLength(0)
+  })
+
+  it('config:read: clicar em "Gestão" (sidebar) abre um dropdown listando os 4 destinos, cada um navegando pra sua rota real e fechando o menu', async () => {
+    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+    vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
+    vi.mocked(usePermission).mockImplementation((module) => module === 'config')
+    const user = userEvent.setup()
+    const { container } = renderShellAt('/perfil')
+
+    await user.click(itemsWithLabel(container, 'Gestão')[0])
+
+    const menu = container.querySelector('.side-gestao-menu') as HTMLElement
+    expect(menu).toBeInTheDocument()
+    expect(subLabelsOf(menu, '.side-gestao-menu-item')).toEqual([
+      'Membros',
+      'Papéis',
+      'Configurações da arena',
+      'Minhas unidades',
+    ])
+
+    await user.click(clickLabel(menu, '.side-gestao-menu-item', 'Papéis'))
+
+    expect(await screen.findByTestId('probe-path')).toHaveTextContent('/units/unit-1/roles')
+    expect(container.querySelector('.side-gestao-menu')).not.toBeInTheDocument()
+  })
+
+  it('config:read: clicar em "Gestão" (bottomnav) abre o BottomSheet listando os mesmos 4 destinos', async () => {
+    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+    vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
+    vi.mocked(usePermission).mockImplementation((module) => module === 'config')
+    const user = userEvent.setup()
+    const { container } = renderShellAt('/perfil')
+
+    await user.click(itemsWithLabel(container, 'Gestão')[1])
+
+    const sheet = container.querySelector('.gestao-sheet') as HTMLElement
+    expect(sheet).toBeInTheDocument()
+    expect(subLabelsOf(sheet, '.gestao-sheet-item')).toEqual([
+      'Membros',
+      'Papéis',
+      'Configurações da arena',
+      'Minhas unidades',
+    ])
+
+    await user.click(clickLabel(sheet, '.gestao-sheet-item', 'Configurações da arena'))
+
+    expect(await screen.findByTestId('probe-path')).toHaveTextContent('/units/unit-1/settings')
+    expect(container.querySelector('.gestao-sheet')).not.toBeInTheDocument()
+  })
+
+  it('getActiveTenantId() null: "Minhas unidades" é omitido do menu, os outros 3 continuam', async () => {
+    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+    vi.mocked(getActiveTenantId).mockReturnValue(null)
+    vi.mocked(usePermission).mockImplementation((module) => module === 'config')
+    const user = userEvent.setup()
+    const { container } = renderShellAt('/perfil')
+
+    await user.click(itemsWithLabel(container, 'Gestão')[0])
+
+    const menu = container.querySelector('.side-gestao-menu') as HTMLElement
+    expect(subLabelsOf(menu, '.side-gestao-menu-item')).toEqual([
+      'Membros',
+      'Papéis',
+      'Configurações da arena',
+    ])
+  })
+
+  it('getActiveUnitId() null: só "Minhas unidades" (tenant-scoped) permanece no menu', async () => {
+    vi.mocked(getActiveUnitId).mockReturnValue(null)
+    vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
+    vi.mocked(usePermission).mockImplementation((module) => module === 'config')
+    const user = userEvent.setup()
+    const { container } = renderShellAt('/dashboard')
+
+    await user.click(itemsWithLabel(container, 'Gestão')[0])
+
+    const menu = container.querySelector('.side-gestao-menu') as HTMLElement
+    expect(subLabelsOf(menu, '.side-gestao-menu-item')).toEqual(['Minhas unidades'])
+  })
+
+  it('rota atual bate com um dos 4 sub-destinos: "Gestão" também mostra o estilo ativo', () => {
+    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+    vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
+    vi.mocked(usePermission).mockImplementation((module) => module === 'config')
+    const { container } = renderShellAt('/units/unit-1/roles')
+
+    expect(activeLabels(container, '.side-item')).toEqual(['Gestão'])
+    expect(activeLabels(container, '.bn-item')).toEqual(['Gestão'])
+  })
+})
