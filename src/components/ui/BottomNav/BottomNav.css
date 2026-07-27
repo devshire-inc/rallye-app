@@ -1,0 +1,33 @@
+.bottom-nav {
+  display: inline-flex;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  background: var(--surface-inverse);
+  border-radius: var(--radius-pill);
+  box-shadow: var(--shadow-float-nav);
+}
+
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-2) var(--space-4);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-inverse);
+  opacity: 0.8;
+  cursor: pointer;
+}
+
+.bottom-nav__item--active {
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
+  opacity: 1;
+}
+
+.bottom-nav__label {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+}
