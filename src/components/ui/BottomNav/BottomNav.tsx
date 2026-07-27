@@ -18,6 +18,11 @@ const ICON_PATHS: Record<string, string> = {
     'M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0zM7 6H4a1 1 0 00-1 1 4 4 0 004 4M17 6h3a1 1 0 011 1 4 4 0 01-4 4',
   bag: 'M6 7h12l1 14H5zM9 7a3 3 0 016 0',
   user: 'M20 21a8 8 0 00-16 0M12 13a4 4 0 100-8 4 4 0 000 8z',
+  // BEAC-2091: adicionados pra cobrir Relatórios/Gestão no bottom-nav real do
+  // AppShell — sem entrada própria aqui, ambos cairiam silenciosamente no
+  // ícone de "home" (ver NavIcon abaixo).
+  'bar-chart': 'M5 20V13M11 20V4M17 20V10M3 20h18',
+  briefcase: 'M3 8a1 1 0 011-1h16a1 1 0 011 1v10a1 1 0 01-1 1H4a1 1 0 01-1-1zM9 7V6a2 2 0 012-2h2a2 2 0 012 2v1M3 13h18',
 }
 
 const DEFAULT_ITEMS: BottomNavItem[] = [

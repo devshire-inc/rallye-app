@@ -1,6 +1,7 @@
 import { useEffect, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { BottomSheet } from '../BottomSheet/BottomSheet'
+import { BottomNav, type BottomNavItem } from '../ui/BottomNav/BottomNav'
 import { useLongPress } from '../../hooks/useLongPress'
 import { usePermission } from '../../hooks/usePermission'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
@@ -37,6 +38,17 @@ function agendaPathFor(unitId: string, role: string | null): string {
 
 function isActivePath(pathname: string, itemPath: string): boolean {
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`)
+}
+
+/** Mapeia cada NavItem pro ícone correspondente no `BottomNav` real
+ * (BEAC-2091). 'bar-chart'/'briefcase' foram adicionados ao `ICON_PATHS` do
+ * componente especificamente pra Relatórios/Gestão (ver comentário lá). */
+const NAV_ICON_BY_KEY: Record<string, string> = {
+  inicio: 'home',
+  agenda: 'calendar',
+  torneios: 'trophy',
+  relatorios: 'bar-chart',
+  perfil: 'user',
 }
 
 /** Os 4 destinos de "Gestão" (BEAC-2087). Não existe módulo de permissão
@@ -80,16 +92,19 @@ function gestaoSubItemsFor(
 }
 
 /**
- * Shell "PF3" (BEAC-1832) — sidebar (>=860px) + bottomnav (mobile) no
- * padrão `.app-shell`/`.sidebar`/`.bottomnav` do protótipo real. Navegação
- * real (BEAC-2058, task BEAC-2086): cada item é gated por `usePermission`
+ * Shell "PF3" (BEAC-1832) — sidebar (>=860px, markup próprio) + `BottomNav`
+ * real (mobile, componente da Fundação desde BEAC-2091) no padrão
+ * `.app-shell`/`.sidebar`/`.shell-bottomnav-wrapper`. Navegação real
+ * (BEAC-2058, task BEAC-2086): cada item é gated por `usePermission`
  * (ver ../../hooks/usePermission.ts, contrato "esconder sempre, nunca
  * desabilitar") e aponta pra uma rota real de src/App.tsx — substitui os
  * itens antes inertes/desabilitados. "Loja" foi removida inteiramente
  * (decisão travada de BEAC-2048, nenhuma rota existe). O item ativo é
- * calculado via prefix-match do path atual (useLocation), tanto na sidebar
- * quanto na bottomnav — as duas sempre renderizam no DOM, alternando-se só
- * por CSS (ver AppShell.css), então ambas recebem o mesmo item set.
+ * calculado via prefix-match do path atual (useLocation); a sidebar computa
+ * seu próprio `.active` por item, e o `BottomNav` recebe um único
+ * `active` (label) equivalente — ambos sempre renderizam no DOM,
+ * alternando-se só por CSS (ver AppShell.css), então recebem o mesmo item
+ * set.
  *
  * Topbar (BEAC-2021, story BEAC-1723): AppShell é hoje a shell mais próxima
  * de "qualquer tela" do app (~35 páginas já usam), então o sino da N1
@@ -171,10 +186,32 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
     (item) => item.visible,
   )
   const gestaoActive = visibleGestaoSubItems.some((item) => isActivePath(location.pathname, item.path))
+  const showGestao = canConfig && visibleGestaoSubItems.length > 0
 
   function navigateToGestaoItem(path: string) {
     navigate(path)
     setGestaoOpen(false)
+  }
+
+  // BEAC-2091: mesmo item set da sidebar, mapeado pro contrato do `BottomNav`
+  // real (`{icon,label}`) — nunca os `DEFAULT_ITEMS` do próprio componente
+  // (que ainda incluem "Loja"). "Gestão" não é alvo de navegação direta, por
+  // isso é tratada à parte no `onChange` abaixo em vez de virar mais um
+  // `NavItem` comum.
+  const bottomNavItems: BottomNavItem[] = [
+    ...visibleNavItems.map((item) => ({ icon: NAV_ICON_BY_KEY[item.key] ?? 'home', label: item.label })),
+    ...(showGestao ? [{ icon: 'briefcase', label: 'Gestão' }] : []),
+  ]
+  const activeBottomNavItem = visibleNavItems.find((item) => isActivePath(location.pathname, item.path))
+  const activeBottomNavLabel = activeBottomNavItem?.label ?? (gestaoActive ? 'Gestão' : undefined)
+
+  function handleBottomNavChange(label: string) {
+    if (label === 'Gestão') {
+      setGestaoOpen((open) => !open)
+      return
+    }
+    const item = visibleNavItems.find((navItem) => navItem.label === label)
+    if (item) navigate(item.path)
   }
 
   return (
@@ -246,27 +283,9 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
         </aside>
         <div className="shell-main">{children}</div>
       </div>
-      <nav className="bottomnav">
-        {visibleNavItems.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            className={`bn-item${isActivePath(location.pathname, item.path) ? ' active' : ''}`}
-            onClick={() => navigate(item.path)}
-          >
-            {item.label}
-          </button>
-        ))}
-        {canConfig && visibleGestaoSubItems.length > 0 && (
-          <button
-            type="button"
-            className={`bn-item${gestaoActive ? ' active' : ''}`}
-            onClick={() => setGestaoOpen((open) => !open)}
-          >
-            Gestão
-          </button>
-        )}
-      </nav>
+      <div className="shell-bottomnav-wrapper">
+        <BottomNav items={bottomNavItems} active={activeBottomNavLabel} onChange={handleBottomNavChange} />
+      </div>
       {canConfig && visibleGestaoSubItems.length > 0 && (
         <div className="gestao-sheet-wrapper">
           <BottomSheet open={gestaoOpen} onClose={() => setGestaoOpen(false)} label="Gestão">
