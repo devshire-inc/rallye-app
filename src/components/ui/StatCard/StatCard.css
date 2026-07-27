@@ -1,0 +1,32 @@
+.stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.stat-card__label {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.stat-card__value {
+  font: var(--type-title);
+  color: var(--text-heading);
+}
+
+.stat-card__delta {
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+
+.stat-card__delta--success {
+  color: var(--state-success);
+}
+
+.stat-card__delta--danger {
+  color: var(--state-danger);
+}

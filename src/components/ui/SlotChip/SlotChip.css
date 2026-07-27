@@ -1,0 +1,22 @@
+.slot-chip {
+  height: var(--control-h-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-heading);
+  font: var(--type-numeric);
+  cursor: pointer;
+}
+
+.slot-chip--busy {
+  color: var(--text-muted);
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.slot-chip--selected {
+  background: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+  color: var(--text-on-brand);
+}
