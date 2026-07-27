@@ -11,6 +11,9 @@
         "@capacitor/core": "^8.4.1",
         "@capacitor/ios": "^8.4.1",
         "@capacitor/push-notifications": "^8.1.2",
+        "@fontsource/baloo-2": "^5.3.0",
+        "@fontsource/nunito": "^5.3.0",
+        "@fontsource/spline-sans-mono": "^5.3.0",
         "firebase": "^12.16.0",
         "qrcode": "^1.5.4",
         "react": "^19.2.7",
@@ -302,6 +305,12 @@
     "@firebase/util": ["@firebase/util@1.15.1", "", { "dependencies": { "tslib": "^2.1.0" } }, "sha512-LUdM4Wg7YM9Pq/49nGYySJA0CSQEKnGffFzWV8+6gXN7mGxn+FL1IqvFbuZUtAQcfZgHYDwCE1wwlK7rB7gl2g=="],
 
     "@firebase/webchannel-wrapper": ["@firebase/webchannel-wrapper@1.0.6", "", {}, "sha512-Vr/Mqu79dMwGRAyGbJ4uN4+BtXB3/mRTdzetD1daWNeG8QaWuzhhbG77GltO5c0yYmYls8i250iX73624GJd7Q=="],
+
+    "@fontsource/baloo-2": ["@fontsource/baloo-2@5.3.0", "", {}, "sha512-CBuxZ27jvMmD5+KaaPkMWv/yjdRNppVAd5/002yAyvyQyLNL3aZCbkx6gbAT/bjxPd1A0VMdDQjfcELI8chccQ=="],
+
+    "@fontsource/nunito": ["@fontsource/nunito@5.3.0", "", {}, "sha512-vw9TaTQJ/zpEpKrsODuPmOvaVjXgdda6B+xXA4YqjrdeJ62MLgVoDerdRXFQHyBnSCt2yQ2nHKCHPP/Pv7Xq4Q=="],
+
+    "@fontsource/spline-sans-mono": ["@fontsource/spline-sans-mono@5.3.0", "", {}, "sha512-9MJxL52KuuVskwM3LbCwEP/L3ClsHsCd18gwmm5df/ZFh/TIg3LE9DT4pLyB5ptKCvEEi7JwclAe8HhCfzlBWg=="],
 
     "@grpc/grpc-js": ["@grpc/grpc-js@1.9.16", "", { "dependencies": { "@grpc/proto-loader": "^0.7.8", "@types/node": ">=12.12.47" } }, "sha512-wE4Ut/olIzfKqp631XrG+wbF0v1vWFN4YL9FyXC2LJiG33DsV7PLzURjrCvY/6je2ntdRkeLpPDluzSRGaVltQ=="],
 
