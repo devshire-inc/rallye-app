@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { listRoles, type Role } from '../../lib/api/roles'
 import { permissionSummary } from './moduleCatalog'
@@ -45,6 +46,7 @@ const HISTORICO_HINT_NOTE_TEXT =
  * path, não tenant-scoped — mesma forma, refletida na rota do frontend.
  */
 export default function RolesPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [tab, setTab] = useState<Tab>('papeis')
@@ -93,7 +95,7 @@ export default function RolesPage() {
   const customRoles = roles.filter((r) => !r.isSystemRole)
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to="/perfil">
           ‹ Perfil

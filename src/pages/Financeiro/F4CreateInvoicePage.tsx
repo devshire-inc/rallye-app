@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { listMembers, type Member } from '../../lib/api/members'
 import { createInvoice, type CreateInvoiceType } from '../../lib/api/invoices'
@@ -52,6 +53,7 @@ function currentMonthLabel(): string {
  * pré-preenchido para mensalidade/pacote/torneio; avulso é 100% coberto).
  */
 export default function F4CreateInvoicePage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
 
@@ -131,7 +133,7 @@ export default function F4CreateInvoicePage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <button type="button" className="back" onClick={() => navigate(-1)}>
           ‹ Cancelar

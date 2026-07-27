@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   getEarnings,
   type Earnings,
@@ -98,6 +99,7 @@ function monthYearLabel(period: string): string {
  * PF2 aqui.
  */
 export default function TeacherEarningsPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, teacherId } = useParams<{ unitId: string; teacherId: string }>()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
@@ -128,7 +130,7 @@ export default function TeacherEarningsPage() {
   }, [teacherId])
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Professor">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={unitId && teacherId ? `/units/${unitId}/teachers/${teacherId}` : '/dashboard'}>
           ‹ Meu perfil

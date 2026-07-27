@@ -20,13 +20,15 @@ function jsonResponse(status: number, body: unknown): Response {
 describe('getMe', () => {
   beforeEach(() => vi.clearAllMocks())
 
-  it('GETs /me and returns the caller profile id', async () => {
-    apiFetchMock.mockResolvedValue(jsonResponse(200, { id: 'profile-123' }))
+  it('GETs /me and returns the caller profile id and full_name', async () => {
+    apiFetchMock.mockResolvedValue(
+      jsonResponse(200, { id: 'profile-123', full_name: 'Ana Beatriz' }),
+    )
 
     const result = await getMe()
 
     expect(apiFetchMock).toHaveBeenCalledWith('/me')
-    expect(result).toEqual({ ok: true, id: 'profile-123' })
+    expect(result).toEqual({ ok: true, id: 'profile-123', fullName: 'Ana Beatriz' })
   })
 
   it('returns ok=false without throwing on failure (e.g. 403 for temporary sessions)', async () => {

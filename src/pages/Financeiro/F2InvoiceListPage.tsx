@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listInvoices, type InvoiceListItem, type InvoiceStatus } from '../../lib/api/invoices'
 import { statusBadgeClass, STATUS_LABEL } from '../../lib/invoiceStatus'
 import { formatBRL } from '../../lib/money'
@@ -44,6 +45,7 @@ function formatDate(iso: string): string {
  * busca textual no AC, só status/month.
  */
 export default function F2InvoiceListPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [tab, setTab] = useState<TabFilter>('todas')
@@ -102,7 +104,7 @@ export default function F2InvoiceListPage() {
   )
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={unitId ? `/units/${unitId}/cashflow` : '#'}>
           ‹ Fluxo de Caixa

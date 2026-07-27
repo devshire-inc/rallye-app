@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getMe } from '../../lib/api/me'
 import { getRankings, type RankingEntry, type RankingScope } from '../../lib/api/rankings'
 import { getActiveUnitId } from '../../lib/tenantContext'
@@ -42,6 +43,7 @@ function initials(name: string): string {
  *   manual que o protótipo não desenha.
  */
 export default function RankingsPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const [scope, setScope] = useState<RankingScope>('arena')
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [myId, setMyId] = useState<string | null>(null)
@@ -131,7 +133,7 @@ export default function RankingsPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <h1>Rankings</h1>
         <div className="spacer" />

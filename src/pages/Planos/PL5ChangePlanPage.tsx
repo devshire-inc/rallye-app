@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { getMe } from '../../lib/api/me'
 import { getPlan, listPlans, type BillingCycle } from '../../lib/api/plans'
@@ -106,6 +107,7 @@ type LoadState =
  * "editar/desativar não afeta assinaturas existentes").
  */
 export default function PL5ChangePlanPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -244,7 +246,7 @@ export default function PL5ChangePlanPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <button
           type="button"

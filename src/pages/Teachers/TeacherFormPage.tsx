@@ -1,6 +1,7 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { AvailabilityGrid } from '../../components/AvailabilityGrid/AvailabilityGrid'
 import { usePermission } from '../../hooks/usePermission'
 import {
@@ -87,6 +88,7 @@ type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'not-fo
  * sempre, nunca desabilitar" (mesmo padrão de NewStudentPage).
  */
 export default function TeacherFormPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, teacherId } = useParams<{ unitId: string; teacherId?: string }>()
   const navigate = useNavigate()
   const canWrite = usePermission('professores', 'write')
@@ -281,7 +283,7 @@ export default function TeacherFormPage() {
 
   if (!canWrite) {
     return (
-      <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <div className="dash-body">
           <p role="alert">Você não tem permissão para {isEdit ? 'editar' : 'cadastrar'} professores nesta unidade.</p>
         </div>
@@ -291,28 +293,28 @@ export default function TeacherFormPage() {
 
   if (isEdit && loadState.status === 'loading') {
     return (
-      <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <p role="status">Carregando professor…</p>
       </AppShell>
     )
   }
   if (isEdit && loadState.status === 'error') {
     return (
-      <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <p role="alert">Não foi possível carregar este professor.</p>
       </AppShell>
     )
   }
   if (isEdit && loadState.status === 'not-found') {
     return (
-      <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <p role="alert">Professor não encontrado.</p>
       </AppShell>
     )
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link
           className="back"

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   bookDayUse,
   getDayUseDetail,
@@ -61,6 +62,7 @@ type BookState =
  * corrida documentada no comentário de arquivo de DayUseDetailPage.tsx).
  */
 export default function DayUseConfirmPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const location = useLocation()
   const navigate = useNavigate()
@@ -122,7 +124,7 @@ export default function DayUseConfirmPage() {
   }, [unitId, date, navigate])
 
   return (
-    <AppShell orgLabel="Rallye" userLabel="Usuário">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <span className="back" style={{ opacity: 0.55 }}>
           ‹{' '}

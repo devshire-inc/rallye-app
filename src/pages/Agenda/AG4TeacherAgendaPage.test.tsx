@@ -32,7 +32,7 @@ function booking(overrides: Partial<Booking> = {}): Booking {
 }
 
 beforeEach(() => {
-  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'teacher-1' })
+  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'teacher-1', fullName: 'Usuária de Teste' })
   vi.spyOn(tenantContext, 'getSessionMemberships').mockReturnValue([{ unit_id: 'unit-1', tenant_id: 'tenant-1' }])
 })
 

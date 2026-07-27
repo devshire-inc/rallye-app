@@ -2,6 +2,7 @@ import QRCode from 'qrcode'
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getDayUseQr, type DayUseQr } from '../../lib/api/dayUseFlow'
 import { calendarLink, directionsLink } from '../../lib/dayUseCalendar'
 import { formatBRL } from '../../lib/money'
@@ -48,6 +49,7 @@ type LoadState =
  * tela).
  */
 export default function DayUseQrPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { bookingId } = useParams<{ bookingId: string }>()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null)
@@ -98,7 +100,7 @@ export default function DayUseQrPage() {
   }, [state])
 
   return (
-    <AppShell orgLabel="Rallye" userLabel="Usuário">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <span className="back" style={{ opacity: 0.55 }}>
           ‹ Day Use

@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { createUnit } from '../../lib/api/units'
 import { SPORTS } from '../../lib/sports'
 import { appendCreatedUnit } from '../../lib/unitsLocalStore'
@@ -30,6 +31,7 @@ const TIMEZONES = ['America/Sao_Paulo', 'America/Recife', 'America/Manaus']
  * nova unit (ver gap de listagem documentado em unitsLocalStore.ts).
  */
 export default function NewUnitPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { tenantId } = useParams<{ tenantId: string }>()
   const navigate = useNavigate()
 
@@ -80,7 +82,7 @@ export default function NewUnitPage() {
   }
 
   return (
-    <AppShell orgLabel="Rede Areia Dourada" userLabel="Dono">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={`/tenants/${tenantId}/units`}>
           ‹ Unidades

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   listNotifications,
   markAllNotificationsRead,
@@ -62,6 +63,7 @@ function markOneReadLocally(notifications: NotificationItem[], id: string): Noti
  * /me/notifications — evita um round-trip extra só pra apagar os dots.
  */
 export default function N1Page() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [loadingMore, setLoadingMore] = useState(false)
@@ -157,7 +159,7 @@ export default function N1Page() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Notificações">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="n1-header">
         <h1>Notificações</h1>
         <button

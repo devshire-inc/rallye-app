@@ -14,7 +14,7 @@ beforeEach(() => {
   // mesmo padrão de AG3StudentAgendaPage.test.tsx) — this page now calls
   // getMe() to resolve the caller's own profile id for the self-only
   // POST /students/{id}/reschedule endpoint.
-  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'self-student-id' })
+  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'self-student-id', fullName: 'Usuária de Teste' })
 })
 
 afterEach(() => {

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { getMe } from '../../lib/api/me'
@@ -106,6 +107,7 @@ function groupByDate(bookings: Booking[]): { label: string; items: Booking[] }[]
  * aberto no relatório.
  */
 export default function AG3StudentAgendaPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const [searchParams, setSearchParams] = useSearchParams()
   const [tab, setTab] = useState<Tab>('prox')
@@ -292,7 +294,7 @@ export default function AG3StudentAgendaPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="ag-head">
         <h1>Minha agenda</h1>
         <div className="spacer" />

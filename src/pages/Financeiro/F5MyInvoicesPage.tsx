@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listInvoices, type InvoiceListItem } from '../../lib/api/invoices'
 import { daysUntilDue } from '../../lib/invoiceStatus'
 import { formatBRL } from '../../lib/money'
@@ -28,6 +29,7 @@ function formatDate(iso: string): string {
  * faturas"), então esta tela não passa nenhum filtro de aluno explícito.
  */
 export default function F5MyInvoicesPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('abertas')
@@ -80,7 +82,7 @@ export default function F5MyInvoicesPage() {
   }, [state])
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <h1>Minhas Faturas</h1>
       </div>

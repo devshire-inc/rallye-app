@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { TeacherBlockRequestButton } from '../../components/TeacherBlockRequestButton/TeacherBlockRequestButton'
 import {
@@ -149,6 +150,7 @@ function groupByDate(bookings: Booking[]): { label: string; items: Booking[] }[]
  * getSessionMemberships, não escopada à unit da URL.
  */
 export default function AG4TeacherAgendaPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('hoje')
   const [date, setDate] = useState(new Date())
@@ -299,7 +301,7 @@ export default function AG4TeacherAgendaPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Marcus Lima · Professor">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="ag-head">
         <h1>Minha agenda</h1>
         <div className="spacer" />

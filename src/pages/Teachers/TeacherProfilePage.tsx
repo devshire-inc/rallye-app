@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import {
   AvailabilityGrid,
@@ -76,6 +77,7 @@ type Tab = 'turmas' | 'horarios' | 'comissao' | 'bio'
  * simplificado acima) — texto livre de `teacher.bio`.
  */
 export default function TeacherProfilePage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, teacherId } = useParams<{ unitId: string; teacherId: string }>()
   const navigate = useNavigate()
   const canManageRemuneration = usePermission('professores', 'write')
@@ -116,7 +118,7 @@ export default function TeacherProfilePage() {
   const teacher = state.status === 'ready' ? state.teacher : null
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={unitId ? `/units/${unitId}/teachers` : '/perfil'}>
           ‹ Professores

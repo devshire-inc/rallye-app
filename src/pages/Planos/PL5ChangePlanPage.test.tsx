@@ -216,7 +216,7 @@ describe('PL5ChangePlanPage — loading and error', () => {
   })
 
   it('shows an error message when the subscription fetch fails', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: false,
       status: 500,
@@ -231,7 +231,7 @@ describe('PL5ChangePlanPage — loading and error', () => {
 
 describe('PL5ChangePlanPage — plano atual e lista de opções', () => {
   it('shows the header, "Plano atual" block and the selectable option list restricted to the same billing cycle', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -271,7 +271,7 @@ describe('PL5ChangePlanPage — plano atual e lista de opções', () => {
   // endpoint de leitura dedicado (getPlan, GET /plans/{id}), acessível a
   // qualquer membro.
   it('fetches per-plan variant detail via getPlan (GET /plans/{id}), not getPlanForEdit (BEAC-1976 — unblocks PL5 for a real student)', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -296,7 +296,7 @@ describe('PL5ChangePlanPage — plano atual e lista de opções', () => {
 
 describe('PL5ChangePlanPage — cálculo dinâmico', () => {
   it('recalculates the upgrade pro-rata preview to match the doc example when a plan is selected (15/30 days, R$250→R$350, diff R$50)', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -323,7 +323,7 @@ describe('PL5ChangePlanPage — cálculo dinâmico', () => {
   // 1/3 day-fraction reproduces the exact failure the Reviewer found by
   // hand: old logic would show R$ 33,34, backend/new logic gives R$ 33,33.
   it('matches the backend single-round formula exactly on a non-evenly-divisible period (1/3 days)', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription({
@@ -350,7 +350,7 @@ describe('PL5ChangePlanPage — cálculo dinâmico', () => {
   })
 
   it('shows the downgrade credit preview and the simple confirm label when a cheaper plan is selected', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription({
@@ -373,7 +373,7 @@ describe('PL5ChangePlanPage — cálculo dinâmico', () => {
   })
 
   it('disables the confirm button until an option is selected', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -389,7 +389,7 @@ describe('PL5ChangePlanPage — cálculo dinâmico', () => {
 
 describe('PL5ChangePlanPage — confirmar troca', () => {
   it('upgrade: calls change-plan and navigates to the invoice detail page (F3) on success', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -434,7 +434,7 @@ describe('PL5ChangePlanPage — confirmar troca', () => {
   })
 
   it('downgrade: calls change-plan, shows the credit confirmation, then navigates back to PL4', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription({
@@ -477,7 +477,7 @@ describe('PL5ChangePlanPage — confirmar troca', () => {
   })
 
   it('shows an inline error message when change-plan fails', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),

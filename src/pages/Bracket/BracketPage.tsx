@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useTournamentLive } from '../../hooks/useTournamentLive'
 import {
   getTournamentBracketInfo,
@@ -182,6 +183,7 @@ function BracketTableView({
  * o id contra a categoria certa no cliente).
  */
 export default function BracketPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { tournamentId } = useParams<{ tournamentId: string }>()
   const navigate = useNavigate()
   const [tournamentState, setTournamentState] = useState<TournamentLoadState>({ status: 'loading' })
@@ -253,7 +255,7 @@ export default function BracketPage() {
   const finishedCount = matches.filter((m) => m.status === 'completed' || m.status === 'walkover').length
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={tournamentId ? `/tournaments/${tournamentId}` : '#'}>
           ‹ Torneio

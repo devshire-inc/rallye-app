@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
   getDelinquencyBlockLevel,
@@ -70,6 +71,7 @@ const NEVER_BLOCKED_HINT_TEXT =
  * `config:write` os radios viram controles reais e o Salvar aparece.
  */
 export default function ArenaSettingsPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const canRead = usePermission('config', 'read')
   const canWrite = usePermission('config', 'write')
@@ -136,7 +138,7 @@ export default function ArenaSettingsPage() {
   const currentLevel = state.status === 'ready' ? state.level : null
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to="/perfil">
           ‹ Perfil

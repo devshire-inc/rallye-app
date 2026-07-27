@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { cancelBooking, type Booking, type Participant } from '../../lib/api/bookings'
@@ -43,6 +44,7 @@ import './AG5BookingDetailPage.css'
  * relatório de dispatch.
  */
 export default function AG5BookingDetailPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, bookingId } = useParams<{ unitId: string; bookingId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
@@ -101,7 +103,7 @@ export default function AG5BookingDetailPage() {
 
   if (!booking) {
     return (
-      <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <div className="pg-head">
           <Link className="back" to={`/units/${unitId}/agenda`}>
             ‹ Agenda
@@ -142,7 +144,7 @@ export default function AG5BookingDetailPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={`/units/${unitId}/agenda`}>
           ‹ Agenda

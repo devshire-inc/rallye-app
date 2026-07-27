@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { discoverDayUse, todayIsoDate, type ArenaSummary } from '../../lib/api/dayUseFlow'
 import { formatBRL } from '../../lib/money'
 import { SPORTS, sportCssVar, sportLabel } from '../../lib/sports'
@@ -55,6 +56,7 @@ function du3Path(unitId: string): string {
  *   discover.go), e o frontend não reordena.
  */
 export default function DayUseDiscoveryPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [date, setDate] = useState(todayIsoDate)
@@ -91,7 +93,7 @@ export default function DayUseDiscoveryPage() {
   const arenas = state.status === 'ready' ? state.arenas : []
 
   return (
-    <AppShell orgLabel="Rallye" userLabel="Usuário">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <span className="back" style={{ opacity: 0.55 }}>
           ‹ Day Use
