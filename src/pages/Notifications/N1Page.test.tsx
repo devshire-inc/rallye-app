@@ -1,9 +1,10 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as notificationsApi from '../../lib/api/notifications'
 import type { NotificationItem } from '../../lib/api/notifications'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import N1Page from './N1Page'
 
 afterEach(() => {
@@ -35,7 +36,7 @@ function notification(overrides: Partial<NotificationItem> = {}): NotificationIt
 }
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/notificacoes']}>
       <Routes>
         <Route path="/notificacoes" element={<N1Page />} />

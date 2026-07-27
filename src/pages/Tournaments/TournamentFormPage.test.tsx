@@ -1,10 +1,11 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as courtsApi from '../../lib/api/courts'
 import * as tournamentsApi from '../../lib/api/tournaments'
 import type { TournamentDetail } from '../../lib/api/tournaments'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import TournamentFormPage from './TournamentFormPage'
 
 afterEach(() => {
@@ -12,7 +13,7 @@ afterEach(() => {
 })
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/tournaments/new`]}>
       <Routes>
         <Route path="/units/:unitId/tournaments/new" element={<TournamentFormPage />} />

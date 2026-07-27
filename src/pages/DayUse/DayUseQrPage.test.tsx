@@ -1,10 +1,11 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import QRCode from 'qrcode'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi, type Mock } from 'vitest'
 import * as dayUseFlowApi from '../../lib/api/dayUseFlow'
 import type { DayUseQr } from '../../lib/api/dayUseFlow'
 import { toCalendarDateTime } from '../../lib/dayUseCalendar'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import DayUseQrPage from './DayUseQrPage'
 
 vi.mock('qrcode', () => ({
@@ -34,7 +35,7 @@ function qr(overrides: Partial<DayUseQr> = {}): DayUseQr {
 }
 
 function renderPage(bookingId = 'booking-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/day-use-bookings/${bookingId}`]}>
       <Routes>
         <Route path="/day-use-bookings/:bookingId" element={<DayUseQrPage />} />

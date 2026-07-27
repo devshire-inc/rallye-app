@@ -1,9 +1,10 @@
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as invoicesApi from '../../lib/api/invoices'
 import type { InvoiceListItem, InvoiceStatus, ListInvoicesResult } from '../../lib/api/invoices'
 import { STATUS_LABEL } from '../../lib/invoiceStatus'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import F2InvoiceListPage from './F2InvoiceListPage'
 
 afterEach(() => {
@@ -40,7 +41,7 @@ function invoicesOk(invoices: InvoiceListItem[]): ListInvoicesResult {
 }
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/units/unit-1/invoices']}>
       <Routes>
         <Route path="/units/:unitId/invoices" element={<F2InvoiceListPage />} />

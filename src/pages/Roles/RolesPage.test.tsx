@@ -1,10 +1,11 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as rolesApi from '../../lib/api/roles'
 import type { Role } from '../../lib/api/roles'
 import * as roleAuditApi from '../../lib/api/roleAudit'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import RolesPage from './RolesPage'
 
 afterEach(() => {
@@ -36,7 +37,7 @@ function customRole(overrides: Partial<Role> = {}): Role {
 }
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/roles`]}>
       <Routes>
         <Route path="/units/:unitId/roles" element={<RolesPage />} />

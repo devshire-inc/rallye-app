@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as dayUseFlowApi from '../../lib/api/dayUseFlow'
 import type { DayUseDetail } from '../../lib/api/dayUseFlow'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import DayUseDetailPage from './DayUseDetailPage'
 
 afterEach(() => {
@@ -34,7 +35,7 @@ function detail(overrides: Partial<DayUseDetail> = {}): DayUseDetail {
 }
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/day-use/${unitId}`]}>
       <Routes>
         <Route path="/day-use/:unitId" element={<DayUseDetailPage />} />

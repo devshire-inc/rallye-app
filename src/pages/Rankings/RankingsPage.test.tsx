@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -6,6 +6,7 @@ import * as rankingsApi from '../../lib/api/rankings'
 import type { RankingEntry } from '../../lib/api/rankings'
 import * as meApi from '../../lib/api/me'
 import { setSessionMemberships } from '../../lib/tenantContext'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import RankingsPage from './RankingsPage'
 
 afterEach(() => {
@@ -22,7 +23,7 @@ function entry(overrides: Partial<RankingEntry> = {}): RankingEntry {
 }
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/rankings']}>
       <RankingsPage />
     </MemoryRouter>,

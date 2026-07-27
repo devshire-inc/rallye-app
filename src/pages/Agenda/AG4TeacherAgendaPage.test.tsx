@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -6,6 +6,7 @@ import * as bookingsApi from '../../lib/api/bookings'
 import type { Booking } from '../../lib/api/bookings'
 import * as meApi from '../../lib/api/me'
 import * as tenantContext from '../../lib/tenantContext'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import AG4TeacherAgendaPage from './AG4TeacherAgendaPage'
 
 function booking(overrides: Partial<Booking> = {}): Booking {
@@ -41,7 +42,7 @@ afterEach(() => {
 })
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/units/unit-1/agenda/professor']}>
       <Routes>
         <Route path="/units/:unitId/agenda/professor" element={<AG4TeacherAgendaPage />} />

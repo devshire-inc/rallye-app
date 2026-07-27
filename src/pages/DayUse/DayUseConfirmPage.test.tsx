@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as dayUseFlowApi from '../../lib/api/dayUseFlow'
 import type { DayUseDetail } from '../../lib/api/dayUseFlow'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import DayUseConfirmPage from './DayUseConfirmPage'
 
 afterEach(() => {
@@ -39,7 +40,7 @@ function renderPage(
     state: { date: '2026-08-01' },
   },
 ) {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[initialEntry]}>
       <Routes>
         <Route path="/day-use/:unitId/confirm" element={<DayUseConfirmPage />} />
