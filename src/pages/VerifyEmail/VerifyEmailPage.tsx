@@ -5,10 +5,12 @@ import { OtpInput } from '../../components/OtpInput/OtpInput'
 import {
   ResendVerificationError,
   VerifyEmailError,
+  listMyMemberships,
   resendVerification,
   verifyEmail,
 } from '../../lib/api'
 import { getPendingVerification } from '../../lib/pendingVerification'
+import { redirectPathForMemberships } from '../../lib/redirectTarget'
 import './VerifyEmailPage.css'
 
 const RESEND_COOLDOWN_SECONDS = 60
@@ -42,7 +44,18 @@ export function VerifyEmailPage() {
     try {
       await verifyEmail(userId, candidate)
       setStatus('success')
-      setTimeout(() => navigate('/dashboard'), 1200)
+      // Busca as memberships em paralelo com o delay visual abaixo (BEAC-2079,
+      // story BEAC-2057) — unifica o destino pós-verificação com o de login:
+      // 1 membership vai direto pro dashboard daquela unit, 2+ ou 0 vão pro
+      // S1 (0 memberships cai no empty-state que já existe lá). Falha aqui é
+      // best-effort: melhor cair no destino de "sem memberships" (S1) do que
+      // travar a navegação por causa de uma falha transitória no fetch.
+      const membershipsPromise = listMyMemberships().catch(() => [])
+      setTimeout(() => {
+        void membershipsPromise.then((memberships) => {
+          navigate(redirectPathForMemberships(memberships.map((m) => ({ unit_id: m.unitId }))))
+        })
+      }, 1200)
     } catch (err) {
       if (err instanceof VerifyEmailError) {
         if (err.code === 'invalid_code') {

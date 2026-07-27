@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as api from '../../lib/api'
+import type { MembershipListItem } from '../../lib/api'
 import { setPendingVerification, clearPendingVerification } from '../../lib/pendingVerification'
 import { VerifyEmailPage } from './VerifyEmailPage'
 
@@ -11,9 +12,21 @@ function renderPage(initialPath = '/verify-email') {
       <Routes>
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/dashboard" element={<div>Dashboard stub</div>} />
+        <Route path="/units/:unitId/dashboard" element={<div>Unit dashboard stub</div>} />
+        <Route path="/s1" element={<div>S1 stub</div>} />
       </Routes>
     </MemoryRouter>,
   )
+}
+
+function membershipItem(unitId: string): MembershipListItem {
+  return {
+    unitId,
+    unit: { name: 'Arena', address: null, sportsOffered: null },
+    role: null,
+    lastAccessedAt: null,
+    liveActivity: null,
+  }
 }
 
 function fillOtp(code: string) {
@@ -46,16 +59,42 @@ describe('VerifyEmailPage', () => {
     await waitFor(() => expect(screen.getByText('Email verificado!')).toBeInTheDocument())
   })
 
-  it('on success shows a toast and redirects to the dashboard', async () => {
+  it('on success with exactly 1 membership redirects to that unit dashboard', async () => {
     vi.spyOn(api, 'verifyEmail').mockResolvedValue(undefined)
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem('unit-1')])
     renderPage()
 
     fillOtp('123456')
 
     await waitFor(() => expect(screen.getByText('Email verificado!')).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText('Dashboard stub')).toBeInTheDocument(), {
+    await waitFor(() => expect(screen.getByText('Unit dashboard stub')).toBeInTheDocument(), {
       timeout: 2000,
     })
+  })
+
+  it('on success with 2+ memberships redirects to S1', async () => {
+    vi.spyOn(api, 'verifyEmail').mockResolvedValue(undefined)
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([
+      membershipItem('unit-1'),
+      membershipItem('unit-2'),
+    ])
+    renderPage()
+
+    fillOtp('123456')
+
+    await waitFor(() => expect(screen.getByText('Email verificado!')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('S1 stub')).toBeInTheDocument(), { timeout: 2000 })
+  })
+
+  it('on success with zero memberships redirects to S1 (empty-state lives there)', async () => {
+    vi.spyOn(api, 'verifyEmail').mockResolvedValue(undefined)
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([])
+    renderPage()
+
+    fillOtp('123456')
+
+    await waitFor(() => expect(screen.getByText('Email verificado!')).toBeInTheDocument())
+    await waitFor(() => expect(screen.getByText('S1 stub')).toBeInTheDocument(), { timeout: 2000 })
   })
 
   it('on invalid code shows an error message and clears the fields', async () => {
