@@ -2,6 +2,48 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 
+// jsdom não expõe localStorage por padrão nesta config de vitest — mesmo
+// polyfill mínimo em memória usado por src/lib/theme.test.ts. Necessário
+// aqui desde BEAC-2065: App() agora monta ThemeProvider globalmente, que lê
+// localStorage já no primeiro render.
+class MemoryStorage implements Storage {
+  private store = new Map<string, string>()
+  get length() {
+    return this.store.size
+  }
+  clear(): void {
+    this.store.clear()
+  }
+  getItem(key: string): string | null {
+    return this.store.has(key) ? this.store.get(key)! : null
+  }
+  key(index: number): string | null {
+    return Array.from(this.store.keys())[index] ?? null
+  }
+  removeItem(key: string): void {
+    this.store.delete(key)
+  }
+  setItem(key: string, value: string): void {
+    this.store.set(key, value)
+  }
+}
+
+Object.defineProperty(globalThis, 'localStorage', {
+  value: new MemoryStorage(),
+  writable: true,
+  configurable: true,
+})
+
+// jsdom também não implementa matchMedia — ThemeProvider chama
+// resolveTheme('system') no mount inicial (nenhuma preferência salva nos
+// testes abaixo), que depende disso.
+window.matchMedia = vi.fn().mockReturnValue({
+  matches: false,
+  media: '(prefers-color-scheme: dark)',
+  addEventListener: vi.fn(),
+  removeEventListener: vi.fn(),
+}) as unknown as typeof window.matchMedia
+
 const { checkExistingSessionMock } = vi.hoisted(() => ({
   checkExistingSessionMock: vi.fn(),
 }))
