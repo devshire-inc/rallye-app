@@ -1,0 +1,28 @@
+:root {
+  --shadow-card: 0 1px 2px rgba(24,40,56,.05),0 4px 14px rgba(24,40,56,.07);
+  --shadow-raised: 0 2px 4px rgba(24,40,56,.06),0 10px 26px rgba(24,40,56,.12);
+  --shadow-overlay: 0 8px 16px rgba(24,40,56,.10),0 24px 48px rgba(24,40,56,.20);
+  --shadow-float-nav: 0 6px 24px rgba(24,40,56,.18);
+  --ease-standard: cubic-bezier(.2,.8,.3,1);
+  --ease-bounce: cubic-bezier(.34,1.56,.64,1);
+  --dur-fast: 120ms;
+  --dur-base: 200ms;
+  --dur-slow: 320ms;
+  --focus-ring: 0 0 0 3px var(--focus-ring-color);
+
+  /* Ponte de compatibilidade legada — Saque Noturno -> Claude Design (temporária, ver BEAC-2063) */
+  --ease-enter: var(--ease-standard);
+  --motion-fast: var(--dur-fast);
+  --motion-slow: var(--dur-slow);
+}
+
+[data-theme="dark"] {
+  --shadow-card: 0 1px 2px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.35);
+  --shadow-raised: 0 2px 4px rgba(0,0,0,.35),0 10px 26px rgba(0,0,0,.45);
+  --shadow-overlay: 0 8px 16px rgba(0,0,0,.4),0 24px 48px rgba(0,0,0,.55);
+  --shadow-float-nav: 0 6px 24px rgba(0,0,0,.5);
+
+  --ease-enter: var(--ease-standard);
+  --motion-fast: var(--dur-fast);
+  --motion-slow: var(--dur-slow);
+}
