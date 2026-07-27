@@ -1,9 +1,19 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { MemoryRouter, Route, Routes } from 'react-router-dom'
+import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { usePermission } from '../../hooks/usePermission'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import * as notificationsApi from '../../lib/api/notifications'
+import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import { AppShell } from './AppShell'
+
+vi.mock('../../hooks/usePermission')
+vi.mock('../../hooks/useShellIdentity')
+vi.mock('../../lib/tenantContext', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('../../lib/tenantContext')>()
+  return { ...actual, getActiveUnitId: vi.fn(), getActiveTenantId: vi.fn() }
+})
 
 beforeEach(() => {
   // Toda instância de AppShell busca o badge de não lidas ao montar
@@ -14,6 +24,14 @@ beforeEach(() => {
     ok: true,
     unreadCount: 0,
   })
+  // Defaults conservadores (BEAC-2086) — sem unit ativa, sem tenant ativo,
+  // sem role, nenhuma permissão: mantém os testes pré-existentes deste
+  // arquivo (long-press, bell) passando sem precisar setar estes mocks
+  // manualmente, já que eles não exercitam nav real.
+  vi.mocked(getActiveUnitId).mockReturnValue(null)
+  vi.mocked(getActiveTenantId).mockReturnValue(null)
+  vi.mocked(useShellIdentity).mockReturnValue({ orgLabel: '', userLabel: '', role: null })
+  vi.mocked(usePermission).mockReturnValue(false)
 })
 
 afterEach(() => {
@@ -91,5 +109,167 @@ describe('AppShell topbar bell + unread badge (BEAC-2021)', () => {
 
     await screen.findByRole('button', { name: /notificações/i })
     expect(document.querySelector('.shell-bell-badge')).not.toBeInTheDocument()
+  })
+})
+
+// Sonda de localização (BEAC-2086): renderizada como filho do AppShell, lê
+// useLocation() do mesmo contexto de Router — permite afirmar o path exato
+// pós-navegação sem precisar declarar uma <Route> por destino real.
+function LocationProbe() {
+  const location = useLocation()
+  return <span data-testid="probe-path">{location.pathname}</span>
+}
+
+// AppShell é montado numa única rota coringa ("*"): toda navegação feita
+// via useNavigate() dentro do próprio AppShell apenas troca a location do
+// MemoryRouter e re-renderiza o mesmo AppShell (sem remount), o que também
+// exercita o cálculo de active-highlight (useLocation) com o path real
+// pós-clique.
+function renderShellAt(initialPath: string) {
+  return render(
+    <MemoryRouter initialEntries={[initialPath]}>
+      <Routes>
+        <Route
+          path="*"
+          element={
+            <AppShell orgLabel="Org" userLabel="User">
+              <LocationProbe />
+            </AppShell>
+          }
+        />
+      </Routes>
+    </MemoryRouter>,
+  )
+}
+
+function itemsWithLabel(container: HTMLElement, label: string) {
+  return Array.from(container.querySelectorAll('.side-item, .bn-item')).filter(
+    (el) => el.textContent === label,
+  )
+}
+
+function activeLabels(container: HTMLElement, selector: '.side-item' | '.bn-item') {
+  return Array.from(container.querySelectorAll(`${selector}.active`)).map((el) => el.textContent)
+}
+
+describe('AppShell — navegação real dos itens de topo (BEAC-2086)', () => {
+  it('Início navega para /units/{unitId}/dashboard quando há unit ativa', async () => {
+    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+    const user = userEvent.setup()
+    const { container } = renderShellAt('/perfil')
+
+    await user.click(itemsWithLabel(container, 'Início')[0])
+
+    expect(await screen.findByTestId('probe-path')).toHaveTextContent('/units/unit-1/dashboard')
+  })
+
+  it('Início navega para /dashboard (genérico) quando não há unit ativa', async () => {
+    const user = userEvent.setup()
+    const { container } = renderShellAt('/perfil')
+
+    await user.click(itemsWithLabel(container, 'Início')[0])
+
+    expect(await screen.findByTestId('probe-path')).toHaveTextContent('/dashboard')
+  })
+
+  it('Perfil está sempre visível, independente de permissões', () => {
+    const { container } = renderShellAt('/dashboard')
+    expect(itemsWithLabel(container, 'Perfil')).toHaveLength(2)
+  })
+
+  it('"Loja" nunca aparece, mesmo com toda permissão concedida e unit ativa', () => {
+    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+    vi.mocked(usePermission).mockReturnValue(true)
+    const { container } = renderShellAt('/perfil')
+    expect(itemsWithLabel(container, 'Loja')).toHaveLength(0)
+  })
+
+  describe('Agenda', () => {
+    it('fica oculta sem agenda:read mesmo com unit ativa', () => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      const { container } = renderShellAt('/perfil')
+      expect(itemsWithLabel(container, 'Agenda')).toHaveLength(0)
+    })
+
+    it('fica oculta sem unit ativa mesmo com agenda:read', () => {
+      vi.mocked(usePermission).mockImplementation((module) => module === 'agenda')
+      const { container } = renderShellAt('/perfil')
+      expect(itemsWithLabel(container, 'Agenda')).toHaveLength(0)
+    })
+
+    it.each([
+      ['Aluno', '/units/unit-1/agenda/minha'],
+      ['Professor', '/units/unit-1/agenda/professor'],
+      ['Tenant Owner', '/units/unit-1/agenda'],
+      [null, '/units/unit-1/agenda'],
+    ] as const)('navega pra rota correta do role %s', async (role, expectedPath) => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      vi.mocked(useShellIdentity).mockReturnValue({ orgLabel: '', userLabel: '', role })
+      vi.mocked(usePermission).mockImplementation((module) => module === 'agenda')
+      const user = userEvent.setup()
+      const { container } = renderShellAt('/perfil')
+
+      await user.click(itemsWithLabel(container, 'Agenda')[0])
+
+      expect(await screen.findByTestId('probe-path')).toHaveTextContent(expectedPath)
+    })
+  })
+
+  describe('Torneios', () => {
+    it('fica oculta sem torneios:read', () => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      const { container } = renderShellAt('/perfil')
+      expect(itemsWithLabel(container, 'Torneios')).toHaveLength(0)
+    })
+
+    it('navega para /units/{unitId}/tournaments com torneios:read', async () => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      vi.mocked(usePermission).mockImplementation((module) => module === 'torneios')
+      const user = userEvent.setup()
+      const { container } = renderShellAt('/perfil')
+
+      await user.click(itemsWithLabel(container, 'Torneios')[0])
+
+      expect(await screen.findByTestId('probe-path')).toHaveTextContent('/units/unit-1/tournaments')
+    })
+  })
+
+  describe('Relatórios', () => {
+    it('fica oculta sem relatorios:read', () => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      const { container } = renderShellAt('/perfil')
+      expect(itemsWithLabel(container, 'Relatórios')).toHaveLength(0)
+    })
+
+    it('navega para /units/{unitId}/reports com relatorios:read', async () => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      vi.mocked(usePermission).mockImplementation((module) => module === 'relatorios')
+      const user = userEvent.setup()
+      const { container } = renderShellAt('/perfil')
+
+      await user.click(itemsWithLabel(container, 'Relatórios')[0])
+
+      expect(await screen.findByTestId('probe-path')).toHaveTextContent('/units/unit-1/reports')
+    })
+  })
+
+  it('sem unit ativa resolvível: só Início (genérico) e Perfil aparecem, mesmo com toda permissão concedida', () => {
+    vi.mocked(usePermission).mockReturnValue(true)
+    const { container } = renderShellAt('/dashboard')
+
+    expect(itemsWithLabel(container, 'Início')).toHaveLength(2)
+    expect(itemsWithLabel(container, 'Perfil')).toHaveLength(2)
+    expect(itemsWithLabel(container, 'Agenda')).toHaveLength(0)
+    expect(itemsWithLabel(container, 'Torneios')).toHaveLength(0)
+    expect(itemsWithLabel(container, 'Relatórios')).toHaveLength(0)
+  })
+
+  it('só o item cujo path bate (prefix match) com a rota atual mostra o estilo ativo', () => {
+    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+    vi.mocked(usePermission).mockReturnValue(true)
+    const { container } = renderShellAt('/units/unit-1/tournaments/new')
+
+    expect(activeLabels(container, '.side-item')).toEqual(['Torneios'])
+    expect(activeLabels(container, '.bn-item')).toEqual(['Torneios'])
   })
 })
