@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -7,6 +7,7 @@ import * as plansApi from '../../lib/api/plans'
 import type { PlanDetail, PlanGroupResult } from '../../lib/api/plans'
 import * as subscriptionsApi from '../../lib/api/subscriptions'
 import type { SubscriptionDetail } from '../../lib/api/subscriptions'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import PL5ChangePlanPage from './PL5ChangePlanPage'
 
 afterEach(() => {
@@ -195,7 +196,7 @@ function mockCatalog() {
 }
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/my-subscription/change-plan`]}>
       <Routes>
         <Route path="/units/:unitId/my-subscription/change-plan" element={<PL5ChangePlanPage />} />

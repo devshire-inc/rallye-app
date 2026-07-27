@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -6,6 +6,7 @@ import * as earningsApi from '../../lib/api/earnings'
 import type { Earnings } from '../../lib/api/earnings'
 import * as teachersApi from '../../lib/api/teachers'
 import type { Teacher } from '../../lib/api/teachers'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import TeacherEarningsPage from './TeacherEarningsPage'
 
 afterEach(() => {
@@ -50,7 +51,7 @@ function earnings(overrides: Partial<Earnings> = {}): Earnings {
 }
 
 function renderPage(unitId = 'unit-1', teacherId = 'teacher-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/teachers/${teacherId}/earnings`]}>
       <Routes>
         <Route

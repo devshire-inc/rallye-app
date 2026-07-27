@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import * as membersApi from '../../lib/api/members'
@@ -15,6 +15,7 @@ import type {
 } from '../../lib/api/tournamentEnrollment'
 import { formatBRL } from '../../lib/money'
 import { setSessionMemberships } from '../../lib/tenantContext'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import TO4RegisterPage from './TO4RegisterPage'
 
 afterEach(() => {
@@ -103,7 +104,7 @@ function mockGetSuggestedCategory(result: GetSuggestedCategoryResult) {
 }
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/tournaments/tour-1/register']}>
       <Routes>
         <Route path="/tournaments/:tournamentId/register" element={<TO4RegisterPage />} />

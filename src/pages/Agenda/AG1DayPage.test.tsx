@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as bookingsApi from '../../lib/api/bookings'
 import * as courtsApi from '../../lib/api/courts'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import AG1DayPage from './AG1DayPage'
 
 afterEach(() => {
@@ -19,7 +20,7 @@ function mockCourts() {
 }
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/units/unit-1/agenda']}>
       <Routes>
         <Route path="/units/:unitId/agenda" element={<AG1DayPage />} />

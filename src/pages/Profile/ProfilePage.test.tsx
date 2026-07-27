@@ -1,13 +1,14 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as api from '../../lib/api'
 import * as meApi from '../../lib/api/me'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import ProfilePage from './ProfilePage'
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/perfil']}>
       <Routes>
         <Route path="/perfil" element={<ProfilePage />} />

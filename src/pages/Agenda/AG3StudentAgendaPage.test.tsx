@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -6,6 +6,7 @@ import * as bookingsApi from '../../lib/api/bookings'
 import * as meApi from '../../lib/api/me'
 import * as rescheduleApi from '../../lib/api/reschedule'
 import * as waitlistApi from '../../lib/api/waitlist'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import AG3StudentAgendaPage from './AG3StudentAgendaPage'
 
 beforeEach(() => {
@@ -25,7 +26,7 @@ afterEach(() => {
 })
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/units/unit-1/agenda/minha']}>
       <Routes>
         <Route path="/units/:unitId/agenda/minha" element={<AG3StudentAgendaPage />} />
@@ -38,7 +39,7 @@ function renderPage() {
 // notificação vaga_waitlist (BEAC-1724/BEAC-2023): resolveNotificationRoute
 // (notificationRouting.ts) monta exatamente esta URL.
 function renderPageWithOffer(entryId: string) {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/unit-1/agenda/minha?offer=${entryId}`]}>
       <Routes>
         <Route path="/units/:unitId/agenda/minha" element={<AG3StudentAgendaPage />} />

@@ -1,10 +1,11 @@
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as meApi from '../../lib/api/me'
 import * as subscriptionsApi from '../../lib/api/subscriptions'
 import type { SubscriptionDetail } from '../../lib/api/subscriptions'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import PL4MySubscriptionPage from './PL4MySubscriptionPage'
 
 afterEach(() => {
@@ -43,7 +44,7 @@ function subscription(overrides: Partial<SubscriptionDetail> = {}): Subscription
 }
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/my-subscription`]}>
       <Routes>
         <Route path="/units/:unitId/my-subscription" element={<PL4MySubscriptionPage />} />

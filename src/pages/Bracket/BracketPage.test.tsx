@@ -1,4 +1,4 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -17,6 +17,7 @@ vi.mock('../../hooks/useTournamentLive', () => ({
   },
 }))
 
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import BracketPage from './BracketPage'
 
 afterEach(() => {
@@ -73,7 +74,7 @@ function match(overrides: Partial<MatchDetailResponse> = {}): MatchDetailRespons
 }
 
 function renderPage(tournamentId = 'tournament-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/tournaments/${tournamentId}/bracket`]}>
       <Routes>
         <Route path="/tournaments/:tournamentId/bracket" element={<BracketPage />} />

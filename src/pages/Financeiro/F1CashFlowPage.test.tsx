@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as api from '../../lib/api'
@@ -7,6 +7,7 @@ import * as invoicesApi from '../../lib/api/invoices'
 import type { InvoiceListItem, ListInvoicesResult } from '../../lib/api/invoices'
 import * as reportsApi from '../../lib/api/reports'
 import * as tenantContext from '../../lib/tenantContext'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import F1CashFlowPage from './F1CashFlowPage'
 
 function membership(overrides: Partial<MembershipListItem> = {}): MembershipListItem {
@@ -61,7 +62,7 @@ afterEach(() => {
 })
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/cashflow`]}>
       <Routes>
         <Route path="/units/:unitId/cashflow" element={<F1CashFlowPage />} />

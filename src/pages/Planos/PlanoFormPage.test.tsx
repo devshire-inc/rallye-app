@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as plansApi from '../../lib/api/plans'
 import type { PlanDetail } from '../../lib/api/plans'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import PlanoFormPage from './PlanoFormPage'
 
 afterEach(() => {
@@ -11,7 +12,7 @@ afterEach(() => {
 })
 
 function renderCreatePage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/plans/new`]}>
       <Routes>
         <Route path="/units/:unitId/plans/new" element={<PlanoFormPage />} />
@@ -22,7 +23,7 @@ function renderCreatePage(unitId = 'unit-1') {
 }
 
 function renderEditPage(unitId = 'unit-1', planId = 'plan-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/plans/${planId}`]}>
       <Routes>
         <Route path="/units/:unitId/plans/:planId" element={<PlanoFormPage />} />

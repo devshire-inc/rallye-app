@@ -1,9 +1,10 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as reportsApi from '../../lib/api/reports'
 import type { Report, ReportType } from '../../lib/api/reports'
 import * as tenantContext from '../../lib/tenantContext'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import ReportDetailPage from './ReportDetailPage'
 
 afterEach(() => {
@@ -29,7 +30,7 @@ function report(overrides: Partial<Report> = {}): Report {
 }
 
 function renderPage(type: ReportType, unitId = 'unit-1', query = '') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/reports/${type}${query}`]}>
       <Routes>
         <Route path="/units/:unitId/reports" element={<div>Hub placeholder</div>} />

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -6,6 +6,7 @@ import * as membersApi from '../../lib/api/members'
 import type { Member } from '../../lib/api/members'
 import * as rolesApi from '../../lib/api/roles'
 import type { Role } from '../../lib/api/roles'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import MembersPage from './MembersPage'
 
 afterEach(() => {
@@ -39,7 +40,7 @@ function systemRole(overrides: Partial<Role> = {}): Role {
 }
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/members`]}>
       <Routes>
         <Route path="/units/:unitId/members" element={<MembersPage />} />

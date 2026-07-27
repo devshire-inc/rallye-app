@@ -1,9 +1,10 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as notificationPreferencesApi from '../../lib/api/notificationPreferences'
 import type { ChannelPref } from '../../lib/api/notificationPreferences'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import SettingsPage from './SettingsPage'
 
 afterEach(() => {
@@ -17,7 +18,7 @@ const DEFAULT_CHANNELS: ChannelPref[] = [
 ]
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/configuracoes']}>
       <Routes>
         <Route path="/configuracoes" element={<SettingsPage />} />

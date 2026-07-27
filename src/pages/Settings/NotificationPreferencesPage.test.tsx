@@ -1,9 +1,10 @@
-import { render, screen, waitFor, within } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as notificationPreferencesApi from '../../lib/api/notificationPreferences'
 import type { EventPref } from '../../lib/api/notificationPreferences'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import NotificationPreferencesPage from './NotificationPreferencesPage'
 
 afterEach(() => {
@@ -36,7 +37,7 @@ const ADMIN_EVENTS: EventPref[] = [
 ]
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/configuracoes/notificacoes']}>
       <Routes>
         <Route path="/configuracoes/notificacoes" element={<NotificationPreferencesPage />} />

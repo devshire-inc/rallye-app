@@ -1,8 +1,9 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as bookingsApi from '../../lib/api/bookings'
 import * as courtsApi from '../../lib/api/courts'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import AG2WeekPage from './AG2WeekPage'
 
 afterEach(() => {
@@ -15,7 +16,7 @@ const courts: courtsApi.Court[] = [
 ]
 
 function renderPage() {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={['/units/unit-1/agenda/semana']}>
       <Routes>
         <Route path="/units/:unitId/agenda" element={<div>AG1 placeholder</div>} />

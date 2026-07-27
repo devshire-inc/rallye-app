@@ -1,10 +1,11 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as api from '../../lib/api'
 import type { MembershipListItem } from '../../lib/api'
 import { REPORT_CATALOG } from './reportCatalog'
+import { renderWithPermissions } from '../../test/renderWithPermissions'
 import ReportsHubPage from './ReportsHubPage'
 
 function membership(overrides: Partial<MembershipListItem> = {}): MembershipListItem {
@@ -33,7 +34,7 @@ afterEach(() => {
 })
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithPermissions(
     <MemoryRouter initialEntries={[`/units/${unitId}/reports`]}>
       <Routes>
         <Route path="/units/:unitId/reports" element={<ReportsHubPage />} />
