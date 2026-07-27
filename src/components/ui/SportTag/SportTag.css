@@ -1,0 +1,19 @@
+.sport-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: 26px;
+  padding: 0 12px;
+  border-radius: var(--radius-pill);
+  font: var(--type-label);
+  border: 1px solid var(--tag-color);
+  color: var(--tag-color);
+  background: transparent;
+  white-space: nowrap;
+}
+
+.sport-tag--solid {
+  background: var(--tag-color);
+  color: var(--text-on-brand);
+  border-color: transparent;
+}

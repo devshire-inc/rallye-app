@@ -1,0 +1,22 @@
+.card {
+  display: block;
+  width: 100%;
+  padding: var(--card-padding);
+  background: var(--surface-card);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+}
+
+.card--interactive {
+  cursor: pointer;
+  transition:
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+.card--interactive:hover {
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-2px);
+}

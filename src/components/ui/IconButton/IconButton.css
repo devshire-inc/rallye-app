@@ -1,0 +1,47 @@
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  padding: 0;
+}
+
+.icon-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.icon-button--sm {
+  width: 34px;
+  height: 34px;
+}
+
+.icon-button--md {
+  width: 46px;
+  height: 46px;
+}
+
+.icon-button--lg {
+  width: 54px;
+  height: 54px;
+}
+
+.icon-button--primary {
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
+  border: none;
+}
+
+.icon-button--secondary {
+  background: var(--surface-card);
+  color: var(--text-heading);
+  border: 1px solid var(--border-default);
+  box-shadow: var(--shadow-card);
+}
+
+.icon-button--ghost {
+  background: transparent;
+  color: var(--text-muted);
+  border: none;
+}

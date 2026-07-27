@@ -1,0 +1,19 @@
+.tabs {
+  display: flex;
+  gap: var(--space-6);
+  border-bottom: 2px solid var(--border-default);
+}
+
+.tabs__tab {
+  padding: var(--space-3) 0;
+  border: none;
+  background: transparent;
+  font: var(--type-subtitle);
+  color: var(--text-muted);
+  cursor: pointer;
+}
+
+.tabs__tab--active {
+  color: var(--text-brand);
+  box-shadow: 0 2px 0 0 var(--interactive-primary);
+}

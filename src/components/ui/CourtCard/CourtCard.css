@@ -1,0 +1,44 @@
+.court-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface-card);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  cursor: default;
+  padding: 0;
+}
+
+button.court-card {
+  cursor: pointer;
+}
+
+.court-card__top {
+  height: 8px;
+  background: var(--court-card-accent);
+}
+
+.court-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+}
+
+.court-card__name {
+  font: var(--type-subtitle);
+  color: var(--text-heading);
+}
+
+.court-card__status {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.court-card__price {
+  font: var(--type-numeric);
+  color: var(--text-heading);
+}

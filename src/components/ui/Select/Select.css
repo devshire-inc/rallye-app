@@ -1,0 +1,20 @@
+.select {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.select label {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.select__control {
+  height: var(--control-h-md);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  font: var(--type-body);
+  color: var(--text-heading);
+}
