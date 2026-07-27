@@ -1,0 +1,29 @@
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  --radius-pill: 999px;
+
+  --control-h-sm: 34px;
+  --control-h-md: 46px;
+  --control-h-lg: 54px;
+
+  --page-max-web: 1200px;
+  --page-pad-app: 20px;
+
+  /* Ponte de compatibilidade legada — Saque Noturno -> Claude Design (temporária, ver BEAC-2063) */
+  --radius-card: var(--radius-lg);
+  --radius-input: var(--radius-sm);
+}
