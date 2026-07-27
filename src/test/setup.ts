@@ -1,6 +1,9 @@
 import { cleanup } from '@testing-library/react'
-import { afterEach } from 'vitest'
+import { toHaveNoViolations } from 'jest-axe'
+import { afterEach, expect } from 'vitest'
 import '@testing-library/jest-dom/vitest'
+
+expect.extend(toHaveNoViolations)
 
 // @testing-library/react não limpa o DOM entre testes automaticamente a menos
 // que os globals do Vitest estejam habilitados (não estão neste projeto —
