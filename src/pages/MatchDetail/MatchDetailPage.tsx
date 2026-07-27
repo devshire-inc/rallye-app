@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { useTournamentLive } from '../../hooks/useTournamentLive'
@@ -53,6 +54,7 @@ function currentSet(sets: MatchSet[]): MatchSet {
  * partida porque mostra uma categoria inteira).
  */
 export default function MatchDetailPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { tournamentId, matchId } = useParams<{ tournamentId: string; matchId: string }>()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -104,7 +106,7 @@ export default function MatchDetailPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={tournamentId ? `/tournaments/${tournamentId}/bracket` : '#'}>
           ‹ Chaves

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   getNotificationPreferences,
   patchNotificationPreferences,
@@ -40,6 +41,7 @@ function setChannelEnabledLocally(
  * verdade ainda, só espelha visualmente o protótipo.
  */
 export default function SettingsPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [savingChannel, setSavingChannel] = useState<NotificationChannel | null>(null)
 
@@ -94,7 +96,7 @@ export default function SettingsPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Configurações">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to="/perfil" aria-label="Voltar">
           ‹

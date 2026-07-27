@@ -11,7 +11,7 @@ import AG3StudentAgendaPage from './AG3StudentAgendaPage'
 beforeEach(() => {
   // Default: GET /me resolves normally — mirrors a logged-in Aluno session.
   // Overridden per-test when a specific id or failure mode matters.
-  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'self-student-id' })
+  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'self-student-id', fullName: 'Usuária de Teste' })
   // Default: 1 crédito disponível — mirrors the common case. Overridden
   // per-test for the 0-credits/error/loading scenarios.
   vi.spyOn(rescheduleApi, 'listRescheduleCredits').mockResolvedValue({
@@ -257,7 +257,7 @@ describe('AG3StudentAgendaPage', () => {
   // da unit, vazando aulas particulares de outros alunos. Este teste prova
   // que a página resolve o próprio id via GET /me e o repassa.
   it('resolves the caller profile id via GET /me and passes it as student_id to getBookingsGrid', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'aluno-marina-id' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'aluno-marina-id', fullName: 'Usuária de Teste' })
     const gridSpy = vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({
       ok: true,
       bookings: [],

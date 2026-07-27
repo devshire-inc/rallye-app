@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
   DAY_PILLS,
@@ -67,6 +68,7 @@ const BOOKING_VISIBILITY_HINT_TEXT =
  * span2), mantendo a funcionalidade correta.
  */
 export default function DayUseConfigPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const canManage = usePermission('financeiro', 'write')
@@ -113,7 +115,7 @@ export default function DayUseConfigPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <span className="back" style={{ opacity: 0.55 }}>
           ‹ Gestão

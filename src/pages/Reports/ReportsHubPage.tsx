@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listMyMemberships, type MembershipListItem } from '../../lib/api'
 import { visibleReportCatalog } from './reportCatalog'
 import { NETWORK_SCOPE_VALUE, isNetworkScope, networkScopeQuery } from './reportScope'
@@ -47,6 +48,7 @@ import './ReportsPage.css'
  * ReportDetailPage.
  */
 export default function ReportsHubPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -64,7 +66,7 @@ export default function ReportsHubPage() {
   const scopeQuery = networkScope ? networkScopeQuery() : ''
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <h1>Relatórios</h1>
         <div className="spacer" />

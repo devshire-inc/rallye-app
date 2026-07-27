@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
   listTournaments,
@@ -67,6 +68,7 @@ function formatDateRange(startIso: string, endIso: string): string {
  * documentado em TurmasListPage.tsx pra ocupação de turma).
  */
 export default function TournamentsListPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const canCreate = usePermission('torneios', 'write')
@@ -124,7 +126,7 @@ export default function TournamentsListPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <h1>Torneios</h1>
         <div className="spacer" />

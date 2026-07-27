@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { listMembers, type Member } from '../../lib/api/members'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
@@ -63,6 +64,7 @@ type LoadState =
  * forma refletida na rota do frontend (mesmo padrão de RolesPage/BEAC-1684).
  */
 export default function MembersPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [query, setQuery] = useState('')
@@ -113,7 +115,7 @@ export default function MembersPage() {
   const members = state.status === 'ready' ? state.members : []
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to="/perfil">
           ‹ Perfil

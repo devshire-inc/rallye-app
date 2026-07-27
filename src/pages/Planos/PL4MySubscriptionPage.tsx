@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { getMe } from '../../lib/api/me'
 import type { BillingCycle } from '../../lib/api/plans'
@@ -124,6 +125,7 @@ type LoadState =
  * GET /units/{id}/invoices nem nenhum outro endpoint de fatura.
  */
 export default function PL4MySubscriptionPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -165,7 +167,7 @@ export default function PL4MySubscriptionPage() {
   }, [load])
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Marina Costa · Aluna">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <button
           type="button"

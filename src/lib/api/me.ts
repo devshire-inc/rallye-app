@@ -23,19 +23,23 @@ export interface GetMeSuccess {
   ok: true
   /** Profile id do chamador (session.Claims.Sub no backend). */
   id: string
+  /** Nome de exibição do chamador (public.profiles.full_name no backend,
+   * BEAC-2078) — consumido por useShellIdentity (BEAC-2080) pra montar o
+   * userLabel real do AppShell. */
+  fullName: string
 }
 
 export type GetMeResult = GetMeSuccess | ApiFailure
 
 /**
- * GET /me — devolve { id } do usuário logado. Para sessões `temporary`
- * (Visitante), o backend responde 403 (`forbidden`) em vez de um id falso —
- * ver comentário de pacote em rallye-api/api/internal/me/handler.go.
+ * GET /me — devolve { id, full_name } do usuário logado. Para sessões
+ * `temporary` (Visitante), o backend responde 403 (`forbidden`) em vez de um
+ * id falso — ver comentário de pacote em rallye-api/api/internal/me/handler.go.
  */
 export async function getMe(): Promise<GetMeResult> {
   const response = await apiFetch('/me')
   if (!response.ok) return failureFrom(response)
 
-  const body = (await response.json()) as { id: string }
-  return { ok: true, id: body.id }
+  const body = (await response.json()) as { id: string; full_name: string }
+  return { ok: true, id: body.id, fullName: body.full_name }
 }

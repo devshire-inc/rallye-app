@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import LogoutButton from '../../components/LogoutButton'
 import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -68,11 +69,12 @@ import './ProfilePage.css'
  * a seção em si não renderiza nada ao entrar.
  */
 export default function ProfilePage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const tenantId = getActiveTenantId()
   const unitId = getActiveUnitId()
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Perfil">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="prof-head">
         <div className="avatar-lg">?</div>
         <div className="ph-main">

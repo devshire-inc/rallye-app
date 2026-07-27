@@ -6,8 +6,19 @@ import { CompletarCadastro } from './CompletarCadastro'
 import * as passwordReset from '../lib/passwordReset'
 import * as httpClient from '../lib/httpClient'
 import * as api from '../lib/api'
+import type { MembershipListItem } from '../lib/api'
 
 const navigateMock = vi.fn()
+
+function membershipItem(unitId: string): MembershipListItem {
+  return {
+    unitId,
+    unit: { name: 'Arena', address: null, sportsOffered: null },
+    role: null,
+    lastAccessedAt: null,
+    liveActivity: null,
+  }
+}
 
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom')
@@ -63,12 +74,13 @@ describe('CompletarCadastro (BEAC-1860)', () => {
     expect(await screen.findByText(/código enviado para: aluno@example.com/i)).toBeInTheDocument()
   })
 
-  it('completes signup then redeems the invite and navigates to the dashboard', async () => {
+  it('completes signup, redeems the invite, and redirects to the unit dashboard for exactly 1 membership', async () => {
     vi.spyOn(passwordReset, 'requestPasswordReset').mockResolvedValue({ message: 'ok' })
     const completeSpy = vi.spyOn(httpClient, 'completeInviteSignup').mockResolvedValue(undefined)
     const redeemSpy = vi
       .spyOn(api, 'redeemInvite')
       .mockResolvedValue({ unitId: 'unit-1', roleId: 'role-aluno' })
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem('unit-1')])
 
     const user = userEvent.setup()
     render(
@@ -94,7 +106,34 @@ describe('CompletarCadastro (BEAC-1860)', () => {
       expect(redeemSpy).toHaveBeenCalledWith('INVITE123')
     })
     await waitFor(() => {
-      expect(navigateMock).toHaveBeenCalledWith('/dashboard', { replace: true })
+      expect(navigateMock).toHaveBeenCalledWith('/units/unit-1/dashboard', { replace: true })
+    })
+  })
+
+  it('redirects to S1 when redeem leaves the user with 2+ memberships', async () => {
+    vi.spyOn(passwordReset, 'requestPasswordReset').mockResolvedValue({ message: 'ok' })
+    vi.spyOn(httpClient, 'completeInviteSignup').mockResolvedValue(undefined)
+    vi.spyOn(api, 'redeemInvite').mockResolvedValue({ unitId: 'unit-1', roleId: 'role-aluno' })
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([
+      membershipItem('unit-1'),
+      membershipItem('unit-2'),
+    ])
+
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter
+        initialEntries={['/completar-cadastro?email=aluno%40example.com&invite=INVITE123']}
+      >
+        <CompletarCadastro />
+      </MemoryRouter>,
+    )
+
+    await screen.findByText(/código enviado para/i)
+    await fillForm(user, '123456', 'correct-horse-battery', 'correct-horse-battery')
+    await user.click(screen.getByRole('button', { name: /ativar minha conta/i }))
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith('/s1', { replace: true })
     })
   })
 
@@ -170,10 +209,11 @@ describe('CompletarCadastro (BEAC-1860)', () => {
     expect(navigateMock).not.toHaveBeenCalledWith('/dashboard', { replace: true })
   })
 
-  it('treats already_member from redeem as success and navigates to the dashboard', async () => {
+  it('treats already_member from redeem as success and redirects per the current membership count', async () => {
     vi.spyOn(passwordReset, 'requestPasswordReset').mockResolvedValue({ message: 'ok' })
     vi.spyOn(httpClient, 'completeInviteSignup').mockResolvedValue(undefined)
     vi.spyOn(api, 'redeemInvite').mockRejectedValue(new api.RedeemInviteError('already_member'))
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem('unit-1')])
 
     const user = userEvent.setup()
     render(
@@ -189,7 +229,31 @@ describe('CompletarCadastro (BEAC-1860)', () => {
     await user.click(screen.getByRole('button', { name: /ativar minha conta/i }))
 
     await waitFor(() => {
-      expect(navigateMock).toHaveBeenCalledWith('/dashboard', { replace: true })
+      expect(navigateMock).toHaveBeenCalledWith('/units/unit-1/dashboard', { replace: true })
+    })
+  })
+
+  it('redirects to S1 when zero memberships come back (empty-state lives there)', async () => {
+    vi.spyOn(passwordReset, 'requestPasswordReset').mockResolvedValue({ message: 'ok' })
+    vi.spyOn(httpClient, 'completeInviteSignup').mockResolvedValue(undefined)
+    vi.spyOn(api, 'redeemInvite').mockResolvedValue({ unitId: 'unit-1', roleId: 'role-aluno' })
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([])
+
+    const user = userEvent.setup()
+    render(
+      <MemoryRouter
+        initialEntries={['/completar-cadastro?email=aluno%40example.com&invite=INVITE123']}
+      >
+        <CompletarCadastro />
+      </MemoryRouter>,
+    )
+
+    await screen.findByText(/código enviado para/i)
+    await fillForm(user, '123456', 'correct-horse-battery', 'correct-horse-battery')
+    await user.click(screen.getByRole('button', { name: /ativar minha conta/i }))
+
+    await waitFor(() => {
+      expect(navigateMock).toHaveBeenCalledWith('/s1', { replace: true })
     })
   })
 })

@@ -1,6 +1,7 @@
 import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   createPlan,
   getPlanForEdit,
@@ -96,6 +97,7 @@ type LoadState = 'idle' | 'loading' | 'error' | 'ready'
  * nome ter ficado o mesmo apesar da troca de endpoint por baixo).
  */
 export default function PlanoFormPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, planId } = useParams<{ unitId: string; planId?: string }>()
   const navigate = useNavigate()
   const isEdit = Boolean(planId)
@@ -202,21 +204,21 @@ export default function PlanoFormPage() {
 
   if (loadState === 'loading') {
     return (
-      <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <p role="status">Carregando plano…</p>
       </AppShell>
     )
   }
   if (loadState === 'error') {
     return (
-      <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <p role="alert">Não foi possível carregar este plano.</p>
       </AppShell>
     )
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <form className="plano-form" onSubmit={handleSubmit}>
         <div className="pg-head">
           <button

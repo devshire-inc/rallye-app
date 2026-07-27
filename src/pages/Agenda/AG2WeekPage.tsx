@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { listCourts, type Court } from '../../lib/api/courts'
 import {
@@ -31,6 +32,7 @@ import './Agenda.css'
  * quadra no `.ag-head`, dia atual destacado via `.head.today`.
  */
 export default function AG2WeekPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -146,7 +148,7 @@ export default function AG2WeekPage() {
   const freeSlots = Math.max(0, totalSlots - occupiedSlots)
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="ag-head">
         <h1>Agenda</h1>
         <div className="spacer" />

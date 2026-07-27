@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getDayUseDetail, type DayUseDetail } from '../../lib/api/dayUseFlow'
 import { formatBRL } from '../../lib/money'
 import { sportCssVar, sportLabel } from '../../lib/sports'
@@ -56,6 +57,7 @@ function du3Path(unitId: string): string {
  *   detalhe).
  */
 export default function DayUseDetailPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -89,7 +91,7 @@ export default function DayUseDetailPage() {
   }, [load])
 
   return (
-    <AppShell orgLabel="Rallye" userLabel="Usuário">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <span className="back" style={{ opacity: 0.55 }}>
           ‹ {state.status === 'ready' ? state.detail.name : 'Day Use'}

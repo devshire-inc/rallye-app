@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   getNotificationPreferences,
   patchNotificationPreferences,
@@ -107,6 +108,7 @@ function setEnabledLocally(events: EventPref[], eventType: string, enabled: bool
  * update otimista revertido em falha.
  */
 export default function NotificationPreferencesPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [savingType, setSavingType] = useState<string | null>(null)
 
@@ -191,7 +193,7 @@ export default function NotificationPreferencesPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Notificações">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to="/configuracoes" aria-label="Voltar">
           ‹

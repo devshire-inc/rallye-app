@@ -76,7 +76,7 @@ describe('PL4MySubscriptionPage — loading and error', () => {
   })
 
   it('shows an error message when the subscription fetch fails with a non-404 error', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: false,
       status: 500,
@@ -91,7 +91,7 @@ describe('PL4MySubscriptionPage — loading and error', () => {
 
 describe('PL4MySubscriptionPage — empty state (no active subscription)', () => {
   it('shows a "no active plan" message on 404 subscription_not_found', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: false,
       status: 404,
@@ -108,7 +108,7 @@ describe('PL4MySubscriptionPage — empty state (no active subscription)', () =>
 
 describe('PL4MySubscriptionPage — active subscription card', () => {
   it('shows plan name, "Ativa" badge, recorrência+preço, período, renewal countdown and progress', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -127,7 +127,7 @@ describe('PL4MySubscriptionPage — active subscription card', () => {
   })
 
   it('shows the exact foot-note copy from the prototype', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -144,7 +144,7 @@ describe('PL4MySubscriptionPage — active subscription card', () => {
   })
 
   it('shows the invoice history from the subscription response, with status and amount', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -158,7 +158,7 @@ describe('PL4MySubscriptionPage — active subscription card', () => {
   })
 
   it('does not issue a second invoice-listing call — uses the subscription response invoices array', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     const getSubscriptionSpy = vi
       .spyOn(subscriptionsApi, 'getSubscription')
       .mockResolvedValue({ ok: true, subscription: subscription() })
@@ -173,7 +173,7 @@ describe('PL4MySubscriptionPage — active subscription card', () => {
 
 describe('PL4MySubscriptionPage — actions', () => {
   it('navigates to the PL5 route when "Trocar plano" is tapped', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),
@@ -188,7 +188,7 @@ describe('PL4MySubscriptionPage — actions', () => {
   })
 
   it('shows a "not yet available" explanation instead of a fabricated call when "Cancelar assinatura" is tapped', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     const getSubscriptionSpy = vi
       .spyOn(subscriptionsApi, 'getSubscription')
       .mockResolvedValue({ ok: true, subscription: subscription() })
@@ -205,7 +205,7 @@ describe('PL4MySubscriptionPage — actions', () => {
   })
 
   it('navigates to F3 (invoice detail) when an invoice row is tapped', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1' })
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'student-1', fullName: 'Usuária de Teste' })
     vi.spyOn(subscriptionsApi, 'getSubscription').mockResolvedValue({
       ok: true,
       subscription: subscription(),

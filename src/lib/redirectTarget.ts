@@ -23,12 +23,22 @@ export const N1_PATH = '/notificacoes'
  * de Pendências) precisa de um unitId no path pra chamar GET
  * /units/{id}/pending-approvals (não existe nenhum mecanismo de "unit
  * ativa" acessível no frontend fora de route params, ver comentário de
- * pacote de DashboardPage.tsx). Sem memberships (fallback raro) continua
- * indo para o `/dashboard` genérico — não há unitId nenhum pra montar o
- * path.
+ * pacote de DashboardPage.tsx).
+ *
+ * Zero memberships (BEAC-2057/2079) vai para S1_PATH, não mais para o
+ * `/dashboard` genérico: S1Page já tem um empty-state completo (mensagem +
+ * CTA de código de convite) para esse caso, então não há mais motivo para um
+ * fallback separado — S1 é o destino único de "usuário sem unit ativa
+ * resolvida", com 0 ou 2+ memberships.
+ *
+ * Recebe só o `unit_id` de cada membership (não o `Membership` completo) —
+ * os 3 pontos de entrada que chamam esta função (login, verificação de
+ * e-mail, completar-cadastro via convite) usam fontes diferentes
+ * (`session.Membership` no login, `GET /me/memberships` nos outros dois),
+ * que só têm essa coluna em comum.
  */
-export function redirectPathForMemberships(memberships: Membership[]): string {
+export function redirectPathForMemberships(memberships: Pick<Membership, 'unit_id'>[]): string {
   if (memberships.length >= 2) return S1_PATH
   if (memberships.length === 1) return `/units/${memberships[0].unit_id}/dashboard`
-  return DASHBOARD_PATH
+  return S1_PATH
 }

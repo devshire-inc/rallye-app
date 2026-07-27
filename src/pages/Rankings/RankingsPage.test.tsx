@@ -14,7 +14,7 @@ afterEach(() => {
 
 beforeEach(() => {
   setSessionMemberships([{ unit_id: 'unit-1', tenant_id: 'tenant-1' }])
-  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'stu-me' })
+  vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'stu-me', fullName: 'Usuária de Teste' })
 })
 
 function entry(overrides: Partial<RankingEntry> = {}): RankingEntry {

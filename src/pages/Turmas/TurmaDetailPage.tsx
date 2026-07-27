@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { listClasses, type RallyeClass } from '../../lib/api/classes'
@@ -66,6 +67,7 @@ type Tab = 'alunos' | 'proximas' | 'presenca' | 'waitlist'
  * então a página de destino espera `location.state.booking`).
  */
 export default function TurmaDetailPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, classId } = useParams<{ unitId: string; classId: string }>()
   const navigate = useNavigate()
   const canManage = usePermission('agenda', 'write')
@@ -106,7 +108,7 @@ export default function TurmaDetailPage() {
   const classItem = state.status === 'ready' ? state.classItem : null
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={unitId ? `/units/${unitId}/classes` : '/perfil'}>
           ‹ Turmas

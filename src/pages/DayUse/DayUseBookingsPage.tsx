@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
   listDayUseBookings,
@@ -88,6 +89,7 @@ function formatCheckinTime(iso: string): string {
  * dados real.
  */
 export default function DayUseBookingsPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   // Hooks nunca chamados condicionalmente (rules-of-hooks): `||` faria
   // curto-circuito e pularia a segunda chamada dependendo da primeira — as
@@ -165,7 +167,7 @@ export default function DayUseBookingsPage() {
   const backHref = unitId ? `/units/${unitId}/day-use` : '/'
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link className="back" to={backHref}>
           ‹ Config Day Use

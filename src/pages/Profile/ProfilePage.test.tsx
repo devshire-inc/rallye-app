@@ -1,7 +1,9 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import * as api from '../../lib/api'
+import * as meApi from '../../lib/api/me'
 import ProfilePage from './ProfilePage'
 
 function renderPage() {
@@ -35,5 +37,37 @@ describe('ProfilePage — link "Configurações" (BEAC-2035)', () => {
     const notificacoes = screen.getByText('Notificações').closest('.menu-row')
     expect(editar).toHaveClass('inert')
     expect(notificacoes).toHaveClass('inert')
+  })
+})
+
+// BEAC-2080 (story BEAC-2057): AppShell mostra orgLabel/userLabel reais via
+// useShellIdentity, não mais os literais hardcoded "Arena Areia Dourada"/
+// "Perfil" que ProfilePage passava antes.
+describe('ProfilePage — AppShell recebe orgLabel/userLabel reais (BEAC-2080)', () => {
+  afterEach(() => {
+    vi.restoreAllMocks()
+  })
+
+  it('shows the real active-unit name and "{full_name} · {roleLabel}" instead of the old hardcoded literals', async () => {
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'user-1', fullName: 'Ana Beatriz' })
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([
+      {
+        unitId: 'unit-1',
+        unit: { name: 'Arena Praia Sul', address: null, sportsOffered: null },
+        role: 'Aluno',
+        lastAccessedAt: null,
+        liveActivity: null,
+      },
+    ])
+
+    const { container } = renderPage()
+
+    await waitFor(() =>
+      expect(container.querySelector('.side-foot')).toHaveTextContent('Arena Praia Sul'),
+    )
+    const sideFoot = container.querySelector('.side-foot')
+    expect(sideFoot).toHaveTextContent('Ana Beatriz · Aluno')
+    expect(sideFoot).not.toHaveTextContent('Arena Areia Dourada')
+    expect(sideFoot).not.toHaveTextContent('Perfil')
   })
 })

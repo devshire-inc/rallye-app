@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { listMembers, type Member } from '../../lib/api/members'
 import {
@@ -70,6 +71,7 @@ function registerErrorMessage(failure: ApiFailure): string {
  * inline, sem fatura para mostrar.
  */
 export default function TO4RegisterPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { tournamentId } = useParams<{ tournamentId: string }>()
   const navigate = useNavigate()
   const unitId = getActiveUnitId()
@@ -169,7 +171,7 @@ export default function TO4RegisterPage() {
 
   if (state.status === 'loading') {
     return (
-      <AppShell orgLabel="Rallye" userLabel="Usuário">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <p className="to4-loading">Carregando torneio...</p>
       </AppShell>
     )
@@ -177,7 +179,7 @@ export default function TO4RegisterPage() {
 
   if (state.status === 'error') {
     return (
-      <AppShell orgLabel="Rallye" userLabel="Usuário">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <p className="to4-loading">Não foi possível carregar este torneio.</p>
       </AppShell>
     )
@@ -229,7 +231,7 @@ export default function TO4RegisterPage() {
   }
 
   return (
-    <AppShell orgLabel="Rallye" userLabel="Usuário">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <button
           type="button"

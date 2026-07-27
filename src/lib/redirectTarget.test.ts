@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { DASHBOARD_PATH, S1_PATH, redirectPathForMemberships } from './redirectTarget'
+import { S1_PATH, redirectPathForMemberships } from './redirectTarget'
 import type { Membership } from './tenantContext'
 
 function membership(unitId: string, tenantId = 'tenant-1'): Membership {
@@ -18,7 +18,7 @@ describe('redirectPathForMemberships', () => {
     expect(redirectPathForMemberships([membership('a')])).toBe('/units/a/dashboard')
   })
 
-  it('goes to the dashboard when there are no memberships (fallback)', () => {
-    expect(redirectPathForMemberships([])).toBe(DASHBOARD_PATH)
+  it('goes to S1 when there are no memberships (empty-state lives there)', () => {
+    expect(redirectPathForMemberships([])).toBe(S1_PATH)
   })
 })

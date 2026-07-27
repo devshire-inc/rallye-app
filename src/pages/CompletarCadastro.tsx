@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { CompleteInviteError, completeInviteSignup } from '../lib/httpClient'
 import { requestPasswordReset, PasswordResetApiError } from '../lib/passwordReset'
-import { RedeemInviteError, redeemInvite } from '../lib/api'
+import { RedeemInviteError, listMyMemberships, redeemInvite } from '../lib/api'
+import { redirectPathForMemberships } from '../lib/redirectTarget'
 
 const MIN_PASSWORD_LENGTH = 8
 
@@ -102,13 +103,26 @@ export function CompletarCadastro() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [phase])
 
+  // Destino pós-convite unificado com login/verificação de e-mail (BEAC-2079,
+  // story BEAC-2057): busca as memberships atuais e decide via
+  // redirectPathForMemberships (1 → dashboard daquela unit; 2+ ou 0 → S1,
+  // que já tem o empty-state pra 0). Falha no fetch é best-effort — cai no
+  // destino de "sem memberships" (S1) em vez de travar a navegação.
+  async function goToPostRedeemDestination() {
+    const memberships = await listMyMemberships().catch(() => [])
+    navigate(
+      redirectPathForMemberships(memberships.map((m) => ({ unit_id: m.unitId }))),
+      { replace: true },
+    )
+  }
+
   async function finishByRedeemingInvite() {
     setPhase('redeeming')
     setRedeemFeedback(null)
     try {
       await redeemInvite(inviteCode)
       setPhase('redeemed')
-      navigate('/dashboard', { replace: true })
+      await goToPostRedeemDestination()
     } catch (err) {
       setPhase('code_sent')
       if (err instanceof RedeemInviteError) {
@@ -116,9 +130,9 @@ export function CompletarCadastro() {
         else if (err.code === 'invite_expired') setRedeemFeedback('expired')
         else if (err.code === 'already_member') {
           // Já é membro: não é um erro do ponto de vista do aluno, ele já
-          // tem acesso — segue para o dashboard como se tivesse dado certo
-          // (mesmo tom neutro de EnterArenaSheet, BEAC-1808).
-          navigate('/dashboard', { replace: true })
+          // tem acesso — segue para o mesmo destino de sucesso (mesmo tom
+          // neutro de EnterArenaSheet, BEAC-1808).
+          await goToPostRedeemDestination()
           return
         } else setRedeemFeedback('internal_error')
       } else {

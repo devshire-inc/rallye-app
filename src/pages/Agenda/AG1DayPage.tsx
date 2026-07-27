@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { listCourts, type Court } from '../../lib/api/courts'
 import {
@@ -39,6 +40,7 @@ import './Agenda.css'
  * horários como linhas (06h-22h, ver agendaShared.HOURS).
  */
 export default function AG1DayPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
@@ -162,7 +164,7 @@ export default function AG1DayPage() {
       : null
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="ag-head">
         <h1>Agenda</h1>
         <div className="spacer" />

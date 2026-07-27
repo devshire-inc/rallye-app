@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { Toast } from '../../components/Toast'
 import { usePermission } from '../../hooks/usePermission'
@@ -71,6 +72,7 @@ const EVENT_LABEL: Record<string, string> = {
  * de confirmação danger. Chama POST /invoices/{id}/refund (BEAC-1951).
  */
 export default function F3InvoiceDetailPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { invoiceId } = useParams<{ invoiceId: string }>()
   const navigate = useNavigate()
   const canManage = usePermission('financeiro', 'write')
@@ -181,7 +183,7 @@ export default function F3InvoiceDetailPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <button type="button" className="back" onClick={() => navigate(-1)}>
           ‹ Voltar

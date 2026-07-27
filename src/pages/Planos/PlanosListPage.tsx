@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { listPlans, type PlanSummary } from '../../lib/api/plans'
@@ -37,6 +38,7 @@ interface Section {
  * não coberto pela doc): Pacotes primeiro, mesma ordem do mockup real.
  */
 export default function PlanosListPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const canManage = usePermission('financeiro', 'write')
@@ -74,7 +76,7 @@ export default function PlanosListPage() {
   const sections = useMemo(() => (state.status === 'ready' ? state.sections : []), [state])
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <button
           type="button"

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   getNetworkReport,
   getReport,
@@ -61,6 +62,7 @@ function currentPeriod(): string {
  * pra permitir voltar a um scope por-unit.
  */
 export default function ReportDetailPage() {
+  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, type } = useParams<{ unitId: string; type: string }>()
   const [searchParams] = useSearchParams()
   const networkScope = isNetworkScope(searchParams)
@@ -126,7 +128,7 @@ export default function ReportDetailPage() {
 
   if (!catalogEntry) {
     return (
-      <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <div className="pg-head">
           <Link
             className="back"
@@ -145,7 +147,7 @@ export default function ReportDetailPage() {
   }
 
   return (
-    <AppShell orgLabel="Arena Areia Dourada" userLabel="Rafael Andrade · Admin">
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
         <Link
           className="back"
