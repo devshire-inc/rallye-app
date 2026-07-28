@@ -1,12 +1,16 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
+import { SportTag } from '../../components/ui/SportTag/SportTag'
+import { StatCard } from '../../components/ui/StatCard/StatCard'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { listClasses, type RallyeClass } from '../../lib/api/classes'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
-import { sportCssVar, sportLabel } from '../../lib/sports'
+import { getWaitlistStatus } from '../../lib/api/waitlist'
+import { sportLabel } from '../../lib/sports'
 import { ClassSettingsSheet } from './ClassSettingsSheet'
 import { formatDaysAndRange, levelLabel, occupancyOf } from './turmasShared'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -23,10 +27,12 @@ type Tab = 'alunos' | 'proximas' | 'presenca' | 'waitlist'
 /**
  * T2 — Detalhe da turma (BEAC-1901, story BEAC-1704). Markup/copy lidos
  * diretamente do protótipo real (mesmo Artifact de T1, seção `scr-t2`,
- * linhas ~626-700 do arquivo salvo): `.prof-head` (h1 nome + `.badge
- * b-sport` esporte·nível + `.mt` professor/quadra/dias·horário·ocupação),
- * `.ptabs` com 4 abas (Alunos/Próximas/Presença/Waitlist), `.iconbtn` [⚙️]
- * só para quem tem `agenda:write`.
+ * linhas ~626-700 do arquivo salvo): `.prof-head` (h1 nome + esporte·nível
+ * + `.mt` professor/quadra/dias·horário·ocupação), `.ptabs` com 4 abas
+ * (Alunos/Próximas/Presença/Waitlist), botão [⚙️] só para quem tem
+ * `agenda:write`. Esporte·nível e o botão de configurações migrados para os
+ * componentes ui/SportTag e ui/IconButton (BEAC-2105, restyle Claude
+ * Design).
  *
  * ## Sem GET /classes/{id} — reaproveita a listagem
  *
@@ -38,18 +44,40 @@ type Tab = 'alunos' | 'proximas' | 'presenca' | 'waitlist'
  * contrato de backend só para "1 registro de uma lista que já existe";
  * reavaliar se a lista crescer o bastante para isso pesar).
  *
- * ## Abas Alunos/Presença/Waitlist — bloqueadas, não fabricadas
+ * ## Abas Alunos/Presença — bloqueadas, não fabricadas (mas os MECANISMOS existem)
  *
- * `public.class_enrollments` e `public.waitlist_entries` NÃO existem no
- * backend (gaps conhecidos, documentados no comentário de pacote de
- * ../../lib/api/classes.ts e no handover de execução desta story) e não há
- * tabela de presença/check-in (mesmo gap de BEAC-1906). As 3 abas
- * correspondentes mostram um estado vazio EXPLICITAMENTE marcado como
- * pendente ("Nenhum dado disponível — endpoint pendente"), nunca dado
- * inventado. Pelo mesmo motivo, "turma lotada" (que trocaria "+ Adicionar
- * aluno" por "Turma lotada" desabilitado) nunca pode ser avaliado com dado
- * real — ver AC bullet correspondente marcado como bloqueado no relatório
- * desta task.
+ * As tabelas/mecanismos por trás destas 2 abas EXISTEM — o que falta é uma
+ * LISTAGEM/AGREGAÇÃO por turma, não o dado em si (mesma classe de erro que
+ * levou à correção de escopo da aba Waitlist abaixo, mas com um veredito
+ * diferente: aqui falta mesmo um endpoint novo, então o placeholder
+ * continua correto, só o texto que o justifica que precisava de correção):
+ *   - Alunos: `public.class_enrollments` EXISTE (migration 000036), com
+ *     `POST /classes/{id}/enrollments` real (BEAC-1862). Falta um `GET
+ *     /classes/{id}/enrollments` (ou busca de alunos da unit) para listar
+ *     quem já está matriculado.
+ *   - Presença: BEAC-1906 construiu `POST /bookings/{id}/attendance` + `GET
+ *     /bookings/{id}/participants`, gravando em `public.booking_participants`
+ *     (migration 000037) — presença POR RESERVA já existe. Falta uma
+ *     AGREGAÇÃO por turma (juntar a presença de todas as reservas de uma
+ *     turma), não o mecanismo de presença em si.
+ * Construir esses endpoints de listagem/agregação é trabalho de feature
+ * nova, fora do escopo desta dispatch — as 2 abas correspondentes mostram
+ * um estado vazio EXPLICITAMENTE marcado como pendente ("Nenhum dado
+ * disponível — endpoint pendente"), nunca dado inventado. Pelo mesmo
+ * motivo, "turma lotada" (que trocaria "+ Adicionar aluno" por "Turma
+ * lotada" desabilitado) nunca pode ser avaliado com dado real — ver AC
+ * bullet correspondente marcado como bloqueado no relatório desta task.
+ *
+ * ## Aba "Waitlist" — real (correção de escopo, ampliação da story)
+ *
+ * Ao contrário do que um comentário desatualizado desta mesma base sugeria,
+ * `public.waitlist_entries` EXISTE (migration 000041) e os 3 endpoints
+ * (POST/DELETE/GET `/classes/{id}/waitlist`) já estão em produção, usados
+ * por WaitlistSheet.tsx/OfferSheet.tsx (Agenda, BEAC-1708/1922/1923). Esta
+ * aba consome o mesmo `getWaitlistStatus` (../../lib/api/waitlist.ts) só
+ * para leitura: ocupação atual/capacidade, tamanho da fila e a posição do
+ * próprio chamador na fila (só quando não-nula) — nunca entra/sai da fila
+ * por aqui (isso é ação do aluno, já coberto por WaitlistSheet).
  *
  * ## Aba "Próximas" — real
  *
@@ -115,14 +143,13 @@ export default function TurmaDetailPage() {
         </Link>
         <div className="spacer" />
         {canManage && classItem ? (
-          <button
-            type="button"
-            className="iconbtn"
-            aria-label="Configurações da turma"
+          <IconButton
+            variant="ghost"
+            label="Configurações da turma"
             onClick={() => setSettingsOpen(true)}
           >
             ⚙️
-          </button>
+          </IconButton>
         ) : null}
       </div>
 
@@ -181,7 +208,7 @@ export default function TurmaDetailPage() {
             ) : null}
             {tab === 'proximas' ? <ProximasTab unitId={unitId} classId={classItem.id} /> : null}
             {tab === 'presenca' ? <PresencaTabPlaceholder /> : null}
-            {tab === 'waitlist' ? <WaitlistTabPlaceholder /> : null}
+            {tab === 'waitlist' ? <WaitlistTab classId={classItem.id} /> : null}
           </div>
         </>
       ) : null}
@@ -216,10 +243,10 @@ export default function TurmaDetailPage() {
         <div className="ptab-panel">
           <h2 className="sec-head-title">Adicionar aluno</h2>
           <p className="hint">
-            Indisponível nesta versão: não existe <code>public.class_enrollments</code> (quem está
-            matriculado numa turma) nem um endpoint de busca de alunos da unit no backend — ambos
-            gaps conhecidos, fora do escopo desta task (não é uma decisão de modelagem de dados que
-            esta dispatch deveria adivinhar).
+            Indisponível nesta versão: não existe um <code>GET /classes/{'{id}'}/enrollments</code>
+            para listar quem já está matriculado, nem um endpoint de busca de alunos da unit no
+            backend — ambos gaps conhecidos, fora do escopo desta task (não é uma decisão de
+            modelagem de dados que esta dispatch deveria adivinhar).
           </p>
         </div>
       </BottomSheet>
@@ -235,11 +262,9 @@ function ClassHeader({ classItem }: { classItem: RallyeClass }) {
       <div className="ph-main">
         <h1>
           {classItem.name}{' '}
-          <span className="badge b-sport">
-            <span className="sdot" style={{ background: `var(${sportCssVar(classItem.sport)})` }} />{' '}
-            {sportLabel(classItem.sport)}
-            {level ? ` · ${level}` : ''}
-          </span>
+          <SportTag sport={classItem.sport}>
+            {`${sportLabel(classItem.sport)}${level ? ` · ${level}` : ''}`}
+          </SportTag>
         </h1>
         <div className="mt">
           {classItem.teacherName ? `Prof. ${classItem.teacherName}` : 'Sem professor'} ·{' '}
@@ -256,8 +281,8 @@ function AlunosTabPlaceholder({ canManage, onAdd }: { canManage: boolean; onAdd:
   return (
     <div className="ptab-panel">
       <p className="hint" role="status">
-        Nenhum dado disponível — endpoint pendente (<code>public.class_enrollments</code> não existe
-        no backend).
+        Nenhum dado disponível — endpoint pendente (sem <code>GET /classes/{'{id}'}/enrollments</code>
+        para listar quem já está matriculado).
       </p>
       {canManage ? (
         <button type="button" className="btn btn-ghost btn-md" onClick={onAdd}>
@@ -272,20 +297,65 @@ function PresencaTabPlaceholder() {
   return (
     <div className="ptab-panel">
       <p className="hint" role="status">
-        Nenhum dado disponível — endpoint pendente (sem tabela de presença/check-in no backend, mesmo
-        gap de BEAC-1906).
+        Nenhum dado disponível — endpoint pendente (sem uma agregação de presença por turma, só por
+        reserva).
       </p>
     </div>
   )
 }
 
-function WaitlistTabPlaceholder() {
+type WaitlistTabState =
+  | { status: 'loading' }
+  | { status: 'error' }
+  | {
+      status: 'ready'
+      activeEnrollments: number
+      capacity: number
+      queueSize: number
+      yourPosition: number | null
+    }
+
+function WaitlistTab({ classId }: { classId: string }) {
+  const [state, setState] = useState<WaitlistTabState>({ status: 'loading' })
+
+  useEffect(() => {
+    let cancelled = false
+    getWaitlistStatus(classId)
+      .then((result) => {
+        if (cancelled) return
+        if (!result.ok) {
+          setState({ status: 'error' })
+          return
+        }
+        setState({
+          status: 'ready',
+          activeEnrollments: result.activeEnrollments,
+          capacity: result.capacity,
+          queueSize: result.queueSize,
+          yourPosition: result.yourPosition,
+        })
+      })
+      .catch(() => {
+        if (cancelled) return
+        setState({ status: 'error' })
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [classId])
+
+  if (state.status === 'loading') return <p role="status">Carregando fila de espera…</p>
+  if (state.status === 'error') {
+    return <p role="alert">Não foi possível carregar a fila de espera desta turma.</p>
+  }
+
   return (
-    <div className="ptab-panel">
-      <p className="hint" role="status">
-        Nenhum dado disponível — endpoint pendente (<code>public.waitlist_entries</code> não existe no
-        backend).
-      </p>
+    <div className="waitlist-stats">
+      <StatCard label="Ocupação" value={`${state.activeEnrollments}/${state.capacity}`} />
+      <StatCard label="Fila de espera" value={String(state.queueSize)} />
+      {state.yourPosition !== null ? (
+        <StatCard label="Sua posição" value={`#${state.yourPosition}`} />
+      ) : null}
     </div>
   )
 }

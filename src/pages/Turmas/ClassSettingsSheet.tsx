@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { Input } from '../../components/ui/Input/Input'
+import { Select } from '../../components/ui/Select/Select'
 import { listCourts, type Court } from '../../lib/api/courts'
 import { deactivateClass, patchClass, type RallyeClass } from '../../lib/api/classes'
 
@@ -128,7 +130,7 @@ export function ClassSettingsSheet({
             <span className="hint">Indisponível — sem dado de presença no backend</span>
           </button>
           <button type="button" className="role-row role-row--clickable" onClick={() => setView('desativar')}>
-            <span className="rn" style={{ color: 'var(--error-fg)' }}>
+            <span className="rn" style={{ color: 'var(--state-danger)' }}>
               Desativar turma
             </span>
           </button>
@@ -141,23 +143,20 @@ export function ClassSettingsSheet({
     return (
       <div className="settings-sheet">
         <h2 className="sec-head-title">Editar dados</h2>
-        <label className="field">
-          <span>Nome</span>
-          <input value={name} onChange={(e) => setName(e.target.value)} />
-        </label>
-        <label className="field">
-          <span>Capacidade</span>
-          <input
-            type="number"
-            min={1}
-            value={capacity}
-            onChange={(e) => setCapacity(e.target.value)}
-          />
-        </label>
-        <label className="field">
-          <span>Nível</span>
-          <input value={level} onChange={(e) => setLevel(e.target.value)} placeholder="Opcional" />
-        </label>
+        <Input label="Nome" value={name} onChange={(e) => setName(e.target.value)} />
+        <Input
+          label="Capacidade"
+          type="number"
+          min={1}
+          value={capacity}
+          onChange={(e) => setCapacity(e.target.value)}
+        />
+        <Input
+          label="Nível"
+          value={level}
+          onChange={(e) => setLevel(e.target.value)}
+          placeholder="Opcional"
+        />
         {error ? <p role="alert">{error}</p> : null}
         <div className="sheet-actions">
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => setView('menu')} disabled={busy}>
@@ -189,16 +188,12 @@ export function ClassSettingsSheet({
         {courts === null ? (
           <p role="status">Carregando quadras…</p>
         ) : (
-          <label className="field">
-            <span>Quadra</span>
-            <select value={selectedCourtId} onChange={(e) => setSelectedCourtId(e.target.value)}>
-              {courts.map((court) => (
-                <option key={court.id} value={court.id}>
-                  {court.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Select
+            label="Quadra"
+            value={selectedCourtId}
+            onChange={(e) => setSelectedCourtId(e.target.value)}
+            options={courts.map((court) => ({ value: court.id, label: court.name }))}
+          />
         )}
         {error ? <p role="alert">{error}</p> : null}
         <div className="sheet-actions">
@@ -222,14 +217,13 @@ export function ClassSettingsSheet({
     return (
       <div className="settings-sheet">
         <h2 className="sec-head-title">Alterar horário</h2>
-        <label className="field">
-          <span>Início</span>
-          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} />
-        </label>
-        <label className="field">
-          <span>Fim</span>
-          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
-        </label>
+        <Input
+          label="Início"
+          type="time"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+        />
+        <Input label="Fim" type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} />
         {error ? <p role="alert">{error}</p> : null}
         <div className="sheet-actions">
           <button type="button" className="btn btn-ghost btn-sm" onClick={() => setView('menu')} disabled={busy}>

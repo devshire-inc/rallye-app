@@ -6,6 +6,7 @@ import * as classesApi from '../../lib/api/classes'
 import type { RallyeClass } from '../../lib/api/classes'
 import * as bookingsApi from '../../lib/api/bookings'
 import type { Booking } from '../../lib/api/bookings'
+import * as waitlistApi from '../../lib/api/waitlist'
 import * as usePermissionModule from '../../hooks/usePermission'
 import TurmaDetailPage from './TurmaDetailPage'
 
@@ -143,8 +144,8 @@ describe('TurmaDetailPage — settings gear visibility', () => {
   })
 })
 
-describe('TurmaDetailPage — Alunos/Presença/Waitlist tabs (blocked, no fabricated data)', () => {
-  it('shows an explicit pending-endpoint placeholder on Alunos, Presença and Waitlist', async () => {
+describe('TurmaDetailPage — Alunos/Presença tabs (blocked, no fabricated data)', () => {
+  it('shows an explicit pending-endpoint placeholder on Alunos and Presença', async () => {
     mockPermissions({ 'agenda:write': true })
     vi.spyOn(classesApi, 'listClasses').mockResolvedValue({ ok: true, classes: [turma()] })
 
@@ -156,9 +157,6 @@ describe('TurmaDetailPage — Alunos/Presença/Waitlist tabs (blocked, no fabric
     expect(screen.getByRole('button', { name: '+ Adicionar aluno' })).toBeInTheDocument()
 
     await userEvent.click(screen.getByRole('tab', { name: 'Presença' }))
-    expect(screen.getByText(/endpoint pendente/i)).toBeInTheDocument()
-
-    await userEvent.click(screen.getByRole('tab', { name: 'Waitlist' }))
     expect(screen.getByText(/endpoint pendente/i)).toBeInTheDocument()
   })
 
@@ -214,6 +212,95 @@ describe('TurmaDetailPage — Próximas tab (real data)', () => {
     await userEvent.click(screen.getByText('Quadra 2').closest('button')!)
 
     expect(await screen.findByText('Detalhe da reserva placeholder')).toBeInTheDocument()
+  })
+})
+
+describe('TurmaDetailPage — Waitlist tab (real data, public.waitlist_entries existe)', () => {
+  it('shows a loading status while the waitlist status is being fetched', async () => {
+    mockPermissions({ 'agenda:write': true })
+    vi.spyOn(classesApi, 'listClasses').mockResolvedValue({ ok: true, classes: [turma()] })
+    vi.spyOn(waitlistApi, 'getWaitlistStatus').mockReturnValue(new Promise(() => {}))
+
+    renderPage()
+    await screen.findByRole('heading', { name: /BT intermediária/ })
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Waitlist' }))
+
+    expect(screen.getByRole('status')).toBeInTheDocument()
+  })
+
+  it('shows current occupancy/capacity and queue size, fetched from getWaitlistStatus(classId)', async () => {
+    mockPermissions({ 'agenda:write': true })
+    vi.spyOn(classesApi, 'listClasses').mockResolvedValue({ ok: true, classes: [turma()] })
+    const statusSpy = vi.spyOn(waitlistApi, 'getWaitlistStatus').mockResolvedValue({
+      ok: true,
+      activeEnrollments: 8,
+      capacity: 8,
+      queueSize: 3,
+      yourPosition: null,
+    })
+
+    renderPage()
+    await screen.findByRole('heading', { name: /BT intermediária/ })
+
+    await userEvent.click(screen.getByRole('tab', { name: 'Waitlist' }))
+
+    expect(await screen.findByText('8/8')).toBeInTheDocument()
+    expect(screen.getByText('3')).toBeInTheDocument()
+    expect(statusSpy).toHaveBeenCalledWith('class-1')
+  })
+
+  it('shows the caller\'s own queue position only when it is not null', async () => {
+    mockPermissions({ 'agenda:write': true })
+    vi.spyOn(classesApi, 'listClasses').mockResolvedValue({ ok: true, classes: [turma()] })
+    vi.spyOn(waitlistApi, 'getWaitlistStatus').mockResolvedValue({
+      ok: true,
+      activeEnrollments: 8,
+      capacity: 8,
+      queueSize: 2,
+      yourPosition: 2,
+    })
+
+    renderPage()
+    await screen.findByRole('heading', { name: /BT intermediária/ })
+    await userEvent.click(screen.getByRole('tab', { name: 'Waitlist' }))
+
+    expect(await screen.findByText('#2')).toBeInTheDocument()
+  })
+
+  it('does not render a queue-position stat when yourPosition is null', async () => {
+    mockPermissions({ 'agenda:write': true })
+    vi.spyOn(classesApi, 'listClasses').mockResolvedValue({ ok: true, classes: [turma()] })
+    vi.spyOn(waitlistApi, 'getWaitlistStatus').mockResolvedValue({
+      ok: true,
+      activeEnrollments: 5,
+      capacity: 8,
+      queueSize: 0,
+      yourPosition: null,
+    })
+
+    renderPage()
+    await screen.findByRole('heading', { name: /BT intermediária/ })
+    await userEvent.click(screen.getByRole('tab', { name: 'Waitlist' }))
+
+    await screen.findByText('5/8')
+    expect(screen.queryByText(/Sua posição/i)).not.toBeInTheDocument()
+  })
+
+  it('shows an error message when the waitlist status fetch fails', async () => {
+    mockPermissions({ 'agenda:write': true })
+    vi.spyOn(classesApi, 'listClasses').mockResolvedValue({ ok: true, classes: [turma()] })
+    vi.spyOn(waitlistApi, 'getWaitlistStatus').mockResolvedValue({
+      ok: false,
+      status: 500,
+      error: 'unknown_error',
+    })
+
+    renderPage()
+    await screen.findByRole('heading', { name: /BT intermediária/ })
+    await userEvent.click(screen.getByRole('tab', { name: 'Waitlist' }))
+
+    expect(await screen.findByRole('alert')).toHaveTextContent(/não foi possível carregar/i)
   })
 })
 
