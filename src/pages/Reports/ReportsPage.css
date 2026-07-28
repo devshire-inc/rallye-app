@@ -2,10 +2,10 @@
    (não assume que outra página já carregou o CSS equivalente), mesmo padrão
    já estabelecido nesta base (ver comentário de TeachersListPage.css).
 
-   BEAC-2112 (restyle Claude Design): tokens legados (var(--surface)/
-   var(--border)/var(--text-primary)/var(--teal)/var(--sand)/var(--warning-*)/
-   var(--success-fg)/var(--error-fg)/var(--motion-fast)/var(--radius-card)/
-   var(--radius-input), ponte BEAC-2063) trocados pelos tokens reais — MESMOS
+   BEAC-2112 (restyle Claude Design): tokens legados (--surface/--border/
+   --text-primary/--teal/--sand/--warning-*/--success-fg/--error-fg/
+   --motion-fast/--radius-card/--radius-input, ponte BEAC-2063) trocados
+   pelos tokens reais — MESMOS
    valores visuais, só sem indireção. O seletor "Todas ▼" (ReportsHubPage) e
    os filtros de Período/Dias de atraso/Esporte (ReportDetailPage) passaram a
    usar ui/Select e ui/Input (mesmo padrão de F1CashFlowPage.tsx,

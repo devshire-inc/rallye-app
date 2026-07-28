@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
@@ -112,7 +113,7 @@ export default function MatchDetailPage() {
           ‹ Chaves
         </Link>
         <div className="spacer" />
-        {match ? <span className="badge">Rodada {match.round}</span> : null}
+        {match ? <Badge tone="neutral">Rodada {match.round}</Badge> : null}
       </div>
 
       <div className="dash-body" style={{ maxWidth: 560 }}>

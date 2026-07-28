@@ -2,7 +2,8 @@
  * as classes genéricas que esta página usa (.pg-head/.dash-body/.card/
  * .inv-row) em vez de depender de outra página já ter carregado o CSS
  * equivalente — mesmo padrão de Financeiro.css/DayUseConfigPage.css. Valores
- * copiados do protótipo real (Artifact "Rallye", `#scr-to4`).
+ * copiados do protótipo real (Artifact "Rallye", `#scr-to4`). Tokens
+ * migrados pra Claude Design (BEAC-2055).
  */
 
 .pg-head {
@@ -50,9 +51,9 @@
 }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
 }
 
 .to4-partner-results {
@@ -68,17 +69,17 @@
   gap: 12px;
   background: none;
   border: none;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   padding: 8px 10px;
   cursor: pointer;
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
-  transition: background-color var(--motion-fast);
+  transition: background-color var(--dur-fast);
 }
 .inv-row:hover {
-  background: var(--bg);
+  background: var(--surface-page);
 }
 .inv-row .iw {
   flex: 1;
@@ -106,7 +107,7 @@
   justify-content: space-between;
 }
 .to4-summary-total {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-default);
   padding-top: 8px;
   font-weight: 700;
 }

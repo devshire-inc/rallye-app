@@ -2,7 +2,8 @@
  * genéricas que esta página usa. .bracket-wrap/.bracket/.b-round/.match/
  * .mrow/.mstatus traduzidas 1:1 do protótipo real (scr-to5). .bracket-table
  * (round robin/suíço/grupos) não tem protótipo — extensão própria seguindo
- * o mesmo componente .match/.mrow. */
+ * o mesmo componente .match/.mrow. Tokens migrados pra Claude Design
+ * (BEAC-2055). */
 
 .pg-head {
   display: flex;
@@ -37,8 +38,8 @@
 .tabs2 button {
   padding: 7px 15px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-weight: 600;
@@ -46,9 +47,9 @@
   cursor: pointer;
 }
 .tabs2 button.active {
-  background: var(--sand);
-  border-color: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  border-color: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .dash-body {
@@ -83,8 +84,8 @@
 }
 
 .match {
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: 12px;
   overflow: hidden;
   cursor: pointer;
@@ -103,7 +104,7 @@
   padding: 8px 12px;
 }
 .match .mrow + .mrow {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-default);
 }
 .match .mrow .duo {
   font-weight: 600;
@@ -119,16 +120,16 @@
 }
 .match .mrow.win .duo,
 .match .mrow.win .sc {
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 .match .mrow.win .sc {
-  color: var(--data);
+  color: var(--state-info);
 }
 .match.live {
-  border-color: var(--error-fg);
+  border-color: var(--state-danger);
 }
 .match.live .mstatus {
-  color: var(--error-fg);
+  color: var(--state-danger);
 }
 .match .mstatus {
   font-size: 9.5px;
@@ -136,14 +137,14 @@
   text-transform: uppercase;
   letter-spacing: 0.06em;
   padding: 4px 12px;
-  background: var(--bg);
+  background: var(--surface-page);
   color: var(--text-muted);
   display: flex;
   align-items: center;
   gap: 6px;
 }
 .match.done .mstatus {
-  color: var(--success-fg);
+  color: var(--state-success);
 }
 
 .bracket-table {

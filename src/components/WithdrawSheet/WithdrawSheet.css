@@ -1,7 +1,8 @@
 /* Sheet de desistência (BEAC-1994, story BEAC-1718) — classes copiadas do
  * protótipo real (`#sheet-desistencia`, artifact "Rallye — Torneios"),
  * self-contained (mesmo padrão de WaitlistSheet.css/NovaReservaSheet.css:
- * não assume que outra tela já carregou o CSS equivalente). */
+ * não assume que outra tela já carregou o CSS equivalente). Tokens
+ * migrados pra Claude Design (BEAC-2055). */
 
 .withdraw-sheet h2 {
   font-family: var(--font-display);
@@ -28,17 +29,17 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   font-size: 12.5px;
   margin: 0;
 }
 .withdraw-sheet .toast-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }
 .withdraw-sheet .toast-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
+  background: var(--state-success-soft);
+  color: var(--state-success);
 }
 
 .withdraw-sheet .field {
@@ -51,15 +52,15 @@
 .withdraw-sheet .field label {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 .withdraw-sheet .field input {
   width: 100%;
   min-height: 44px;
-  border-radius: var(--radius-input);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
   font-family: var(--font-body);
   font-size: 14px;
   padding: 0 var(--space-3);
@@ -74,8 +75,8 @@
   flex-wrap: wrap;
 }
 .withdraw-sheet .tabs2 button {
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-size: 12px;
@@ -85,9 +86,9 @@
   cursor: pointer;
 }
 .withdraw-sheet .tabs2 button.active {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
+  background: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+  color: var(--text-on-brand);
 }
 
 .withdraw-sheet .field-error {
@@ -96,11 +97,11 @@
   gap: 5px;
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--error-fg);
+  color: var(--state-danger);
   margin: 0;
   padding: 10px 12px;
-  border-radius: var(--radius-input);
-  background: var(--error-bg);
+  border-radius: var(--radius-sm);
+  background: var(--state-danger-soft);
 }
 
 .withdraw-sheet .btn {
@@ -121,8 +122,8 @@
   cursor: not-allowed;
 }
 .withdraw-sheet .btn-danger {
-  background: var(--error-fg);
-  color: #fff;
+  background: var(--state-danger);
+  color: var(--text-on-brand);
 }
 .withdraw-sheet .btn-danger:hover:not(:disabled) {
   filter: brightness(1.08);

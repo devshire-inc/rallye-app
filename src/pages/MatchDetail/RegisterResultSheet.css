@@ -1,6 +1,7 @@
 /* TO7 — sheet "Registrar resultado" (BEAC-2008). Self-contained: redefine
  * as classes genéricas que este componente usa. .ssub/.stack/.set-in/
- * .radio-opt traduzidas 1:1 do protótipo real (#sheet-to7). */
+ * .radio-opt traduzidas 1:1 do protótipo real (#sheet-to7). Tokens
+ * migrados pra Claude Design (BEAC-2055). */
 
 .register-result-sheet h2 {
   font-family: var(--font-display);
@@ -40,9 +41,9 @@
 .set-in input {
   min-height: 40px;
   border-radius: 8px;
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  background: var(--surface-page);
+  color: var(--text-heading);
   text-align: center;
   font-family: var(--font-display);
   font-weight: 600;
@@ -58,20 +59,20 @@
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 13px;
 }
 .radio-opt input {
   width: 16px;
   height: 16px;
-  accent-color: var(--teal);
+  accent-color: var(--interactive-primary);
   flex: none;
 }
 .radio-opt.checked {
-  border-color: var(--teal);
-  background: color-mix(in srgb, var(--teal) 8%, var(--surface));
+  border-color: var(--interactive-primary);
+  background: color-mix(in srgb, var(--interactive-primary) 8%, var(--surface-card));
 }
 
 .wo-winner-picker {
@@ -83,7 +84,7 @@
 .detected-winner {
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--success-fg);
+  color: var(--state-success);
   margin: 0;
 }
 

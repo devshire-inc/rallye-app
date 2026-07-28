@@ -2,6 +2,7 @@ import type { ReactNode } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
@@ -240,7 +241,7 @@ function TournamentCard({
       <span className="tm">
         <h3>
           {tournament.name}
-          {isDraft ? <span className="badge b-neutral">Rascunho</span> : null}
+          {isDraft ? <Badge tone="neutral">Rascunho</Badge> : null}
         </h3>
         <span className="mt">
           {[

@@ -110,7 +110,7 @@
   width: 100%;
   padding: 10px 12px;
   border: none;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   background: none;
   font-family: inherit;
   font-size: 13.5px;
@@ -148,14 +148,14 @@
   padding: 6px;
   gap: 2px;
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   background: var(--surface-card);
   box-shadow: var(--shadow-raised);
 }
 .side-gestao-menu-item {
   padding: 8px 10px;
   border: none;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   background: none;
   font-family: inherit;
   font-size: 13px;

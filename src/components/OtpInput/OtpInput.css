@@ -23,21 +23,21 @@
   font-size: 22px;
   font-weight: 600;
   font-family: var(--font-display);
-  border-radius: var(--radius-input);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
   outline: none;
 }
 
 .otp-input__box:focus-visible {
   outline: none;
-  border-color: var(--teal);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--teal) 22%, transparent);
+  border-color: var(--interactive-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-primary) 22%, transparent);
 }
 
 .otp-input--error .otp-input__box {
-  border-color: var(--error-fg);
+  border-color: var(--state-danger);
   animation: otp-shake var(--motion-slow, 0.4s) ease-in-out;
 }
 
