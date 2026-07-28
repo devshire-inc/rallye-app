@@ -15,8 +15,20 @@ vi.mock('./D1Dashboard', () => ({
   default: () => <div data-testid="d1-dashboard" />,
 }))
 
+vi.mock('./D2Dashboard', () => ({
+  default: () => <div data-testid="d2-dashboard" />,
+}))
+
+vi.mock('./D3Dashboard', () => ({
+  default: () => <div data-testid="d3-dashboard" />,
+}))
+
 vi.mock('./D3FDashboard', () => ({
   default: () => <div data-testid="d3f-dashboard" />,
+}))
+
+vi.mock('./OW1Dashboard', () => ({
+  default: () => <div data-testid="ow1-dashboard" />,
 }))
 
 afterEach(() => {
@@ -52,19 +64,35 @@ describe('DashboardPage', () => {
     expect(screen.getByRole('button', { name: /sair/i })).toBeInTheDocument()
   })
 
-  it('renders the unchanged generic markup for Professor (D2, not yet implemented)', () => {
+  it('renders D2Dashboard for Professor', () => {
     mockRole('Professor')
     renderAt('/units/unit-1/dashboard')
 
-    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
-    expect(screen.getByTestId('pending-approvals-card')).toBeInTheDocument()
+    expect(screen.getByTestId('d2-dashboard')).toBeInTheDocument()
+    expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
   })
 
-  it('does not render PendingApprovalsCard when there is no unitId, regardless of role', () => {
-    mockRole('Unit Admin')
+  it('does not render PendingApprovalsCard for GENERIC when there is no unitId', () => {
+    mockRole(null)
     renderAt('/dashboard')
 
     expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+    expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
+  })
+
+  it('renders D3Dashboard for Unit Admin', () => {
+    mockRole('Unit Admin')
+    renderAt('/units/unit-1/dashboard')
+
+    expect(screen.getByTestId('d3-dashboard')).toBeInTheDocument()
+    expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
+  })
+
+  it('renders D3Dashboard for Platform Admin', () => {
+    mockRole('Platform Admin')
+    renderAt('/units/unit-1/dashboard')
+
+    expect(screen.getByTestId('d3-dashboard')).toBeInTheDocument()
     expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
   })
 
@@ -81,6 +109,14 @@ describe('DashboardPage', () => {
     renderAt('/units/unit-1/dashboard')
 
     expect(screen.getByTestId('d3f-dashboard')).toBeInTheDocument()
+    expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
+  })
+
+  it('renders OW1Dashboard for Tenant Owner', () => {
+    mockRole('Tenant Owner')
+    renderAt('/units/unit-1/dashboard')
+
+    expect(screen.getByTestId('ow1-dashboard')).toBeInTheDocument()
     expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
   })
 })

@@ -50,6 +50,7 @@ import SettingsPage from './pages/Settings/SettingsPage'
 import { SignupPage } from './pages/SignupPage'
 import NewStudentPage from './pages/Students/NewStudentPage'
 import StudentProfilePage from './pages/Students/StudentProfilePage'
+import MyEarningsPage from './pages/Teachers/MyEarningsPage'
 import TeacherEarningsPage from './pages/Teachers/TeacherEarningsPage'
 import TeacherFormPage from './pages/Teachers/TeacherFormPage'
 import TeacherProfilePage from './pages/Teachers/TeacherProfilePage'
@@ -313,6 +314,11 @@ function AppRoutes() {
           TeacherEarningsPage.tsx) — alcançada hoje via o botão "Ver como o
           professor vê" da aba Comissão de PR2. */}
       <Route path="/units/:unitId/teachers/:teacherId/earnings" element={<TeacherEarningsPage />} />
+      {/* Meus Ganhos — self-view (BEAC-2095, story BEAC-2051). Mesma fonte
+          de dados/apresentação de PR4 (EarningsSummary compartilhado),
+          escopada ao próprio professor via GET /me — atalho a partir do
+          D2Dashboard. `:unitId` é só cosmético (ver MyEarningsPage.tsx). */}
+      <Route path="/units/:unitId/me/earnings" element={<MyEarningsPage />} />
       {/* F7 — hub de Relatórios Financeiros + detalhe (BEAC-1968, story
           BEAC-1714). Rotas unit-scoped, mesmo padrão de
           /units/:unitId/teachers(/:teacherId) acima — segmento literal
