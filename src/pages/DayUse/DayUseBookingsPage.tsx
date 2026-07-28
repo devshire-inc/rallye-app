@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Segmented } from '../../components/ui/Segmented/Segmented'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
@@ -181,25 +183,20 @@ export default function DayUseBookingsPage() {
 
       {!canView ? null : (
         <div className="dash-body">
-          <div className="tabs2" role="group" aria-label="Filtrar por período">
-            {TABS.map((t) => (
-              <button
-                key={t.value}
-                type="button"
-                className={tab === t.value ? 'active' : ''}
-                aria-pressed={tab === t.value}
-                onClick={() => {
-                  setTab(t.value)
-                  // Mostra "carregando" já na troca de aba (evento de UI,
-                  // não dentro do corpo de um efeito) — o fetch em si é
-                  // disparado pelo useEffect que reage a `tab`.
-                  setState({ status: 'loading' })
-                }}
-              >
-                {t.label}
-              </button>
-            ))}
-          </div>
+          <Segmented
+            ariaLabel="Filtrar por período"
+            options={TABS.map((t) => t.label)}
+            value={TABS.find((t) => t.value === tab)?.label}
+            onChange={(label) => {
+              const next = TABS.find((t) => t.label === label)
+              if (!next) return
+              setTab(next.value)
+              // Mostra "carregando" já na troca de aba (evento de UI, não
+              // dentro do corpo de um efeito) — o fetch em si é disparado
+              // pelo useEffect que reage a `tab`.
+              setState({ status: 'loading' })
+            }}
+          />
 
           {state.status === 'loading' ? <p role="status">Carregando reservas…</p> : null}
           {state.status === 'error' ? (
@@ -262,7 +259,7 @@ function BookingRow({ item, tappable, pending, hasError, onCheckIn }: BookingRow
           {item.startTime}–{item.endTime} · {sportLabel(item.sport)} · {formatBRL(item.amount)}
         </span>
       </span>
-      <span className={`badge ${item.checkedIn ? 'b-success' : 'b-warning'}`}>{item.status}</span>
+      <Badge tone={item.checkedIn ? 'success' : 'warning'}>{item.status}</Badge>
     </>
   )
 

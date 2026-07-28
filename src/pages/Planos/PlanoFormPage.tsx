@@ -1,6 +1,11 @@
 import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Button } from '../../components/ui/Button/Button'
+import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
+import { Input } from '../../components/ui/Input/Input'
+import { Segmented } from '../../components/ui/Segmented/Segmented'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   createPlan,
@@ -221,106 +226,90 @@ export default function PlanoFormPage() {
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <form className="plano-form" onSubmit={handleSubmit}>
         <div className="pg-head">
-          <button
-            type="button"
-            className="btn-back"
+          <IconButton
+            variant="ghost"
+            size="sm"
+            label="Voltar"
             onClick={() => unitId && navigate(`/units/${unitId}/plans`)}
-            aria-label="Voltar"
           >
             ←
-          </button>
+          </IconButton>
           <h1>{isEdit ? 'Editar plano' : 'Novo plano'}</h1>
         </div>
 
         <div className="form-body">
-          <label className="field">
-            <span>Nome</span>
-            <input
-              type="text"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Ex.: 3x por semana - Beach Tennis"
-              required
-            />
-          </label>
+          <Input
+            label="Nome"
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Ex.: 3x por semana - Beach Tennis"
+            required
+          />
 
           <div className="field">
             <span>Tipo</span>
-            <div className="tabs2" role="group" aria-label="Tipo de plano">
-              {TYPE_PILLS.map((pill) => (
-                <button
-                  key={pill.type}
-                  type="button"
-                  className={type === pill.type ? 'active' : ''}
-                  aria-pressed={type === pill.type}
-                  onClick={() => handleTypeChange(pill.type)}
-                >
-                  {pill.label}
-                </button>
-              ))}
-            </div>
+            <Segmented
+              ariaLabel="Tipo de plano"
+              options={TYPE_PILLS.map((pill) => pill.label)}
+              value={TYPE_PILLS.find((pill) => pill.type === type)?.label}
+              onChange={(label) => {
+                const pill = TYPE_PILLS.find((p) => p.label === label)
+                if (pill) handleTypeChange(pill.type)
+              }}
+            />
           </div>
 
-          <label className="field">
-            <span>Esporte</span>
-            <input
-              type="text"
-              value={sport}
-              onChange={(e) => setSport(e.target.value)}
-              placeholder="Ex.: beach_tennis"
-            />
-          </label>
+          <Input
+            label="Esporte"
+            type="text"
+            value={sport}
+            onChange={(e) => setSport(e.target.value)}
+            placeholder="Ex.: beach_tennis"
+          />
 
           {type === 'mensalidade' ? (
-            <label className="field">
-              <span>Sessões por semana</span>
-              <input
-                type="number"
-                min={0}
-                value={sessionsPerWeek}
-                onChange={(e) =>
-                  setSessionsPerWeek(e.target.value === '' ? '' : Number(e.target.value))
-                }
-                placeholder="Deixe em branco para ilimitado"
-              />
-            </label>
+            <Input
+              label="Sessões por semana"
+              type="number"
+              min={0}
+              value={sessionsPerWeek}
+              onChange={(e) =>
+                setSessionsPerWeek(e.target.value === '' ? '' : Number(e.target.value))
+              }
+              placeholder="Deixe em branco para ilimitado"
+            />
           ) : null}
 
           {type === 'pacote' ? (
-            <label className="field">
-              <span>Total de sessões</span>
-              <input
-                type="number"
-                min={0}
-                value={totalSessions}
-                onChange={(e) =>
-                  setTotalSessions(e.target.value === '' ? '' : Number(e.target.value))
-                }
-              />
-            </label>
-          ) : null}
-
-          <label className="field">
-            <span>Máx. membros</span>
-            <input
-              type="number"
-              min={1}
-              value={maxMembers}
-              onChange={(e) => setMaxMembers(Number(e.target.value))}
-            />
-          </label>
-
-          <label className="field">
-            <span>Preço base</span>
-            <input
+            <Input
+              label="Total de sessões"
               type="number"
               min={0}
-              step="0.01"
-              value={basePrice}
-              onChange={(e) => setBasePrice(e.target.value === '' ? '' : Number(e.target.value))}
-              required
+              value={totalSessions}
+              onChange={(e) =>
+                setTotalSessions(e.target.value === '' ? '' : Number(e.target.value))
+              }
             />
-          </label>
+          ) : null}
+
+          <Input
+            label="Máx. membros"
+            type="number"
+            min={1}
+            value={maxMembers}
+            onChange={(e) => setMaxMembers(Number(e.target.value))}
+          />
+
+          <Input
+            label="Preço base"
+            type="number"
+            min={0}
+            step="0.01"
+            value={basePrice}
+            onChange={(e) => setBasePrice(e.target.value === '' ? '' : Number(e.target.value))}
+            required
+          />
 
           {type === 'mensalidade' ? (
             <div className="variants-section">
@@ -331,11 +320,10 @@ export default function PlanoFormPage() {
                 return (
                   <div className="variant-row" key={v.billingCycle}>
                     <label className="variant-checkbox">
-                      <input
-                        type="checkbox"
+                      <Checkbox
+                        ariaLabel={`Ativar ${cycleLabel(v.billingCycle)}`}
                         checked={v.isActive}
-                        onChange={(e) => updateVariant(index, { isActive: e.target.checked })}
-                        aria-label={`Ativar ${cycleLabel(v.billingCycle)}`}
+                        onChange={(checked) => updateVariant(index, { isActive: checked })}
                       />
                       {cycleLabel(v.billingCycle)}
                     </label>
@@ -362,9 +350,9 @@ export default function PlanoFormPage() {
 
           {saveError ? <p role="alert">{saveError}</p> : null}
 
-          <button type="submit" className="btn btn-primary btn-full" disabled={saving}>
+          <Button type="submit" variant="primary" fullWidth disabled={saving}>
             {saving ? 'Salvando…' : 'Salvar plano'}
-          </button>
+          </Button>
 
           <p className="hint-note">Editar não afeta assinaturas existentes — só novas.</p>
         </div>

@@ -1,34 +1,15 @@
 /* DU6 — Reservas Day Use (BEAC-1966). Valores lidos diretamente do CSS do
  * protótipo real (artifact "Rallye — Financeiro · Saque Noturno", regras
- * .tabs2/.inv-row/.badge/.total-bar/.pg-head .count, linhas ~212-398 do HTML
- * salvo em .claude/.../tool-results/artifact-89d79e7b-1783743889-d509.html)
- * — duplicado aqui em vez de compartilhado por CSS global porque este é o
- * padrão já estabelecido neste projeto (ver mesmas regras .tabs2/.badge
- * repetidas em DayUseConfigPage.css, Financeiro.css, Agenda.css etc. — não
- * existe uma folha de estilo compartilhada só para estes componentes de
- * "lista com badge" ainda). */
-
-.tabs2 {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.tabs2 button {
-  padding: 7px 15px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
-}
-.tabs2 button.active {
-  background: var(--sand);
-  border-color: var(--sand);
-  color: var(--text-primary);
-}
+ * .inv-row/.total-bar/.pg-head .count, linhas ~212-398 do HTML salvo em
+ * .claude/.../tool-results/artifact-89d79e7b-1783743889-d509.html) —
+ * duplicado aqui em vez de compartilhado por CSS global porque este é o
+ * padrão já estabelecido neste projeto (ver mesmas regras .inv-row
+ * repetidas em Financeiro.css, Agenda.css etc. — não existe uma folha de
+ * estilo compartilhada só para estes componentes de "lista com badge"
+ * ainda). Tabs de período migradas para ui/Segmented e o badge de status
+ * para ui/Badge (BEAC-2114, restyle Claude Design) — regras .tabs2/.badge
+ * removidas, os componentes já trazem seu próprio CSS tokenizado.
+ */
 
 .ag-list {
   display: flex;
@@ -41,9 +22,9 @@
   align-items: center;
   gap: 12px;
   width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 11px 14px;
   font: inherit;
   color: inherit;
@@ -51,10 +32,10 @@
 }
 button.inv-row {
   cursor: pointer;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
 }
 button.inv-row:hover:not(:disabled) {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 button.inv-row:disabled {
   opacity: 0.65;
@@ -79,27 +60,6 @@ button.inv-row:disabled {
   color: var(--text-muted);
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-  white-space: nowrap;
-  flex: none;
-}
-.badge.b-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
-}
-.badge.b-warning {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
-}
-
 .total-bar {
   display: flex;
   justify-content: space-between;
@@ -107,7 +67,7 @@ button.inv-row:disabled {
   font-weight: 600;
   color: var(--text-muted);
   padding: 10px 4px 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-default);
   margin-top: var(--space-2);
 }
 
@@ -120,5 +80,5 @@ button.inv-row:disabled {
 .booking-checkin-error {
   margin: -4px 0 0;
   font-size: 11.5px;
-  color: var(--error-fg);
+  color: var(--state-danger);
 }

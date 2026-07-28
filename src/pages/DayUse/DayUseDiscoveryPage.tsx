@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Input } from '../../components/ui/Input/Input'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { discoverDayUse, todayIsoDate, type ArenaSummary } from '../../lib/api/dayUseFlow'
 import { formatBRL } from '../../lib/money'
@@ -109,15 +110,13 @@ export default function DayUseDiscoveryPage() {
       </div>
 
       <div className="dash-body">
-        <div className="searchbar">
-          <input
-            type="text"
-            placeholder="Buscar arena na sua cidade"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Buscar arena por nome ou cidade"
-          />
-        </div>
+        <Input
+          type="text"
+          placeholder="Buscar arena na sua cidade"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          ariaLabel="Buscar arena por nome ou cidade"
+        />
 
         <div className="tabs2" role="group" aria-label="Filtrar por esporte">
           <button

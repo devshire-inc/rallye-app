@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Button } from '../../components/ui/Button/Button'
+import { Input } from '../../components/ui/Input/Input'
+import { Switch } from '../../components/ui/Switch/Switch'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
@@ -123,13 +126,13 @@ export default function DayUseConfigPage() {
         <h1>Config Day Use</h1>
         <div className="spacer" />
         {canManage ? (
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={() => unitId && navigate(`/units/${unitId}/day-use/reservas`)}
           >
             Ver reservas
-          </button>
+          </Button>
         ) : null}
       </div>
 
@@ -255,48 +258,37 @@ function DayUseCourtCard({ config, onUpdated }: DayUseCourtCardProps) {
           </b>
           <div className="due-subtitle">{sportLabel(config.sport)}</div>
         </div>
-        <label className="switch">
-          <input
-            type="checkbox"
-            checked={config.enabled}
-            aria-label={`Ativar Day Use em ${config.courtName}`}
-            onChange={(e) => handleToggle(e.target.checked)}
-          />
-          <span className="tr" />
-          <span className="th" />
-        </label>
+        <Switch
+          checked={config.enabled}
+          ariaLabel={`Ativar Day Use em ${config.courtName}`}
+          onChange={handleToggle}
+        />
       </div>
 
       {config.enabled ? (
         <div className="form-grid">
-          <div className="field">
-            <label htmlFor={`due-price-${config.courtId}`}>Preço</label>
-            <input
-              id={`due-price-${config.courtId}`}
-              className="input"
-              value={priceText}
-              onChange={(e) => setPriceText(e.target.value)}
-              onBlur={handlePriceBlur}
-            />
-          </div>
-          <div className="field">
-            <label htmlFor={`due-slots-${config.courtId}`}>Vagas/dia</label>
-            <input
-              id={`due-slots-${config.courtId}`}
-              className="input"
-              type="number"
-              min={1}
-              value={slotsText}
-              onChange={(e) => setSlotsText(e.target.value)}
-              onBlur={handleSlotsBlur}
-            />
-          </div>
+          <Input
+            id={`due-price-${config.courtId}`}
+            label="Preço"
+            value={priceText}
+            onChange={(e) => setPriceText(e.target.value)}
+            onBlur={handlePriceBlur}
+          />
+          <Input
+            id={`due-slots-${config.courtId}`}
+            label="Vagas/dia"
+            type="number"
+            min={1}
+            value={slotsText}
+            onChange={(e) => setSlotsText(e.target.value)}
+            onBlur={handleSlotsBlur}
+          />
           <div className="field span2">
             <label htmlFor={`due-start-${config.courtId}`}>Horário liberado</label>
             <div className="due-time-range">
               <input
                 id={`due-start-${config.courtId}`}
-                className="input"
+                className="due-time-input"
                 type="time"
                 value={startTime}
                 onChange={(e) => setStartTime(e.target.value)}
@@ -305,7 +297,7 @@ function DayUseCourtCard({ config, onUpdated }: DayUseCourtCardProps) {
               <span>–</span>
               <input
                 aria-label="Horário de fim"
-                className="input"
+                className="due-time-input"
                 type="time"
                 value={endTime}
                 onChange={(e) => setEndTime(e.target.value)}

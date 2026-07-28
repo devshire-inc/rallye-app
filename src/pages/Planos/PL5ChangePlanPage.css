@@ -1,9 +1,13 @@
 /* PL5 — Upgrade/Downgrade de Plano (BEAC-1938). Self-contained (não assume
    que outra página já carregou o CSS equivalente) — mesmo padrão de
-   PL4MySubscriptionPage.css neste mesmo pacote. `.pg-head`/`.btn-back`/
-   `.dash-body`/`.card`/`.kv`/`.badge*` copiados 1:1 de PL4MySubscriptionPage.css
-   (mesmos valores, mesma origem: pages/Financeiro/Financeiro.css). `.radio-opt`
-   copiado 1:1 de pages/ArenaSettings/ArenaSettingsPage.css. */
+   PL4MySubscriptionPage.css neste mesmo pacote. `.pg-head`/`.dash-body`/`.kv`
+   copiados 1:1 de PL4MySubscriptionPage.css (mesmos valores, mesma origem:
+   pages/Financeiro/Financeiro.css). `.radio-opt` copiado 1:1 de
+   pages/ArenaSettings/ArenaSettingsPage.css. Botão "Voltar", cards
+   (Plano atual/Cálculo pro-rata) e badges Upgrade/Downgrade migrados pros
+   componentes ui/IconButton, ui/Card e ui/Badge; botões de confirmação
+   migrados pro ui/Button (BEAC-2113, restyle Claude Design) — a fórmula de
+   pro-rata em si (PL5ChangePlanPage.tsx) não foi tocada, só a apresentação. */
 
 .pg-head {
   display: flex;
@@ -18,15 +22,6 @@
   font-size: 22px;
   margin: 0;
 }
-.btn-back {
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px 8px;
-  line-height: 1;
-}
 
 .dash-body {
   display: flex;
@@ -40,13 +35,6 @@
   font-weight: 600;
   font-size: 16px;
   margin: 0;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
-  padding: var(--space-4);
 }
 
 /* Bloco "Plano atual" */
@@ -87,19 +75,19 @@
   align-items: center;
   gap: 10px;
   padding: 12px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 .radio-opt input {
   width: 16px;
   height: 16px;
-  accent-color: var(--teal);
+  accent-color: var(--interactive-primary);
   flex: none;
 }
 .radio-opt.checked {
-  border-color: var(--teal);
-  background: color-mix(in srgb, var(--teal) 8%, var(--surface));
+  border-color: var(--interactive-primary);
+  background: color-mix(in srgb, var(--interactive-primary) 8%, var(--surface-card));
 }
 .radio-opt.disabled {
   cursor: default;
@@ -121,31 +109,6 @@
   color: var(--text-muted);
 }
 
-/* Badges (atual / upgrade / downgrade) */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-  flex: none;
-}
-.badge.b-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
-}
-.badge.b-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
-}
-.badge.b-warning {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
-}
-
 /* Bloco de cálculo pro-rata */
 .calc-card {
   display: flex;
@@ -158,7 +121,7 @@
   font-size: 13px;
 }
 .calc-row.total {
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-default);
   margin-top: 4px;
   padding-top: 8px;
   font-weight: 600;
@@ -166,5 +129,5 @@
 
 .confirm-error {
   font-size: 12px;
-  color: var(--error-fg);
+  color: var(--state-danger);
 }

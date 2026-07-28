@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { Card } from '../../components/ui/Card/Card'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { getMe } from '../../lib/api/me'
@@ -43,20 +47,20 @@ const INVOICE_STATUS_LABEL: Record<string, string> = {
   estornada: 'Estornada',
 }
 
-function invoiceBadgeClass(status: string): string {
+function invoiceBadgeTone(status: string): BadgeProps['tone'] {
   switch (status) {
     case 'paga':
-      return 'badge b-success'
+      return 'success'
     case 'enviada':
-      return 'badge b-warning'
+      return 'warning'
     case 'atrasada':
-      return 'badge b-error'
+      return 'danger'
     case 'estornada':
-      return 'badge b-info'
+      return 'info'
     case 'gerada':
     case 'cancelada':
     default:
-      return 'badge b-neutral'
+      return 'neutral'
   }
 }
 
@@ -169,14 +173,14 @@ export default function PL4MySubscriptionPage() {
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
-        <button
-          type="button"
-          className="btn-back"
-          aria-label="Voltar"
+        <IconButton
+          variant="ghost"
+          size="sm"
+          label="Voltar"
           onClick={() => unitId && navigate(`/units/${unitId}/dashboard`)}
         >
           ←
-        </button>
+        </IconButton>
         <h1>Minha Assinatura</h1>
       </div>
 
@@ -194,20 +198,16 @@ export default function PL4MySubscriptionPage() {
             <SubscriptionCard subscription={state.subscription} />
 
             <div className="actions-row">
-              <button
-                type="button"
-                className="btn btn-secondary btn-full"
+              <Button
+                variant="secondary"
+                fullWidth
                 onClick={() => unitId && navigate(`/units/${unitId}/my-subscription/change-plan`)}
               >
                 Trocar plano
-              </button>
-              <button
-                type="button"
-                className="btn btn-danger btn-full"
-                onClick={() => setShowCancelInfo(true)}
-              >
+              </Button>
+              <Button variant="danger" fullWidth onClick={() => setShowCancelInfo(true)}>
                 Cancelar assinatura
-              </button>
+              </Button>
             </div>
 
             <h2 className="sec-head-title">Pagamentos</h2>
@@ -245,13 +245,9 @@ export default function PL4MySubscriptionPage() {
             está disponível nesta versão. Quando cancelar, o cancelamento vale até o fim do período
             já pago (nunca é imediato). Fale com a recepção se precisar cancelar agora.
           </p>
-          <button
-            type="button"
-            className="btn btn-ghost btn-sm"
-            onClick={() => setShowCancelInfo(false)}
-          >
+          <Button variant="ghost" size="sm" onClick={() => setShowCancelInfo(false)}>
             Entendi
-          </button>
+          </Button>
         </div>
       </BottomSheet>
     </AppShell>
@@ -267,43 +263,45 @@ function SubscriptionCard({ subscription }: { subscription: SubscriptionDetail }
   const expiring = isExpiringSoon(subscription.remainingDays)
 
   return (
-    <div className="card sub-card">
-      <div className="sub-card-head">
-        <h3>{subscription.plan.name}</h3>
-        <span className="badge b-success">Ativa</span>
-      </div>
-
-      <div className="kv">
-        <span className="k">Recorrência</span>
-        <span className="v">
-          {CYCLE_LABELS[subscription.planVariant.billingCycle]} ·{' '}
-          {formatBRL(subscription.planVariant.finalPrice)}/mês
-        </span>
-      </div>
-      <div className="kv">
-        <span className="k">Período</span>
-        <span className="v">
-          {formatDateBR(subscription.startDate)} - {formatDateBR(subscription.endDate)}
-        </span>
-      </div>
-      <div className="kv">
-        <span className="k">Renova em</span>
-        <span className="v" style={expiring ? { color: 'var(--warning-fg)' } : undefined}>
-          {subscription.remainingDays} {subscription.remainingDays === 1 ? 'dia' : 'dias'}
-        </span>
-      </div>
-      <div className="kv">
-        <span className="k">Renovação automática</span>
-        <span className="v">{subscription.autoRenew ? 'Sim' : 'Não'}</span>
-      </div>
-
-      <div className="period-progress">
-        <div className="period-progress-track">
-          <div className="period-progress-fill" style={{ width: `${pct}%` }} />
+    <Card padding="var(--space-4)">
+      <div className="sub-card">
+        <div className="sub-card-head">
+          <h3>{subscription.plan.name}</h3>
+          <Badge tone="success">Ativa</Badge>
         </div>
-        <span className="period-progress-label">{pct}% do período</span>
+
+        <div className="kv">
+          <span className="k">Recorrência</span>
+          <span className="v">
+            {CYCLE_LABELS[subscription.planVariant.billingCycle]} ·{' '}
+            {formatBRL(subscription.planVariant.finalPrice)}/mês
+          </span>
+        </div>
+        <div className="kv">
+          <span className="k">Período</span>
+          <span className="v">
+            {formatDateBR(subscription.startDate)} - {formatDateBR(subscription.endDate)}
+          </span>
+        </div>
+        <div className="kv">
+          <span className="k">Renova em</span>
+          <span className="v" style={expiring ? { color: 'var(--state-warning)' } : undefined}>
+            {subscription.remainingDays} {subscription.remainingDays === 1 ? 'dia' : 'dias'}
+          </span>
+        </div>
+        <div className="kv">
+          <span className="k">Renovação automática</span>
+          <span className="v">{subscription.autoRenew ? 'Sim' : 'Não'}</span>
+        </div>
+
+        <div className="period-progress">
+          <div className="period-progress-track">
+            <div className="period-progress-fill" style={{ width: `${pct}%` }} />
+          </div>
+          <span className="period-progress-label">{pct}% do período</span>
+        </div>
       </div>
-    </div>
+    </Card>
   )
 }
 
@@ -317,9 +315,9 @@ function InvoiceRow({ invoice, onClick }: { invoice: SubscriptionInvoice; onClic
         </span>
       </span>
       <span className="tail">
-        <span className={invoiceBadgeClass(invoice.status)}>
+        <Badge tone={invoiceBadgeTone(invoice.status)}>
           {INVOICE_STATUS_LABEL[invoice.status] ?? invoice.status}
-        </span>
+        </Badge>
       </span>
     </button>
   )

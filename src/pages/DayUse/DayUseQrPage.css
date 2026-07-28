@@ -32,7 +32,7 @@
 .du4-title {
   font-size: 20px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--text-heading);
   margin: 0;
 }
 
@@ -42,9 +42,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 8px;
 }
 .du4-qr-frame img {
@@ -67,9 +67,9 @@
 
 .card.du4-details {
   width: 100%;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -82,7 +82,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: 13px;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 
 .du4-actions {

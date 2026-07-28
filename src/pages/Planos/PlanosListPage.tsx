@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
@@ -78,33 +81,29 @@ export default function PlanosListPage() {
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
-        <button
-          type="button"
-          className="btn-back"
+        <IconButton
+          variant="ghost"
+          size="sm"
+          label="Voltar"
           onClick={() => unitId && navigate(`/units/${unitId}/dashboard`)}
-          aria-label="Voltar"
         >
           ←
-        </button>
+        </IconButton>
         <h1>Planos e Pacotes</h1>
         <div className="spacer" />
         {canManage ? (
           <>
-            <button
-              type="button"
-              className="btn btn-secondary btn-sm"
-              onClick={() => setShowVincularInfo(true)}
-            >
+            <Button variant="secondary" size="sm" onClick={() => setShowVincularInfo(true)}>
               Vincular aluno
-            </button>
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              aria-label="Novo plano"
+            </Button>
+            <Button
+              variant="primary"
+              size="sm"
+              icon={<span aria-hidden="true">+</span>}
               onClick={() => unitId && navigate(`/units/${unitId}/plans/new`)}
             >
-              + Novo plano
-            </button>
+              Novo plano
+            </Button>
           </>
         ) : null}
       </div>
@@ -231,9 +230,9 @@ function PlanCard({ plan, onClick }: { plan: PlanSummary; onClick: () => void })
           {plan.activeSubscriberCount === 1 ? 'assinante' : 'assinantes'}
         </span>
       </span>
-      <span className={`badge ${plan.isActive ? 'badge-ativo' : 'badge-inativa'}`}>
+      <Badge tone={plan.isActive ? 'success' : 'neutral'}>
         {plan.isActive ? 'Ativo' : 'Inativo'}
-      </span>
+      </Badge>
     </button>
   )
 }

@@ -27,6 +27,14 @@ function formatDate(iso: string): string {
  * o backend já filtra pra "só as próprias faturas" quando o chamador não
  * tem financeiro:read (AC da story: "aluno vê apenas as próprias
  * faturas"), então esta tela não passa nenhum filtro de aluno explícito.
+ *
+ * BEAC-2112 (restyle Claude Design): sem `<input>`/`<select>` cru nesta
+ * tela — `.tabs2`, `.card`, `.badge b-success` e `.btn btn-primary`
+ * continuam classes cruas retokenizadas em Financeiro.css (mesma decisão
+ * travada de BEAC-2111 para F4/F5). Único ponto tocado: a cor inline do
+ * hint de vencimento/atraso, que usava os aliases legados `--error-fg`/
+ * `--warning-fg` (ponte BEAC-2063) — trocados por `--state-danger`/
+ * `--state-warning`.
  */
 export default function F5MyInvoicesPage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -206,7 +214,7 @@ function MyInvoiceCard({ invoice, onClick }: { invoice: InvoiceListItem; onClick
         </span>
         <span
           className="hint"
-          style={{ color: isOverdue ? 'var(--error-fg)' : 'var(--warning-fg)' }}
+          style={{ color: isOverdue ? 'var(--state-danger)' : 'var(--state-warning)' }}
         >
           {daysLabel}
         </span>

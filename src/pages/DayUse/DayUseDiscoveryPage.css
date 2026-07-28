@@ -1,8 +1,9 @@
 /* DU1 — Discovery Day Use (BEAC-1960, story BEAC-1928). Self-contained:
  * redefine as classes genéricas que esta página usa (.pg-head/.dash-body/
- * .searchbar/.tabs2/.hint/.card) em vez de depender de outra página já ter
- * carregado o CSS equivalente — mesmo padrão de DayUseConfigPage.css/
- * TeachersListPage.css.
+ * .tabs2/.hint/.card) em vez de depender de outra página já ter carregado
+ * o CSS equivalente — mesmo padrão de DayUseConfigPage.css/
+ * TeachersListPage.css. Busca migrada para o componente ui/Input (BEAC-2114,
+ * restyle Claude Design).
  */
 
 .pg-head {
@@ -25,12 +26,12 @@
 
 .du-date-pill {
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   padding: 6px 12px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 
 .dash-body {
@@ -38,25 +39,6 @@
   flex-direction: column;
   gap: var(--space-3);
   max-width: 600px;
-}
-
-.searchbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 0 14px;
-  min-height: 40px;
-}
-.searchbar input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  font-size: 13px;
-  color: var(--text-primary);
-  outline: none;
 }
 
 .tabs2 {
@@ -67,8 +49,8 @@
 .tabs2 button {
   padding: 7px 15px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-weight: 600;
@@ -76,9 +58,9 @@
   cursor: pointer;
 }
 .tabs2 button.active {
-  background: var(--sand);
-  border-color: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  border-color: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .du-arena-list {
@@ -91,9 +73,9 @@
   display: flex;
   align-items: center;
   gap: var(--space-3);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 10px 14px;
   min-height: 72px;
 }
@@ -120,7 +102,7 @@
   width: 48px;
   height: 48px;
   border-radius: 8px;
-  background: var(--sand);
+  background: var(--sand-200);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -168,7 +150,7 @@
 .du-arena-price {
   font-size: 14px;
   font-weight: 700;
-  color: var(--teal);
+  color: var(--interactive-primary);
 }
 
 .hint {

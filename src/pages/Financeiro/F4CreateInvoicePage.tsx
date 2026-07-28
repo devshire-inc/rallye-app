@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
+import { Input } from '../../components/ui/Input/Input'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { listMembers, type Member } from '../../lib/api/members'
@@ -51,6 +53,14 @@ function currentMonthLabel(): string {
  * Pre-fill por tipo: ver lib/invoicePrefill.ts (gap documentado lá — sem
  * fonte de dado de plano/torneio nesta dispatch, só o prefixo textual é
  * pré-preenchido para mensalidade/pacote/torneio; avulso é 100% coberto).
+ *
+ * BEAC-2112 (restyle Claude Design): os 4 campos de texto (aluno/descrição/
+ * valor/vencimento) e os 3 checkboxes de entrega passaram a usar ui/Input e
+ * ui/Checkbox (mesmo padrão de F3InvoiceDetailPage.tsx, BEAC-2111) — `.pills`
+ * (tipo), `.card`/`.inv-row` (sugestões de aluno) e `.btn btn-primary`
+ * continuam classes cruas retokenizadas em Financeiro.css (decisão travada
+ * de BEAC-2111, mesma razão: sem componente ui/ equivalente sem perder
+ * comportamento observável).
  */
 export default function F4CreateInvoicePage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -142,20 +152,18 @@ export default function F4CreateInvoicePage() {
       </div>
 
       <div className="dash-body">
-        <div className="field">
-          <label htmlFor="student-search">ALUNO *</label>
-          <div className="control">
-            <input
-              id="student-search"
-              type="text"
-              placeholder="🔍 Buscar aluno..."
-              value={selectedStudent ? selectedStudent.user.name : studentQuery}
-              onChange={(e) => {
-                setSelectedStudent(null)
-                setStudentQuery(e.target.value)
-              }}
-            />
-          </div>
+        <div>
+          <Input
+            id="student-search"
+            label="ALUNO *"
+            type="text"
+            placeholder="🔍 Buscar aluno..."
+            value={selectedStudent ? selectedStudent.user.name : studentQuery}
+            onChange={(e) => {
+              setSelectedStudent(null)
+              setStudentQuery(e.target.value)
+            }}
+          />
           {students.length > 0 && !selectedStudent && studentQuery.trim() !== '' ? (
             <div className="card" style={{ marginTop: 6 }}>
               {students.map((m) => (
@@ -194,69 +202,40 @@ export default function F4CreateInvoicePage() {
           </div>
         </div>
 
-        <div className="field">
-          <label htmlFor="description">DESCRIÇÃO *</label>
-          <div className="control">
-            <input
-              id="description"
-              type="text"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-        </div>
+        <Input
+          id="description"
+          label="DESCRIÇÃO *"
+          type="text"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
 
-        <div className="field">
-          <label htmlFor="amount">VALOR *</label>
-          <div className="control">
-            <input
-              id="amount"
-              type="text"
-              inputMode="decimal"
-              placeholder="0,00"
-              value={amount}
-              onChange={(e) => setAmount(e.target.value)}
-            />
-          </div>
-        </div>
+        <Input
+          id="amount"
+          label="VALOR *"
+          type="text"
+          inputMode="decimal"
+          placeholder="0,00"
+          value={amount}
+          onChange={(e) => setAmount(e.target.value)}
+        />
 
-        <div className="field">
-          <label htmlFor="due-date">VENCIMENTO *</label>
-          <div className="control">
-            <input
-              id="due-date"
-              type="date"
-              min={todayISO}
-              value={dueDate}
-              onChange={(e) => setDueDate(e.target.value)}
-            />
-          </div>
-        </div>
+        <Input
+          id="due-date"
+          label="VENCIMENTO *"
+          type="date"
+          min={todayISO}
+          value={dueDate}
+          onChange={(e) => setDueDate(e.target.value)}
+        />
 
-        <label className="checkrow">
-          <input
-            type="checkbox"
-            checked={generateLink}
-            onChange={(e) => setGenerateLink(e.target.checked)}
-          />
-          Gerar link de pagamento
-        </label>
-        <label className="checkrow">
-          <input
-            type="checkbox"
-            checked={sendWhatsApp}
-            onChange={(e) => setSendWhatsApp(e.target.checked)}
-          />
-          Enviar por WhatsApp
-        </label>
-        <label className="checkrow">
-          <input
-            type="checkbox"
-            checked={sendEmail}
-            onChange={(e) => setSendEmail(e.target.checked)}
-          />
-          Enviar por email
-        </label>
+        <Checkbox
+          label="Gerar link de pagamento"
+          checked={generateLink}
+          onChange={setGenerateLink}
+        />
+        <Checkbox label="Enviar por WhatsApp" checked={sendWhatsApp} onChange={setSendWhatsApp} />
+        <Checkbox label="Enviar por email" checked={sendEmail} onChange={setSendEmail} />
 
         {errorMessage ? <p role="alert">{errorMessage}</p> : null}
 

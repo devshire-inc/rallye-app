@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
+import { Input } from '../../components/ui/Input/Input'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listInvoices, type InvoiceListItem, type InvoiceStatus } from '../../lib/api/invoices'
-import { statusBadgeClass, STATUS_LABEL } from '../../lib/invoiceStatus'
+import { STATUS_LABEL } from '../../lib/invoiceStatus'
 import { formatBRL } from '../../lib/money'
 import './Financeiro.css'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -18,6 +20,21 @@ type TabFilter = 'todas' | 'pendentes' | 'atrasadas' | 'pagas'
 const TAB_TO_STATUS: Record<Exclude<TabFilter, 'todas' | 'pendentes'>, InvoiceStatus> = {
   atrasadas: 'atrasada',
   pagas: 'paga',
+}
+
+/** Mesmo mapeamento de src/lib/invoiceStatus.ts (statusBadgeClass), como
+ * `tone` de ui/Badge em vez de classe CSS crua — mesmo padrão de
+ * STATUS_BADGE_TONE em TeachersListPage.tsx/StudentProfilePage.tsx. Não
+ * altera invoiceStatus.ts (statusBadgeClass ainda é usado por
+ * F5MyInvoicesPage.tsx e PL4MySubscriptionPage.tsx, fora do escopo desta
+ * task). */
+const STATUS_BADGE_TONE: Record<InvoiceStatus, BadgeProps['tone']> = {
+  gerada: 'neutral',
+  enviada: 'warning',
+  paga: 'success',
+  atrasada: 'danger',
+  cancelada: 'neutral',
+  estornada: 'info',
 }
 
 function formatDate(iso: string): string {
@@ -112,12 +129,12 @@ export default function F2InvoiceListPage() {
         <h1>Faturas</h1>
         <div className="spacer" />
         <div className="searchbar">
-          <input
+          <Input
             type="text"
             placeholder="Buscar aluno..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            aria-label="Buscar aluno"
+            ariaLabel="Buscar aluno"
           />
         </div>
         <button
@@ -185,12 +202,12 @@ export default function F2InvoiceListPage() {
                           ? `Pago ${formatDate(invoice.paidAt.slice(0, 10))}`
                           : `Vence ${formatDate(invoice.dueDate)}`}
                       </span>
-                      <span className={statusBadgeClass(invoice.status)}>
+                      <Badge tone={STATUS_BADGE_TONE[invoice.status]}>
                         {STATUS_LABEL[invoice.status]}
                         {invoice.status === 'atrasada' && invoice.daysOverdue != null
                           ? ` · ${invoice.daysOverdue} dias`
                           : ''}
-                      </span>
+                      </Badge>
                     </span>
                   </button>
                 ))

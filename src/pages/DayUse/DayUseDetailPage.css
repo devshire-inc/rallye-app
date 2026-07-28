@@ -1,5 +1,8 @@
 /* DU2 — Detalhe Arena Day Use (BEAC-1961, story BEAC-1928). Self-contained,
- * mesmo padrão de DayUseDiscoveryPage.css/DayUseConfigPage.css.
+ * mesmo padrão de DayUseDiscoveryPage.css/DayUseConfigPage.css. Badges de
+ * esporte migradas para ui/Badge e o CTA para ui/Button (BEAC-2114, restyle
+ * Claude Design) — regras .badge/.du2-cta removidas, os componentes já
+ * trazem seu próprio CSS tokenizado.
  */
 
 .pg-head {
@@ -26,8 +29,8 @@
 
 .du2-photo {
   height: 200px;
-  border-radius: var(--radius-card);
-  background: var(--sand);
+  border-radius: var(--radius-lg);
+  background: var(--sand-200);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -46,7 +49,7 @@
 
 .du2-address {
   font-size: 13px;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 
 .hint {
@@ -55,9 +58,9 @@
 }
 
 .card.du2-day-use-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   display: flex;
   flex-direction: column;
@@ -67,7 +70,7 @@
 .du2-price {
   font-size: 20px;
   font-weight: 700;
-  color: var(--teal);
+  color: var(--interactive-primary);
 }
 
 .du2-slots {
@@ -80,30 +83,12 @@
 .du2-progress {
   height: 6px;
   border-radius: var(--radius-pill);
-  background: var(--sand);
+  background: var(--sand-200);
   overflow: hidden;
 }
 .du2-progress-fill {
   height: 100%;
-  background: var(--teal);
+  background: var(--interactive-primary);
   border-radius: var(--radius-pill);
 }
 
-.du2-cta {
-  width: 100%;
-  min-height: 44px;
-  font-weight: 700;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  font-size: 11px;
-  font-weight: 600;
-}
-.badge.b-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
-}

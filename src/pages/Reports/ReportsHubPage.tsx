@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Select } from '../../components/ui/Select/Select'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listMyMemberships, type MembershipListItem } from '../../lib/api'
 import { visibleReportCatalog } from './reportCatalog'
@@ -71,27 +72,22 @@ export default function ReportsHubPage() {
         <h1>Relatórios</h1>
         <div className="spacer" />
         {isTenantOwner ? (
-          <div className="unit-filter">
-            <select
-              aria-label="Filtrar por unit"
-              value={networkScope ? NETWORK_SCOPE_VALUE : (unitId ?? '')}
-              onChange={(e) => {
-                const next = e.target.value
-                if (next === NETWORK_SCOPE_VALUE) {
-                  if (unitId) navigate(`/units/${unitId}/reports${networkScopeQuery()}`)
-                } else {
-                  navigate(`/units/${next}/reports`)
-                }
-              }}
-            >
-              <option value={NETWORK_SCOPE_VALUE}>Todas</option>
-              {memberships.map((m) => (
-                <option key={m.unitId} value={m.unitId}>
-                  {m.unit.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            ariaLabel="Filtrar por unit"
+            value={networkScope ? NETWORK_SCOPE_VALUE : (unitId ?? '')}
+            onChange={(e) => {
+              const next = e.target.value
+              if (next === NETWORK_SCOPE_VALUE) {
+                if (unitId) navigate(`/units/${unitId}/reports${networkScopeQuery()}`)
+              } else {
+                navigate(`/units/${next}/reports`)
+              }
+            }}
+            options={[
+              { value: NETWORK_SCOPE_VALUE, label: 'Todas' },
+              ...memberships.map((m) => ({ value: m.unitId, label: m.unit.name })),
+            ]}
+          />
         ) : null}
       </div>
 

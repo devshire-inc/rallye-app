@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
+import { Select } from '../../components/ui/Select/Select'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listInvoices } from '../../lib/api/invoices'
 import { listMyMemberships, type MembershipListItem } from '../../lib/api'
@@ -281,40 +283,37 @@ export default function F1CashFlowPage() {
         <h1>Fluxo de Caixa</h1>
         <div className="spacer" />
         {isTenantOwner ? (
-          <div className="unit-filter">
-            <select
-              aria-label="Filtrar por unit"
-              value={isNetworkScope ? NETWORK_SCOPE_VALUE : (activeUnitId ?? '')}
-              onChange={(e) => setUnitOverride(e.target.value)}
-            >
-              <option value={NETWORK_SCOPE_VALUE}>Todas</option>
-              {memberships.map((m) => (
-                <option key={m.unitId} value={m.unitId}>
-                  {m.unit.name}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Select
+            ariaLabel="Filtrar por unit"
+            value={isNetworkScope ? NETWORK_SCOPE_VALUE : (activeUnitId ?? '')}
+            onChange={(e) => setUnitOverride(e.target.value)}
+            options={[
+              { value: NETWORK_SCOPE_VALUE, label: 'Todas' },
+              ...memberships.map((m) => ({ value: m.unitId, label: m.unit.name })),
+            ]}
+          />
         ) : null}
       </div>
 
       <div className="dash-body">
         <div className="month-nav">
-          <button
-            type="button"
-            aria-label="Mês anterior"
+          <IconButton
+            variant="secondary"
+            size="sm"
+            label="Mês anterior"
             onClick={() => setMonthOffset((o) => o - 1)}
           >
             ◄
-          </button>
+          </IconButton>
           <span>{monthKey(monthOffset).split('-').reverse().join('/')}</span>
-          <button
-            type="button"
-            aria-label="Próximo mês"
+          <IconButton
+            variant="secondary"
+            size="sm"
+            label="Próximo mês"
             onClick={() => setMonthOffset((o) => o + 1)}
           >
             ►
-          </button>
+          </IconButton>
         </div>
 
         {state.status === 'loading' ? <p role="status">Carregando…</p> : null}
@@ -343,7 +342,7 @@ export default function F1CashFlowPage() {
                     <div
                       style={{
                         height: `${Math.max(4, (h.receita / maxHistory) * 64)}px`,
-                        background: 'var(--data)',
+                        background: 'var(--state-info)',
                         borderRadius: 4,
                       }}
                     />
@@ -359,13 +358,15 @@ export default function F1CashFlowPage() {
               <h2>Recebimentos</h2>
               <div className="recv-row">
                 <span>Recebido</span>
-                <strong style={{ color: 'var(--success-fg)' }}>
+                <strong style={{ color: 'var(--state-success)' }}>
                   {formatBRL(recebimentos.recebido)}
                 </strong>
               </div>
               <div className="recv-row">
                 <span>A receber</span>
-                <strong style={{ color: 'var(--data)' }}>{formatBRL(recebimentos.aReceber)}</strong>
+                <strong style={{ color: 'var(--state-info)' }}>
+                  {formatBRL(recebimentos.aReceber)}
+                </strong>
               </div>
               <div
                 className="recv-row"
@@ -378,7 +379,7 @@ export default function F1CashFlowPage() {
                 style={{ cursor: 'pointer' }}
               >
                 <span>Em atraso</span>
-                <strong style={{ color: 'var(--error-fg)' }}>
+                <strong style={{ color: 'var(--state-danger)' }}>
                   {formatBRL(recebimentos.emAtraso)}
                 </strong>
               </div>

@@ -1,6 +1,16 @@
 /* F7 — hub de Relatórios + detalhe (BEAC-1968, story BEAC-1714). Self-contained
    (não assume que outra página já carregou o CSS equivalente), mesmo padrão
-   já estabelecido nesta base (ver comentário de TeachersListPage.css). */
+   já estabelecido nesta base (ver comentário de TeachersListPage.css).
+
+   BEAC-2112 (restyle Claude Design): tokens legados (var(--surface)/
+   var(--border)/var(--text-primary)/var(--teal)/var(--sand)/var(--warning-*)/
+   var(--success-fg)/var(--error-fg)/var(--motion-fast)/var(--radius-card)/
+   var(--radius-input), ponte BEAC-2063) trocados pelos tokens reais — MESMOS
+   valores visuais, só sem indireção. O seletor "Todas ▼" (ReportsHubPage) e
+   os filtros de Período/Dias de atraso/Esporte (ReportDetailPage) passaram a
+   usar ui/Select e ui/Input (mesmo padrão de F1CashFlowPage.tsx,
+   BEAC-2111) — `.unit-filter select` e `.report-filter input/select` foram
+   removidos daqui (estilo agora vem do próprio componente ui/). */
 
 .pg-head {
   display: flex;
@@ -15,7 +25,7 @@
   text-decoration: none;
 }
 .pg-head .back:hover {
-  color: var(--teal);
+  color: var(--interactive-primary);
 }
 .pg-head h1 {
   font-family: var(--font-display);
@@ -25,19 +35,6 @@
 }
 .pg-head .spacer {
   flex: 1;
-}
-
-/* Seletor "Todas ▼" / unit específica (BEAC-1970, Tenant Owner only) —
-   mesmo estilo de .unit-filter select em Financeiro.css/F1, self-contained
-   aqui também (ver comentário de topo deste arquivo). */
-.unit-filter select {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
-  border-radius: var(--radius-input);
-  padding: 6px 10px;
-  font: inherit;
-  font-size: 12px;
 }
 
 .dash-body {
@@ -62,7 +59,10 @@
   margin: 0;
 }
 
-/* Hub — grade de 8 cards (ícone + rótulo, cópia exata da doc F7). */
+/* Hub — grade de 8 cards (ícone + rótulo, cópia exata da doc F7). Fica cru
+   (não vira ui/Card): precisa de `role="listitem"` no próprio elemento
+   clicável para o grid semântico `role="list"` do hub, que ui/Card
+   (interactive -> <button> sem prop de role) não expõe. */
 .report-hub-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -73,18 +73,18 @@
   flex-direction: column;
   align-items: flex-start;
   gap: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
   cursor: pointer;
   text-align: left;
   font: inherit;
   color: inherit;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
 }
 .report-hub-card:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .report-hub-card__icon {
   font-size: 24px;
@@ -95,29 +95,12 @@
   font-weight: 600;
 }
 
-/* Detalhe — filtros no topo. */
+/* Detalhe — filtros no topo (ui/Input + ui/Select, cada um já com seu
+   próprio label/estilo — este wrapper só cuida do layout horizontal). */
 .report-filters {
   display: flex;
   flex-wrap: wrap;
   gap: var(--space-4);
-}
-.report-filter {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 11px;
-  color: var(--text-muted);
-}
-.report-filter input,
-.report-filter select {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--text-primary);
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
-  padding: 8px 10px;
-  min-height: var(--touch-min);
 }
 
 /* Banners de disponibilidade — "Indisponível" (bloqueado por dependência
@@ -125,17 +108,17 @@
    produto) usam cores distintas (warning vs neutro) para não confundir um
    gap temporário com um estado normal do produto. */
 .report-banner {
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-size: 12.5px;
 }
 .report-banner--unavailable {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
+  background: var(--state-warning-soft);
+  color: var(--state-warning);
 }
 .report-banner--empty {
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }
 
 /* KPIs no topo dos relatórios desbloqueados por BEAC-1710 (fluxo-de-caixa,
@@ -151,9 +134,9 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: var(--space-3) var(--space-4);
 }
 .report-summary-card__label {
@@ -165,16 +148,16 @@
   font-weight: 700;
 }
 .report-summary-card--positive .report-summary-card__value {
-  color: var(--success-fg);
+  color: var(--state-success);
 }
 .report-summary-card--negative .report-summary-card__value {
-  color: var(--error-fg);
+  color: var(--state-danger);
 }
 
 .chart-wrap {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
 }
 
@@ -197,7 +180,7 @@
 .mini-bars .bar {
   width: 24px;
   border-radius: 4px 4px 0 0;
-  background: var(--teal);
+  background: var(--interactive-primary);
 }
 .mini-bars .mb span {
   font-size: 10.5px;
@@ -218,7 +201,7 @@
 .report-table td {
   text-align: left;
   padding: 8px 10px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
 }
 .report-table th {
   color: var(--text-muted);
@@ -234,5 +217,5 @@
 .report-table tfoot td {
   font-weight: 700;
   border-bottom: none;
-  border-top: 2px solid var(--border);
+  border-top: 2px solid var(--border-default);
 }
