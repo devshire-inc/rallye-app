@@ -1,28 +1,28 @@
 import { useParams } from 'react-router-dom'
 import LogoutButton from '../components/LogoutButton'
+import { useShellIdentity } from '../hooks/useShellIdentity'
+import { resolveDashboardVariant } from '../lib/dashboardTarget'
+import D1Dashboard from './D1Dashboard'
 import { PendingApprovalsCard } from './PendingApprovalsCard'
 import './DashboardPage.css'
 
 /**
- * Dashboard — D3 (Admin) parcial (BEAC-1893, story BEAC-1703). O dashboard
- * admin COMPLETO (stat tiles de inadimplência/turmas, "Ações rápidas" etc.,
- * ver protótipo real) continua fora de escopo — D1/D2/D3/OW1 por role não
- * existem de verdade nesta base (ver comentário de pacote de
- * lib/dashboardTarget.ts). Esta task só adiciona o PRIMEIRO card real: a
- * Central de Pendências.
+ * Dashboard — dispatcher por variante de papel (BEAC-2092/2093, story
+ * BEAC-1736, decisão em memória fd88875b-fa7e-4099-9733-a2ae4b39d783: rota
+ * única, sem paths novos). `resolveDashboardVariant` decide qual componente
+ * renderizar a partir do `role` bruto de `useShellIdentity`; toda variante
+ * ainda não implementada (D2/D3/D3F/OW1/GENERIC) cai no markup ORIGINAL
+ * desta página (D3 parcial de BEAC-1893: `<h1>Dashboard</h1>` +
+ * `PendingApprovalsCard` condicional a `unitId` + `LogoutButton`),
+ * preservando 100% do comportamento atual até a story correspondente
+ * aterrissar. `D1` (Aluno) é o único caso implementado — `D1Dashboard`
+ * resolve o próprio perfil e escopo internamente, sem depender de `unitId`.
  *
- * Duas rotas apontam pra cá (App.tsx): `/dashboard` (genérico, sem unitId
- * — alvo de redirect legado de fluxos que ainda não sabem a unit, ex.
- * verificação de e-mail) e `/units/:unitId/dashboard` (BEAC-1893, novo —
- * necessário porque PendingApprovalsCard precisa de um unitId no path para
- * chamar GET /units/{id}/pending-approvals; não existe nenhum mecanismo de
- * "unit ativa" acessível no frontend fora de route params, ver comentário
- * de pacote de lib/redirectTarget.ts). Sem unitId (rota genérica), o card
- * não é renderizado — mesmo comportamento de antes desta story.
+ * Duas rotas apontam pra cá (App.tsx): `/dashboard` (genérico, sem unitId)
+ * e `/units/:unitId/dashboard` (BEAC-1893, necessário porque
+ * PendingApprovalsCard precisa de um unitId no path).
  */
-export default function DashboardPage() {
-  const { unitId } = useParams<{ unitId?: string }>()
-
+function GenericDashboard({ unitId }: { unitId: string | undefined }) {
   return (
     <main className="dashboard-page">
       <h1>Dashboard</h1>
@@ -34,4 +34,21 @@ export default function DashboardPage() {
       <LogoutButton />
     </main>
   )
+}
+
+export default function DashboardPage() {
+  const { unitId } = useParams<{ unitId?: string }>()
+  const { role } = useShellIdentity()
+  const variant = resolveDashboardVariant(role)
+
+  switch (variant) {
+    case 'D1':
+      return <D1Dashboard />
+    case 'D2':
+    case 'D3':
+    case 'D3F':
+    case 'OW1':
+    case 'GENERIC':
+      return <GenericDashboard unitId={unitId} />
+  }
 }

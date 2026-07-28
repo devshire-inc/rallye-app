@@ -23,3 +23,23 @@ export function dashboardPathForRole(role: string | null, unitId: string | null)
   if (!unitId) return DASHBOARD_PATH
   return `/units/${unitId}/dashboard`
 }
+
+export type DashboardVariant = 'D1' | 'D2' | 'D3' | 'D3F' | 'OW1' | 'GENERIC'
+
+const ADMIN_TIER_ROLES = new Set(['Unit Admin', 'Platform Admin'])
+
+/**
+ * Decide QUAL componente de dashboard renderizar para um role bruto de
+ * useShellIdentity (BEAC-1662, decisão em memória fd88875b-fa7e-4099-9733-
+ * a2ae4b39d783). D3F é detectado por EXCLUSÃO (qualquer role não-nulo fora
+ * do conjunto de 5 nomes de sistema do seed 000016) — não existe campo de
+ * backend para "papel customizado".
+ */
+export function resolveDashboardVariant(role: string | null): DashboardVariant {
+  if (role === null) return 'GENERIC'
+  if (role === 'Aluno') return 'D1'
+  if (role === 'Professor') return 'D2'
+  if (ADMIN_TIER_ROLES.has(role)) return 'D3'
+  if (role === 'Tenant Owner') return 'OW1'
+  return 'D3F'
+}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { dashboardPathForRole } from './dashboardTarget'
+import { dashboardPathForRole, resolveDashboardVariant } from './dashboardTarget'
 import { DASHBOARD_PATH } from './redirectTarget'
 
 describe('dashboardPathForRole', () => {
@@ -12,5 +12,32 @@ describe('dashboardPathForRole', () => {
 
   it('falls back to the generic dashboard when no unitId is given', () => {
     expect(dashboardPathForRole('Admin', null)).toBe(DASHBOARD_PATH)
+  })
+})
+
+describe('resolveDashboardVariant', () => {
+  it('returns GENERIC when role is null', () => {
+    expect(resolveDashboardVariant(null)).toBe('GENERIC')
+  })
+
+  it('returns D1 for Aluno', () => {
+    expect(resolveDashboardVariant('Aluno')).toBe('D1')
+  })
+
+  it('returns D2 for Professor', () => {
+    expect(resolveDashboardVariant('Professor')).toBe('D2')
+  })
+
+  it('returns D3 for Unit Admin and Platform Admin', () => {
+    expect(resolveDashboardVariant('Unit Admin')).toBe('D3')
+    expect(resolveDashboardVariant('Platform Admin')).toBe('D3')
+  })
+
+  it('returns OW1 for Tenant Owner', () => {
+    expect(resolveDashboardVariant('Tenant Owner')).toBe('OW1')
+  })
+
+  it('returns D3F for any other non-null role (custom role)', () => {
+    expect(resolveDashboardVariant('Recepção')).toBe('D3F')
   })
 })
