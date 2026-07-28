@@ -3,6 +3,8 @@ import { Link, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { SocialLoginButtons } from '../components/SocialLoginButtons'
 import { Toast } from '../components/Toast'
+import { Button } from '../components/ui/Button/Button'
+import { Input } from '../components/ui/Input/Input'
 import { useToast } from '../hooks/useToast'
 import { checkExistingSession, login } from '../lib/httpClient'
 import type { OAuthProvider } from '../lib/oauth'
@@ -123,53 +125,45 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
         <div className="divider">ou</div>
 
         <form onSubmit={handleSubmit} className="stack">
-          <div className="field">
-            <label htmlFor="email">E-mail</label>
-            <div className="control">
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder="voce@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-              />
-            </div>
-          </div>
+          <Input
+            id="email"
+            name="email"
+            type="email"
+            label="E-mail"
+            autoComplete="email"
+            required
+            placeholder="voce@email.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
 
-          <div className="field">
-            <label htmlFor="password">Senha</label>
-            <div className="control">
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </div>
+          <Input
+            id="password"
+            name="password"
+            type="password"
+            label="Senha"
+            autoComplete="current-password"
+            required
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
 
           {error && (
-            <p role="alert" className="login-error field-error">
+            <p role="alert" className="field-error">
               {error}
             </p>
           )}
 
           <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Link to="/esqueci-senha" style={{ fontSize: '13px', fontWeight: 600 }}>
+            <Link to="/esqueci-senha" className="link-inline">
               Esqueceu a senha?
             </Link>
           </div>
 
-          <button type="submit" className="btn btn-primary btn-md btn-full" disabled={submitting}>
+          <Button type="submit" fullWidth disabled={submitting}>
             {submitting ? 'Entrando…' : 'Entrar'}
-          </button>
+          </Button>
 
           <div className="footer-link">
             Novo por aqui? <Link to="/cadastro">Criar conta</Link>

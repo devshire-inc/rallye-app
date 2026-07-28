@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../../components/AuthLayout/AuthLayout'
+import { Button } from '../../components/ui/Button/Button'
 import { formatBRPhoneInput } from '../../lib/phone'
 import {
   getSignupFieldErrors,
@@ -238,14 +239,9 @@ export function CadastroPage() {
             </p>
           )}
 
-          <button
-            type="submit"
-            className="submit-button"
-            disabled={!isValid || submitting}
-            style={{ opacity: !isValid || submitting ? 0.5 : 1 }}
-          >
+          <Button type="submit" fullWidth disabled={!isValid || submitting}>
             {submitting ? 'Criando conta…' : 'CRIAR MINHA CONTA'}
-          </button>
+          </Button>
 
           <div className="footer-link">
             Já tem conta? <Link to="/login">Entrar</Link>

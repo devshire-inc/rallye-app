@@ -1,3 +1,4 @@
+import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { SocialLoginButtons } from '../components/SocialLoginButtons'
 import { Toast } from '../components/Toast'
 import { useToast } from '../hooks/useToast'
@@ -13,9 +14,10 @@ export function SignupPage() {
   const { message, showError, dismiss } = useToast()
 
   return (
-    <main className="auth-page" aria-label="Cadastro">
-      <h1>Criar conta</h1>
-      <SocialLoginButtons appleEnabled={false} onError={showError} />
+    <main aria-label="Cadastro">
+      <AuthLayout title="Criar conta" mark="sm">
+        <SocialLoginButtons appleEnabled={false} onError={showError} />
+      </AuthLayout>
       <Toast message={message} onDismiss={dismiss} />
     </main>
   )

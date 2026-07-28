@@ -4,6 +4,8 @@ import { confirmPasswordReset, PasswordResetApiError } from '../lib/passwordRese
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
+import { Button } from '../components/ui/Button/Button'
+import { Input } from '../components/ui/Input/Input'
 
 const MIN_PASSWORD_LENGTH = 8
 
@@ -121,93 +123,83 @@ export function ResetPassword() {
         <Toast message={message} onDismiss={dismiss} />
         <form onSubmit={handleSubmit} noValidate className="stack">
           {!emailFromQuery && (
-            <div className="field">
-              <label htmlFor="email">E-mail</label>
-              <div className="control">
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="voce@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-            </div>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              label="E-mail"
+              placeholder="voce@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           )}
           {emailFromQuery && <p className="section-desc">Código enviado para: {emailFromQuery}</p>}
 
           <div className="field">
-            <label htmlFor="code">Código</label>
-            <div className="control">
-              <input
-                id="code"
-                name="code"
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-                required
-              />
-            </div>
+            <Input
+              id="code"
+              name="code"
+              type="text"
+              label="Código"
+              inputMode="numeric"
+              maxLength={6}
+              value={code}
+              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+              required
+            />
             {fieldErrors.code && (
-              <p role="alert" className="error field-error">
+              <p role="alert" className="field-error">
                 {fieldErrors.code}
               </p>
             )}
           </div>
 
           <div className="field">
-            <label htmlFor="new-password">Nova senha</label>
-            <div className="control">
-              <input
-                id="new-password"
-                name="new-password"
-                type="password"
-                placeholder="Mínimo 8 caracteres"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-            </div>
+            <Input
+              id="new-password"
+              name="new-password"
+              type="password"
+              label="Nova senha"
+              placeholder="Mínimo 8 caracteres"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
             {fieldErrors.newPassword && (
-              <p role="alert" className="error field-error">
+              <p role="alert" className="field-error">
                 {fieldErrors.newPassword}
               </p>
             )}
           </div>
 
           <div className="field">
-            <label htmlFor="confirm-password">Confirmar senha</label>
-            <div className="control">
-              <input
-                id="confirm-password"
-                name="confirm-password"
-                type="password"
-                placeholder="Repita a senha"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-            </div>
+            <Input
+              id="confirm-password"
+              name="confirm-password"
+              type="password"
+              label="Confirmar senha"
+              placeholder="Repita a senha"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              required
+            />
             {fieldErrors.confirmPassword && (
-              <p role="alert" className="error field-error">
+              <p role="alert" className="field-error">
                 {fieldErrors.confirmPassword}
               </p>
             )}
           </div>
 
           {serverError && (
-            <p role="alert" className="error field-error">
+            <p role="alert" className="field-error">
               {serverError}
             </p>
           )}
 
-          <button type="submit" className="btn btn-primary btn-md btn-full" disabled={submitting}>
+          <Button type="submit" fullWidth disabled={submitting}>
             {submitting ? 'Redefinindo...' : 'Redefinir senha'}
-          </button>
+          </Button>
         </form>
       </AuthLayout>
     </section>

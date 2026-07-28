@@ -21,20 +21,20 @@
 
 .arena-card {
   text-align: left;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   overflow: hidden;
   cursor: pointer;
   font-family: var(--font-body);
-  color: var(--text-primary);
+  color: var(--text-heading);
   padding: 0;
   display: flex;
   flex-direction: column;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
 }
 .arena-card:hover:not(:disabled) {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .arena-card:disabled {
   opacity: 0.6;
@@ -43,7 +43,7 @@
 
 .arena-cover {
   height: 88px;
-  background: color-mix(in srgb, var(--sand) 62%, var(--bg));
+  background: color-mix(in srgb, var(--sand-200) 62%, var(--surface-page));
   display: flex;
   align-items: center;
   justify-content: center;
@@ -53,7 +53,7 @@
   font-family: var(--font-display);
   font-weight: 700;
   font-size: 28px;
-  color: color-mix(in srgb, var(--text-primary) 40%, transparent);
+  color: color-mix(in srgb, var(--text-heading) 40%, transparent);
 }
 .arena-cover .live {
   position: absolute;
@@ -93,7 +93,7 @@
   gap: 6px;
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 .sporttag .dot {
   width: 8px;
@@ -114,35 +114,36 @@
   border-radius: var(--radius-pill);
 }
 .badge-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
+  background: var(--state-success-soft);
+  color: var(--state-success);
 }
 /* Admin=coral / Professor=aqua / Aluno=muted (AC de BEAC-1835). Sem tokens
    `coral`/`aqua` dedicados no design system ainda — reaproveita
-   `--sport-beach-tennis` (coral) e `--teal` (aqua), já existentes. */
+   `--sport-beach-tennis` (coral) e `--interactive-primary` (aqua), já
+   existentes. */
 .s1-badge-admin {
   background: color-mix(in srgb, var(--sport-beach-tennis) 22%, transparent);
   color: var(--sport-beach-tennis);
 }
 .s1-badge-professor {
-  background: color-mix(in srgb, var(--teal) 18%, transparent);
-  color: var(--teal);
+  background: color-mix(in srgb, var(--interactive-primary) 18%, transparent);
+  color: var(--interactive-primary);
 }
 .s1-badge-aluno,
 .s1-badge-neutral {
-  background: var(--sand);
+  background: var(--sand-200);
   color: var(--text-muted);
 }
 
 /* ---------- Loading skeleton (3 cards) ---------- */
 .s1-skeleton-card {
   height: 172px;
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-lg);
   background: linear-gradient(
     100deg,
-    var(--surface) 30%,
-    color-mix(in srgb, var(--sand) 55%, var(--surface)) 50%,
-    var(--surface) 70%
+    var(--surface-card) 30%,
+    color-mix(in srgb, var(--sand-200) 55%, var(--surface-card)) 50%,
+    var(--surface-card) 70%
   );
   background-size: 200% 100%;
   animation: s1-skeleton-shimmer 1.4s ease-in-out infinite;
@@ -182,10 +183,10 @@
 }
 
 .s1-confirmation {
-  background: var(--success-bg);
-  color: var(--success-fg);
+  background: var(--state-success-soft);
+  color: var(--state-success);
   padding: 10px 12px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   font-size: 13px;
   font-weight: 600;
   margin: 0;
