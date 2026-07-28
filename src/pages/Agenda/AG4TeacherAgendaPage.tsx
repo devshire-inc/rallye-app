@@ -14,6 +14,7 @@ import {
 import { getMe } from '../../lib/api/me'
 import { getSessionMemberships } from '../../lib/tenantContext'
 import { SKILL_TIERS } from '../../lib/api/skillLevels'
+import { groupByArenaLabel } from '../../lib/agenda/groupByArena'
 import { dayWindow, formatWeekdayDate, isSameDay, weekWindow } from './agendaShared'
 import { bookingsToTeacherAgendaClasses } from './teacherAgendaClasses'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -60,22 +61,6 @@ function rowState(now: Date, booking: Booking): RowState {
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
-}
-
-function groupByArena(bookings: Booking[]): { unitId: string; unitName: string; items: Booking[] }[] {
-  const groups = new Map<string, { unitName: string; items: Booking[] }>()
-  for (const b of bookings) {
-    const g = groups.get(b.unitId) ?? { unitName: b.unitName, items: [] }
-    g.items.push(b)
-    groups.set(b.unitId, g)
-  }
-  return Array.from(groups.entries())
-    .map(([unitId, g]) => ({
-      unitId,
-      unitName: g.unitName,
-      items: g.items.sort((x, y) => new Date(x.startAt).getTime() - new Date(y.startAt).getTime()),
-    }))
-    .sort((a, b) => a.unitName.localeCompare(b.unitName))
 }
 
 function groupByDate(bookings: Booking[]): { label: string; items: Booking[] }[] {
@@ -241,7 +226,7 @@ export default function AG4TeacherAgendaPage() {
     }
   }, [participantsBooking])
 
-  const arenaGroups = useMemo(() => groupByArena(bookings), [bookings])
+  const arenaGroups = useMemo(() => groupByArenaLabel(bookings), [bookings])
   const dateGroups = useMemo(() => groupByDate(bookings), [bookings])
   const teacherClasses = useMemo(() => bookingsToTeacherAgendaClasses(bookings), [bookings])
   const showArenaHeaders = arenaGroups.length > 1
