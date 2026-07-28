@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom'
@@ -109,6 +110,11 @@ describe('AppShell topbar bell + unread badge (BEAC-2021)', () => {
 
     await screen.findByRole('button', { name: /notificações/i })
     expect(document.querySelector('.shell-bell-badge')).not.toBeInTheDocument()
+  })
+
+  it('CSS: topbar applies safe-area-inset-top (BEAC-2056)', () => {
+    const css = readFileSync('src/components/AppShell/AppShell.css', 'utf8')
+    expect(css).toMatch(/env\(safe-area-inset-top/)
   })
 })
 
