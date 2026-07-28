@@ -1,5 +1,6 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { loadUnits } from '../../lib/unitsLocalStore'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -57,9 +58,9 @@ export default function UnitsPage() {
               </div>
               <div className="um">
                 {unit.isSeed ? (
-                  <span className="badge badge-muted">dado de demonstração</span>
+                  <Badge tone="neutral">dado de demonstração</Badge>
                 ) : (
-                  <span className="badge badge-success">Ativa</span>
+                  <Badge tone="success">Ativa</Badge>
                 )}
               </div>
             </div>

@@ -33,7 +33,7 @@
 .ptabs {
   display: flex;
   gap: var(--space-2);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
   margin-bottom: var(--space-5);
 }
 .ptabs button {
@@ -49,8 +49,8 @@
   margin-bottom: -1px;
 }
 .ptabs button.active {
-  color: var(--text-primary);
-  border-bottom-color: var(--accent);
+  color: var(--text-heading);
+  border-bottom-color: var(--interactive-primary);
 }
 
 .dash-body {
@@ -73,10 +73,10 @@
 .menu-list {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
   overflow: hidden;
-  background: var(--surface);
+  background: var(--surface-card);
 }
 
 .role-row {
@@ -85,7 +85,7 @@
   gap: var(--space-3);
   width: 100%;
   padding: 11px var(--space-4);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
   background: none;
   border-left: none;
   border-right: none;
@@ -101,7 +101,7 @@
   cursor: pointer;
 }
 .role-row--clickable:hover {
-  background: var(--sand);
+  background: var(--sand-200);
 }
 
 .role-row__icon {
@@ -109,8 +109,8 @@
   height: 30px;
   flex: none;
   border-radius: 50%;
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -127,26 +127,12 @@
 .rn {
   font-weight: 600;
   font-size: 13.5px;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 .rm {
   font-size: 11.5px;
   color: var(--text-muted);
   margin-top: 1px;
-}
-
-.role-row__badge {
-  flex: none;
-}
-
-.badge {
-  display: inline-flex;
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-  background: var(--sand);
-  color: var(--text-primary);
 }
 
 .chev {
@@ -159,12 +145,12 @@
   display: flex;
   align-items: flex-start;
   gap: 8px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   padding: 11px 14px;
   font-size: 12.5px;
   font-weight: 500;
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .hint {
@@ -202,7 +188,7 @@
   top: 14px;
   bottom: 0;
   width: 2px;
-  background: var(--border);
+  background: var(--border-default);
 }
 .tl-item:last-child::before {
   display: none;
@@ -211,14 +197,14 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  background: var(--sand);
-  border: 2px solid var(--surface);
+  background: var(--sand-200);
+  border: 2px solid var(--surface-card);
   flex: none;
   margin-top: 2px;
   z-index: 1;
 }
 .tl-item.done .tld {
-  background: var(--success-fg);
+  background: var(--state-success);
 }
 .tl-item .tlt {
   font-size: 12.5px;
@@ -234,9 +220,9 @@
 .load-more {
   align-self: flex-start;
   background: none;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-pill);
-  color: var(--text-primary);
+  color: var(--text-heading);
   font-family: var(--font-body);
   font-weight: 600;
   font-size: 12.5px;

@@ -10,8 +10,8 @@
   height: 56px;
   flex: none;
   border-radius: 50%;
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -49,10 +49,10 @@
 .menu-list {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
   overflow: hidden;
-  background: var(--surface);
+  background: var(--surface-card);
 }
 
 .menu-row {
@@ -62,8 +62,8 @@
   padding: 13px var(--space-4);
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--text-primary);
-  border-bottom: 1px solid var(--border);
+  color: var(--text-heading);
+  border-bottom: 1px solid var(--border-default);
 }
 .menu-row:last-child {
   border-bottom: none;

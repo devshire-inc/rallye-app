@@ -1,7 +1,7 @@
 /* Classes traduzidas diretamente do CSS real dos dois Artifacts lidos para
    esta story (ver comentário de pacote em MembersPage.tsx) — mesmos nomes de
-   classe, mesmos tokens (var(--surface)/var(--border)/var(--text-muted)/etc.
-   já definidos em src/index.css), sem paráfrase. */
+   classe; tokens Claude Design (var(--surface-card)/var(--border-default)/
+   var(--text-muted)/etc., BEAC-2109), sem paráfrase. */
 
 .pg-head {
   display: flex;
@@ -34,27 +34,12 @@
   max-width: 560px;
 }
 
-/* .searchbar — AL1 (scr-al1): placeholder "Nome, e-mail ou telefone...". */
+/* .searchbar — AL1 (scr-al1): placeholder "Nome, e-mail ou telefone..." —
+   o box/borda vem do próprio ui/Input (BEAC-2109), este wrapper só limita
+   a largura dentro do .pg-head. */
 .searchbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 0 14px;
-  min-height: 40px;
+  flex: 1;
   max-width: 340px;
-  flex: 1;
-}
-.searchbar input {
-  border: none;
-  background: none;
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: 13px;
-  flex: 1;
-  outline: none;
 }
 
 .ag-list {
@@ -69,25 +54,25 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   cursor: pointer;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
 }
 .p-row:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .p-row .avatar-sm {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: var(--sand);
+  background: var(--sand-200);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -114,25 +99,6 @@
   flex: none;
 }
 
-/* .badge/.badge-neutral — não existiam ainda neste app (só inline style no
-   protótipo); reproduzidas como classes reais, mesmos valores visuais.
-   Neutra (não success/error): o badge aqui é o NOME do papel atual, não um
-   estado ativo/inativo. */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-}
-.badge-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
-}
-
 .hint-note {
   font-size: 11.5px;
   color: var(--text-muted);
@@ -144,8 +110,8 @@
 }
 
 /* Conteúdo do BottomSheet de troca de papel (RolePickerSheet.tsx) — reusa
-   .role-row/.rn/.badge-neutral ("Sistema") do padrão de C3 (scr-c3),
-   .menu-list já usado por outras telas administrativas deste app. */
+   .role-row/.rn do padrão de C3 (scr-c3) e o ui/Badge (BEAC-2109) para
+   "Sistema"; .menu-list já usado por outras telas administrativas deste app. */
 .role-picker {
   display: flex;
   flex-direction: column;
@@ -163,10 +129,10 @@
 .menu-list {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
   overflow: hidden;
-  background: var(--surface);
+  background: var(--surface-card);
 }
 
 .role-row {
@@ -174,7 +140,7 @@
   align-items: center;
   gap: 10px;
   padding: 12px var(--space-4);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
   background: none;
   border-left: none;
   border-right: none;
@@ -191,7 +157,7 @@
   cursor: pointer;
 }
 .role-row--clickable:hover:not(:disabled) {
-  background: var(--sand);
+  background: var(--surface-sunken);
 }
 .role-row:disabled {
   opacity: 0.6;

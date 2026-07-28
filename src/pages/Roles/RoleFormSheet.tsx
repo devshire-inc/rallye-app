@@ -1,4 +1,6 @@
 import { type FormEvent, useState } from 'react'
+import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
+import { Input } from '../../components/ui/Input/Input'
 import { createRole, patchRole, type Role, type RolePermissions } from '../../lib/api/roles'
 import { MODULE_CATALOG } from './moduleCatalog'
 import './RoleFormSheet.css'
@@ -98,18 +100,15 @@ export function RoleFormSheet({ unitId, role, onSuccess, onCancel }: RoleFormShe
       <h2>{isEdit ? 'Editar papel' : 'Criar papel'}</h2>
 
       <form onSubmit={handleSubmit} className="stack">
-        <div className="field">
-          <label htmlFor="role-name">Nome do papel</label>
-          <input
-            id="role-name"
-            className="input"
-            type="text"
-            placeholder="Ex: Recepção"
-            value={name}
-            disabled={submitting}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
+        <Input
+          id="role-name"
+          label="Nome do papel"
+          type="text"
+          placeholder="Ex: Recepção"
+          value={name}
+          disabled={submitting}
+          onChange={(e) => setName(e.target.value)}
+        />
 
         <div className="field">
           <span className="role-form-sheet__checklist-label">Permissões por módulo</span>
@@ -119,24 +118,18 @@ export function RoleFormSheet({ unitId, role, onSuccess, onCancel }: RoleFormShe
               return (
                 <div className="role-module-row" key={module.slug}>
                   <span className="role-module-row__name">{module.label}</span>
-                  <label className="role-module-row__toggle">
-                    <input
-                      type="checkbox"
-                      checked={moduleActions.has('read')}
-                      disabled={submitting}
-                      onChange={() => toggleAction(module.slug, 'read')}
-                    />
-                    Ver
-                  </label>
-                  <label className="role-module-row__toggle">
-                    <input
-                      type="checkbox"
-                      checked={moduleActions.has('write')}
-                      disabled={submitting}
-                      onChange={() => toggleAction(module.slug, 'write')}
-                    />
-                    Editar
-                  </label>
+                  <Checkbox
+                    label="Ver"
+                    checked={moduleActions.has('read')}
+                    disabled={submitting}
+                    onChange={() => toggleAction(module.slug, 'read')}
+                  />
+                  <Checkbox
+                    label="Editar"
+                    checked={moduleActions.has('write')}
+                    disabled={submitting}
+                    onChange={() => toggleAction(module.slug, 'write')}
+                  />
                 </div>
               )
             })}

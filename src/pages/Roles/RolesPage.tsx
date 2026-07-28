@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { listRoles, type Role } from '../../lib/api/roles'
@@ -159,7 +160,7 @@ export default function RolesPage() {
                         <div className="rn">{role.name}</div>
                         <div className="rm">{permissionSummary(role.permissions)}</div>
                       </div>
-                      <span className="badge role-row__badge">Sistema</span>
+                      <Badge tone="neutral">Sistema</Badge>
                     </div>
                   ))}
                 </div>

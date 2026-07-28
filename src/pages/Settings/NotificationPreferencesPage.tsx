@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Switch } from '../../components/ui/Switch/Switch'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   getNotificationPreferences,
@@ -174,17 +175,12 @@ export default function NotificationPreferencesPage() {
           {group.items.map((item) => (
             <div className="menu-row" key={item.eventType}>
               <span>{item.label}</span>
-              <label className="switch">
-                <input
-                  type="checkbox"
-                  checked={enabledFor(item.eventType)}
-                  aria-label={item.label}
-                  disabled={savingType === item.eventType}
-                  onChange={(e) => handleToggle(item.eventType, e.target.checked)}
-                />
-                <span className="tr" />
-                <span className="th" />
-              </label>
+              <Switch
+                ariaLabel={item.label}
+                checked={enabledFor(item.eventType)}
+                disabled={savingType === item.eventType}
+                onChange={(checked) => handleToggle(item.eventType, checked)}
+              />
             </div>
           ))}
         </div>

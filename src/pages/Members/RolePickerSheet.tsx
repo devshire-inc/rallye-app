@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { Badge } from '../../components/ui/Badge/Badge'
 import { listRoles, type Role } from '../../lib/api/roles'
 import { patchMemberRole, type Member } from '../../lib/api/members'
 import './MembersPage.css'
@@ -96,7 +97,7 @@ export function RolePickerSheet({ unitId, member, onSuccess, onCancel }: RolePic
               <div style={{ flex: 1 }}>
                 <div className="rn">{role.name}</div>
               </div>
-              {role.isSystemRole ? <span className="badge badge-neutral">Sistema</span> : null}
+              {role.isSystemRole ? <Badge tone="neutral">Sistema</Badge> : null}
               {applyingRoleId === role.id ? <span className="hint">aplicando…</span> : null}
             </button>
           ))}
