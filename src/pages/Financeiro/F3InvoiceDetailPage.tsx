@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
+import { Input } from '../../components/ui/Input/Input'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { Toast } from '../../components/Toast'
@@ -14,7 +16,7 @@ import {
   type InvoiceDetail,
   type RefundType,
 } from '../../lib/api/invoices'
-import { statusBadgeClass, STATUS_LABEL } from '../../lib/invoiceStatus'
+import { STATUS_LABEL } from '../../lib/invoiceStatus'
 import { formatBRL } from '../../lib/money'
 import './Financeiro.css'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -46,6 +48,21 @@ const EVENT_LABEL: Record<string, string> = {
   paga: 'Pagamento registrado',
   cancelada: 'Fatura cancelada',
   estornada: 'Fatura estornada',
+}
+
+/** Mesmo mapeamento de src/lib/invoiceStatus.ts (statusBadgeClass), como
+ * `tone` de ui/Badge em vez de classe CSS crua — mesmo padrão de
+ * STATUS_BADGE_TONE em TeachersListPage.tsx/StudentProfilePage.tsx. Não
+ * altera invoiceStatus.ts (statusBadgeClass ainda é usado por
+ * F5MyInvoicesPage.tsx e PL4MySubscriptionPage.tsx, fora do escopo desta
+ * task). */
+const STATUS_BADGE_TONE: Record<InvoiceDetail['status'], BadgeProps['tone']> = {
+  gerada: 'neutral',
+  enviada: 'warning',
+  paga: 'success',
+  atrasada: 'danger',
+  cancelada: 'neutral',
+  estornada: 'info',
 }
 
 /**
@@ -198,9 +215,9 @@ export default function F3InvoiceDetailPage() {
         <div className="dash-body">
           <div>
             <h1>Fatura</h1>
-            <span className={statusBadgeClass(state.invoice.status)}>
+            <Badge tone={STATUS_BADGE_TONE[state.invoice.status]}>
               {STATUS_LABEL[state.invoice.status]}
-            </span>
+            </Badge>
           </div>
 
           <div className="card">
@@ -316,18 +333,14 @@ export default function F3InvoiceDetailPage() {
       >
         <div className="ptab-panel">
           <h2 className="sec-head-title">Registrar pagamento manual</h2>
-          <div className="field">
-            <label htmlFor="payment-method">Método de pagamento</label>
-            <div className="control">
-              <input
-                id="payment-method"
-                type="text"
-                placeholder="Ex.: dinheiro, pix, cartão"
-                value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value)}
-              />
-            </div>
-          </div>
+          <Input
+            id="payment-method"
+            label="Método de pagamento"
+            type="text"
+            placeholder="Ex.: dinheiro, pix, cartão"
+            value={paymentMethod}
+            onChange={(e) => setPaymentMethod(e.target.value)}
+          />
           <button
             type="button"
             className="btn btn-primary btn-full"
@@ -374,19 +387,15 @@ export default function F3InvoiceDetailPage() {
             </div>
 
             {refundType === 'parcial' ? (
-              <div className="field">
-                <label htmlFor="refund-amount">Valor a estornar</label>
-                <div className="control">
-                  <input
-                    id="refund-amount"
-                    type="text"
-                    inputMode="decimal"
-                    placeholder="0,00"
-                    value={refundAmount}
-                    onChange={(e) => setRefundAmount(e.target.value)}
-                  />
-                </div>
-              </div>
+              <Input
+                id="refund-amount"
+                label="Valor a estornar"
+                type="text"
+                inputMode="decimal"
+                placeholder="0,00"
+                value={refundAmount}
+                onChange={(e) => setRefundAmount(e.target.value)}
+              />
             ) : null}
 
             <div className="refund-rule-toast" role="status">

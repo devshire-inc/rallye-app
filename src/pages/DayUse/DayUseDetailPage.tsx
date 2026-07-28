@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getDayUseDetail, type DayUseDetail } from '../../lib/api/dayUseFlow'
 import { formatBRL } from '../../lib/money'
@@ -133,9 +135,9 @@ function ArenaDetail({ detail, onReserve }: { detail: DayUseDetail; onReserve: (
       {allSports.length > 0 ? (
         <div className="du2-sports">
           {allSports.map((s) => (
-            <span key={s} className="badge b-neutral">
+            <Badge key={s} tone="neutral">
               {sportLabel(s)}
-            </span>
+            </Badge>
           ))}
         </div>
       ) : null}
@@ -175,16 +177,17 @@ function ArenaDetail({ detail, onReserve }: { detail: DayUseDetail; onReserve: (
         <p className="hint">Day Use não disponível para esta data.</p>
       )}
 
-      <button
-        type="button"
-        className="btn btn-primary du2-cta"
+      <Button
+        variant="primary"
+        size="lg"
+        fullWidth
         disabled={!detail.dayUse || detail.dayUse.lotado}
         onClick={onReserve}
       >
         {detail.dayUse && !detail.dayUse.lotado
           ? `RESERVAR DAY USE — ${formatBRL(detail.dayUse.price)}`
           : 'LOTADO'}
-      </button>
+      </Button>
     </>
   )
 }

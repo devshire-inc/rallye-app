@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { Card } from '../../components/ui/Card/Card'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { getMe } from '../../lib/api/me'
@@ -248,14 +252,14 @@ export default function PL5ChangePlanPage() {
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
-        <button
-          type="button"
-          className="btn-back"
-          aria-label="Voltar"
+        <IconButton
+          variant="ghost"
+          size="sm"
+          label="Voltar"
           onClick={() => unitId && navigate(`/units/${unitId}/my-subscription`)}
         >
           ←
-        </button>
+        </IconButton>
         <h1>Trocar Plano</h1>
       </div>
 
@@ -267,20 +271,22 @@ export default function PL5ChangePlanPage() {
 
         {state.status === 'ready' ? (
           <>
-            <div className="card current-plan-card">
-              <h3>{state.subscription.plan.name}</h3>
-              <div className="kv">
-                <span className="k">Recorrência</span>
+            <Card padding="var(--space-4)">
+              <div className="current-plan-card">
+                <h3>{state.subscription.plan.name}</h3>
+                <div className="kv">
+                  <span className="k">Recorrência</span>
+                  <span className="v">
+                    {CYCLE_LABELS[state.subscription.planVariant.billingCycle]} ·{' '}
+                    {formatBRL(state.subscription.planVariant.finalPrice)}/mês
+                  </span>
+                </div>
                 <span className="v">
-                  {CYCLE_LABELS[state.subscription.planVariant.billingCycle]} ·{' '}
-                  {formatBRL(state.subscription.planVariant.finalPrice)}/mês
+                  {state.subscription.remainingDays}{' '}
+                  {state.subscription.remainingDays === 1 ? 'dia restante' : 'dias restantes'}
                 </span>
               </div>
-              <span className="v">
-                {state.subscription.remainingDays}{' '}
-                {state.subscription.remainingDays === 1 ? 'dia restante' : 'dias restantes'}
-              </span>
-            </div>
+            </Card>
 
             <h2 className="sec-head-title">Selecione o novo plano</h2>
             <div className="plan-options">
@@ -314,9 +320,9 @@ export default function PL5ChangePlanPage() {
                       <span className="opt-price">{formatBRL(option.finalPrice)}/mês</span>
                     </span>
                     {!option.isCurrent && diff !== 0 ? (
-                      <span className={`badge ${diff > 0 ? 'b-warning' : 'b-success'}`}>
+                      <Badge tone={diff > 0 ? 'warning' : 'success'}>
                         {diff > 0 ? '↑ Upgrade' : '↓ Downgrade'}
-                      </span>
+                      </Badge>
                     ) : null}
                   </label>
                 )
@@ -324,38 +330,40 @@ export default function PL5ChangePlanPage() {
             </div>
 
             {preview && selectedOption ? (
-              <div className="card calc-card">
-                <h2 className="sec-head-title">Cálculo pro-rata</h2>
-                {preview.diferenca > 0 ? (
-                  <>
-                    <p className="calc-row">
-                      Crédito restante: {formatBRL(preview.creditRestante)}
+              <Card padding="var(--space-4)">
+                <div className="calc-card">
+                  <h2 className="sec-head-title">Cálculo pro-rata</h2>
+                  {preview.diferenca > 0 ? (
+                    <>
+                      <p className="calc-row">
+                        Crédito restante: {formatBRL(preview.creditRestante)}
+                      </p>
+                      <p className="calc-row">
+                        Novo valor ({preview.remaining}d): {formatBRL(preview.novoValor)}
+                      </p>
+                      <p className="calc-row total">Diferença: {formatBRL(preview.diferenca)}</p>
+                    </>
+                  ) : (
+                    <p className="calc-row total">
+                      Crédito de {formatBRL(-preview.diferenca)} aplicado
                     </p>
-                    <p className="calc-row">
-                      Novo valor ({preview.remaining}d): {formatBRL(preview.novoValor)}
-                    </p>
-                    <p className="calc-row total">Diferença: {formatBRL(preview.diferenca)}</p>
-                  </>
-                ) : (
-                  <p className="calc-row total">
-                    Crédito de {formatBRL(-preview.diferenca)} aplicado
-                  </p>
-                )}
-              </div>
+                  )}
+                </div>
+              </Card>
             ) : null}
 
             {confirmError ? <p role="alert">{confirmError}</p> : null}
 
-            <button
-              type="button"
-              className="btn btn-primary btn-full"
+            <Button
+              variant="primary"
+              fullWidth
               disabled={!selectedOption || confirming}
               onClick={handleConfirm}
             >
               {preview && preview.diferenca > 0
                 ? `CONFIRMAR TROCA — ${formatBRL(preview.diferenca)}`
                 : 'CONFIRMAR TROCA'}
-            </button>
+            </Button>
           </>
         ) : null}
       </div>
@@ -372,13 +380,13 @@ export default function PL5ChangePlanPage() {
             O crédito é aplicado nas próximas faturas — a troca de plano nunca gera devolução em
             dinheiro.
           </p>
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => unitId && navigate(`/units/${unitId}/my-subscription`)}
           >
             Voltar
-          </button>
+          </Button>
         </div>
       </BottomSheet>
     </AppShell>

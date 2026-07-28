@@ -1,10 +1,13 @@
 /* DU5 — Config Day Use (BEAC-1955, story BEAC-1712). Self-contained: redefine
  * as classes genéricas que esta página usa (.pg-head/.dash-body/.toast/
- * .switch/.tabs2/.form-grid/.hint-note) em vez de depender de outra página já
- * ter carregado o CSS equivalente — mesmo padrão de ArenaSettingsPage.css/
+ * .tabs2/.form-grid/.hint-note) em vez de depender de outra página já ter
+ * carregado o CSS equivalente — mesmo padrão de ArenaSettingsPage.css/
  * TurmasListPage.css. Valores copiados diretamente do protótipo real
  * (Artifact "Rallye — Financeiro · Saque Noturno", <style> global, seção
- * scr-du5), sem reinterpretação.
+ * scr-du5), sem reinterpretação. Toggle por quadra migrado para ui/Switch,
+ * Preço/Vagas para ui/Input e "Ver reservas" para ui/Button (BEAC-2114,
+ * restyle Claude Design) — regra .switch removida, o componente já traz seu
+ * próprio CSS tokenizado.
  */
 
 .pg-head {
@@ -40,22 +43,22 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   padding: 11px 14px;
   font-size: 13px;
   font-weight: 500;
   text-align: left;
 }
 .toast-neutral {
-  background: var(--surface);
-  color: var(--text-primary);
-  border: 1px solid var(--border);
+  background: var(--surface-card);
+  color: var(--text-heading);
+  border: 1px solid var(--border-default);
 }
 
 .card.day-use-card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
 }
 
@@ -82,46 +85,6 @@
   color: var(--text-muted);
 }
 
-.switch {
-  position: relative;
-  width: 42px;
-  height: 24px;
-  flex: none;
-}
-.switch input {
-  opacity: 0;
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  cursor: pointer;
-  z-index: 2;
-  margin: 0;
-}
-.switch .tr {
-  position: absolute;
-  inset: 0;
-  border-radius: var(--radius-pill);
-  background: var(--sand);
-  transition: background var(--motion-fast);
-}
-.switch .th {
-  position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  background: var(--surface);
-  transition: left var(--motion-fast);
-  border: 1px solid var(--border);
-}
-.switch input:checked ~ .tr {
-  background: var(--teal);
-}
-.switch input:checked ~ .th {
-  left: 21px;
-}
-
 .form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -142,8 +105,15 @@
   align-items: center;
   gap: 8px;
 }
-.due-time-range input {
+.due-time-input {
   flex: 1;
+  height: var(--control-h-sm);
+  padding: 0 var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--text-heading);
+  font: var(--type-body);
 }
 .due-time-range span {
   color: var(--text-muted);
@@ -157,8 +127,8 @@
 .tabs2 button {
   padding: 7px 15px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-weight: 600;
@@ -166,15 +136,15 @@
   cursor: pointer;
 }
 .tabs2 button.active {
-  background: var(--sand);
-  border-color: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  border-color: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .due-error {
   margin: var(--space-2) 0 0;
   font-size: 11.5px;
-  color: var(--error-fg);
+  color: var(--state-danger);
 }
 
 .hint {

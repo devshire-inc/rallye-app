@@ -6,7 +6,21 @@
    (ver StudentProfilePage.css/RolesPage.css). Classes genéricas (.pg-head/
    .dash-body/.badge/.hint) com os MESMOS valores/tokens já usados nas
    outras telas desta base (Teachers/Turmas/Students) — não uma variação
-   nova. */
+   nova.
+
+   BEAC-2111 (restyle Claude Design de F1/F2/F3): tokens legados (var(--bg)/
+   var(--surface)/var(--border)/var(--text-primary)/var(--teal)/var(--sand)/
+   var(--data)/etc., ponte BEAC-2063) trocados pelos tokens reais
+   (var(--surface-page)/var(--surface-card)/var(--border-default)/
+   var(--text-heading)/var(--interactive-primary)/var(--sand-200)/
+   var(--state-info)/etc.) — MESMOS valores visuais, só sem indireção.
+   Seletores/classes preservados intactos (não removidos nem renomeados):
+   F4CreateInvoicePage.tsx/F5MyInvoicesPage.tsx (fora desta task, começam
+   depois) ainda consomem `.card`/`.badge`/`.b-*`/`.tabs2`/`.pills` crus
+   direto desta folha. `.searchbar`/`.unit-filter select`/`.month-nav
+   button` foram simplificados porque só F1/F2 os usavam e passaram a usar
+   ui/Input, ui/Select e ui/IconButton respectivamente (ver comentário de
+   pacote nos .tsx). */
 
 .pg-head {
   display: flex;
@@ -44,8 +58,8 @@
   flex-wrap: wrap;
 }
 .tabs2 button {
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font: inherit;
   font-size: 12px;
@@ -54,13 +68,13 @@
   border-radius: var(--radius-pill);
   cursor: pointer;
   transition:
-    border-color var(--motion-fast),
-    color var(--motion-fast);
+    border-color var(--dur-fast),
+    color var(--dur-fast);
 }
 .tabs2 button.active {
-  border-color: var(--teal);
-  color: var(--text-primary);
-  background: var(--data-soft);
+  border-color: var(--interactive-primary);
+  color: var(--text-heading);
+  background: var(--state-info-soft);
 }
 .tabs2 button .count {
   margin-left: 4px;
@@ -74,27 +88,15 @@
   font-weight: 600;
   font-size: 13px;
 }
-.month-nav button {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 14px;
-  line-height: 1;
-}
-.month-nav button:hover {
-  border-color: var(--teal);
-}
 
-.unit-filter select,
+/* month-select (F2, filtro por mês) — ainda cru (não há variante de
+   ui/DatePicker com granularidade de mês); .unit-filter/.month-nav button
+   saíram daqui: F1 passou a usar ui/Select e ui/IconButton (BEAC-2111). */
 .month-select {
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
-  border-radius: var(--radius-input);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
+  border-radius: var(--radius-sm);
   padding: 6px 10px;
   font: inherit;
   font-size: 12px;
@@ -102,9 +104,9 @@
 
 /* Cards genéricos */
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
 }
 .card h2 {
@@ -127,24 +129,24 @@
   border-radius: var(--radius-pill);
 }
 .badge.b-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
+  background: var(--state-success-soft);
+  color: var(--state-success);
 }
 .badge.b-warning {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
+  background: var(--state-warning-soft);
+  color: var(--state-warning);
 }
 .badge.b-error {
-  background: var(--error-bg);
-  color: var(--error-fg);
+  background: var(--state-danger-soft);
+  color: var(--state-danger);
 }
 .badge.b-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }
 .badge.b-info {
-  background: var(--data-soft);
-  color: var(--data);
+  background: var(--state-info-soft);
+  color: var(--state-info);
 }
 
 /* Lista de faturas (F2/F5) */
@@ -157,19 +159,19 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 12px 14px;
   cursor: pointer;
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
 }
 .inv-row:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .inv-row .iw {
   flex: 1;
@@ -208,26 +210,12 @@
   padding: 0 var(--space-1);
 }
 
+/* .searchbar — o box/borda vem do próprio ui/Input (F2, BEAC-2111), este
+   wrapper só limita a largura dentro do .pg-head (mesmo padrão de
+   MembersPage.css, BEAC-2109). */
 .searchbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 0 14px;
-  min-height: 40px;
+  flex: 1;
   max-width: 320px;
-  flex: 1;
-}
-.searchbar input {
-  border: none;
-  background: none;
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: 13px;
-  flex: 1;
-  outline: none;
 }
 
 .hint {
@@ -240,7 +228,7 @@
   justify-content: space-between;
   font-size: 13px;
   padding: 6px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
 }
 .kv:last-child {
   border-bottom: none;
@@ -267,16 +255,16 @@
 .timeline .ev .date {
   flex: none;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 
 .pay-link-box {
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-page);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   font-size: 12px;
 }
@@ -299,8 +287,8 @@
   flex-wrap: wrap;
 }
 .pills button {
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font: inherit;
   font-size: 12.5px;
@@ -310,9 +298,9 @@
   cursor: pointer;
 }
 .pills button.active {
-  border-color: var(--teal);
-  color: var(--on-accent);
-  background: var(--accent);
+  border-color: var(--interactive-primary);
+  color: var(--text-on-brand);
+  background: var(--interactive-primary);
 }
 
 .checkrow {
@@ -329,7 +317,7 @@
 }
 .balance-card .full {
   grid-column: 1 / -1;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-default);
   padding-top: var(--space-2);
   margin-top: 2px;
   display: flex;
@@ -345,10 +333,10 @@
   font-weight: 700;
 }
 .balance-card .val.success {
-  color: var(--success-fg);
+  color: var(--state-success);
 }
 .balance-card .val.error {
-  color: var(--error-fg);
+  color: var(--state-danger);
 }
 .balance-card .delta {
   font-size: 11px;
@@ -382,13 +370,13 @@
   flex: 1;
   height: 8px;
   border-radius: var(--radius-pill);
-  background: var(--sand);
+  background: var(--sand-200);
   overflow: hidden;
 }
 .cat-bar-row .fill {
   height: 100%;
   border-radius: var(--radius-pill);
-  background: var(--data);
+  background: var(--state-info);
 }
 .cat-bar-row .amt {
   flex: none;
@@ -438,16 +426,16 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   font-size: 12.5px;
   margin: 0;
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .btn-danger {
-  background: var(--error-fg);
-  color: #fff;
+  background: var(--state-danger);
+  color: var(--text-on-brand);
 }
 .btn-danger:hover:not(:disabled) {
   filter: brightness(1.08);

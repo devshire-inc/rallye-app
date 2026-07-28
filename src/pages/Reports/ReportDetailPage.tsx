@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Input } from '../../components/ui/Input/Input'
+import { Select } from '../../components/ui/Select/Select'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   getNetworkReport,
@@ -60,6 +62,14 @@ function currentPeriod(): string {
  * (tenantContext.ts, já derivado das memberships da sessão) — não de
  * `:unitId`, que continua no path só como âncora do link "‹ Relatórios" e
  * pra permitir voltar a um scope por-unit.
+ *
+ * BEAC-2112 (restyle Claude Design): os 3 filtros (Período/Dias de
+ * atraso/Esporte) passaram a usar ui/Input e ui/Select (mesmo padrão de
+ * ReportsHubPage.tsx/F1CashFlowPage.tsx) — o nome acessível de cada campo
+ * (`getByLabelText`) não muda, só a associação passou de `aria-label` solto
+ * pra `<label htmlFor>` real. Os botões "Exportar (PDF/CSV)" e "ENVIAR
+ * LEMBRETE EM MASSA" continuam `.btn` cru: precisam do atributo `title`
+ * (tooltip explicativo do estado desabilitado), que ui/Button não expõe.
  */
 export default function ReportDetailPage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -175,48 +185,40 @@ export default function ReportDetailPage() {
 
       <div className="dash-body">
         <div className="report-filters">
-          <label className="report-filter">
-            <span>Período</span>
-            <input
-              type="month"
-              value={period}
-              onChange={(e) => setPeriod(e.target.value)}
-              aria-label="Período"
-            />
-          </label>
+          <Input
+            id="report-period"
+            label="Período"
+            type="month"
+            value={period}
+            onChange={(e) => setPeriod(e.target.value)}
+          />
 
           {catalogEntry.type === 'inadimplencia' ? (
-            <label className="report-filter">
-              <span>Dias de atraso</span>
-              <select
-                value={daysOverdue}
-                onChange={(e) => setDaysOverdue(e.target.value)}
-                aria-label="Dias de atraso"
-              >
-                <option value="7">7+ dias</option>
-                <option value="15">15+ dias</option>
-                <option value="30">30+ dias</option>
-                <option value="60">60+ dias</option>
-              </select>
-            </label>
+            <Select
+              id="report-days-overdue"
+              label="Dias de atraso"
+              value={daysOverdue}
+              onChange={(e) => setDaysOverdue(e.target.value)}
+              options={[
+                { value: '7', label: '7+ dias' },
+                { value: '15', label: '15+ dias' },
+                { value: '30', label: '30+ dias' },
+                { value: '60', label: '60+ dias' },
+              ]}
+            />
           ) : null}
 
           {catalogEntry.type === 'day-use' ? (
-            <label className="report-filter">
-              <span>Esporte</span>
-              <select
-                value={esporte}
-                onChange={(e) => setEsporte(e.target.value)}
-                aria-label="Esporte"
-              >
-                <option value="">Todos</option>
-                {SPORTS.map((sport) => (
-                  <option key={sport.slug} value={sport.slug}>
-                    {sport.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Select
+              id="report-esporte"
+              label="Esporte"
+              value={esporte}
+              onChange={(e) => setEsporte(e.target.value)}
+              options={[
+                { value: '', label: 'Todos' },
+                ...SPORTS.map((sport) => ({ value: sport.slug, label: sport.label })),
+              ]}
+            />
           ) : null}
         </div>
 

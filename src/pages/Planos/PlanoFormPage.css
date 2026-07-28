@@ -1,5 +1,12 @@
 /* PL2 — Criar/Editar Plano (BEAC-1935). Reaproveita o vocabulário de tokens
-   já estabelecido por PlanosListPage.css/TurmasListPage.css. */
+   já estabelecido por PlanosListPage.css/TurmasListPage.css. Botão "Voltar",
+   campos de texto/número e pills de Tipo migrados pros componentes
+   ui/IconButton, ui/Input, ui/Segmented e ui/Checkbox (BEAC-2113, restyle
+   Claude Design) — `.field` sobrevive só pro rótulo "Tipo" (que envolve o
+   Segmented, não um input nativo). Input de desconto por variante
+   (`.variant-discount input`) continua raw: é um campo numérico compacto,
+   inline na linha da variante, onde o layout label-acima do ui/Input não
+   caberia sem quebrar o alinhamento com checkbox/preço na mesma linha. */
 
 .plano-form {
   display: flex;
@@ -17,15 +24,6 @@
   font-weight: 600;
   font-size: 22px;
   margin: 0;
-}
-.btn-back {
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px 8px;
-  line-height: 1;
 }
 
 .form-body {
@@ -48,49 +46,15 @@
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
-.field input {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input, 8px);
-  padding: 10px 12px;
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: 13px;
-}
-
-.tabs2 {
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-.tabs2 button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 15px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
-}
-.tabs2 button.active {
-  background: var(--sand);
-  border-color: var(--sand);
-  color: var(--text-primary);
-}
 
 .variants-section {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 12px;
-  background: var(--surface);
+  background: var(--surface-card);
 }
 .variants-title {
   font-size: 11.5px;
@@ -105,7 +69,7 @@
   gap: 10px;
   flex-wrap: wrap;
   padding: 6px 0;
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-default);
 }
 .variant-row:first-of-type {
   border-top: none;
@@ -132,11 +96,11 @@
 }
 .variant-discount input {
   width: 56px;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: var(--surface-page);
+  border: 1px solid var(--border-default);
   border-radius: 6px;
   padding: 4px 6px;
-  color: var(--text-primary);
+  color: var(--text-heading);
   font-family: var(--font-body);
   font-size: 12px;
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Button } from '../../components/ui/Button/Button'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   bookDayUse,
@@ -217,14 +218,9 @@ function ConfirmSummary({
         <p role="alert">Não foi possível confirmar a reserva. Tente novamente.</p>
       ) : null}
 
-      <button
-        type="button"
-        className="btn btn-primary du3-cta"
-        disabled={confirming}
-        onClick={onConfirm}
-      >
+      <Button variant="primary" size="lg" fullWidth disabled={confirming} onClick={onConfirm}>
         {confirming ? 'CONFIRMANDO…' : `CONFIRMAR E PAGAR — ${formatBRL(dayUse.price)}`}
-      </button>
+      </Button>
     </>
   )
 }
@@ -233,9 +229,9 @@ function SlotTakenPanel({ onBack }: { onBack: () => void }) {
   return (
     <div className="card du3-slot-taken">
       <p role="alert">Ops! Última vaga foi preenchida.</p>
-      <button type="button" className="btn btn-ghost" onClick={onBack}>
+      <Button variant="ghost" onClick={onBack}>
         ‹ Voltar
-      </button>
+      </Button>
     </div>
   )
 }

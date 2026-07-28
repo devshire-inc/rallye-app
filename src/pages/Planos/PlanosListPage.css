@@ -1,7 +1,9 @@
 /* PL1 — Catálogo de Planos (Admin) (BEAC-1934). Reaproveita o vocabulário de
    tokens/classes já estabelecido por TurmasListPage.css (.pg-head, .sdot,
-   .dash-body, .hint, .badge, .sec-head-title) — self-contained (não assume
-   que outra página já carregou o CSS equivalente). */
+   .dash-body, .hint, .sec-head-title) — self-contained (não assume que outra
+   página já carregou o CSS equivalente). Botão "Voltar" e badge Ativo/
+   Inativo migrados para os componentes ui/IconButton e ui/Badge (BEAC-2113,
+   restyle Claude Design). */
 
 .pg-head {
   display: flex;
@@ -18,15 +20,6 @@
 }
 .pg-head .spacer {
   flex: 1;
-}
-.btn-back {
-  background: none;
-  border: none;
-  color: var(--text-primary);
-  font-size: 18px;
-  cursor: pointer;
-  padding: 4px 8px;
-  line-height: 1;
 }
 
 .dash-body {
@@ -70,19 +63,19 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   cursor: pointer;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
 }
 .plan-card:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .plan-card.inactive {
   opacity: 0.55;
@@ -101,26 +94,6 @@
 }
 .plan-card .mt {
   font-size: 11.5px;
-  color: var(--text-muted);
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border-radius: var(--radius-pill);
-  font-size: 9.5px;
-  padding: 2px 8px;
-  flex: none;
-}
-.badge-ativo {
-  background: var(--positive-bg, var(--sand));
-  color: var(--positive-fg, var(--text-primary));
-}
-.badge-inativa {
-  background: var(--sand);
   color: var(--text-muted);
 }
 
