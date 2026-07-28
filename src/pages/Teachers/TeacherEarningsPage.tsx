@@ -2,15 +2,9 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
-import {
-  getEarnings,
-  type Earnings,
-  type EarningsBreakdownEntry,
-  type EarningsHistoryEntry,
-} from '../../lib/api/earnings'
-import { getTeacher, type RemunerationModel } from '../../lib/api/teachers'
-import { formatBRL } from '../../lib/money'
-import { formatRemunerationSummary } from './teachersShared'
+import { getEarnings, type Earnings } from '../../lib/api/earnings'
+import { getTeacher } from '../../lib/api/teachers'
+import { EarningsSummary } from './EarningsSummary'
 import '../../components/AuthLayout/AuthLayout.css'
 import '../Students/NewStudentPage.css'
 import './TeacherProfilePage.css'
@@ -20,35 +14,6 @@ type LoadState =
   | { status: 'loading' }
   | { status: 'error' }
   | { status: 'ready'; earnings: Earnings; remunerationValue: number }
-
-const MONTH_ABBREV = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
-const MONTH_FULL = [
-  'Janeiro',
-  'Fevereiro',
-  'Março',
-  'Abril',
-  'Maio',
-  'Junho',
-  'Julho',
-  'Agosto',
-  'Setembro',
-  'Outubro',
-  'Novembro',
-  'Dezembro',
-]
-
-function monthOf(period: string): number {
-  return Number(period.slice(5, 7)) - 1
-}
-function yearOf(period: string): string {
-  return period.slice(0, 4)
-}
-function monthAbbrev(period: string): string {
-  return MONTH_ABBREV[monthOf(period)] ?? period
-}
-function monthYearLabel(period: string): string {
-  return `${MONTH_FULL[monthOf(period)] ?? period} ${yearOf(period)}`
-}
 
 /**
  * PR4 — Meus Ganhos (BEAC-1700/BEAC-1884, story BEAC-1699/feature BEAC-1635
@@ -102,7 +67,6 @@ export default function TeacherEarningsPage() {
   const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, teacherId } = useParams<{ unitId: string; teacherId: string }>()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
-  const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null)
 
   useEffect(() => {
     if (!teacherId) return
@@ -120,8 +84,6 @@ export default function TeacherEarningsPage() {
           earnings: earningsResult.earnings,
           remunerationValue: teacherResult.teacher.remunerationValue,
         })
-        const history = earningsResult.earnings.history
-        if (history.length > 0) setSelectedPeriod(history[history.length - 1].period)
       },
     )
     return () => {
@@ -143,185 +105,12 @@ export default function TeacherEarningsPage() {
       {state.status === 'error' ? <p role="alert">Não foi possível carregar seus ganhos.</p> : null}
 
       {state.status === 'ready' ? (
-        <div className="dash-body earnings-panel">
-          <div className="readonly-banner" role="status">
-            Somente leitura — os valores são calculados automaticamente pelo sistema (fechamento
-            mensal) e conferidos pelo admin.
-          </div>
-
-          <div className="stat4">
-            <Stat
-              label="Modelo"
-              value={formatRemunerationSummary(state.earnings.remunerationModel, state.remunerationValue)}
-            />
-            <Stat label="Aulas dadas" value={String(state.earnings.classesGivenInPeriod)} />
-            <Stat label="A receber" value={formatBRL(state.earnings.pendingAmount)} pending />
-            <Stat label="Já recebido" value={formatBRL(state.earnings.paidAmount)} received />
-          </div>
-
-          <MonthSelector
-            history={state.earnings.history}
-            selectedPeriod={selectedPeriod}
-            onSelect={setSelectedPeriod}
-          />
-
-          <div className="chart-wrap">
-            <div className="sec-head" style={{ marginBottom: 8 }}>
-              <h2 style={{ fontSize: 13 }}>Histórico mensal</h2>
-            </div>
-            <MonthlyChart
-              history={state.earnings.history}
-              selectedPeriod={selectedPeriod}
-              onSelect={setSelectedPeriod}
-            />
-          </div>
-
-          <ClassBreakdownSection
-            breakdown={state.earnings.breakdown}
-            remunerationModel={state.earnings.remunerationModel}
-          />
-
-          <p className="hint">
-            Cálculo em <code>commission_records</code>, fechamento por cron mensal.
-          </p>
+        <div className="dash-body">
+          {/* key={teacherId}: força remontar (e reiniciar o mês selecionado)
+              quando o :teacherId da rota muda sem desmontar esta página. */}
+          <EarningsSummary key={teacherId} earnings={state.earnings} remunerationValue={state.remunerationValue} />
         </div>
       ) : null}
     </AppShell>
-  )
-}
-
-function Stat({
-  label,
-  value,
-  pending,
-  received,
-}: {
-  label: string
-  value: string
-  pending?: boolean
-  received?: boolean
-}) {
-  const style = pending
-    ? { fontSize: 17, color: 'var(--warning-fg)' }
-    : received
-      ? { fontSize: 17, color: 'var(--success-fg)' }
-      : undefined
-  return (
-    <div className="s">
-      <div className="l">{label}</div>
-      <div className="v" style={style}>
-        {value}
-      </div>
-    </div>
-  )
-}
-
-function MonthSelector({
-  history,
-  selectedPeriod,
-  onSelect,
-}: {
-  history: EarningsHistoryEntry[]
-  selectedPeriod: string | null
-  onSelect: (period: string) => void
-}) {
-  return (
-    <div className="tabs2 month-selector" role="tablist" aria-label="Selecionar mês">
-      {history.map((entry) => (
-        <button
-          key={entry.period}
-          type="button"
-          role="tab"
-          aria-selected={entry.period === selectedPeriod}
-          className={entry.period === selectedPeriod ? 'active' : ''}
-          onClick={() => onSelect(entry.period)}
-        >
-          {monthYearLabel(entry.period)}
-        </button>
-      ))}
-    </div>
-  )
-}
-
-function MonthlyChart({
-  history,
-  selectedPeriod,
-  onSelect,
-}: {
-  history: EarningsHistoryEntry[]
-  selectedPeriod: string | null
-  onSelect: (period: string) => void
-}) {
-  const maxAmount = Math.max(1, ...history.map((h) => h.amount))
-  return (
-    <div className="mini-bars">
-      {history.map((entry) => (
-        <button
-          key={entry.period}
-          type="button"
-          className="mb mb--button"
-          onClick={() => onSelect(entry.period)}
-        >
-          <div
-            className="bar"
-            style={{
-              height: `${Math.max(4, (entry.amount / maxAmount) * 52)}px`,
-              background: entry.period === selectedPeriod ? 'var(--accent)' : undefined,
-            }}
-            aria-label={`${monthAbbrev(entry.period)}: ${formatBRL(entry.amount)}`}
-          />
-          <span>{monthAbbrev(entry.period)}</span>
-        </button>
-      ))}
-    </div>
-  )
-}
-
-// EMPTY_BREAKDOWN_REASON: cópia para cada motivo pelo qual breakdown[] pode
-// vir vazio (BEAC-1885/BEAC-1701) — nenhum é um erro, cada um é o
-// comportamento correto e documentado do modelo (ver comentário de pacote
-// de src/lib/api/earnings.ts e commission.Service.PeriodBreakdownByClass no
-// backend). Gap explícito (AC desta task): "alunos/aula em média" não tem
-// fonte de dado real — mostrado só a contagem de aulas, sem inventar média.
-const EMPTY_BREAKDOWN_REASON: Record<RemunerationModel, string> = {
-  fixed:
-    'Detalhamento por turma não disponível para o modelo de remuneração fixo — o valor não é calculado por turma.',
-  commission:
-    'Detalhamento por turma não disponível para o modelo de comissão ainda (depende de integração financeira futura).',
-  per_class: 'Nenhuma aula confirmada neste mês ainda.',
-}
-
-function ClassBreakdownSection({
-  breakdown,
-  remunerationModel,
-}: {
-  breakdown: EarningsBreakdownEntry[]
-  remunerationModel: RemunerationModel
-}) {
-  return (
-    <div>
-      <div className="sec-head">
-        <h2>Detalhamento do mês atual</h2>
-      </div>
-      {breakdown.length === 0 ? (
-        <p className="hint">{EMPTY_BREAKDOWN_REASON[remunerationModel]}</p>
-      ) : (
-        <div className="ag-list" style={{ gap: 8 }}>
-          {breakdown.map((entry) => (
-            <div key={entry.classId} className="p-row" style={{ cursor: 'default' }}>
-              <div className="pw">
-                <div className="nm">{entry.className}</div>
-                <div className="mt">
-                  {entry.classCount} {entry.classCount === 1 ? 'aula' : 'aulas'}
-                </div>
-              </div>
-              <div style={{ fontWeight: 600, fontFamily: 'var(--font-display)' }}>
-                {formatBRL(entry.amount)}
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
   )
 }
