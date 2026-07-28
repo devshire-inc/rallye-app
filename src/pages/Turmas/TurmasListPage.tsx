@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Input } from '../../components/ui/Input/Input'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
@@ -119,13 +121,13 @@ export default function TurmasListPage() {
         <h1>Turmas</h1>
         <span className="count">{activeCount} ativas</span>
         <div className="spacer" />
-        <div className="searchbar">
-          <input
+        <div className="turma-search">
+          <Input
             type="text"
             placeholder="Buscar turma ou professor..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            aria-label="Buscar turma ou professor"
+            ariaLabel="Buscar turma ou professor"
           />
         </div>
         {canManage ? (
@@ -228,7 +230,7 @@ function TurmaCard({ classItem, onClick }: { classItem: RallyeClass; onClick: ()
       <span className="tc-main">
         <h3>
           {classItem.name}
-          {isInactive ? <span className="badge b-neutral badge-inativa">Inativa</span> : null}
+          {isInactive ? <Badge tone="neutral">Inativa</Badge> : null}
         </h3>
         <span className="mt">
           {isInactive

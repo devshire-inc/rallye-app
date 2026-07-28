@@ -2,7 +2,9 @@
    do CSS real do protótipo (mesmo Artifact de T1 — ver comentário de
    pacote em TurmaDetailPage.tsx) — self-contained, mesmo padrão de
    StudentProfilePage.css/MembersPage.css (não assume que outra página já
-   carregou o CSS equivalente). */
+   carregou o CSS equivalente). Esporte·nível (`.badge.b-sport`/`.sdot`) e o
+   botão [⚙️] (`.iconbtn`) migrados para os componentes ui/SportTag e
+   ui/IconButton (BEAC-2105, restyle Claude Design). */
 
 .pg-head {
   display: flex;
@@ -23,24 +25,6 @@
   font-weight: 600;
   cursor: pointer;
   text-decoration: none;
-}
-
-.iconbtn {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 15px;
-}
-.iconbtn:hover {
-  border-color: var(--teal);
-  color: var(--teal);
 }
 
 .prof-head {
@@ -70,32 +54,10 @@
   margin-top: 2px;
 }
 
-.sdot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  display: inline-block;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-}
-.badge.b-sport {
-  background: var(--sand);
-  color: var(--text-primary);
-}
-
 .ptabs {
   display: flex;
   gap: 2px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
   padding: 0 var(--space-6);
   overflow-x: auto;
   margin-bottom: var(--space-4);
@@ -113,8 +75,8 @@
   white-space: nowrap;
 }
 .ptabs button.active {
-  color: var(--text-primary);
-  border-bottom-color: var(--accent);
+  color: var(--text-heading);
+  border-bottom-color: var(--interactive-primary);
 }
 
 .dash-body {
@@ -136,6 +98,20 @@
   font-size: inherit;
 }
 
+/* Aba Waitlist (WaitlistTab) — GET /classes/{id}/waitlist é real (migration
+   000041, mesmo endpoint de WaitlistSheet.tsx/Agenda), correção de escopo
+   desta story (BEAC-2053): 3 ui/StatCard lado a lado, mesmo componente já
+   usado nos dashboards D1-D3. */
+.waitlist-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.waitlist-stats > * {
+  flex: 1;
+  min-width: 120px;
+}
+
 .ag-list {
   display: flex;
   flex-direction: column;
@@ -152,19 +128,19 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   cursor: pointer;
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
 }
 .ag-row:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .ag-row .when {
   font-family: var(--font-display);
@@ -191,7 +167,10 @@
 
 /* Bottom sheet [⚙️] (ClassSettingsSheet.tsx) — .menu-list/.role-row mesmo
    padrão de MembersPage.css (RolePickerSheet), reproduzido aqui porque
-   TurmaDetailPage não importa aquele CSS (self-contained). */
+   TurmaDetailPage não importa aquele CSS (self-contained). Campos de
+   formulário (Nome/Capacidade/Nível/Quadra/Início/Fim) migrados para os
+   componentes ui/Input e ui/Select (BEAC-2106, restyle Claude Design) — por
+   isso `.field` não existe mais aqui. */
 .settings-sheet {
   display: flex;
   flex-direction: column;
@@ -213,10 +192,10 @@
 .menu-list {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-card);
-  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
   overflow: hidden;
-  background: var(--surface);
+  background: var(--surface-card);
 }
 .role-row {
   display: flex;
@@ -224,7 +203,7 @@
   justify-content: space-between;
   gap: 10px;
   padding: 12px var(--space-4);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
   background: none;
   border-left: none;
   border-right: none;
@@ -241,7 +220,7 @@
   cursor: pointer;
 }
 .role-row--clickable:hover {
-  background: var(--sand);
+  background: var(--sand-200);
 }
 .role-row:disabled {
   opacity: 0.55;
@@ -253,25 +232,6 @@
 }
 .role-row .hint {
   text-align: right;
-}
-
-.field {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-}
-.field input,
-.field select {
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
-  padding: 8px 12px;
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--text-primary);
-  background: var(--surface);
 }
 
 .sheet-actions {

@@ -1,9 +1,11 @@
 /* T1 — Lista de turmas (BEAC-1900). Classes/valores traduzidos diretamente
    do CSS real do protótipo (Artifact "Rallye — Pessoas & Turmas", ver
    comentário de pacote em TurmasListPage.tsx para o caminho do arquivo
-   salvo) — `.tabs2`/`.turma-card`/`.occ`/`.pg-head`/`.searchbar`, sem
-   paráfrase. Self-contained (não assume que outra página já carregou o CSS
-   equivalente), mesmo padrão de StudentProfilePage.css/MembersPage.css. */
+   salvo) — `.tabs2`/`.turma-card`/`.occ`/`.pg-head`, sem paráfrase.
+   Self-contained (não assume que outra página já carregou o CSS
+   equivalente), mesmo padrão de StudentProfilePage.css/MembersPage.css.
+   Busca e badge "Inativa" migrados para os componentes ui/Input e ui/Badge
+   (BEAC-2105, restyle Claude Design). */
 
 .pg-head {
   display: flex;
@@ -27,26 +29,9 @@
   flex: 1;
 }
 
-.searchbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 0 14px;
-  min-height: 40px;
+.turma-search {
+  flex: 1;
   max-width: 320px;
-  flex: 1;
-}
-.searchbar input {
-  border: none;
-  background: none;
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: 13px;
-  flex: 1;
-  outline: none;
 }
 
 .dash-body {
@@ -67,8 +52,8 @@
   gap: 6px;
   padding: 7px 15px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-weight: 600;
@@ -76,9 +61,9 @@
   cursor: pointer;
 }
 .tabs2 button.active {
-  background: var(--sand);
-  border-color: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  border-color: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .sdot {
@@ -98,19 +83,19 @@
   display: flex;
   gap: 12px;
   align-items: center;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   cursor: pointer;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
 }
 .turma-card:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .turma-card .strip {
   width: 4px;
@@ -142,22 +127,6 @@
   opacity: 0.55;
 }
 
-/* .badge — mesma tradução de classe inline->real já usada em
-   StudentProfilePage.css/MembersPage.css. */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  border-radius: var(--radius-pill);
-}
-.badge.badge-inativa {
-  background: var(--sand);
-  font-size: 9.5px;
-  padding: 2px 8px;
-}
-
 .occ {
   margin-top: 8px;
   display: flex;
@@ -169,7 +138,7 @@
   max-width: 180px;
   height: 5px;
   border-radius: var(--radius-pill);
-  background: var(--sand);
+  background: var(--sand-200);
   overflow: hidden;
   display: block;
 }
@@ -177,15 +146,15 @@
   height: 100%;
   border-radius: var(--radius-pill);
   display: block;
-  background: var(--data);
+  background: var(--state-info);
 }
 /* Ocupação real (matrícula) é desconhecida — public.class_enrollments não
    existe no backend (ver comentário de pacote em TurmasListPage.tsx). A
    barra fica com largura 0 (nunca inventamos um preenchimento), cor neutra
-   em vez de azul (--data) ou âmbar (--warning-fg) — não sabemos se está
-   lotada. */
+   em vez de azul (--state-info) ou âmbar (--state-warning) — não sabemos se
+   está lotada. */
 .occ .fill--unknown {
-  background: var(--border);
+  background: var(--border-default);
 }
 .occ .lbl {
   font-size: 11px;
