@@ -10,15 +10,15 @@
   font-weight: 600;
   margin: 0;
   padding: 10px 12px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
 }
 
 .enter-arena-sheet__feedback--error {
-  background: var(--error-bg);
-  color: var(--error-fg);
+  background: var(--state-danger-soft);
+  color: var(--state-danger);
 }
 
 .enter-arena-sheet__feedback--info {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
+  background: var(--state-warning-soft);
+  color: var(--state-warning);
 }

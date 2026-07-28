@@ -1,8 +1,9 @@
 /* TO2 — Criar Torneio (BEAC-1985). Vocabulário de tokens já estabelecido
    por PlanoFormPage.css/Financeiro.css (.pg-head/.field/.tabs2/.hint) +
    classes próprias do wizard (.steps/.cat-row), adaptadas do protótipo real
-   (scr-to2) pros tokens do app (--accent/--sand/--border/--space-N), nunca
-   as cores hardcoded do mockup. */
+   (scr-to2) pros tokens do app (--interactive-primary/--sand-200/
+   --border-default/--space-N), nunca as cores hardcoded do mockup. Tokens
+   migrados pra Claude Design (BEAC-2055). */
 
 .pg-head {
   display: flex;
@@ -28,7 +29,7 @@
   padding: 4px 0;
 }
 .pg-head .back:hover {
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 .pg-head .spacer {
   flex: 1;
@@ -68,15 +69,15 @@
 .field span {
   font-size: 12px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 .field input,
 .field select {
   min-height: var(--touch-min, 44px);
-  border-radius: var(--radius-input);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
   font-family: var(--font-body);
   font-size: 14px;
   padding: 0 var(--space-3);
@@ -120,23 +121,23 @@
   width: 20px;
   height: 20px;
   border-radius: 999px;
-  background: var(--sand);
+  background: var(--sand-200);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 10.5px;
 }
 .steps .st.on {
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 .steps .st.on .b {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
 }
 .steps .sep {
   width: 18px;
   height: 1px;
-  background: var(--border);
+  background: var(--border-default);
 }
 
 /* Tipo (pills) */
@@ -146,8 +147,8 @@
   flex-wrap: wrap;
 }
 .tabs2 button {
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font: inherit;
   font-size: 12px;
@@ -157,9 +158,9 @@
   cursor: pointer;
 }
 .tabs2 button.active {
-  background: var(--accent);
-  color: var(--on-accent);
-  border-color: var(--accent);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
+  border-color: var(--interactive-primary);
 }
 
 /* Quadras (checkboxes) */
@@ -177,7 +178,7 @@
 .check-row input {
   width: 17px;
   height: 17px;
-  accent-color: var(--teal);
+  accent-color: var(--interactive-primary);
   flex: none;
 }
 
@@ -187,10 +188,10 @@
   align-items: center;
   gap: 10px;
   padding: 11px 14px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   font-size: 13px;
-  background: var(--surface);
+  background: var(--surface-card);
 }
 .cat-row .cn {
   flex: 1;
@@ -199,10 +200,10 @@
 .cat-row input[type='number'] {
   width: 80px;
   min-height: 36px;
-  border-radius: var(--radius-input);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--surface-page);
+  color: var(--text-heading);
   font-family: var(--font-body);
   font-size: 13px;
   padding: 0 var(--space-2);
@@ -216,20 +217,20 @@
   flex: 1;
   min-width: 120px;
   min-height: 36px;
-  border-radius: var(--radius-input);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--surface-page);
+  color: var(--text-heading);
   font-family: var(--font-body);
   font-size: 13px;
   padding: 0 var(--space-2);
 }
 .cat-row-edit select {
   min-height: 36px;
-  border-radius: var(--radius-input);
-  border: 1px solid var(--border);
-  background: var(--bg);
-  color: var(--text-primary);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  background: var(--surface-page);
+  color: var(--text-heading);
   font-family: var(--font-body);
   font-size: 12.5px;
   padding: 0 var(--space-2);
@@ -247,7 +248,7 @@
   padding: 4px 6px;
 }
 .cat-remove:hover {
-  color: var(--error-fg);
+  color: var(--state-danger);
 }
 
 .row {

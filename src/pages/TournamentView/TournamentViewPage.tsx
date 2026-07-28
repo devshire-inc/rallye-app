@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams, useSearchParams } from 'react-router-dom'
 import { TemporarySessionBanner } from '../../components/TemporarySessionBanner/TemporarySessionBanner'
+import { Badge } from '../../components/ui/Badge/Badge'
 import { WithdrawSheet } from '../../components/WithdrawSheet/WithdrawSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { listCourts } from '../../lib/api/courts'
@@ -242,10 +243,10 @@ export function TournamentViewPage() {
               <h1>
                 {tournament.name}
                 {tournament.status === 'em_andamento' ? (
-                  <span className="badge badge-live">
+                  <Badge tone="danger">
                     <span className="live-dot" />
                     AO VIVO
-                  </span>
+                  </Badge>
                 ) : null}
               </h1>
               <div className="mt">
@@ -430,11 +431,9 @@ function InscritosTab({
               {registrations.map((reg) => (
                 <div className="cat-row" key={reg.id}>
                   <span className="cn">{pairLabel(reg)}</span>
-                  <span
-                    className={`badge ${reg.status === 'confirmed' ? 'badge-success' : 'badge-warning'}`}
-                  >
+                  <Badge tone={reg.status === 'confirmed' ? 'success' : 'warning'}>
                     {reg.status === 'confirmed' ? 'Confirmada' : 'Pagamento pendente'}
-                  </span>
+                  </Badge>
                   {canManage && reg.status === 'confirmed' ? (
                     <button
                       type="button"

@@ -2,7 +2,10 @@
    (`scr-to1`, ver comentário de pacote em TournamentsListPage.tsx) —
    `.tabs2`/`.to-card`/`.sec-head`, self-contained (não assume que outra
    página já carregou o CSS equivalente), mesmo padrão de
-   TurmasListPage.css/TournamentViewPage.css. */
+   TurmasListPage.css/TournamentViewPage.css. Tokens migrados pra Claude
+   Design (BEAC-2055) — `.btn`/`.btn-primary` removidos daqui: já vêm de
+   AuthLayout.css (importado por TournamentsListPage.tsx), redefini-los aqui
+   era puro código morto duplicado. */
 
 .pg-head {
   display: flex;
@@ -36,8 +39,8 @@
 .tabs2 button {
   padding: 7px 15px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-weight: 600;
@@ -45,30 +48,9 @@
   cursor: pointer;
 }
 .tabs2 button.active {
-  background: var(--sand);
-  border-color: var(--sand);
-  color: var(--text-primary);
-}
-
-.btn {
-  font-family: var(--font-display);
-  font-weight: 600;
-  border-radius: var(--radius-pill);
-  border: none;
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-.btn-sm {
-  min-height: 36px;
-  padding: 0 16px;
-  font-size: 13px;
-}
-.btn-primary {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--sand-200);
+  border-color: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .sec-head {
@@ -89,10 +71,10 @@
   gap: 6px;
 }
 .sec-head h2.live {
-  color: var(--error-fg);
+  color: var(--state-danger);
 }
 .sec-head h2.teal {
-  color: var(--teal);
+  color: var(--interactive-primary);
 }
 .sec-head h2.muted {
   color: var(--text-muted);
@@ -102,7 +84,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--error-fg);
+  background: var(--state-danger);
   display: inline-block;
 }
 
@@ -115,9 +97,9 @@
 .to-card {
   display: flex;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 14px 16px;
   cursor: pointer;
   align-items: center;
@@ -126,10 +108,10 @@
   font-family: var(--font-body);
 }
 .to-card:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .to-card.is-live {
-  border-color: var(--error-fg);
+  border-color: var(--state-danger);
 }
 .to-card .strip {
   width: 4px;
@@ -163,20 +145,6 @@
   flex-direction: column;
   align-items: flex-end;
   gap: 4px;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-}
-.badge.b-neutral {
-  background: var(--sand);
-  color: var(--text-muted);
 }
 
 .hint {

@@ -71,7 +71,7 @@ export function VisitorVerifyPage() {
         title="Digite o código"
         subtitle={
           <>
-            Enviamos um código de 6 dígitos para <b style={{ color: 'var(--sky-text)' }}>{email}</b>
+            Enviamos um código de 6 dígitos para <b style={{ color: 'var(--text-inverse)' }}>{email}</b>
             .
           </>
         }

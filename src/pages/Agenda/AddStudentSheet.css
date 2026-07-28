@@ -1,8 +1,8 @@
 /* AddStudentSheet (BEAC-1918, story BEAC-1707) — classes PRÓPRIAS (não
    reaproveita .p-row/.avatar-sm/.searchbar de src/pages/Members/MembersPage.css
    nem .ag-list de Agenda.css, que já tem um significado DIFERENTE nesta
-   página — AG3's lista de agenda). Mesmos design tokens (var(--surface)/
-   var(--border)/var(--text-muted)/etc., já definidos em src/index.css), só
+   página — AG3's lista de agenda). Mesmos design tokens (--surface-card/
+   --border-default/--text-muted/etc., já definidos em src/styles/tokens), só
    nomes de classe isolados para não colidir com o resto do app. */
 
 .add-student-sheet {

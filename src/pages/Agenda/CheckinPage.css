@@ -1,8 +1,8 @@
 /* T3 — Check-in de Presença (BEAC-1907). Classes .ck-row/.ck-tgl/.ck-summary
    traduzidas diretamente do CSS real do Artifact "Rallye — Pessoas & Turmas"
    (secao "scr-t3", bloco de regras "Check-in" do stylesheet salvo) — mesmos
-   nomes de classe, mesmos tokens (var(--surface)/var(--border)/
-   var(--success-fg)/etc. já definidos em src/index.css), sem paráfrase.
+   nomes de classe, mesmos tokens (--surface-card/--border-default/
+   --state-success/etc. já definidos em src/styles/tokens), sem paráfrase.
    .pg-head/.back/.count redefinidos aqui (self-contained, mesmo padrão de
    outras páginas deste diretório). */
 

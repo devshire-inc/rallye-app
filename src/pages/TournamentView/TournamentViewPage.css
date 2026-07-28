@@ -1,7 +1,10 @@
 /* TO3 — Detalhe do Torneio (BEAC-1993, story BEAC-1718). Classes copiadas do
    protótipo real (`#scr-to3`/`#sheet-desistencia`) — self-contained, mesmo
    padrão de TurmaDetailPage.css/Financeiro.css (não assume que outra tela já
-   carregou o CSS equivalente). */
+   carregou o CSS equivalente). Tokens migrados pra Claude Design
+   (BEAC-2055) — badges de status/AO VIVO migrados pro componente
+   ui/Badge (.badge/.badge-live/.badge-success/.badge-warning locais
+   removidos, só `.live-dot` continua próprio daqui). */
 
 .tournament-view-page {
   flex: 1;
@@ -31,9 +34,9 @@
   width: 36px;
   height: 36px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -68,41 +71,18 @@
   margin-top: 2px;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 10.5px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-}
-.badge-live {
-  color: var(--error-fg);
-  background: none;
-  padding: 0;
-}
 .live-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: var(--error-fg);
+  background: var(--state-danger);
   display: inline-block;
-}
-.badge-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
-}
-.badge-warning {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
 }
 
 .ptabs {
   display: flex;
   gap: 2px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
   padding: 0 var(--space-6);
   overflow-x: auto;
   margin-bottom: var(--space-4);
@@ -120,8 +100,8 @@
   white-space: nowrap;
 }
 .ptabs button.active {
-  color: var(--text-primary);
-  border-bottom-color: var(--accent);
+  color: var(--text-heading);
+  border-bottom-color: var(--interactive-primary);
 }
 
 .dash-body {
@@ -145,9 +125,9 @@
   align-items: center;
   justify-content: space-between;
   gap: 10px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
 }
 .cat-row .cn {
@@ -161,9 +141,9 @@
 }
 
 .card {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
 }
 .sec-head-title {
@@ -197,13 +177,13 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   font-size: 12.5px;
   margin: 0;
 }
 .toast-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .btn {
@@ -229,12 +209,12 @@
   font-size: 13px;
 }
 .btn-primary {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
 }
 .btn-ghost {
   background: transparent;
-  border: 1.5px solid var(--border);
-  color: var(--text-primary);
+  border: 1.5px solid var(--border-default);
+  color: var(--text-heading);
   font-family: var(--font-body);
 }

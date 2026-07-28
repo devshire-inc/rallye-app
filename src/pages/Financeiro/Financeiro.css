@@ -8,12 +8,11 @@
    outras telas desta base (Teachers/Turmas/Students) — não uma variação
    nova.
 
-   BEAC-2111 (restyle Claude Design de F1/F2/F3): tokens legados (var(--bg)/
-   var(--surface)/var(--border)/var(--text-primary)/var(--teal)/var(--sand)/
-   var(--data)/etc., ponte BEAC-2063) trocados pelos tokens reais
-   (var(--surface-page)/var(--surface-card)/var(--border-default)/
-   var(--text-heading)/var(--interactive-primary)/var(--sand-200)/
-   var(--state-info)/etc.) — MESMOS valores visuais, só sem indireção.
+   BEAC-2111 (restyle Claude Design de F1/F2/F3): tokens legados (--bg/
+   --surface/--border/--text-primary/--teal/--sand/--data/etc., ponte
+   BEAC-2063) trocados pelos tokens reais (--surface-page/--surface-card/
+   --border-default/--text-heading/--interactive-primary/--sand-200/
+   --state-info/etc.) — MESMOS valores visuais, só sem indireção.
    Seletores/classes preservados intactos (não removidos nem renomeados):
    F4CreateInvoicePage.tsx/F5MyInvoicesPage.tsx (fora desta task, começam
    depois) ainda consomem `.card`/`.badge`/`.b-*`/`.tabs2`/`.pills` crus

@@ -24,9 +24,9 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   cursor: pointer;
   width: 100%;
@@ -35,16 +35,16 @@
   color: inherit;
 }
 .vp-student-row:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 
 .vp-selected-student {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
 }
 .vp-selected-student-info {
@@ -58,16 +58,16 @@
   gap: 8px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 
 .vp-summary {
   display: flex;
   flex-direction: column;
   gap: 4px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: var(--space-4);
 }
 .vp-summary-line {
@@ -79,7 +79,7 @@
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 16px;
-  color: var(--text-primary);
+  color: var(--text-heading);
   margin: 4px 0 0;
 }
 
@@ -96,9 +96,9 @@
    informativo: não é role="alert" (não é um erro), o submit continua
    habilitado. */
 .vp-warning {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
-  border-radius: var(--radius-input);
+  background: var(--state-warning-soft);
+  color: var(--state-warning);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-size: 12.5px;
   margin: 8px 0 0;
