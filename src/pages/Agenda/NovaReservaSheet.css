@@ -6,12 +6,6 @@
   position: absolute;
   top: var(--space-4);
   right: var(--space-4);
-  background: none;
-  border: none;
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--text-muted);
 }
 .ssub {
   color: var(--text-muted);
@@ -30,15 +24,15 @@
   font-size: 13px;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
   cursor: pointer;
 }
 .type-pills .chip[aria-pressed='true'] {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--on-accent);
+  background: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+  color: var(--text-on-brand);
 }
 
 .ag6-grid2 {
@@ -61,7 +55,7 @@
   color: var(--text-muted);
 }
 .block-hint {
-  color: var(--warning-fg);
+  color: var(--state-warning);
 }
 
 .toast {
@@ -69,18 +63,18 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   font-size: 12.5px;
 }
 .toast-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
+  background: var(--state-success-soft);
+  color: var(--state-success);
 }
 .toast-error {
-  background: var(--error-bg);
-  color: var(--error-fg);
+  background: var(--state-danger-soft);
+  color: var(--state-danger);
 }
 .toast-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }

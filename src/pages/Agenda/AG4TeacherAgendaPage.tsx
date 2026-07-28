@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { TeacherBlockRequestButton } from '../../components/TeacherBlockRequestButton/TeacherBlockRequestButton'
 import {
   getBookingsGrid,
@@ -287,13 +288,13 @@ export default function AG4TeacherAgendaPage() {
       {tab === 'hoje' ? (
         <div className="dash-body">
           <div className="date-nav">
-            <button className="iconbtn" aria-label="Dia anterior" onClick={() => changeDay(-1)}>
+            <IconButton variant="secondary" size="sm" label="Dia anterior" onClick={() => changeDay(-1)}>
               ‹
-            </button>
+            </IconButton>
             <span className="dlabel">{`${isSameDay(date, new Date()) ? 'Hoje · ' : ''}${formatWeekdayDate(date)}`}</span>
-            <button className="iconbtn" aria-label="Próximo dia" onClick={() => changeDay(1)}>
+            <IconButton variant="secondary" size="sm" label="Próximo dia" onClick={() => changeDay(1)}>
               ›
-            </button>
+            </IconButton>
           </div>
 
           {bookings.length === 0 ? <p className="hint">Dia livre! Nenhuma aula agendada.</p> : null}

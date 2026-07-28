@@ -24,7 +24,7 @@
   font-family: var(--font-body);
 }
 .pg-head .back:hover {
-  color: var(--teal);
+  color: var(--interactive-primary);
 }
 .pg-head .spacer {
   flex: 1;
@@ -48,9 +48,9 @@
 }
 
 .ck-banner {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
-  border-radius: var(--radius-input);
+  background: var(--state-warning-soft);
+  color: var(--state-warning);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   font-size: 12.5px;
   font-weight: 600;
@@ -65,16 +65,16 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
 }
 .ck-row .avatar-sm {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: var(--sand);
+  background: var(--sand-200);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -96,8 +96,8 @@
   width: 38px;
   height: 38px;
   border-radius: 10px;
-  border: 1px solid var(--border);
-  background: var(--bg);
+  border: 1px solid var(--border-default);
+  background: var(--surface-page);
   cursor: pointer;
   font-size: 14px;
   display: flex;
@@ -106,19 +106,19 @@
   color: var(--text-muted);
 }
 .ck-tgl button[aria-pressed='true'].ok {
-  background: var(--success-bg);
-  border-color: var(--success-fg);
-  color: var(--success-fg);
+  background: var(--state-success-soft);
+  border-color: var(--state-success);
+  color: var(--state-success);
 }
 .ck-tgl button[aria-pressed='true'].no {
-  background: var(--error-bg);
-  border-color: var(--error-fg);
-  color: var(--error-fg);
+  background: var(--state-danger-soft);
+  border-color: var(--state-danger);
+  color: var(--state-danger);
 }
 .ck-tgl button[aria-pressed='true'].ju {
-  background: var(--warning-bg);
-  border-color: var(--warning-fg);
-  color: var(--warning-fg);
+  background: var(--state-warning-soft);
+  border-color: var(--state-warning);
+  color: var(--state-warning);
 }
 .ck-summary {
   display: flex;
@@ -128,11 +128,11 @@
   flex-wrap: wrap;
 }
 .ck-summary .ck-ok {
-  color: var(--success-fg);
+  color: var(--state-success);
 }
 .ck-summary .ck-no {
-  color: var(--error-fg);
+  color: var(--state-danger);
 }
 .ck-summary .ck-ju {
-  color: var(--warning-fg);
+  color: var(--state-warning);
 }

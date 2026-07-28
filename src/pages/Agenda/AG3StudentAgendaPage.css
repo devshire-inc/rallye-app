@@ -22,14 +22,14 @@
   border-radius: var(--radius-pill);
 }
 .badge.b-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
+  background: var(--state-success-soft);
+  color: var(--state-success);
 }
 .badge.b-error {
-  background: var(--error-bg);
-  color: var(--error-fg);
+  background: var(--state-danger-soft);
+  color: var(--state-danger);
 }
 .badge.b-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }
