@@ -20,8 +20,8 @@
   gap: 6px;
   padding: 8px 14px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
   color: var(--text-muted);
   font-family: var(--font-body);
   font-size: 12.5px;
@@ -29,7 +29,7 @@
   cursor: pointer;
 }
 .tabs2 button.active {
-  border-color: var(--teal);
-  color: var(--text-primary);
-  background: color-mix(in srgb, var(--teal) 12%, transparent);
+  border-color: var(--interactive-primary);
+  color: var(--text-heading);
+  background: color-mix(in srgb, var(--interactive-primary) 12%, transparent);
 }

@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Input } from '../../components/ui/Input/Input'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { listMembers, type Member } from '../../lib/api/members'
@@ -123,12 +125,12 @@ export default function MembersPage() {
         <h1>Membros</h1>
         <div className="spacer" />
         <div className="searchbar">
-          <input
+          <Input
             type="text"
             placeholder="Nome ou e-mail..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            aria-label="Buscar membro"
+            ariaLabel="Buscar membro"
           />
         </div>
       </div>
@@ -158,9 +160,7 @@ export default function MembersPage() {
                     {member.user.email ? <div className="mt">{member.user.email}</div> : null}
                   </div>
                   <div className="tail">
-                    <span className="badge badge-neutral">
-                      {member.role?.name ?? 'Sem papel'}
-                    </span>
+                    <Badge tone="neutral">{member.role?.name ?? 'Sem papel'}</Badge>
                   </div>
                 </button>
               ))

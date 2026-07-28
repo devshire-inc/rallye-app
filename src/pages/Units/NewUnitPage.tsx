@@ -1,6 +1,8 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Input } from '../../components/ui/Input/Input'
+import { Select } from '../../components/ui/Select/Select'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { createUnit } from '../../lib/api/units'
 import { SPORTS } from '../../lib/sports'
@@ -91,52 +93,35 @@ export default function NewUnitPage() {
         <div className="spacer" />
       </div>
       <form className="dash-body new-unit-form" onSubmit={handleSubmit}>
-        <div className="field">
-          <label htmlFor="unit-name">Nome</label>
-          <input
-            id="unit-name"
-            className="input"
-            placeholder="Areia Dourada · Campeche"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label htmlFor="unit-address">Endereço completo</label>
-          <input
-            id="unit-address"
-            className="input"
-            placeholder="Rua, número, bairro, cidade — UF"
-            value={address}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-        </div>
+        <Input
+          id="unit-name"
+          label="Nome"
+          placeholder="Areia Dourada · Campeche"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <Input
+          id="unit-address"
+          label="Endereço completo"
+          placeholder="Rua, número, bairro, cidade — UF"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+        />
         <div className="two-col">
-          <div className="field">
-            <label htmlFor="unit-phone">Telefone</label>
-            <input
-              id="unit-phone"
-              className="input"
-              placeholder="(48) ..."
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-            />
-          </div>
-          <div className="field">
-            <label htmlFor="unit-timezone">Fuso horário</label>
-            <select
-              id="unit-timezone"
-              className="input"
-              value={timezone}
-              onChange={(e) => setTimezone(e.target.value)}
-            >
-              {TIMEZONES.map((tz) => (
-                <option key={tz} value={tz}>
-                  {tz}
-                </option>
-              ))}
-            </select>
-          </div>
+          <Input
+            id="unit-phone"
+            label="Telefone"
+            placeholder="(48) ..."
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+          />
+          <Select
+            id="unit-timezone"
+            label="Fuso horário"
+            value={timezone}
+            onChange={(e) => setTimezone(e.target.value)}
+            options={TIMEZONES}
+          />
         </div>
         <div className="field">
           <label>Esportes oferecidos</label>
@@ -153,15 +138,12 @@ export default function NewUnitPage() {
             ))}
           </div>
         </div>
-        <div className="field">
-          <label htmlFor="unit-hours">Horário de funcionamento</label>
-          <input
-            id="unit-hours"
-            className="input"
-            value={operatingHours}
-            onChange={(e) => setOperatingHours(e.target.value)}
-          />
-        </div>
+        <Input
+          id="unit-hours"
+          label="Horário de funcionamento"
+          value={operatingHours}
+          onChange={(e) => setOperatingHours(e.target.value)}
+        />
         {error ? <p className="field-error">{error}</p> : null}
         <button className="btn btn-primary btn-md" type="submit" disabled={submitting}>
           {submitting ? 'Criando…' : 'Criar unidade → cadastrar quadras'}

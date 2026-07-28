@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Switch } from '../../components/ui/Switch/Switch'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   getNotificationPreferences,
@@ -123,42 +124,28 @@ export default function SettingsPage() {
             <div className="menu-list">
               <div className="menu-row">
                 <span>🔔 Push notifications</span>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={enabledFor('push')}
-                    aria-label="Push notifications"
-                    disabled={savingChannel === 'push'}
-                    onChange={(e) => handleToggle('push', e.target.checked)}
-                  />
-                  <span className="tr" />
-                  <span className="th" />
-                </label>
+                <Switch
+                  ariaLabel="Push notifications"
+                  checked={enabledFor('push')}
+                  disabled={savingChannel === 'push'}
+                  onChange={(checked) => handleToggle('push', checked)}
+                />
               </div>
               <div className="menu-row">
                 <span>📧 Email</span>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={enabledFor('email')}
-                    aria-label="Email"
-                    disabled={savingChannel === 'email'}
-                    onChange={(e) => handleToggle('email', e.target.checked)}
-                  />
-                  <span className="tr" />
-                  <span className="th" />
-                </label>
+                <Switch
+                  ariaLabel="Email"
+                  checked={enabledFor('email')}
+                  disabled={savingChannel === 'email'}
+                  onChange={(checked) => handleToggle('email', checked)}
+                />
               </div>
               <div className="menu-row menu-row-whatsapp">
                 <span className="menu-row-main">
                   <span>📱 WhatsApp</span>
                   <span className="hint-inline">disponível quando a integração estiver ativa</span>
                 </span>
-                <label className="switch">
-                  <input type="checkbox" checked={false} aria-label="WhatsApp" disabled />
-                  <span className="tr" />
-                  <span className="th" />
-                </label>
+                <Switch ariaLabel="WhatsApp" checked={false} disabled />
               </div>
               <Link className="menu-row" to="/configuracoes/notificacoes">
                 <span>Gerenciar preferências por evento</span>

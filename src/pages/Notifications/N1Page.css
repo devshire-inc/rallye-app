@@ -34,19 +34,19 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-card);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: 10px 14px;
   margin-bottom: 8px;
   text-align: left;
   cursor: pointer;
   font-family: var(--font-body);
-  color: var(--text-primary);
-  transition: border-color var(--motion-fast);
+  color: var(--text-heading);
+  transition: border-color var(--dur-fast);
 }
 .n1-row:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 
 .n1-row-icon {
@@ -84,19 +84,19 @@
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--teal);
+  background: var(--interactive-primary);
 }
 
 /* ---------- Loading skeleton ---------- */
 .n1-skeleton-row {
   height: 64px;
-  border-radius: var(--radius-card);
+  border-radius: var(--radius-lg);
   margin-bottom: 8px;
   background: linear-gradient(
     100deg,
-    var(--surface) 30%,
-    color-mix(in srgb, var(--sand) 55%, var(--surface)) 50%,
-    var(--surface) 70%
+    var(--surface-card) 30%,
+    color-mix(in srgb, var(--sand-200) 55%, var(--surface-card)) 50%,
+    var(--surface-card) 70%
   );
   background-size: 200% 100%;
   animation: n1-skeleton-shimmer 1.4s ease-in-out infinite;
