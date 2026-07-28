@@ -15,6 +15,10 @@ vi.mock('./D1Dashboard', () => ({
   default: () => <div data-testid="d1-dashboard" />,
 }))
 
+vi.mock('./D3FDashboard', () => ({
+  default: () => <div data-testid="d3f-dashboard" />,
+}))
+
 afterEach(() => {
   vi.restoreAllMocks()
 })
@@ -69,6 +73,14 @@ describe('DashboardPage', () => {
     renderAt('/units/unit-1/dashboard')
 
     expect(screen.getByTestId('d1-dashboard')).toBeInTheDocument()
+    expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
+  })
+
+  it('renders D3FDashboard for a custom role (D3F, detected by exclusion)', () => {
+    mockRole('Recepcionista')
+    renderAt('/units/unit-1/dashboard')
+
+    expect(screen.getByTestId('d3f-dashboard')).toBeInTheDocument()
     expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
   })
 })

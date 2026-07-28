@@ -3,6 +3,7 @@ import LogoutButton from '../components/LogoutButton'
 import { useShellIdentity } from '../hooks/useShellIdentity'
 import { resolveDashboardVariant } from '../lib/dashboardTarget'
 import D1Dashboard from './D1Dashboard'
+import D3FDashboard from './D3FDashboard'
 import { PendingApprovalsCard } from './PendingApprovalsCard'
 import './DashboardPage.css'
 
@@ -21,6 +22,11 @@ import './DashboardPage.css'
  * Duas rotas apontam pra cá (App.tsx): `/dashboard` (genérico, sem unitId)
  * e `/units/:unitId/dashboard` (BEAC-1893, necessário porque
  * PendingApprovalsCard precisa de um unitId no path).
+ *
+ * `D3F` (BEAC-2094, story BEAC-1737) é o segundo caso implementado —
+ * `D3FDashboard` resolve o próprio `unitId` via `getActiveUnitId()`
+ * internamente (mesmo padrão de auto-resolução de `D1Dashboard`), não
+ * depende do param de rota.
  */
 function GenericDashboard({ unitId }: { unitId: string | undefined }) {
   return (
@@ -44,9 +50,10 @@ export default function DashboardPage() {
   switch (variant) {
     case 'D1':
       return <D1Dashboard />
+    case 'D3F':
+      return <D3FDashboard />
     case 'D2':
     case 'D3':
-    case 'D3F':
     case 'OW1':
     case 'GENERIC':
       return <GenericDashboard unitId={unitId} />
