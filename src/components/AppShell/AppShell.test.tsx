@@ -143,13 +143,18 @@ function renderShellAt(initialPath: string) {
 }
 
 function itemsWithLabel(container: HTMLElement, label: string) {
-  return Array.from(container.querySelectorAll('.side-item, .bn-item')).filter(
+  return Array.from(container.querySelectorAll('.side-item, .bottom-nav__item')).filter(
     (el) => el.textContent === label,
   )
 }
 
-function activeLabels(container: HTMLElement, selector: '.side-item' | '.bn-item') {
-  return Array.from(container.querySelectorAll(`${selector}.active`)).map((el) => el.textContent)
+// BEAC-2091: `.side-item` segue usando a classe `.active` (markup próprio,
+// inalterado); o `BottomNav` real (Fundação) usa a convenção BEM
+// `.bottom-nav__item--active`, daí o sufixo de seleção divergir por tipo.
+function activeLabels(container: HTMLElement, selector: '.side-item' | '.bottom-nav__item') {
+  const activeSelector =
+    selector === '.side-item' ? '.side-item.active' : '.bottom-nav__item--active'
+  return Array.from(container.querySelectorAll(activeSelector)).map((el) => el.textContent)
 }
 
 describe('AppShell — navegação real dos itens de topo (BEAC-2086)', () => {
@@ -270,7 +275,7 @@ describe('AppShell — navegação real dos itens de topo (BEAC-2086)', () => {
     const { container } = renderShellAt('/units/unit-1/tournaments/new')
 
     expect(activeLabels(container, '.side-item')).toEqual(['Torneios'])
-    expect(activeLabels(container, '.bn-item')).toEqual(['Torneios'])
+    expect(activeLabels(container, '.bottom-nav__item')).toEqual(['Torneios'])
   })
 })
 
@@ -388,6 +393,6 @@ describe('AppShell — menu "Gestão" (BEAC-2087)', () => {
     const { container } = renderShellAt('/units/unit-1/roles')
 
     expect(activeLabels(container, '.side-item')).toEqual(['Gestão'])
-    expect(activeLabels(container, '.bn-item')).toEqual(['Gestão'])
+    expect(activeLabels(container, '.bottom-nav__item')).toEqual(['Gestão'])
   })
 })

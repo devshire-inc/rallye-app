@@ -1,13 +1,12 @@
 /* Shell mínima "PF3" (BEAC-1832) — estrutura `.app-shell` / `.sidebar` /
-   `.bottomnav` do protótipo real (scr-pf3/scr-ow2/scr-ow3), sem os ícones
-   SVG do protótipo (sprite não existe neste repositório — fora do escopo
-   desta task recriá-lo; ver AppShell.tsx). Cores/tipografia usam os tokens
-   reais de src/index.css ("Horizon"/"Saque Noturno"). */
+   `.shell-bottomnav-wrapper` (mobile, via componente `BottomNav` real desde
+   BEAC-2091). Cores/tipografia usam os tokens nativos Claude Design de
+   src/styles/tokens/*.css (BEAC-2059). */
 .app-shell {
   display: flex;
   flex-direction: column;
   min-height: 100svh;
-  background: var(--bg);
+  background: var(--surface-page);
 }
 
 /* Topbar (BEAC-2021) — sino + badge de não lidas, sempre visível (ver
@@ -20,8 +19,8 @@
   flex: none;
   height: 48px;
   padding: 0 var(--space-4);
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  border-bottom: 1px solid var(--border-default);
+  background: var(--surface-card);
 }
 @media (min-width: 860px) {
   .shell-topbar {
@@ -42,10 +41,10 @@
   font-size: 18px;
   line-height: 1;
   cursor: pointer;
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 .shell-bell:hover {
-  background: var(--sand);
+  background: var(--surface-sunken);
 }
 
 .shell-bell-badge {
@@ -56,8 +55,8 @@
   height: 16px;
   padding: 0 4px;
   border-radius: var(--radius-pill);
-  background: var(--error-bg);
-  color: var(--error-fg);
+  background: var(--state-danger-soft);
+  color: var(--state-danger);
   font-size: 9.5px;
   font-weight: 700;
   line-height: 16px;
@@ -77,8 +76,8 @@
   width: 232px;
   flex: none;
   padding: var(--space-5) var(--space-4);
-  border-right: 1px solid var(--border);
-  background: var(--surface);
+  border-right: 1px solid var(--border-default);
+  background: var(--surface-card);
   gap: 2px;
 }
 
@@ -92,7 +91,7 @@
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 18px;
-  color: var(--text-primary);
+  color: var(--text-heading);
   margin-bottom: var(--space-5);
 }
 /* BEAC-1835: segurar o logo abre a S1 (ver useLongPress em AppShell.tsx). */
@@ -101,7 +100,7 @@
   width: fit-content;
 }
 .sidebar .brand-mark .dot {
-  color: var(--accent);
+  color: var(--interactive-primary);
 }
 
 .side-item {
@@ -116,18 +115,18 @@
   font-family: inherit;
   font-size: 13.5px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-heading);
   text-align: left;
   cursor: pointer;
 }
 .side-item.active {
-  background: color-mix(in srgb, var(--accent) 20%, transparent);
-  color: var(--text-primary);
+  background: var(--surface-brand-soft);
+  color: var(--text-heading);
 }
 
 .side-sep {
   height: 1px;
-  background: var(--border);
+  background: var(--border-default);
   margin: var(--space-3) 0;
 }
 
@@ -148,10 +147,10 @@
   margin-top: 4px;
   padding: 6px;
   gap: 2px;
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-input);
-  background: var(--surface);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-raised);
 }
 .side-gestao-menu-item {
   padding: 8px 10px;
@@ -161,12 +160,12 @@
   font-family: inherit;
   font-size: 13px;
   font-weight: 500;
-  color: var(--text-primary);
+  color: var(--text-heading);
   text-align: left;
   cursor: pointer;
 }
 .side-gestao-menu-item:hover {
-  background: var(--sand);
+  background: var(--surface-sunken);
 }
 
 /* Sheet de "Gestão" no mobile (mesmo BottomSheet de BEAC-1808) — o wrapper
@@ -189,7 +188,7 @@
   font-family: inherit;
   font-size: 15px;
   font-weight: 600;
-  color: var(--text-primary);
+  color: var(--text-heading);
   text-align: left;
   cursor: pointer;
 }
@@ -197,7 +196,7 @@
 .side-foot {
   margin-top: auto;
   padding-top: var(--space-4);
-  border-top: 1px solid var(--border);
+  border-top: 1px solid var(--border-default);
   font-size: 11.5px;
   line-height: 1.5;
   color: var(--text-muted);
@@ -217,37 +216,27 @@
   }
 }
 
-.bottomnav {
+/* Wrapper do `BottomNav` real (BEAC-2091) — o componente em si (ver
+   src/components/ui/BottomNav/BottomNav.css) é um "dock" flutuante
+   centralizado (inline-flex, radius-pill, shadow-float-nav), não fixo à
+   viewport. Este wrapper é quem posiciona/esconde por breakpoint — mesmo
+   mecanismo (860px) do antigo `.bottomnav`. */
+.shell-bottomnav-wrapper {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
   display: flex;
-  background: var(--surface);
-  border-top: 1px solid var(--border);
-  padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+  justify-content: center;
+  padding: 0 var(--space-4) calc(var(--space-3) + env(safe-area-inset-bottom));
+  pointer-events: none;
+}
+.shell-bottomnav-wrapper > * {
+  pointer-events: auto;
 }
 
 @media (min-width: 860px) {
-  .bottomnav {
+  .shell-bottomnav-wrapper {
     display: none;
   }
-}
-
-.bn-item {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  background: none;
-  border: none;
-  font-family: var(--font-body);
-  font-size: 10.5px;
-  font-weight: 600;
-  color: var(--text-muted);
-  padding: 6px 2px;
-}
-.bn-item.active {
-  color: var(--text-primary);
 }
