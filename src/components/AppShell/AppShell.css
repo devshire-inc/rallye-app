@@ -22,6 +22,7 @@
   border-bottom: 1px solid var(--border-default);
   background: var(--surface-card);
 }
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
 @media (min-width: 860px) {
   .shell-topbar {
     padding: 0 var(--space-8);
@@ -81,6 +82,7 @@
   gap: 2px;
 }
 
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
 @media (min-width: 860px) {
   .sidebar {
     display: flex;
@@ -171,6 +173,7 @@
 /* Sheet de "Gestão" no mobile (mesmo BottomSheet de BEAC-1808) — o wrapper
    se esconde no mesmo breakpoint em que .bottomnav se esconde, pra não
    coexistir com o dropdown desktop acima. */
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
 @media (min-width: 860px) {
   .gestao-sheet-wrapper {
     display: none;
@@ -210,6 +213,7 @@
   padding: var(--space-5) var(--space-4) 84px;
 }
 
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
 @media (min-width: 860px) {
   .shell-main {
     padding: var(--space-6) var(--space-8);
@@ -235,6 +239,7 @@
   pointer-events: auto;
 }
 
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
 @media (min-width: 860px) {
   .shell-bottomnav-wrapper {
     display: none;

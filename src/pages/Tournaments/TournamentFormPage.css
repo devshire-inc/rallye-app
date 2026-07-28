@@ -54,6 +54,7 @@
   grid-template-columns: 1fr 1fr;
   gap: var(--space-3);
 }
+/* breakpoints.ts: BREAKPOINT_TOURNAMENT_FORM_COMPACT_MAX é a fonte canônica deste valor */
 @media (max-width: 480px) {
   .form-row {
     grid-template-columns: 1fr;
