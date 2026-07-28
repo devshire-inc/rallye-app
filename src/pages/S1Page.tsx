@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { BottomSheet } from '../components/BottomSheet/BottomSheet'
 import { EnterArenaSheet } from '../components/EnterArenaSheet/EnterArenaSheet'
+import { Button } from '../components/ui/Button/Button'
 import { usePermissionsContext } from '../hooks/usePermissionsContext'
 import { accessMembership, listMyMemberships, type MembershipListItem } from '../lib/api'
 import { dashboardPathForRole } from '../lib/dashboardTarget'
@@ -173,9 +174,9 @@ export default function S1Page() {
         {state.status === 'error' && (
           <div className="s1-error">
             <p>Não foi possível carregar suas arenas agora.</p>
-            <button type="button" className="btn btn-secondary btn-md" onClick={handleRetry}>
+            <Button type="button" variant="secondary" onClick={handleRetry}>
               Tentar novamente
-            </button>
+            </Button>
           </div>
         )}
 

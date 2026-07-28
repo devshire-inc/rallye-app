@@ -148,7 +148,7 @@ export function VerifyEmailPage() {
         subtitle={
           <>
             Enviamos um código de 6 dígitos para{' '}
-            <b style={{ color: 'var(--sky-text)' }}>{email ?? 'seu e-mail'}</b>
+            <b style={{ color: 'var(--text-inverse)' }}>{email ?? 'seu e-mail'}</b>
           </>
         }
         hint={<b>Código de demonstração:</b>}
