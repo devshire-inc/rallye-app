@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
+import { Badge } from '../../components/ui/Badge/Badge'
 import { usePermission } from '../../hooks/usePermission'
 import { listClassHistory, type ClassHistoryItem } from '../../lib/api/classHistory'
 import { sportCssVar } from '../../lib/sports'
@@ -120,9 +121,7 @@ export function ClassHistorySection({ unitId, studentId }: ClassHistorySectionPr
               <span className="pw">
                 <span className="nm">
                   {item.className}
-                  {item.status === 'ended' ? (
-                    <span className="badge b-muted">Encerrada</span>
-                  ) : null}
+                  {item.status === 'ended' ? <Badge tone="neutral">Encerrada</Badge> : null}
                 </span>
                 <span className="mt">
                   {scheduleLabel(item)} · {teacherDisplay(item.teacherName)}

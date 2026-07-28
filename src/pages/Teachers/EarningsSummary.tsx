@@ -102,9 +102,9 @@ function Stat({
   received?: boolean
 }) {
   const style = pending
-    ? { fontSize: 17, color: 'var(--warning-fg)' }
+    ? { fontSize: 17, color: 'var(--state-warning-text)' }
     : received
-      ? { fontSize: 17, color: 'var(--success-fg)' }
+      ? { fontSize: 17, color: 'var(--state-success)' }
       : undefined
   return (
     <div className="s">
@@ -161,7 +161,7 @@ function MonthlyChart({
             className="bar"
             style={{
               height: `${Math.max(4, (entry.amount / maxAmount) * 52)}px`,
-              background: entry.period === selectedPeriod ? 'var(--accent)' : undefined,
+              background: entry.period === selectedPeriod ? 'var(--interactive-primary)' : undefined,
             }}
             aria-label={`${monthAbbrev(entry.period)}: ${formatBRL(entry.amount)}`}
           />

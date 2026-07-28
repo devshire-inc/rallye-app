@@ -1,11 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Avatar } from '../../components/ui/Avatar/Avatar'
+import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
+import { Input } from '../../components/ui/Input/Input'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import { listTeachers, type TeacherListItem } from '../../lib/api/teachers'
 import { sportCssVar } from '../../lib/sports'
-import { formatRemunerationSummary, initials } from './teachersShared'
+import { formatRemunerationSummary } from './teachersShared'
 import '../../components/AuthLayout/AuthLayout.css'
 import './TeachersListPage.css'
 
@@ -84,13 +87,13 @@ export default function TeachersListPage() {
         <h1>Professores</h1>
         <span className="count">{teachers.length}</span>
         <div className="spacer" />
-        <div className="searchbar">
-          <input
+        <div className="teacher-search">
+          <Input
             type="text"
             placeholder="Buscar professor..."
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            aria-label="Buscar professor"
+            ariaLabel="Buscar professor"
           />
         </div>
         {canCreate ? (
@@ -140,10 +143,10 @@ const STATUS_LABEL: Record<TeacherListItem['status'], string> = {
   inactive: 'Inativo',
 }
 
-const STATUS_BADGE_CLASS: Record<TeacherListItem['status'], string> = {
-  pending: 'badge b-warning',
-  active: 'badge b-success',
-  inactive: 'badge b-neutral',
+const STATUS_BADGE_TONE: Record<TeacherListItem['status'], BadgeProps['tone']> = {
+  pending: 'warning',
+  active: 'success',
+  inactive: 'neutral',
 }
 
 function TeacherRow({ teacher, onClick }: { teacher: TeacherListItem; onClick: () => void }) {
@@ -154,7 +157,7 @@ function TeacherRow({ teacher, onClick }: { teacher: TeacherListItem; onClick: (
       onClick={onClick}
       data-testid={`teacher-row-${teacher.id}`}
     >
-      <span className="avatar-sm">{initials(teacher.fullName)}</span>
+      <Avatar name={teacher.fullName} size={38} />
       <div className="pw">
         <div className="nm">{teacher.fullName}</div>
         <div className="mt">
@@ -173,7 +176,7 @@ function TeacherRow({ teacher, onClick }: { teacher: TeacherListItem; onClick: (
         <span>
           {formatRemunerationSummary(teacher.remunerationModel, teacher.remunerationValue)}
         </span>
-        <span className={STATUS_BADGE_CLASS[teacher.status]}>{STATUS_LABEL[teacher.status]}</span>
+        <Badge tone={STATUS_BADGE_TONE[teacher.status]}>{STATUS_LABEL[teacher.status]}</Badge>
       </div>
     </button>
   )
