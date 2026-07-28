@@ -2,10 +2,11 @@
  * (BEAC-1856). Self-contained: redefine as classes genéricas que esta
  * página usa (mesmo padrão documentado em RolesPage.css — não assume que
  * outra página já carregou o CSS equivalente). Valores de .kv/.chiprow/
- * .chip/.sdot/.sec-head/.prof-head/.avatar-lg/.ptabs/.ptab-panel copiados
- * diretamente das regras reais do protótipo (Artifact "Rallye — Pessoas &
- * Turmas · Saque Noturno", seção scr-al2) — lidos do arquivo salvo, não
- * inventados. */
+ * .chip/.sdot/.sec-head/.prof-head/.ptabs/.ptab-panel copiados diretamente
+ * das regras reais do protótipo (Artifact "Rallye — Pessoas & Turmas ·
+ * Saque Noturno", seção scr-al2) — lidos do arquivo salvo, não inventados.
+ * Avatar e badge de status migrados para os componentes ui/Avatar e
+ * ui/Badge (BEAC-2103, restyle Claude Design). */
 
 .pg-head {
   display: flex;
@@ -35,19 +36,6 @@
   align-items: center;
   flex-wrap: wrap;
 }
-.avatar-lg {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background: var(--sand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 20px;
-  flex: none;
-}
 .ph-main {
   flex: 1;
   min-width: 200px;
@@ -66,36 +54,10 @@
   margin-top: 2px;
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-}
-/* Tradução real das variantes de badge que o protótipo só marcava com
- * inline style (mesmo padrão já aceito em MembersPage.css/BEAC-1845) —
- * classes de verdade, não estilo ad-hoc. */
-.badge.b-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
-}
-.badge.b-warning {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
-}
-.badge.b-muted {
-  background: var(--sand);
-  color: var(--text-muted);
-}
-
 .ptabs {
   display: flex;
   gap: 2px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
   padding: 0 var(--space-6);
   overflow-x: auto;
   margin-bottom: var(--space-4);
@@ -113,8 +75,8 @@
   white-space: nowrap;
 }
 .ptabs button.active {
-  color: var(--text-primary);
-  border-bottom-color: var(--accent);
+  color: var(--text-heading);
+  border-bottom-color: var(--interactive-primary);
 }
 
 .dash-body {
@@ -200,16 +162,16 @@
   font-size: 13px;
   padding: 8px 16px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
 }
 button.chip {
   cursor: pointer;
 }
 button.chip[aria-pressed='true'] {
-  background: var(--sand);
-  border-color: var(--sand);
+  background: var(--sand-200);
+  border-color: var(--sand-200);
 }
 button.chip:disabled {
   opacity: 0.45;
@@ -222,8 +184,8 @@ span.chip {
   cursor: default;
 }
 span.chip.chip--selected {
-  background: var(--sand);
-  border-color: var(--sand);
+  background: var(--sand-200);
+  border-color: var(--sand-200);
 }
 
 /* .ag-list/.p-row/.strip/.pw/.nm/.mt/.chev — aba Turmas (BEAC-1864, scr-al2
@@ -240,19 +202,19 @@ span.chip.chip--selected {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   cursor: pointer;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
 }
 .p-row:hover {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .p-row:disabled {
   opacity: 0.55;

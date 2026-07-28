@@ -3,10 +3,10 @@
 }
 
 .readonly-banner {
-  background: var(--surface-alt, var(--surface));
-  border: 1px solid var(--border);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   color: var(--text-muted);
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   padding: var(--space-3);
   font-size: 12.5px;
   margin-bottom: var(--space-4);

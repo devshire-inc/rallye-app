@@ -1,6 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { Avatar } from '../../components/ui/Avatar/Avatar'
+import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import { getStudent, type Student, type StudentStatus } from '../../lib/api/students'
@@ -22,20 +24,10 @@ const STATUS_LABEL: Record<StudentStatus, string> = {
 /** Sem 'Inadimplente' aqui de propósito — public.students.status só modela
  * pending/active/inactive (migrations/000021); inadimplência é conceito
  * financeiro de uma feature futura (BEAC-1632), ainda não implementada. */
-const STATUS_BADGE_CLASS: Record<StudentStatus, string> = {
-  pending: 'badge b-warning',
-  active: 'badge b-success',
-  inactive: 'badge b-muted',
-}
-
-/** Duas iniciais (primeiro + último nome) para o avatar placeholder — mesma
- * ideia de role-row__icon em RolesPage.css, só que com 2 letras (como o
- * protótipo real usa, "MC" para "Marina Costa"), não 1. */
-function initials(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return '?'
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+const STATUS_BADGE_TONE: Record<StudentStatus, BadgeProps['tone']> = {
+  pending: 'warning',
+  active: 'success',
+  inactive: 'neutral',
 }
 
 function formatDate(iso: string): string {
@@ -166,13 +158,13 @@ export default function StudentProfilePage() {
       {state.status === 'ready' ? (
         <>
           <div className="prof-head">
-            <div className="avatar-lg">{initials(state.student.fullName)}</div>
+            <Avatar name={state.student.fullName} size={60} />
             <div className="ph-main">
               <h1>
                 {state.student.fullName}{' '}
-                <span className={STATUS_BADGE_CLASS[state.student.status]}>
+                <Badge tone={STATUS_BADGE_TONE[state.student.status]}>
                   {STATUS_LABEL[state.student.status]}
-                </span>
+                </Badge>
               </h1>
               <div className="mt">
                 {state.student.email}

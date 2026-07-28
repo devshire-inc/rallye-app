@@ -1,9 +1,11 @@
 /* PR1 — Lista de Professores (BEAC-1880). Classes/valores traduzidos
    diretamente do CSS real do protótipo (Artifact "Rallye — Pessoas &
-   Turmas", seção `scr-pr1`) — `.pg-head`/`.searchbar`/`.p-row`/`.avatar-sm`/
-   `.tail`/`.badge`, mesmos tokens de MembersPage.css/StudentProfilePage.css.
-   Self-contained (não assume que outra página já carregou o CSS
-   equivalente), mesmo padrão já estabelecido nesta base. */
+   Turmas", seção `scr-pr1`) — `.pg-head`/`.p-row`/`.tail`, mesmos tokens de
+   MembersPage.css/StudentProfilePage.css. Self-contained (não assume que
+   outra página já carregou o CSS equivalente), mesmo padrão já
+   estabelecido nesta base. Avatar, badge de status e busca migrados para
+   os componentes ui/Avatar, ui/Badge e ui/Input (BEAC-2104, restyle
+   Claude Design). */
 
 .pg-head {
   display: flex;
@@ -27,26 +29,9 @@
   flex: 1;
 }
 
-.searchbar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-pill);
-  padding: 0 14px;
-  min-height: 40px;
+.teacher-search {
+  flex: 1;
   max-width: 320px;
-  flex: 1;
-}
-.searchbar input {
-  border: none;
-  background: none;
-  color: var(--text-primary);
-  font-family: var(--font-body);
-  font-size: 13px;
-  flex: 1;
-  outline: none;
 }
 
 .dash-body {
@@ -66,32 +51,19 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   cursor: pointer;
-  transition: border-color var(--motion-fast);
+  transition: border-color var(--dur-fast);
   width: 100%;
   text-align: left;
   font: inherit;
   color: inherit;
 }
 .p-row:hover {
-  border-color: var(--teal);
-}
-.p-row .avatar-sm {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  background: var(--sand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 13px;
-  flex: none;
+  border-color: var(--interactive-primary);
 }
 .p-row .pw {
   flex: 1;
@@ -127,29 +99,6 @@
   height: 7px;
   border-radius: 50%;
   display: inline-block;
-}
-
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-}
-.badge.b-success {
-  background: var(--success-bg);
-  color: var(--success-fg);
-}
-.badge.b-warning {
-  background: var(--warning-bg);
-  color: var(--warning-fg);
-}
-.badge.b-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
 }
 
 .hint {

@@ -7,6 +7,9 @@ import {
   AvailabilityGrid,
   type AvailabilityGridReadCell,
 } from '../../components/AvailabilityGrid/AvailabilityGrid'
+import { Avatar } from '../../components/ui/Avatar/Avatar'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { usePermission } from '../../hooks/usePermission'
 import { getAvailability } from '../../lib/api/availability'
 import { listClasses, type RallyeClass } from '../../lib/api/classes'
@@ -16,7 +19,7 @@ import { formatDaysAndStart } from '../Turmas/turmasShared'
 import { formatBRL } from '../../lib/money'
 import { sportCssVar, sportLabel } from '../../lib/sports'
 import { RemunerationSheet } from './RemunerationSheet'
-import { formatRemunerationSummary, initials } from './teachersShared'
+import { formatRemunerationSummary } from './teachersShared'
 import '../../components/AuthLayout/AuthLayout.css'
 import './TeacherProfilePage.css'
 
@@ -125,14 +128,9 @@ export default function TeacherProfilePage() {
         </Link>
         <div className="spacer" />
         {canManageRemuneration && teacher ? (
-          <button
-            type="button"
-            className="iconbtn"
-            aria-label="Ações"
-            onClick={() => setRemunerationOpen(true)}
-          >
+          <IconButton variant="secondary" size="md" label="Ações" onClick={() => setRemunerationOpen(true)}>
             ⚙️
-          </button>
+          </IconButton>
         ) : null}
       </div>
 
@@ -228,13 +226,11 @@ export default function TeacherProfilePage() {
 function TeacherHeader({ teacher }: { teacher: Teacher }) {
   return (
     <div className="prof-head">
-      <div className="avatar-lg">{initials(teacher.fullName)}</div>
+      <Avatar name={teacher.fullName} size={60} />
       <div className="ph-main">
         <h1>
           {teacher.fullName}{' '}
-          {teacher.certifications ? (
-            <span className="badge b-neutral">{teacher.certifications}</span>
-          ) : null}
+          {teacher.certifications ? <Badge tone="neutral">{teacher.certifications}</Badge> : null}
         </h1>
         <div className="mt">
           {teacher.email}

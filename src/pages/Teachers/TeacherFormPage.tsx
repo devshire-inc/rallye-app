@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { AvailabilityGrid } from '../../components/AvailabilityGrid/AvailabilityGrid'
+import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
 import { usePermission } from '../../hooks/usePermission'
 import {
   AVAILABILITY_TIME_SLOTS,
@@ -457,24 +458,18 @@ export default function TeacherFormPage() {
         {!isEdit ? (
           <div className="field">
             <label>Convite</label>
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={inviteEmail}
-                disabled={submitting}
-                onChange={(e) => setInviteEmail(e.target.checked)}
-              />
-              Enviar convite por e-mail
-            </label>
-            <label className="checkbox-row">
-              <input
-                type="checkbox"
-                checked={inviteWhatsapp}
-                disabled={submitting}
-                onChange={(e) => setInviteWhatsapp(e.target.checked)}
-              />
-              Enviar convite por WhatsApp
-            </label>
+            <Checkbox
+              label="Enviar convite por e-mail"
+              checked={inviteEmail}
+              disabled={submitting}
+              onChange={setInviteEmail}
+            />
+            <Checkbox
+              label="Enviar convite por WhatsApp"
+              checked={inviteWhatsapp}
+              disabled={submitting}
+              onChange={setInviteWhatsapp}
+            />
           </div>
         ) : null}
 
