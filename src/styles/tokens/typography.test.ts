@@ -114,7 +114,7 @@ describe('spacing.css — space scale, radius, control heights, page dims', () =
   })
 
   const controls: Record<string, string> = {
-    '--control-h-sm': '34px',
+    '--control-h-sm': '44px',
     '--control-h-md': '46px',
     '--control-h-lg': '54px',
   }

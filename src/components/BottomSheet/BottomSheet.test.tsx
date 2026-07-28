@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 import { BottomSheet } from './BottomSheet'
@@ -61,5 +62,10 @@ describe('BottomSheet', () => {
 
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(onClose).not.toHaveBeenCalled()
+  })
+
+  it('CSS: panel applies safe-area-inset-bottom (BEAC-2056)', () => {
+    const css = readFileSync('src/components/BottomSheet/BottomSheet.css', 'utf8')
+    expect(css).toMatch(/env\(safe-area-inset-bottom/)
   })
 })
