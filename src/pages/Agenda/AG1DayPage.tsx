@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
+import { Input } from '../../components/ui/Input/Input'
+import { Segmented } from '../../components/ui/Segmented/Segmented'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { listCourts, type Court } from '../../lib/api/courts'
@@ -169,26 +172,25 @@ export default function AG1DayPage() {
         <h1>Agenda</h1>
         <div className="spacer" />
         <div className="date-nav">
-          <button className="iconbtn" aria-label="Dia anterior" onClick={() => changeDay(-1)}>
+          <IconButton variant="secondary" size="sm" label="Dia anterior" onClick={() => changeDay(-1)}>
             ‹
-          </button>
+          </IconButton>
           <span className="dlabel">{dateLabel}</span>
-          <button className="iconbtn" aria-label="Próximo dia" onClick={() => changeDay(1)}>
+          <IconButton variant="secondary" size="sm" label="Próximo dia" onClick={() => changeDay(1)}>
             ›
-          </button>
+          </IconButton>
         </div>
-        <div className="seg2">
-          <button className="active" type="button">
-            Dia
-          </button>
-          <button type="button" onClick={goWeek}>
-            Semana
-          </button>
-        </div>
-        <input
-          className="ag-search"
+        <Segmented
+          ariaLabel="Alternar entre visão Dia e Semana"
+          options={['Dia', 'Semana']}
+          value="Dia"
+          onChange={(option) => {
+            if (option === 'Semana') goWeek()
+          }}
+        />
+        <Input
           type="search"
-          aria-label="Buscar por aluno, professor ou quadra"
+          ariaLabel="Buscar por aluno, professor ou quadra"
           placeholder="🔍 Buscar"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

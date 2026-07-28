@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { createBooking, type CreateBookingType } from '../../lib/api/bookings'
 import { createClass, listClasses, type RallyeClass } from '../../lib/api/classes'
 import type { Court } from '../../lib/api/courts'
@@ -308,9 +309,11 @@ export function NovaReservaSheet({
 
   return (
     <BottomSheet open={open} onClose={onClose} label="Nova reserva">
-      <button className="iconbtn sclose" type="button" aria-label="Fechar" onClick={onClose}>
-        ×
-      </button>
+      <div className="sclose">
+        <IconButton variant="ghost" size="sm" label="Fechar" onClick={onClose}>
+          ×
+        </IconButton>
+      </div>
       <h2>Nova reserva</h2>
       <p className="ssub">Os campos mudam conforme o tipo.</p>
       <div className="stack">

@@ -15,8 +15,8 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  background: var(--surface);
-  border: 1px solid var(--border);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-pill);
   padding: 0 14px;
   min-height: 40px;
@@ -24,7 +24,7 @@
 .add-student-search input {
   border: none;
   background: none;
-  color: var(--text-primary);
+  color: var(--text-heading);
   font-family: var(--font-body);
   font-size: 13px;
   flex: 1;
@@ -43,9 +43,9 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 14px;
   cursor: pointer;
   width: 100%;
@@ -54,7 +54,7 @@
   color: inherit;
 }
 .add-student-row:hover:not(:disabled) {
-  border-color: var(--teal);
+  border-color: var(--interactive-primary);
 }
 .add-student-row:disabled {
   opacity: 0.6;
@@ -64,7 +64,7 @@
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: var(--sand);
+  background: var(--sand-200);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -84,9 +84,9 @@
 }
 
 .add-student-warning {
-  background: var(--sand);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  background: var(--sand-200);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: var(--space-4);
   font-size: 12.5px;
 }

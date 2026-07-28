@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { IconButton } from '../../components/ui/IconButton/IconButton'
+import { Input } from '../../components/ui/Input/Input'
+import { Segmented } from '../../components/ui/Segmented/Segmented'
+import { Select } from '../../components/ui/Select/Select'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { listCourts, type Court } from '../../lib/api/courts'
@@ -153,38 +157,31 @@ export default function AG2WeekPage() {
         <h1>Agenda</h1>
         <div className="spacer" />
         <div className="date-nav">
-          <button className="iconbtn" aria-label="Semana anterior" onClick={() => changeWeek(-1)}>
+          <IconButton variant="secondary" size="sm" label="Semana anterior" onClick={() => changeWeek(-1)}>
             ‹
-          </button>
+          </IconButton>
           <span className="dlabel">{formatWeekLabel(monday)}</span>
-          <button className="iconbtn" aria-label="Próxima semana" onClick={() => changeWeek(1)}>
+          <IconButton variant="secondary" size="sm" label="Próxima semana" onClick={() => changeWeek(1)}>
             ›
-          </button>
+          </IconButton>
         </div>
-        <div className="seg2">
-          <button type="button" onClick={goDay}>
-            Dia
-          </button>
-          <button className="active" type="button">
-            Semana
-          </button>
-        </div>
-        <select
-          className="ag-search"
-          aria-label="Quadra"
+        <Segmented
+          ariaLabel="Alternar entre visão Dia e Semana"
+          options={['Dia', 'Semana']}
+          value="Semana"
+          onChange={(option) => {
+            if (option === 'Dia') goDay()
+          }}
+        />
+        <Select
+          ariaLabel="Quadra"
           value={selectedCourtId}
           onChange={(e) => setSelectedCourtId(e.target.value)}
-        >
-          {courts.map((court) => (
-            <option key={court.id} value={court.id}>
-              {court.name} · {court.sport}
-            </option>
-          ))}
-        </select>
-        <input
-          className="ag-search"
+          options={courts.map((court) => ({ value: court.id, label: `${court.name} · ${court.sport}` }))}
+        />
+        <Input
           type="search"
-          aria-label="Buscar por aluno, professor ou quadra"
+          ariaLabel="Buscar por aluno, professor ou quadra"
           placeholder="🔍 Buscar"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

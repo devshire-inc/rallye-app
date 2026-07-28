@@ -36,7 +36,7 @@
   gap: 10px;
   font-size: 13px;
   padding: 6px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-default);
 }
 .srow .lbl {
   min-width: 60px;
@@ -50,13 +50,13 @@
   align-items: flex-start;
   gap: 8px;
   padding: 10px 14px;
-  border-radius: var(--radius-input);
+  border-radius: var(--radius-sm);
   font-size: 12.5px;
   margin: 0;
 }
 .toast-neutral {
-  background: var(--sand);
-  color: var(--text-primary);
+  background: var(--sand-200);
+  color: var(--text-heading);
 }
 
 .waitlist-sheet-full {
@@ -65,8 +65,8 @@
   color: var(--text-muted);
   text-align: center;
   padding: 10px 14px;
-  border-radius: var(--radius-input);
-  background: var(--sand);
+  border-radius: var(--radius-sm);
+  background: var(--sand-200);
   margin: 0;
 }
 
@@ -75,7 +75,7 @@
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: var(--text-primary);
+  color: var(--text-heading);
   cursor: pointer;
 }
 .waitlist-sheet-toggle input {

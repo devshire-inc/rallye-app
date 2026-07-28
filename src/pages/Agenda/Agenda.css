@@ -25,9 +25,9 @@
   width: 32px;
   height: 32px;
   border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -48,12 +48,12 @@
 .seg2 {
   display: inline-flex;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
+  border: 1px solid var(--border-default);
   overflow: hidden;
 }
 .seg2 button {
   border: none;
-  background: var(--surface);
+  background: var(--surface-card);
   color: var(--text-muted);
   font-weight: 600;
   font-size: 12.5px;
@@ -61,15 +61,15 @@
   cursor: pointer;
 }
 .seg2 button.active {
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
 }
 .ag-search {
   min-height: 36px;
   border-radius: var(--radius-pill);
-  border: 1px solid var(--border);
-  background: var(--surface);
-  color: var(--text-primary);
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
   padding: 0 var(--space-3);
   font-size: 13px;
   max-width: 220px;
@@ -97,23 +97,23 @@
   border: 1px solid transparent;
 }
 .sq-conf {
-  background: color-mix(in srgb, var(--success-fg) 25%, var(--surface));
-  border-color: var(--success-fg);
+  background: color-mix(in srgb, var(--state-success) 25%, var(--surface-card));
+  border-color: var(--state-success);
 }
 .sq-pend {
-  background: color-mix(in srgb, var(--warning-fg) 25%, var(--surface));
-  border-color: var(--warning-fg);
+  background: color-mix(in srgb, var(--state-warning) 25%, var(--surface-card));
+  border-color: var(--state-warning);
 }
 .sq-part {
-  background: color-mix(in srgb, var(--teal) 25%, var(--surface));
-  border-color: var(--teal);
+  background: color-mix(in srgb, var(--interactive-primary) 25%, var(--surface-card));
+  border-color: var(--interactive-primary);
 }
 .sq-block {
-  background: color-mix(in srgb, var(--error-fg) 25%, var(--surface));
-  border-color: var(--error-fg);
+  background: color-mix(in srgb, var(--state-danger) 25%, var(--surface-card));
+  border-color: var(--state-danger);
 }
 .sq-free {
-  border: 1px dashed var(--border);
+  border: 1px dashed var(--border-default);
 }
 
 .cal-wrap {
@@ -127,12 +127,12 @@
   position: relative;
   grid-template-rows: 40px repeat(16, 48px);
   min-width: 640px;
-  border-top: 1px solid var(--border);
-  border-left: 1px solid var(--border);
+  border-top: 1px solid var(--border-default);
+  border-left: 1px solid var(--border-default);
 }
 .head {
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
   padding: 6px 8px;
   font-size: 12px;
   font-weight: 600;
@@ -141,7 +141,7 @@
   gap: 2px;
 }
 .head.today {
-  background: color-mix(in srgb, var(--accent) 14%, var(--surface));
+  background: color-mix(in srgb, var(--interactive-primary) 14%, var(--surface-card));
 }
 .head small {
   font-weight: 400;
@@ -160,8 +160,8 @@
   display: inline-block;
 }
 .hr {
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
   font-size: 10.5px;
   color: var(--text-muted);
   padding: 4px 6px;
@@ -169,12 +169,12 @@
   align-items: flex-start;
 }
 .cal-cell {
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
   cursor: pointer;
 }
 .cal-cell:hover {
-  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  background: color-mix(in srgb, var(--interactive-primary) 10%, transparent);
 }
 .cal-cell[aria-disabled='true'] {
   cursor: default;
@@ -202,33 +202,33 @@
   font-size: 10px;
 }
 .booking.bk-conf {
-  background: color-mix(in srgb, var(--success-fg) 18%, var(--surface));
-  border-color: var(--success-fg);
+  background: color-mix(in srgb, var(--state-success) 18%, var(--surface-card));
+  border-color: var(--state-success);
 }
 .booking.bk-pend {
-  background: color-mix(in srgb, var(--warning-fg) 18%, var(--surface));
-  border-color: var(--warning-fg);
+  background: color-mix(in srgb, var(--state-warning) 18%, var(--surface-card));
+  border-color: var(--state-warning);
 }
 .booking.bk-part {
-  background: color-mix(in srgb, var(--teal) 18%, var(--surface));
-  border-color: var(--teal);
+  background: color-mix(in srgb, var(--interactive-primary) 18%, var(--surface-card));
+  border-color: var(--interactive-primary);
 }
 .booking.bk-block {
-  background: color-mix(in srgb, var(--error-fg) 18%, var(--surface));
-  border-color: var(--error-fg);
+  background: color-mix(in srgb, var(--state-danger) 18%, var(--surface-card));
+  border-color: var(--state-danger);
 }
 
 .col-blocked {
   grid-row: 2 / span 16;
   background: repeating-linear-gradient(
     135deg,
-    color-mix(in srgb, var(--error-fg) 8%, transparent),
-    color-mix(in srgb, var(--error-fg) 8%, transparent) 6px,
+    color-mix(in srgb, var(--state-danger) 8%, transparent),
+    color-mix(in srgb, var(--state-danger) 8%, transparent) 6px,
     transparent 6px,
     transparent 12px
   );
-  border-right: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
+  border-right: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -238,7 +238,7 @@
 .col-blocked span {
   font-size: 11px;
   font-weight: 600;
-  color: var(--error-fg);
+  color: var(--state-danger);
 }
 
 .now-line {
@@ -246,7 +246,7 @@
   left: 0;
   right: 0;
   height: 2px;
-  background: var(--error-fg);
+  background: var(--state-danger);
   pointer-events: none;
   z-index: 2;
 }
@@ -259,11 +259,11 @@
   height: 52px;
   border-radius: 50%;
   border: none;
-  background: var(--accent);
-  color: var(--on-accent);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 4px 14px rgba(2, 10, 16, 0.25);
+  box-shadow: var(--shadow-raised);
   z-index: 20;
 }
 
@@ -276,7 +276,7 @@
   color: var(--text-muted);
 }
 .wk-stats b {
-  color: var(--text-primary);
+  color: var(--text-heading);
 }
 
 /* ---------- AG3 — Minha agenda ---------- */
@@ -299,8 +299,8 @@
   align-items: center;
   gap: var(--space-3);
   padding: var(--space-3);
-  background: var(--surface);
-  border-radius: var(--radius-input);
+  background: var(--surface-card);
+  border-radius: var(--radius-sm);
   cursor: pointer;
 }
 .ag-row .when {
@@ -336,7 +336,7 @@
 .linkbtn {
   background: none;
   border: none;
-  color: var(--link);
+  color: var(--interactive-primary);
   font-weight: 600;
   font-size: 12px;
   cursor: pointer;

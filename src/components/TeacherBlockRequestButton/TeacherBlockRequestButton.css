@@ -5,15 +5,15 @@
 .teacher-block-request-sheet__date-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--space-3, 12px);
+  gap: var(--space-3);
 }
 
 .teacher-block-request-sheet__affected-box {
   font-size: 12.5px;
-  color: var(--text-primary);
-  background: var(--surface-muted, var(--surface));
-  border: 1px solid var(--border);
-  border-radius: var(--radius-input);
+  color: var(--text-heading);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
 }
 
@@ -25,9 +25,9 @@
 .teacher-block-request-sheet__submit-error {
   font-size: 12.5px;
   font-weight: 600;
-  color: var(--error-fg);
-  background: var(--error-bg);
-  border-radius: var(--radius-input);
+  color: var(--state-danger);
+  background: var(--state-danger-soft);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
   margin: 0;
 }
@@ -35,9 +35,9 @@
 .teacher-block-request-sheet__success {
   font-size: 13px;
   font-weight: 600;
-  color: var(--success-fg);
-  background: var(--success-bg);
-  border-radius: var(--radius-input);
+  color: var(--state-success);
+  background: var(--state-success-soft);
+  border-radius: var(--radius-sm);
   padding: 10px 12px;
 }
 
