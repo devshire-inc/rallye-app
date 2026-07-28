@@ -13,6 +13,7 @@
   gap: var(--space-4);
   width: 100%;
 }
+/* breakpoints.ts: BREAKPOINT_TABLET_MIN é a fonte canônica deste valor */
 @media (min-width: 640px) {
   .arena-grid {
     grid-template-columns: 1fr 1fr;

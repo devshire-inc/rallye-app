@@ -94,6 +94,9 @@
 .form-grid .span2 {
   grid-column: 1 / -1;
 }
+/* breakpoints.ts: BREAKPOINT_DAYUSE_FORM_STACK_MAX é a fonte canônica deste
+   valor — mantido separado do 640px (BREAKPOINT_TABLET_MIN) porque consolidar
+   mudaria o comportamento visual observável entre 620px e 640px de largura */
 @media (max-width: 620px) {
   .form-grid {
     grid-template-columns: 1fr;
