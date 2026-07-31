@@ -1,0 +1,40 @@
+/* Rallye Design System — BracketRoundHeader (Figma node 265:1433, variants
+   265:1421..265:1430). Cabeçalho de rodada: nome (Overline) + contagem de
+   jogos (Body/Small) sobre surface/sunken + radius/md. Final recebe
+   tratamento destacado (surface/brand-soft + text/brand-strong) por ser a
+   rodada do campeonato — condicional, não uma variante copiada à parte. */
+
+.bracket-round-header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 240px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.bracket-round-header__name {
+  margin: 0;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-heading);
+  text-transform: uppercase;
+}
+
+.bracket-round-header__count {
+  flex-shrink: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.bracket-round-header--final {
+  background: var(--surface-brand-soft);
+}
+
+.bracket-round-header--final .bracket-round-header__name {
+  color: var(--text-brand-strong);
+}

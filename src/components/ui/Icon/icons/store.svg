@@ -1,0 +1,9 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon/store">
+<g id="Frame">
+<path id="Vector" d="M3 9V20C3 20.2652 3.10536 20.5196 3.29289 20.7071C3.48043 20.8946 3.73478 21 4 21H20C20.2652 21 20.5196 20.8946 20.7071 20.7071C20.8946 20.5196 21 20.2652 21 20V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M2 8.99999L4.5 3.49999C4.59058 3.34287 4.72217 3.21334 4.88071 3.12526C5.03924 3.03719 5.21875 2.99388 5.4 2.99999H18.6C18.7813 2.99388 18.9608 3.03719 19.1193 3.12526C19.2778 3.21334 19.4094 3.34287 19.5 3.49999L22 8.99999H2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M9 21V15H15V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</svg>

@@ -1,28 +1,73 @@
+/* Rallye Design System — TimePicker (Figma node 46:2)
+   Single layout axis: Layout=Grid (padrão) | Grouped | List, chosen by the
+   caller via the `layout` prop. Slot states: Available/Selected/Few/Unavailable,
+   in two shapes — Chip (Grid) 104x76ish and Row (Grouped/List) fluid x 60px.
+   `variant="wheel"` is a separate, pre-existing native-<select> picker that
+   isn't part of this Figma pass — left untouched below. */
+
 .time-picker {
-  display: inline-flex;
+  display: block;
 }
+
+/* ---------- Layout=Grid (Chip) ---------- */
 
 .time-picker__grid {
   display: grid;
-  grid-template-columns: repeat(var(--time-picker-columns), 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--space-2);
 }
 
+/* "Contagem de colunas é responsiva, não é variante" (node 74:2) — 4 no
+   desktop, 3 no mobile, quando o caller não fixa `columns` explicitamente. */
+@media (max-width: 640px) {
+  .time-picker__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.time-picker__grid--fixed-columns {
+  grid-template-columns: repeat(var(--time-picker-columns), 1fr);
+}
+
 .time-picker__slot {
-  height: var(--control-h-sm);
-  padding: 0 var(--space-3);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: 76px;
+  padding: var(--space-2) var(--space-3);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-md);
   background: var(--surface-card);
-  color: var(--text-heading);
-  font: var(--type-numeric);
+  color: var(--text-body);
+  text-align: center;
   cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
 }
 
-.time-picker__slot:disabled {
+.time-picker__slot:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.time-picker__slot-time {
+  font: var(--type-numeric);
+  font-weight: 700;
+}
+
+.time-picker__slot-price {
+  font: var(--type-small);
   color: var(--text-muted);
-  opacity: 0.4;
-  cursor: not-allowed;
+}
+
+.time-picker__slot-note {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
 }
 
 .time-picker__slot--selected {
@@ -31,7 +76,188 @@
   color: var(--text-on-brand);
 }
 
+.time-picker__slot--selected .time-picker__slot-price {
+  color: var(--text-on-brand-soft);
+}
+
+.time-picker__slot--few {
+  background: var(--state-warning-soft);
+  border-color: var(--state-warning-text);
+  color: var(--state-warning-text);
+}
+
+.time-picker__slot--unavailable,
+.time-picker__slot:disabled {
+  background: var(--surface-sunken);
+  border-color: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.time-picker__slot--unavailable .time-picker__slot-time,
+.time-picker__slot:disabled .time-picker__slot-time {
+  text-decoration: line-through;
+  text-decoration-skip-ink: none;
+}
+
+/* ---------- Layout=Grouped / Layout=List (Row) ---------- */
+
+.time-picker--grouped,
+.time-picker--list {
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+}
+
+.time-picker__groups,
+.time-picker__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.time-picker__period {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.time-picker__list-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.time-picker__period-header {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  cursor: pointer;
+}
+
+.time-picker__period-header--static {
+  cursor: default;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.time-picker__period-header:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.time-picker__period-label {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.time-picker__period-meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.time-picker__period-count {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.time-picker__chevron {
+  width: 10px;
+  height: 5px;
+  transition: transform var(--dur-fast) var(--ease-standard);
+}
+
+.time-picker__chevron--expanded {
+  transform: rotate(180deg);
+}
+
+.time-picker__row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 60px;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+  color: var(--text-body);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.time-picker__row:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.time-picker__row-time {
+  font: var(--type-numeric);
+  font-weight: 700;
+}
+
+.time-picker__row-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.time-picker__row-price {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.time-picker__row-note {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+}
+
+.time-picker__row--selected {
+  background: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+  color: var(--text-on-brand);
+}
+
+.time-picker__row--selected .time-picker__row-price {
+  color: var(--text-on-brand-soft);
+}
+
+.time-picker__row--few {
+  background: var(--state-warning-soft);
+  border-color: var(--state-warning-text);
+  color: var(--state-warning-text);
+}
+
+.time-picker__row--unavailable {
+  background: var(--surface-sunken);
+  border-color: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
+}
+
+.time-picker__row--unavailable .time-picker__row-time {
+  text-decoration: line-through;
+  text-decoration-skip-ink: none;
+}
+
+/* ---------- variant="wheel" (unchanged — not part of the Figma TimePicker spec) ---------- */
+
 .time-picker--wheel {
+  display: inline-flex;
   gap: var(--space-3);
 }
 

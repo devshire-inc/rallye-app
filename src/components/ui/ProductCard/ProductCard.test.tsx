@@ -29,6 +29,12 @@ describe('ProductCard', () => {
     expect(screen.getByText('Promoção')).toBeInTheDocument()
   })
 
+  it('renders oldPrice independently of tag (node 330:1468 — HasOldPrice without HasTag)', () => {
+    render(<ProductCard name="Bola" price="R$ 20" oldPrice="R$ 30" />)
+    expect(screen.getByText('R$ 30')).toBeInTheDocument()
+    expect(screen.queryByText(/./, { selector: '.badge' })).not.toBeInTheDocument()
+  })
+
   it('renders a text placeholder when image is absent', () => {
     render(<ProductCard name="Bola" price="R$ 20" />)
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
@@ -48,6 +54,26 @@ describe('ProductCard', () => {
     expect(img.getAttribute('alt')).toBe('Produto')
   })
 
+  it('does not render an arena name or review label when absent', () => {
+    render(<ProductCard name="Bola" price="R$ 20" />)
+    expect(document.querySelector('.product-card__arena')).not.toBeInTheDocument()
+    expect(document.querySelector('.product-card__review')).not.toBeInTheDocument()
+  })
+
+  it('renders arenaName when given (multi-arena marketplace label)', () => {
+    render(<ProductCard name="Bola" price="R$ 20" arenaName="Arena Beira-Mar" />)
+    expect(
+      screen.getByText('Arena Beira-Mar', { selector: '.product-card__arena' }),
+    ).toBeInTheDocument()
+  })
+
+  it('renders reviewLabel when given', () => {
+    render(<ProductCard name="Bola" price="R$ 20" reviewLabel="⭐ 4.7 (23)" />)
+    expect(
+      screen.getByText('⭐ 4.7 (23)', { selector: '.product-card__review' }),
+    ).toBeInTheDocument()
+  })
+
   it('renders as a <div> when onClick is absent', () => {
     const { container } = render(<ProductCard name="Bola" price="R$ 20" />)
     expect(container.querySelector('div.product-card')).toBeInTheDocument()
@@ -65,11 +91,23 @@ describe('ProductCard', () => {
     expect(onClick).toHaveBeenCalledTimes(1)
   })
 
-  it('CSS: media uses a 4/3 aspect-ratio, price is highlighted with --text-brand, no hex literals', () => {
+  it('CSS: media is a fixed 120px height (node 44:16), price is highlighted with --text-brand, no hex literals', () => {
     const css = readFileSync('src/components/ui/ProductCard/ProductCard.css', 'utf8')
-    expect(css).toMatch(/aspect-ratio:\s*4\s*\/\s*3/)
+    expect(css).toMatch(/\.product-card__media\s*\{[^}]*height:\s*120px/)
     const priceBlock = /\.product-card__price\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
     expect(priceBlock).toMatch(/color:\s*var\(--text-brand\)/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+  })
+
+  it('CSS: old price is struck through (node doc: "preço riscado")', () => {
+    const css = readFileSync('src/components/ui/ProductCard/ProductCard.css', 'utf8')
+    const oldPriceBlock = /\.product-card__old-price\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+    expect(oldPriceBlock).toMatch(/text-decoration:\s*line-through/)
+  })
+
+  it('CSS: button hover elevates from Shadow/Card to Shadow/Raised (node 85:104)', () => {
+    const css = readFileSync('src/components/ui/ProductCard/ProductCard.css', 'utf8')
+    expect(css).toMatch(/\.product-card\s*\{[^}]*box-shadow:\s*var\(--shadow-card\)/)
+    expect(css).toMatch(/button\.product-card:hover[^{]*\{[^}]*box-shadow:\s*var\(--shadow-raised\)/)
   })
 })

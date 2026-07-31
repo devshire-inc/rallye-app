@@ -1,0 +1,16 @@
+.otp-input-story-grid {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: var(--space-8) var(--space-10);
+}
+
+.otp-input-story-label {
+  margin: 0 0 var(--space-2);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.otp-input-story--focus .otp-input__box:nth-child(2) {
+  border-color: var(--border-default);
+  box-shadow: var(--focus-ring);
+}

@@ -1,0 +1,28 @@
+.input-story-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.input-story-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-6);
+}
+
+.input-story-row__label {
+  width: 60px;
+  padding-top: var(--space-2);
+  font: var(--type-small);
+  text-transform: capitalize;
+}
+
+.input-story-cell {
+  width: 240px;
+}
+
+/* Storybook-only: forces the Focus ring on the States grid, since real
+   :focus-within can't be held on multiple fields at once. */
+.input-story--focus .input__field {
+  box-shadow: var(--focus-ring);
+}

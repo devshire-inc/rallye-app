@@ -1,19 +1,63 @@
+/* Rallye Design System — Tabs (Figma node 33:22 "Tabs" /
+   33:35 "Tab Item" / 33:36 "Example / Tabs group")
+   Abas com sublinhado laranja — no container border-bottom, each tab
+   reserves the underline's footprint (space-2 gap + 3px bar) in its own
+   padding so the row height stays a stable >=44px touch target, and a
+   single shared `.tabs__indicator` slides/resizes under the active tab
+   (position/width supplied by Tabs.tsx as --tabs-indicator-x/-width,
+   measured per-render) instead of each tab drawing its own underline —
+   same pattern as Segmented's pill indicator, just a thin bottom bar. */
+
 .tabs {
+  position: relative;
   display: flex;
   gap: var(--space-6);
-  border-bottom: 2px solid var(--border-default);
+}
+
+.tabs__indicator {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  z-index: 0;
+  height: 3px;
+  width: var(--tabs-indicator-width, 0);
+  background: var(--interactive-primary);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  transform: translateX(var(--tabs-indicator-x, 0));
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    width var(--dur-base) var(--ease-standard);
+  pointer-events: none;
 }
 
 .tabs__tab {
-  padding: var(--space-3) 0;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  min-height: var(--control-h-sm);
+  padding: 17px var(--space-1) 11px;
   border: none;
   background: transparent;
-  font: var(--type-subtitle);
+  font: var(--type-label);
   color: var(--text-muted);
   cursor: pointer;
+  transition: color var(--dur-fast) var(--ease-standard);
+}
+
+/* Same single box-shadow ring convention as Button/Segmented/Checkbox
+   (doc/focus-standard, node 258:1068) rather than Figma's literal outside
+   stroke around the label+underline. */
+.tabs__tab:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .tabs__tab--active {
-  color: var(--text-brand);
-  box-shadow: 0 2px 0 0 var(--interactive-primary);
+  color: var(--text-heading);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabs__indicator {
+    transition: none;
+  }
 }

@@ -1,7 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ButtonHTMLAttributes, ReactNode } from 'react'
 import './IconButton.css'
 
-export interface IconButtonProps {
+export interface IconButtonProps
+  extends Omit<
+    ButtonHTMLAttributes<HTMLButtonElement>,
+    'className' | 'title' | 'aria-label' | 'onClick' | 'disabled' | 'type'
+  > {
   size?: 'sm' | 'md' | 'lg'
   variant?: 'primary' | 'secondary' | 'ghost'
   label: string
@@ -19,6 +23,7 @@ export function IconButton({
   onClick,
   disabled = false,
   type = 'button',
+  ...nativeProps
 }: IconButtonProps) {
   return (
     <button
@@ -28,6 +33,7 @@ export function IconButton({
       title={label}
       disabled={disabled}
       onClick={onClick}
+      {...nativeProps}
     >
       {children}
     </button>

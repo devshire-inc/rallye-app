@@ -1,0 +1,6 @@
+.chip-story-grid {
+  display: grid;
+  grid-template-columns: repeat(2, max-content);
+  gap: var(--space-4) var(--space-6);
+  align-items: center;
+}

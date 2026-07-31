@@ -28,26 +28,26 @@ const STATUS_LABEL = {
 
 export function ClassCard({ title, sport, time, court, coach, status, onClick }: ClassCardProps) {
   const style = { '--class-card-accent': `var(${sportCssVar(sport)})` } as CSSProperties
+  const meta = [coach, court].filter(Boolean).join(' · ')
 
   const content = (
     <>
       <span className="class-card__accent" aria-hidden="true" />
-      <div className="class-card__body">
-        <div className="class-card__header">
-          {title ? <span className="class-card__title">{title}</span> : null}
-          {status ? <Badge tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Badge> : null}
-        </div>
-        <div className="class-card__meta">
-          {time ? <span>{time}</span> : null}
-          {court ? <span>{court}</span> : null}
-        </div>
-        {coach ? (
-          <div className="class-card__coach">
-            <Avatar name={coach} size={28} />
-            <span>{coach}</span>
+      {time ? <span className="class-card__time">{time}</span> : null}
+      <div className="class-card__info">
+        {title ? <span className="class-card__title">{title}</span> : null}
+        {meta ? (
+          <div className="class-card__meta">
+            <Avatar name={coach} size="xs" />
+            <span className="class-card__meta-text">{meta}</span>
           </div>
         ) : null}
       </div>
+      {status ? (
+        <span className="class-card__status">
+          <Badge tone={STATUS_TONE[status]}>{STATUS_LABEL[status]}</Badge>
+        </span>
+      ) : null}
     </>
   )
 

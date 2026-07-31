@@ -1,0 +1,56 @@
+/* Rallye Design System — LevelProgress (Figma node 196:33, "Progress=Default")
+   Barra de progresso até o próximo nível. Trilho surface/sunken,
+   preenchimento interactive/primary, textos em text/muted e text/heading.
+   Decorativa: sem estado de foco/interativo. */
+
+.level-progress {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 280px;
+}
+
+.level-progress__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font: var(--type-body);
+  white-space: nowrap;
+}
+
+.level-progress__criterion {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.level-progress__percent {
+  color: var(--text-muted);
+}
+
+.level-progress__track {
+  position: relative;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.level-progress__fill {
+  position: absolute;
+  inset: 0;
+  width: var(--level-progress-percent, 0%);
+  border-radius: var(--radius-pill);
+  background: var(--interactive-primary);
+}
+
+.level-progress__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font: var(--type-body);
+  color: var(--text-muted);
+  white-space: nowrap;
+}

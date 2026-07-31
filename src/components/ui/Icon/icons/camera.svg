@@ -1,0 +1,8 @@
+<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="icon/camera">
+<g id="Frame">
+<path id="Vector" d="M7.5 8H4C2.9 8 2 8.9 2 10V18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V10C22 8.9 21.1 8 20 8H16.5L15 5H9L7.5 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M16 13.5C16 15.71 14.21 17.5 12 17.5C9.79 17.5 8 15.71 8 13.5C8 11.29 9.79 9.5 12 9.5C14.21 9.5 16 11.29 16 13.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+</svg>

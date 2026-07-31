@@ -1,0 +1,9 @@
+.court-card-story-wrap {
+  max-width: 220px;
+}
+
+.court-card-story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 220px);
+  gap: var(--space-4);
+}

@@ -1,7 +1,15 @@
+/* Rallye Design System — Input (Figma node 31:2, states grid 31:26)
+   Size (Small/Medium/Large) x State (Default/Focus/Error/Disabled). */
+
 .input {
   display: flex;
   flex-direction: column;
   gap: var(--space-1);
+}
+
+.input--disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .input label {
@@ -10,27 +18,78 @@
 }
 
 .input__field {
+  box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: var(--space-2);
+  border-style: solid;
+  border-color: var(--border-default);
+  background: var(--surface-card);
+  transition:
+    box-shadow var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+/* Focus ring wraps the control itself, per doc/focus-standard (node
+   258:747) — same single box-shadow token already used by Button/Checkbox,
+   rather than Figma's fake double-drop-shadow technique. */
+.input__field:focus-within {
+  box-shadow: var(--focus-ring);
+}
+
+.input__field--error {
+  border-width: 2px;
+  border-color: var(--state-danger);
+}
+
+/* Small — 38px is Input-specific per Figma (this is not the same "small"
+   height as --control-h-sm, which other controls use for 44px); radius and
+   padding have no matching token so literal values are used, same
+   precedent as Checkbox's 5px box radius. */
+.input__field--sm {
+  height: 38px;
+  padding: 0 14px;
+  border-width: 1.5px;
+  border-radius: 12px;
+}
+
+.input__field--md {
   height: var(--control-h-md);
   padding: 0 var(--space-4);
-  border: 1px solid var(--border-default);
+  border-width: 1.5px;
   border-radius: var(--radius-md);
-  background: var(--surface-card);
+}
+
+/* Large — height matches --control-h-lg; radius/padding have no matching
+   token so literal values are used. */
+.input__field--lg {
+  height: var(--control-h-lg);
+  padding: 0 18px;
+  border-width: 1.5px;
+  border-radius: 16px;
 }
 
 .input__control {
   flex: 1;
+  min-width: 0;
   height: 100%;
   border: none;
   outline: none;
   background: transparent;
   font: var(--type-body);
-  color: var(--text-heading);
+  color: var(--text-body);
+}
+
+.input__control::placeholder {
+  color: var(--text-muted);
+}
+
+.input__control:disabled {
+  cursor: not-allowed;
 }
 
 .input__prefix {
+  flex-shrink: 0;
   font: var(--type-body);
   color: var(--text-muted);
 }
@@ -42,5 +101,5 @@
 
 .input__error {
   font: var(--type-small);
-  color: var(--state-danger);
+  color: var(--state-danger-text);
 }

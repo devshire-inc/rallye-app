@@ -1,0 +1,18 @@
+.avatar-story-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.avatar-story-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.avatar-story-row__label {
+  width: 80px;
+  font: var(--type-small);
+  text-transform: capitalize;
+}

@@ -1,0 +1,19 @@
+/* Rallye Design System — Table Header Cell (Figma node 202:2)
+   Célula de cabeçalho de coluna da tabela desktop composta na tela — ver
+   Table / Documentation (node 239:382): não existe um componente "Table"
+   fechado, então este `<th>` é usado dentro de um `<thead><tr>` montado
+   pelo caller junto de outras TableHeaderCell + TableRow/Pagination. */
+
+.table-header-cell {
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 var(--space-4);
+  background: var(--surface-sunken);
+  border-bottom: 1.5px solid var(--border-default);
+  text-align: left;
+  vertical-align: middle;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+  white-space: nowrap;
+}

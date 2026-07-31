@@ -1,0 +1,9 @@
+/* Toast é position: fixed por padrão (ancorado na viewport) — a grade de
+   States precisa neutralizar isso pra renderizar cada variante no fluxo
+   normal, lado a lado, em vez de todas empilhadas no mesmo canto da tela. */
+.toast-story-grid .toast {
+  position: static;
+  transform: none;
+  width: 100%;
+  max-width: 420px;
+}

@@ -34,9 +34,9 @@
   /* Cores por esporte */
   --sport-beach-tennis: #F96420;
   --sport-padel: #1E7FB5;
-  --sport-futevolei: #17915B;
+  --sport-futevolei: #14808A;
   --sport-volei: #F6A821;
-  --sport-tenis: #7A6FB8;
+  --sport-tenis: #A8562F;
   --sport-outro: #5D7186;
 
   /* Aliases semânticos — tema claro */
@@ -45,11 +45,11 @@
   --surface-sunken: var(--sand-100);
   --surface-inverse: var(--navy-900);
   --surface-brand: var(--orange-500);
-  --surface-brand-soft: var(--orange-50);
+  --surface-brand-soft: var(--orange-100);
   --text-heading: var(--navy-900);
   --text-body: var(--navy-700);
   --text-muted: var(--navy-500);
-  --text-brand: var(--orange-600);
+  --text-brand: var(--orange-700);
   --text-on-brand: #FFFFFF;
   --text-inverse: #FDF8F0;
   --border-default: #EBDFC9;
@@ -57,16 +57,67 @@
   --interactive-primary: var(--orange-500);
   --interactive-primary-hover: var(--orange-600);
   --interactive-primary-press: var(--orange-700);
-  --focus-ring-color: rgba(249,100,32,.4);
+  --focus-ring-color: var(--orange-700);
   --state-success: var(--green-600);
   --state-success-soft: var(--green-100);
+  --state-success-text: #0E6E44;
   --state-warning: var(--amber-500);
   --state-warning-soft: var(--amber-100);
-  --state-warning-text: #926400;
+  --state-warning-text: #8A5A00;
   --state-danger: var(--red-600);
   --state-danger-soft: var(--red-100);
+  --state-danger-text: #B0341C;
   --state-info: var(--blue-600);
   --state-info-soft: var(--blue-100);
+  --state-info-text: #17618C;
+  --text-brand-strong: #AD3C06;
+
+  /* Gamification (Medal, node 196:32) — 3 degraus por família de tier, verificados
+     via get_variable_defs no Figma (bronze/prata/ouro/platina/diamante). O base é
+     mode-invariant e serve SÓ para preenchimento sólido com glifo branco (Avatar
+     Badge) — nunca como cor de texto/stroke, o contraste falha (platina 1,40:1,
+     ouro 1,75:1, prata 1,92:1 no Light). -soft é a tinta clara decorativa do
+     metal; quem carrega forma+informação com contraste real é -strong (stroke,
+     3:1+) e -text (texto, 4,5:1+) — mesmo hex nos dois casos nesta rampa. Platina
+     migrou de sand (quente) para teal (frio) em 2026 porque sand/100 e amber/100
+     eram quase a mesma cor. */
+  --gamification-bronze: var(--orange-700);
+  --gamification-bronze-soft: #FFE4D1;
+  --gamification-bronze-strong: #AD3C06;
+  --gamification-bronze-text: #AD3C06;
+  --gamification-prata: var(--navy-500);
+  --gamification-prata-soft: #E1E7ED;
+  --gamification-prata-strong: #33475C;
+  --gamification-prata-text: #33475C;
+  --gamification-ouro: var(--state-warning-text);
+  --gamification-ouro-soft: #FDEFCF;
+  --gamification-ouro-strong: #8A5A00;
+  --gamification-ouro-text: #8A5A00;
+  --gamification-platina: #1A7D72;
+  --gamification-platina-soft: #D7ECE7;
+  --gamification-platina-strong: #14675F;
+  --gamification-platina-text: #14675F;
+  --gamification-diamante: var(--state-info);
+  --gamification-diamante-soft: #DEEFF8;
+  --gamification-diamante-strong: #17618C;
+  --gamification-diamante-text: #17618C;
+
+  /* StatusMessage (node 100:25) — glifo sobre superfície de estado saturada
+     precisa de um token on-state-* por tom quando text/on-brand (branco) não
+     atinge 3:1. Hoje só o Warning: branco sobre state/warning media 1,99:1;
+     este alias amber/900 mede 4,17:1. Invariante de modo (mesmo valor Light
+     e Dark), como --state-warning-text acima. */
+  --text-on-state-warning: #6B4700;
+
+  /* BottomNav Active — corrigido em 2026-07-30 no Figma (node 83:11): a
+     cápsula ativa usa alpha/orange-14 translúcida com ícone/rótulo em
+     text/on-brand-soft. O antigo texto (var(--text-brand)) media 4,17:1
+     sobre a cápsula composta em surface/card — abaixo do mínimo 4,5:1 pra
+     texto pequeno. text/on-brand-soft mede ~6,9:1 (Light/card). Mesmo padrão
+     de --state-warning-text logo acima: hex literal aqui é intencional (só
+     a camada de tokens, não os componentes, pode declarar cor final). */
+  --alpha-orange-14: rgba(249,100,32,.14);
+  --text-on-brand-soft: #8f3005;
 
   /* Linhas de quadra (motivo decorativo sobre cores de esporte) */
   --court-line: rgba(255,255,255,.35);
@@ -112,7 +163,26 @@
   --text-inverse: var(--navy-900);
   --border-default: #2A3D52;
   --border-strong: #3D5169;
+  --focus-ring-color: var(--orange-500);
+  --state-success-soft: rgba(23,145,91,.14);
+  --state-warning-soft: rgba(246,168,33,.14);
+  --state-danger-soft: rgba(216,69,43,.14);
+  --state-info-soft: rgba(30,127,181,.14);
   --court-line-subtle: rgba(253,248,240,.09);
+
+  /* Gamification -soft (Medal): translúcido no escuro (alpha/*-14), compõe sobre
+     a superfície de trás — mesmo padrão dos --state-*-soft acima. -strong/-text
+     não mudam entre modos (ver nota em :root). */
+  --gamification-bronze-soft: rgba(173,60,6,.14);
+  --gamification-prata-soft: rgba(51,71,92,.14);
+  --gamification-ouro-soft: rgba(138,90,0,.14);
+  --gamification-platina-soft: rgba(20,103,95,.14);
+  --gamification-diamante-soft: rgba(23,97,140,.14);
+
+  /* Figma: "Dark: text/on-brand-soft já resolve pro mesmo valor de
+     text/brand (neutral/text-brand-dark-raw) neste arquivo" — nenhum ajuste
+     dedicado necessário, referencia o alias existente. */
+  --text-on-brand-soft: var(--text-brand);
 
   /* Ponte de compatibilidade legada — recalculada no escuro via os aliases acima */
   --bg: var(--surface-page);

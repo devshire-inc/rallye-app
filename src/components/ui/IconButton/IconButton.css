@@ -1,10 +1,36 @@
+/* Rallye Design System — IconButton (Figma node 78:119)
+   Circular icon-only button. Variant x Size x State grid: Primary/Secondary/Ghost x
+   Small/Medium/Large x Default/Hover/Focus/Disabled — no Loading state (unlike
+   Button, see node 26:3 doc). Icon color is constant per variant across all
+   states — only the background/ring changes; the icon itself comes from the
+   `children` prop (placeholder in Figma pending INSTANCE_SWAP icon library). */
+
 .icon-button {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
+  border: none;
   border-radius: var(--radius-pill);
   cursor: pointer;
   padding: 0;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-bounce);
+}
+
+.icon-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+/* Focus ring follows the same standard already applied to Button (node
+   258:744 "doc/focus-standard") — a single box-shadow ring, rather than the
+   Figma-internal double-drop-shadow technique used to fake it there. */
+.icon-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .icon-button:disabled {
@@ -12,6 +38,9 @@
   cursor: not-allowed;
 }
 
+/* Sizes — literal diameters (34/46/54px), not --control-h-sm/md/lg: Small is
+   desktop-only per Figma doc (touch target <44pt, use Medium/Large on touch
+   surfaces). Same precedent as Button's own literal 34px `sm`. */
 .icon-button--sm {
   width: 34px;
   height: 34px;
@@ -27,21 +56,33 @@
   height: 54px;
 }
 
+/* Primary — filled, brand color */
 .icon-button--primary {
   background: var(--interactive-primary);
   color: var(--text-on-brand);
-  border: none;
 }
 
+.icon-button--primary:hover:not(:disabled) {
+  background: var(--interactive-primary-hover);
+}
+
+/* Secondary — sunken fill, no border/card-shadow (per Figma 78:119, differs
+   from the outlined Button secondary) */
 .icon-button--secondary {
-  background: var(--surface-card);
+  background: var(--surface-sunken);
   color: var(--text-heading);
-  border: 1px solid var(--border-default);
-  box-shadow: var(--shadow-card);
 }
 
+.icon-button--secondary:hover:not(:disabled) {
+  background: var(--border-default);
+}
+
+/* Ghost — transparent by default, tinted sunken fill on hover, no border */
 .icon-button--ghost {
   background: transparent;
   color: var(--text-muted);
-  border: none;
+}
+
+.icon-button--ghost:hover:not(:disabled) {
+  background: var(--surface-sunken);
 }

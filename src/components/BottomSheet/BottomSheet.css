@@ -1,7 +1,7 @@
 .bottom-sheet-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(15,27,38,.5);
+  background: color-mix(in srgb, var(--navy-950) 50%, transparent);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -9,15 +9,50 @@
 }
 
 .bottom-sheet-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
   width: 100%;
   max-width: 480px;
   max-height: 85vh;
   overflow-y: auto;
   background: var(--surface-card);
-  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-  padding: var(--space-6) var(--space-4) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
-  box-shadow: 0 -8px 24px rgba(2, 10, 16, 0.18);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--space-3) var(--space-6) calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+  box-shadow: var(--shadow-overlay);
   animation: bottom-sheet-slide-up var(--dur-slow) var(--ease-standard);
+}
+
+.bottom-sheet-handle {
+  flex-shrink: 0;
+  width: 40px;
+  height: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--border-strong);
+}
+
+.bottom-sheet-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.bottom-sheet-title {
+  flex: 1 1 auto;
+  margin: 0;
+  font: var(--type-heading);
+  color: var(--text-heading);
+  word-break: break-word;
+}
+
+.bottom-sheet-header > .icon-button {
+  margin-left: auto;
+}
+
+.bottom-sheet-content {
+  width: 100%;
 }
 
 @keyframes bottom-sheet-slide-up {

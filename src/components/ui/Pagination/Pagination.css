@@ -1,0 +1,86 @@
+/* Rallye Design System — Pagination (Figma node 202:370)
+   Rodapé de paginação da tabela desktop: contagem + controles de página.
+   O símbolo do Figma usa IconButton/Secondary (46px) como prev/next com um
+   ícone placeholder (gear, herdado do component set genérico) — aqui os
+   glifos reais viram ‹/› textuais já que não existe biblioteca de ícones
+   dedicada ainda; o comportamento/tamanho segue o token. A contagem segue
+   o texto exato exigido pelo doc de a11y (node 239:382): "Página N de M". */
+
+.pagination {
+  box-sizing: border-box;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-3) 0;
+}
+
+.pagination__count {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.pagination__controls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.pagination__nav {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-heading);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.pagination__nav:hover:not(:disabled) {
+  background: var(--border-default);
+}
+
+.pagination__nav:focus-visible,
+.pagination__page:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.pagination__nav:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.pagination__page {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 var(--space-2);
+  border: none;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  font: var(--type-label);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.pagination__page:hover:not(.pagination__page--active) {
+  background: var(--surface-sunken);
+}
+
+.pagination__page--active {
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
+}

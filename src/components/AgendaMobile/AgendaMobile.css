@@ -1,0 +1,220 @@
+/* AgendaMobile — Figma "Agenda — Mobile" (node 63:2/63:6). Pattern novo
+   (navRow + weekStrip + filterRow + timeline), sem componente `ui/`
+   equivalente — ver comentário de módulo em AgendaMobile.tsx. */
+
+.agenda-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+.agenda-mobile__title {
+  margin: 0;
+  font: var(--type-title);
+  color: var(--text-heading);
+}
+
+/* navRow — prev/next (IconButton secondary/sm) flanqueando o rótulo do
+   intervalo de semana. */
+.agenda-mobile__nav-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+}
+
+.agenda-mobile__range {
+  flex: 1 0 0;
+  text-align: center;
+  font: var(--type-heading);
+  color: var(--text-heading);
+}
+
+/* weekStrip — 7 células iguais, dia selecionado em surface-inverse. */
+.agenda-mobile__week-strip {
+  display: flex;
+  gap: var(--space-1);
+  width: 100%;
+}
+
+.agenda-mobile__day {
+  display: flex;
+  flex: 1 0 0;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2) 0;
+  border: none;
+  border-radius: var(--radius-md);
+  background: transparent;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.agenda-mobile__day:hover:not(.agenda-mobile__day--selected) {
+  background: var(--surface-sunken);
+}
+
+.agenda-mobile__day:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.agenda-mobile__day--selected {
+  background: var(--surface-inverse);
+}
+
+.agenda-mobile__day-label {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+.agenda-mobile__day--selected .agenda-mobile__day-label {
+  color: var(--text-inverse);
+  opacity: 0.7;
+}
+
+.agenda-mobile__day-number {
+  font: var(--type-heading);
+  color: var(--text-heading);
+}
+
+.agenda-mobile__day--selected .agenda-mobile__day-number {
+  color: var(--text-inverse);
+}
+
+.agenda-mobile__day-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.agenda-mobile__day-dot--active {
+  background: var(--interactive-primary);
+}
+
+.agenda-mobile__day--selected .agenda-mobile__day-dot--active {
+  background: var(--surface-brand);
+}
+
+/* filterRow — chips com dot colorido por esporte da quadra (não é uma
+   escolha única como Segmented; cada chip alterna independentemente). */
+.agenda-mobile__filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.agenda-mobile__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  height: var(--control-h-sm);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-heading);
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.agenda-mobile__chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.agenda-mobile__chip--selected {
+  border-color: var(--surface-inverse);
+  background: var(--surface-inverse);
+  color: var(--text-inverse);
+}
+
+.agenda-mobile__chip-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--agenda-mobile-chip-color);
+}
+
+/* timeline — linhas de hora fixas (posicionadas por índice) com eventos
+   sobrepostos em posição absoluta, calculada em AgendaMobile.tsx a partir
+   do horário real do evento (computeEventLayout). */
+.agenda-mobile__timeline {
+  position: relative;
+  height: var(--agenda-mobile-timeline-h);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+.agenda-mobile__hour-row {
+  position: absolute;
+  top: var(--agenda-mobile-row-top);
+  left: 0;
+  right: 0;
+  height: var(--agenda-mobile-row-h);
+  border-top: 1px solid var(--border-default);
+}
+
+.agenda-mobile__hour-label {
+  position: absolute;
+  top: var(--space-1);
+  left: var(--space-3);
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+.agenda-mobile__event {
+  position: absolute;
+  top: var(--agenda-mobile-event-top);
+  height: var(--agenda-mobile-event-h);
+  left: 56px;
+  right: var(--space-2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--agenda-mobile-event-color) 14%, var(--surface-card));
+  overflow: hidden;
+}
+
+.agenda-mobile__event-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 3px;
+  background: var(--agenda-mobile-event-color);
+}
+
+.agenda-mobile__event-title {
+  font: var(--type-subtitle);
+  color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-mobile__event-subtitle {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

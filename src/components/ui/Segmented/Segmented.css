@@ -1,24 +1,86 @@
+/* Rallye Design System — Segmented (Figma node 84:10 "Segment" /
+   84:11 "Segmented (example)")
+   Pill track (surface-sunken) holding N segments; the active segment is a
+   flat surface-card pill inside it — no drop shadow (no --shadow-* token
+   is bound to State=Selected in Figma, unlike Card/raised surfaces).
+   Segments abut directly (no gap in the Figma auto-layout); each segment
+   is --control-h-sm (44px) tall to meet the >=44px touch-target standard
+   already applied elsewhere (BEAC-2056).
+
+   The active pill's background is a single shared `.segmented__indicator`
+   that slides/resizes to the active button (position/width supplied by
+   Segmented.tsx as --segmented-indicator-x/--segmented-indicator-width,
+   measured per-render — same "computed custom property" pattern as
+   Avatar's --avatar-color) instead of each button drawing its own
+   background — that's what makes the transition read as one pill moving
+   rather than an instant swap. */
+
 .segmented {
+  position: relative;
   display: inline-flex;
-  gap: 4px;
-  padding: 4px;
+  padding: var(--space-1);
   background: var(--surface-sunken);
   border-radius: var(--radius-pill);
 }
 
+.segmented__indicator {
+  position: absolute;
+  top: var(--space-1);
+  left: 0;
+  z-index: 0;
+  height: var(--control-h-sm);
+  width: var(--segmented-indicator-width, 0);
+  background: var(--surface-card);
+  border-radius: var(--radius-pill);
+  transform: translateX(var(--segmented-indicator-x, 0));
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    width var(--dur-base) var(--ease-standard);
+  pointer-events: none;
+}
+
 .segmented__option {
-  height: 36px;
-  padding: 0 18px;
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: var(--control-h-sm);
+  padding: 0 var(--space-4);
   font: var(--type-label);
   border: none;
   border-radius: var(--radius-pill);
   background: transparent;
   color: var(--text-muted);
   cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+/* Hover swaps in the selected pill's background but keeps the muted text —
+   only Selected promotes the text color (Figma State=Hover). Active buttons
+   keep their background transparent — the indicator behind them owns that
+   visual, so this only fires for inactive segments. */
+.segmented__option:hover:not(.segmented__option--active) {
+  background: var(--surface-card);
+}
+
+/* Same single box-shadow ring convention as Button/Checkbox (doc/focus-standard,
+   node 258:1067) rather than Figma's literal 2px outside stroke. */
+.segmented__option:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .segmented__option--active {
-  background: var(--surface-card);
   color: var(--text-heading);
-  box-shadow: var(--shadow-card);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segmented__indicator {
+    transition: none;
+  }
 }

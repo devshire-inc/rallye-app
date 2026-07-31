@@ -1,0 +1,17 @@
+.icon-button-story-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.icon-button-story-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.icon-button-story-row__label {
+  width: 80px;
+  font: var(--type-small);
+  text-transform: capitalize;
+}

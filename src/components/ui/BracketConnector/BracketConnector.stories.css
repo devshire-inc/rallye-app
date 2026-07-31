@@ -1,0 +1,23 @@
+.bracket-connector-story-row {
+  display: flex;
+  gap: var(--space-6);
+}
+
+.bracket-connector-story-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  background: repeating-linear-gradient(
+    45deg,
+    var(--surface-sunken),
+    var(--surface-sunken) 8px,
+    var(--surface-card) 8px,
+    var(--surface-card) 16px
+  );
+}
+
+.bracket-connector-story-label {
+  font: var(--type-small);
+  color: var(--text-muted);
+}

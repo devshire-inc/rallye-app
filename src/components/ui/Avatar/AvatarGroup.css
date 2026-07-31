@@ -1,0 +1,60 @@
+/* Rallye Design System — Avatar Group (Figma node 258:2025)
+   Pilha horizontal com overlap de -28% da largura de cada avatar. O anel
+   surface/card de cada item vem de box-shadow (não border), então não
+   altera a largura usada no cálculo do overlap. */
+
+.avatar-group {
+  display: flex;
+  align-items: center;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.avatar-group__item {
+  display: flex;
+  border-radius: var(--radius-pill);
+  box-shadow: 0 0 0 2px var(--surface-card);
+}
+
+.avatar-group__item + .avatar-group__item {
+  margin-left: calc(-1 * var(--avatar-group-overlap));
+}
+
+.avatar-group__overflow {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-group-size);
+  height: var(--avatar-group-size);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-body);
+  font: var(--type-label);
+  cursor: pointer;
+  padding: 0;
+}
+
+/* Sizes — Small 32 / Medium 40 / Large 56, mesma escala do Avatar base;
+   overlap de -28% da largura em cada um (9/32, 11/40, 16/56). */
+.avatar-group--sm {
+  --avatar-group-overlap: 9px;
+  --avatar-group-size: 32px;
+}
+
+.avatar-group--sm .avatar-group__overflow {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+}
+
+.avatar-group--md {
+  --avatar-group-overlap: 11px;
+  --avatar-group-size: 40px;
+}
+
+.avatar-group--lg {
+  --avatar-group-overlap: 16px;
+  --avatar-group-size: 56px;
+}

@@ -1,0 +1,6 @@
+.stat-card-story-row {
+  display: flex;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}

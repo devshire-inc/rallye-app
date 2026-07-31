@@ -59,15 +59,38 @@ describe('BottomNav', () => {
     expect(screen.getByRole('button', { name: 'Extra' }).querySelector('svg')).toBeInTheDocument()
   })
 
-  it('CSS: container/active/inactive tokens per spec, active uses --text-on-brand, no hex literals', () => {
+  it('CSS: container is a fill-surface floating pill (surface/card, radius/pill, Shadow/Float Nav, no border), items fill the available width equally', () => {
     const css = readFileSync('src/components/ui/BottomNav/BottomNav.css', 'utf8')
-    expect(css).toMatch(/background:\s*var\(--surface-inverse\)/)
-    expect(css).toMatch(/border-radius:\s*var\(--radius-pill\)/)
-    expect(css).toMatch(/box-shadow:\s*var\(--shadow-float-nav\)/)
-    expect(css).toMatch(/background:\s*var\(--interactive-primary\)/)
-    expect(css).toMatch(/color:\s*var\(--text-on-brand\)/)
-    expect(css).toMatch(/color:\s*var\(--text-inverse\)/)
-    expect(css).toMatch(/opacity:\s*0?\.8/)
+    expect(css).toMatch(/\.bottom-nav\s*\{[^}]*background:\s*var\(--surface-card\)/)
+    expect(css).toMatch(/\.bottom-nav\s*\{[^}]*border-radius:\s*var\(--radius-pill\)/)
+    expect(css).toMatch(/\.bottom-nav\s*\{[^}]*box-shadow:\s*var\(--shadow-float-nav\)/)
+    expect(css).not.toMatch(/\.bottom-nav\s*\{[^}]*border:/)
+    expect(css).toMatch(/\.bottom-nav__item\s*\{[^}]*flex:\s*1/)
+  })
+
+  it('CSS: active item uses the alpha/orange-14 capsule (owned by the shared sliding indicator) with text/on-brand-soft — never text/brand — and default/hover use text/muted', () => {
+    const css = readFileSync('src/components/ui/BottomNav/BottomNav.css', 'utf8')
+    expect(css).toMatch(/\.bottom-nav__indicator\s*\{[^}]*background:\s*var\(--alpha-orange-14\)/)
+    expect(css).toMatch(/\.bottom-nav__item--active\s*\{[^}]*color:\s*var\(--text-on-brand-soft\)/)
+    expect(css).toMatch(/\.bottom-nav__item\s*\{[^}]*color:\s*var\(--text-muted\)/)
+    expect(css).not.toMatch(/--text-brand\)/)
+  })
+
+  it('renders a sliding indicator behind the active item, positioned/sized via CSS custom properties', () => {
+    const { container } = render(<BottomNav items={ITEMS} active="Agenda" />)
+    const indicator = container.querySelector('.bottom-nav__indicator')
+    expect(indicator).toBeInTheDocument()
+    expect(indicator).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('CSS: no hex color literals (tokens layer owns final color values)', () => {
+    const css = readFileSync('src/components/ui/BottomNav/BottomNav.css', 'utf8')
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+  })
+
+  it('tokens: --alpha-orange-14 and --text-on-brand-soft exist and are contrast-compliant (>= 4.5:1 for the active label on surface/card)', () => {
+    const colorsCss = readFileSync('src/styles/tokens/colors.css', 'utf8')
+    expect(colorsCss).toMatch(/--alpha-orange-14:\s*rgba\(249,100,32,\.14\)/)
+    expect(colorsCss).toMatch(/--text-on-brand-soft:\s*#8f3005/)
   })
 })

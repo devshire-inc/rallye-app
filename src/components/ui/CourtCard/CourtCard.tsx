@@ -16,12 +16,18 @@ export function CourtCard({ name, sport, status, price, onClick }: CourtCardProp
 
   const content = (
     <>
-      <div className="court-card__top" aria-hidden="true" />
-      <div className="court-card__body">
+      <div className="court-card__top">
+        <div className="court-card__lines" aria-hidden="true" />
         {name ? <span className="court-card__name">{name}</span> : null}
+      </div>
+      <div className="court-card__footer">
         <SportTag sport={sport} />
-        {status ? <span className="court-card__status">{status}</span> : null}
-        {price ? <span className="court-card__price">{price}</span> : null}
+        {status || price ? (
+          <div className="court-card__meta">
+            {status ? <span className="court-card__status">{status}</span> : null}
+            {price ? <span className="court-card__price">{price}</span> : null}
+          </div>
+        ) : null}
       </div>
     </>
   )

@@ -1,0 +1,28 @@
+.table-row-story__table {
+  width: 560px;
+  border-collapse: collapse;
+}
+
+.table-row-story__name-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.table-row-story__name-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.table-row-story__name {
+  margin: 0;
+  font: var(--type-body);
+  color: var(--text-heading);
+}
+
+.table-row-story__email {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}

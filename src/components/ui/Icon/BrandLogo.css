@@ -1,0 +1,11 @@
+/* Rallye Design System — BrandLogo (Figma node 341:117, seção MARCAS)
+   Logos de terceiros (Google/WhatsApp/PIX/Apple) e do produto (Rallye
+   mark/lockup). Cor FIXA por marca — ao contrário de `.icon`, nunca usa
+   currentColor nem token de tema; a troca de variante é sempre manual. */
+
+.brand-logo {
+  display: inline-block;
+  width: var(--brand-logo-size, 24px);
+  height: auto;
+  flex-shrink: 0;
+}

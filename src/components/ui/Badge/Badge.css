@@ -1,8 +1,14 @@
+/* Rallye Design System — Badge (Figma node 23:20)
+   Selo de status: 6 tons semânticos, sem estados interativos (não clicável). */
+
 .badge {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   height: 26px;
-  padding: 0 12px;
+  padding: 0 var(--space-3);
+  border: 1px solid transparent;
   border-radius: var(--radius-pill);
   font: var(--type-label);
   white-space: nowrap;
@@ -10,27 +16,32 @@
 
 .badge--success {
   background: var(--state-success-soft);
-  color: var(--state-success);
+  color: var(--state-success-text);
+  border-color: var(--state-success);
 }
 
 .badge--warning {
   background: var(--state-warning-soft);
   color: var(--state-warning-text);
+  border-color: var(--state-warning-text);
 }
 
 .badge--danger {
   background: var(--state-danger-soft);
-  color: var(--state-danger);
+  color: var(--state-danger-text);
+  border-color: var(--state-danger);
 }
 
 .badge--info {
   background: var(--state-info-soft);
-  color: var(--state-info);
+  color: var(--state-info-text);
+  border-color: var(--state-info);
 }
 
 .badge--brand {
   background: var(--surface-brand-soft);
-  color: var(--text-brand);
+  color: var(--text-brand-strong);
+  border-color: var(--interactive-primary-hover);
 }
 
 .badge--neutral {

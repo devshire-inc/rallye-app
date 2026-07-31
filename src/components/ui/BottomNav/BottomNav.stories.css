@@ -1,0 +1,20 @@
+/* Simula a viewport mobile onde o BottomNav flutua — moldura de largura fixa
+   (tipo smartphone), fundo surface/page, pilula ancorada ~12px acima da
+   base com inset de 16px nas laterais (mesmo contrato do
+   .shell-bottomnav-wrapper real, ver AppShell.css). */
+.bottom-nav-story-frame {
+  position: relative;
+  width: 360px;
+  height: 200px;
+  overflow: hidden;
+  background: var(--surface-page);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-default);
+}
+
+.bottom-nav-story-dock {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 12px;
+}

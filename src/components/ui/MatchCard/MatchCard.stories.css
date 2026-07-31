@@ -1,0 +1,11 @@
+.match-card-story-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.match-card-story-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}

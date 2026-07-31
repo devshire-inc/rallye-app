@@ -70,9 +70,9 @@ describe('colors.css — primitives', () => {
   const sports: Record<string, string> = {
     '--sport-beach-tennis': '#F96420',
     '--sport-padel': '#1E7FB5',
-    '--sport-futevolei': '#17915B',
+    '--sport-futevolei': '#14808A',
     '--sport-volei': '#F6A821',
-    '--sport-tenis': '#7A6FB8',
+    '--sport-tenis': '#A8562F',
     '--sport-outro': '#5D7186',
   }
 
@@ -91,11 +91,11 @@ describe('colors.css — semantic aliases, light vs dark defined independently',
     '--surface-sunken': 'var(--sand-100)',
     '--surface-inverse': 'var(--navy-900)',
     '--surface-brand': 'var(--orange-500)',
-    '--surface-brand-soft': 'var(--orange-50)',
+    '--surface-brand-soft': 'var(--orange-100)',
     '--text-heading': 'var(--navy-900)',
     '--text-body': 'var(--navy-700)',
     '--text-muted': 'var(--navy-500)',
-    '--text-brand': 'var(--orange-600)',
+    '--text-brand': 'var(--orange-700)',
     '--text-on-brand': '#FFFFFF',
     '--text-inverse': '#FDF8F0',
     '--border-default': '#EBDFC9',
@@ -103,7 +103,7 @@ describe('colors.css — semantic aliases, light vs dark defined independently',
     '--interactive-primary': 'var(--orange-500)',
     '--interactive-primary-hover': 'var(--orange-600)',
     '--interactive-primary-press': 'var(--orange-700)',
-    '--focus-ring-color': 'rgba(249,100,32,.4)',
+    '--focus-ring-color': 'var(--orange-700)',
     '--state-success': 'var(--green-600)',
     '--state-success-soft': 'var(--green-100)',
     '--state-warning': 'var(--amber-500)',
@@ -134,6 +134,11 @@ describe('colors.css — semantic aliases, light vs dark defined independently',
     '--text-inverse': 'var(--navy-900)',
     '--border-default': '#2A3D52',
     '--border-strong': '#3D5169',
+    '--focus-ring-color': 'var(--orange-500)',
+    '--state-success-soft': 'rgba(23,145,91,.14)',
+    '--state-warning-soft': 'rgba(246,168,33,.14)',
+    '--state-danger-soft': 'rgba(216,69,43,.14)',
+    '--state-info-soft': 'rgba(30,127,181,.14)',
     '--court-line-subtle': 'rgba(253,248,240,.09)',
   }
 
@@ -156,7 +161,7 @@ describe('effects.css — shadows and motion', () => {
     expect(propValue(root, '--shadow-overlay')).toBe(
       '0 8px 16px rgba(24,40,56,.10),0 24px 48px rgba(24,40,56,.20)',
     )
-    expect(propValue(root, '--shadow-float-nav')).toBe('0 6px 24px rgba(24,40,56,.18)')
+    expect(propValue(root, '--shadow-float-nav')).toBe('0px 4px 16px rgba(0,0,0,.1)')
   })
 
   it('dark shadow tokens are redefined independently, not derived', () => {

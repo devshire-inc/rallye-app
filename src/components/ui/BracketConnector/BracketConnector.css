@@ -1,0 +1,77 @@
+/* Rallye Design System — BracketConnector (Figma node 265:1390, variants
+   206:2/265:1375/265:1380/265:1385). Linha decorativa em L ligando
+   Match Cards entre rodadas — Type=Merge (dois confrontos convergem),
+   Up/Down (um confronto isolado sobe/desce) e Bye (passagem direta, sem
+   confronto, traço a 50% de opacidade). Geometria fixa 40x108px — exceção
+   documentada no Figma ("não redimensione"), como a grade de ícones;
+   os valores abaixo são px literais de propósito, não tokens de espaçamento. */
+
+.bracket-connector {
+  position: relative;
+  width: 40px;
+  height: 108px;
+}
+
+.bracket-connector__stub {
+  position: absolute;
+  height: 2px;
+  background: var(--border-strong);
+}
+
+.bracket-connector__stub--top,
+.bracket-connector__stub--bottom {
+  left: 0;
+  width: 20px;
+}
+
+.bracket-connector__stub--output {
+  left: 22px;
+  width: 18px;
+}
+
+.bracket-connector__joint {
+  position: absolute;
+  top: 27px;
+  left: 20px;
+  width: 2px;
+  height: 54px;
+  background: var(--border-strong);
+}
+
+.bracket-connector--merge .bracket-connector__stub--top {
+  top: 27px;
+}
+
+.bracket-connector--merge .bracket-connector__stub--bottom {
+  top: 79px;
+}
+
+.bracket-connector--merge .bracket-connector__stub--output {
+  top: 53px;
+}
+
+.bracket-connector--up .bracket-connector__stub--top {
+  top: 79px;
+}
+
+.bracket-connector--up .bracket-connector__stub--output {
+  top: 27px;
+}
+
+.bracket-connector--down .bracket-connector__stub--top {
+  top: 27px;
+}
+
+.bracket-connector--down .bracket-connector__stub--output {
+  top: 79px;
+}
+
+.bracket-connector__line {
+  position: absolute;
+  top: 53px;
+  left: 0;
+  width: 40px;
+  height: 2px;
+  background: var(--border-strong);
+  opacity: 0.5;
+}

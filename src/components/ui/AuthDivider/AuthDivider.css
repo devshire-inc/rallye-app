@@ -1,0 +1,23 @@
+/* Rallye Design System — AuthDivider (Figma node 278:1778)
+   Two hairlines flanking a centered label, e.g. between the social login
+   block and the email/password form. */
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.auth-divider__line {
+  flex: 1 0 0;
+  height: 1px;
+  background: var(--border-default);
+}
+
+.auth-divider__label {
+  flex-shrink: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+  white-space: nowrap;
+}

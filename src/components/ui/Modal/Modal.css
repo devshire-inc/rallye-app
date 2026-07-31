@@ -1,0 +1,95 @@
+/* Rallye Design System — Modal (Figma node 194:4)
+   Scrim navy a 55% + card centralizado. Size controla só a largura do card
+   (Small 400 / Medium 560 / Large 720) — o viewport no doc é só contexto. */
+
+.modal-scrim {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: color-mix(in srgb, var(--navy-950) 55%, transparent);
+  z-index: 100;
+}
+
+.modal-card {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-overlay);
+  outline: none;
+  animation: modal-fade-in var(--dur-base) var(--ease-standard);
+}
+
+.modal-card--sm {
+  max-width: 400px;
+}
+
+.modal-card--md {
+  max-width: 560px;
+}
+
+.modal-card--lg {
+  max-width: 720px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-shrink: 0;
+  padding: var(--space-5) var(--space-6);
+}
+
+.modal-title {
+  margin: 0;
+  font: var(--type-heading);
+  color: var(--text-heading);
+  word-break: break-word;
+}
+
+.modal-divider {
+  flex-shrink: 0;
+  height: 1px;
+  width: 100%;
+  background: var(--border-default);
+}
+
+.modal-body {
+  flex-shrink: 0;
+  padding: var(--space-5) var(--space-6);
+  font: var(--type-body);
+  color: var(--text-body);
+}
+
+.modal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--space-3);
+  flex-shrink: 0;
+  padding: var(--space-4) var(--space-6);
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-card {
+    animation: none;
+  }
+}

@@ -1,0 +1,6 @@
+.sport-tag-story-grid {
+  display: grid;
+  grid-template-columns: repeat(6, auto);
+  gap: var(--space-3);
+  align-items: center;
+}

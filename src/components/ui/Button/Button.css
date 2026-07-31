@@ -1,4 +1,9 @@
+/* Rallye Design System — Button (Figma node 19:54)
+   Variant x Size x State grid: Primary/Secondary/Ghost/Danger/Soft x
+   Small/Medium/Large x Default/Hover/Pressed/Focus/Disabled/Loading. */
+
 .button {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -6,6 +11,21 @@
   border: none;
   border-radius: var(--radius-pill);
   cursor: pointer;
+  user-select: none;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-bounce);
+}
+
+.button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .button:disabled {
@@ -13,50 +33,119 @@
   cursor: not-allowed;
 }
 
+/* Loading keeps the variant's full-strength fill (per Figma State=Loading) —
+   only the label dims, so the generic :disabled opacity rule is undone. */
+.button--loading:disabled {
+  opacity: 1;
+  cursor: progress;
+}
+
 .button--full-width {
   width: 100%;
 }
 
+.button__label {
+  white-space: nowrap;
+}
+
+.button--loading .button__label {
+  opacity: 0.55;
+}
+
+.button__spinner {
+  box-sizing: border-box;
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  border-radius: var(--radius-pill);
+  border: 2px dashed currentColor;
+  animation: button-spin 0.8s linear infinite;
+}
+
+@keyframes button-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .button__spinner {
+    animation-duration: 2.4s;
+  }
+}
+
+/* Sizes — Small (34px) is desktop-only per Figma doc (touch target <44pt);
+   Medium/Large already match --control-h-md/--control-h-lg. */
 .button--sm {
-  height: var(--control-h-sm);
+  height: 34px;
   padding: 0 14px;
-  font: 800 13px var(--font-body);
+  font: var(--type-label);
 }
 
 .button--md {
   height: var(--control-h-md);
   padding: 0 22px;
-  font: 800 15px var(--font-body);
+  font: var(--type-subtitle);
 }
 
 .button--lg {
   height: var(--control-h-lg);
   padding: 0 28px;
-  font: 800 16px var(--font-body);
+  font: var(--type-subtitle);
 }
 
+/* Primary — filled, brand color */
 .button--primary {
   background: var(--interactive-primary);
   color: var(--text-on-brand);
 }
 
+.button--primary:hover:not(:disabled) {
+  background: var(--interactive-primary-hover);
+}
+
+.button--primary:active:not(:disabled) {
+  background: var(--interactive-primary-press);
+}
+
+/* Secondary — outline, no fill */
 .button--secondary {
   background: transparent;
   color: var(--text-heading);
   border: 2px solid var(--border-strong);
 }
 
+/* Ghost — text only, no fill, no border */
 .button--ghost {
   background: transparent;
   color: var(--text-brand);
 }
 
+/* Danger — filled, destructive */
 .button--danger {
   background: var(--state-danger);
   color: var(--text-on-brand);
 }
 
+.button--danger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--state-danger) 82%, black);
+}
+
+.button--danger:active:not(:disabled) {
+  background: color-mix(in srgb, var(--state-danger) 65%, black);
+}
+
+/* Soft — tinted fill, brand-colored text and border */
 .button--soft {
   background: var(--surface-brand-soft);
   color: var(--text-brand);
+  border: 1px solid var(--interactive-primary-hover);
+}
+
+.button--soft:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--surface-brand-soft) 55%, var(--interactive-primary) 45%);
+}
+
+.button--soft:active:not(:disabled) {
+  background: color-mix(in srgb, var(--surface-brand-soft) 30%, var(--interactive-primary) 70%);
 }

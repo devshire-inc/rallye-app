@@ -1,0 +1,65 @@
+/* Rallye Design System — MenuRow (Figma node 96:52)
+   Linha de menu usada no Perfil: ícone opcional + rótulo à esquerda,
+   chevron de navegação à direita ou um valor de texto (ex. "Ativado")
+   quando a linha só exibe estado em vez de navegar. */
+
+.menu-row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-default);
+  text-align: left;
+  cursor: default;
+}
+
+button.menu-row {
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+button.menu-row:hover {
+  background: var(--surface-sunken);
+}
+
+.menu-row__leading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.menu-row__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--text-muted);
+}
+
+.menu-row__label {
+  overflow: hidden;
+  font: var(--type-body);
+  color: var(--text-heading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-row__value {
+  flex-shrink: 0;
+  font: var(--type-body);
+  color: var(--text-muted);
+}
+
+.menu-row__chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}

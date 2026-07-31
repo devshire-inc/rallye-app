@@ -1,0 +1,134 @@
+/* Rallye Design System — StatusMessage (Figma node 100:2)
+   Dois eixos: style (banner faixa 360x67 | fullscreen medalhão 360x308) e
+   tone (success/warning/danger/info). Cada tom expõe as mesmas 5 custom
+   properties de tom (--sm-soft/-text/-border/-solid/-on-solid) para que o
+   banner e o medalhão do fullscreen leiam a mesma fonte de verdade. */
+
+.status-message--success {
+  --sm-soft: var(--state-success-soft);
+  --sm-text: var(--state-success-text);
+  --sm-border: var(--state-success);
+  --sm-solid: var(--state-success);
+  --sm-on-solid: var(--text-on-brand);
+}
+
+.status-message--warning {
+  --sm-soft: var(--state-warning-soft);
+  --sm-text: var(--state-warning-text);
+  --sm-border: var(--state-warning-text);
+  --sm-solid: var(--state-warning);
+  --sm-on-solid: var(--text-on-state-warning);
+}
+
+.status-message--danger {
+  --sm-soft: var(--state-danger-soft);
+  --sm-text: var(--state-danger-text);
+  --sm-border: var(--state-danger);
+  --sm-solid: var(--state-danger);
+  --sm-on-solid: var(--text-on-brand);
+}
+
+.status-message--info {
+  --sm-soft: var(--state-info-soft);
+  --sm-text: var(--state-info-text);
+  --sm-border: var(--state-info);
+  --sm-solid: var(--state-info);
+  --sm-on-solid: var(--text-on-brand);
+}
+
+/* Banner — faixa inline sob campos/formulários */
+.status-message--banner {
+  box-sizing: border-box;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  max-width: 360px;
+  padding: var(--space-3) var(--space-4);
+  background: var(--sm-soft);
+  border: 1px solid var(--sm-border);
+  border-radius: var(--radius-lg);
+  color: var(--sm-text);
+}
+
+.status-message--banner .status-message__icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--sm-text);
+}
+
+.status-message--banner .status-message__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.status-message--banner .status-message__title {
+  margin: 0;
+  font: var(--type-subtitle);
+}
+
+.status-message--banner .status-message__description {
+  margin: 0;
+  font: var(--type-small);
+}
+
+/* Fullscreen — medalhão + título + resumo + até 2 ações */
+.status-message--fullscreen {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  max-width: 360px;
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.status-message__medallion {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+  border: 1px solid var(--sm-border);
+  border-radius: var(--radius-pill);
+  background: var(--sm-soft);
+}
+
+.status-message__medallion-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-pill);
+  background: var(--sm-solid);
+  color: var(--sm-on-solid);
+}
+
+.status-message--fullscreen .status-message__title {
+  margin: 0;
+  font: var(--type-heading);
+  color: var(--text-heading);
+}
+
+.status-message--fullscreen .status-message__description {
+  margin: 0;
+  font: var(--type-body);
+  color: var(--text-muted);
+}
+
+.status-message__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}

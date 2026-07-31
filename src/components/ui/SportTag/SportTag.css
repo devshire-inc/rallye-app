@@ -1,19 +1,39 @@
+/* Rallye Design System — SportTag (Figma node 27:45)
+   Pill de esporte na cor fixa do esporte, sem token --sport-*-soft dedicado
+   (cores de esporte são hues arbitrárias, fora do par light/dark
+   sistemático) — o fundo soft é derivado via color-mix() a partir do
+   --tag-color, mesmo precedente de Button.css. Doc do Figma (node 27:3):
+   "fundo suave 14%" para Solid=false, fundo sólido para Solid=true. */
+
 .sport-tag {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
   height: 26px;
-  padding: 0 12px;
+  padding: 0 var(--space-3);
   border-radius: var(--radius-pill);
   font: var(--type-label);
-  border: 1px solid var(--tag-color);
-  color: var(--tag-color);
-  background: transparent;
+  /* Overrides --type-label's 1.2 line-height: at this pill's fixed 26px
+     height, the extra leading around the anonymous text flex item sits
+     asymmetrically (browser font-metric quirk), pushing dot+label above
+     center. line-height:1 makes the text's own box match its font-size,
+     so align-items:center lands it visually centered against the dot. */
+  line-height: 1;
   white-space: nowrap;
+  background: color-mix(in srgb, var(--tag-color) 14%, transparent);
+  color: var(--tag-color);
 }
 
 .sport-tag--solid {
   background: var(--tag-color);
   color: var(--text-on-brand);
-  border-color: transparent;
+}
+
+.sport-tag__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: currentColor;
 }

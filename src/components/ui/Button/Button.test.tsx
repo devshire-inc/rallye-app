@@ -44,17 +44,50 @@ describe('Button', () => {
     expect(screen.getByRole('button')).toHaveTextContent('Texto')
   })
 
-  it('CSS: sizes map to control-height tokens, padding and font per spec', () => {
+  it('is disabled, marked aria-busy and does not fire onClick when loading', async () => {
+    const onClick = vi.fn()
+    const user = userEvent.setup()
+    render(
+      <Button onClick={onClick} loading>
+        Salvando
+      </Button>,
+    )
+    const button = screen.getByRole('button', { name: 'Salvando' })
+    expect(button).toBeDisabled()
+    expect(button).toHaveAttribute('aria-busy', 'true')
+    await user.click(button)
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('renders a spinner instead of the icon when loading', () => {
+    render(
+      <Button icon={<span data-testid="icon">i</span>} loading>
+        Salvando
+      </Button>,
+    )
+    expect(screen.queryByTestId('icon')).not.toBeInTheDocument()
+    const button = screen.getByRole('button', { name: 'Salvando' })
+    expect(button.querySelector('.button__spinner')).toBeInTheDocument()
+  })
+
+  it('is not marked aria-busy and has no aria-busy attribute by default', () => {
+    render(<Button>Salvar</Button>)
+    expect(screen.getByRole('button', { name: 'Salvar' })).not.toHaveAttribute('aria-busy')
+  })
+
+  it('CSS: sizes map to the right dimensions, padding and type scale per spec', () => {
     const css = readFileSync('src/components/ui/Button/Button.css', 'utf8')
-    expect(css).toMatch(/height:\s*var\(--control-h-sm\)/)
-    expect(css).toMatch(/height:\s*var\(--control-h-md\)/)
-    expect(css).toMatch(/height:\s*var\(--control-h-lg\)/)
-    expect(css).toMatch(/padding:\s*0 14px/)
-    expect(css).toMatch(/padding:\s*0 22px/)
-    expect(css).toMatch(/padding:\s*0 28px/)
-    expect(css).toMatch(/font:\s*800 13px/)
-    expect(css).toMatch(/font:\s*800 15px/)
-    expect(css).toMatch(/font:\s*800 16px/)
+    // Small (34px) is desktop-only per Figma doc — not the shared --control-h-sm
+    // touch-target token, which is reserved for touch-surface controls (inputs).
+    expect(css).toMatch(/\.button--sm\s*\{[^}]*height:\s*34px/)
+    expect(css).toMatch(/\.button--md\s*\{[^}]*height:\s*var\(--control-h-md\)/)
+    expect(css).toMatch(/\.button--lg\s*\{[^}]*height:\s*var\(--control-h-lg\)/)
+    expect(css).toMatch(/\.button--sm\s*\{[^}]*padding:\s*0 14px/)
+    expect(css).toMatch(/\.button--md\s*\{[^}]*padding:\s*0 22px/)
+    expect(css).toMatch(/\.button--lg\s*\{[^}]*padding:\s*0 28px/)
+    expect(css).toMatch(/\.button--sm\s*\{[^}]*font:\s*var\(--type-label\)/)
+    expect(css).toMatch(/\.button--md\s*\{[^}]*font:\s*var\(--type-subtitle\)/)
+    expect(css).toMatch(/\.button--lg\s*\{[^}]*font:\s*var\(--type-subtitle\)/)
   })
 
   it('CSS: variants use the exact token mapping, no hex literals', () => {
@@ -69,5 +102,16 @@ describe('Button', () => {
     expect(css).toMatch(/border-radius:\s*var\(--radius-pill\)/)
     expect(css).toMatch(/opacity:\s*0?\.45/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+  })
+
+  it('CSS: focus-visible uses the shared focus-ring token', () => {
+    const css = readFileSync('src/components/ui/Button/Button.css', 'utf8')
+    expect(css).toMatch(/:focus-visible\s*\{[^}]*box-shadow:\s*var\(--focus-ring\)/)
+  })
+
+  it('CSS: loading state keeps full opacity and dims only the label', () => {
+    const css = readFileSync('src/components/ui/Button/Button.css', 'utf8')
+    expect(css).toMatch(/\.button--loading:disabled\s*\{[^}]*opacity:\s*1/)
+    expect(css).toMatch(/\.button--loading \.button__label\s*\{[^}]*opacity:\s*0?\.55/)
   })
 })

@@ -266,3 +266,45 @@ describe('DatePicker — theming and tokens', () => {
     document.documentElement.removeAttribute('data-theme')
   })
 })
+
+describe('DatePicker — Figma parity (node 47:6 "Mobile — Full-width")', () => {
+  it('renders the header without the "de" connector Intl normally inserts, e.g. "Fevereiro 2024"', () => {
+    render(<DatePicker value="2024-02-15" min={FIXED_MIN} />)
+    expect(screen.getByText('Fevereiro 2024')).toBeInTheDocument()
+  })
+
+  it('the busy-date dot uses --interactive-primary (same orange as "selected"), per the canvas doc: "Ponto laranja = data ocupada; laranja sólido = selecionada"', () => {
+    const css = readFileSync('src/components/ui/DatePicker/DatePicker.css', 'utf8')
+    expect(css).toMatch(/\.date-picker__busy-dot\s*\{[^}]*background:\s*var\(--interactive-primary\)/)
+  })
+
+  it('weekday header shows a single visible letter per day (D S T Q Q S S, node 47:8) but exposes the full weekday name to assistive tech', () => {
+    render(<DatePicker value="2024-02-15" min={FIXED_MIN} />)
+    expect(screen.getByText('Domingo')).toBeInTheDocument()
+    expect(screen.getByText('Sábado')).toBeInTheDocument()
+    expect(screen.getAllByText('Q')).toHaveLength(2) // Quarta + Quinta share the visible glyph
+  })
+
+  it('each size variant maps to its own --date-picker-cell-size custom property', () => {
+    const css = readFileSync('src/components/ui/DatePicker/DatePicker.css', 'utf8')
+    expect(css).toMatch(/\.date-picker--sm\s*\{[^}]*--date-picker-cell-size:\s*28px/)
+    expect(css).toMatch(/\.date-picker--md\s*\{[^}]*--date-picker-cell-size:\s*32px/)
+    expect(css).toMatch(/\.date-picker--lg\s*\{[^}]*--date-picker-cell-size:\s*40px/)
+  })
+
+  it('marks today with a distinct class (date-picker__day--today) when it is not the selected day', () => {
+    const now = new Date()
+    render(<DatePicker min={FIXED_MIN} />)
+    const today = dayButton(now.getDate())
+    expect(today.className).toMatch(/date-picker__day--today/)
+    expect(today.className).not.toMatch(/date-picker__day--selected/)
+  })
+
+  it('does not apply the --today class when today is also the selected day (selected fill wins)', () => {
+    const now = new Date()
+    render(<DatePicker value={formatIsoLocal(now)} min={FIXED_MIN} />)
+    const today = dayButton(now.getDate())
+    expect(today.className).toMatch(/date-picker__day--selected/)
+    expect(today.className).not.toMatch(/date-picker__day--today/)
+  })
+})

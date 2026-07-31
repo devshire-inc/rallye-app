@@ -1,0 +1,19 @@
+.arena-card-story-wrap {
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.arena-card-story-note {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.arena-card-story-list {
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

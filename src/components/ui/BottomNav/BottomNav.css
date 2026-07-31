@@ -1,30 +1,83 @@
+/* Rallye Design System — BottomNav (Figma node 33:2)
+   Pilula flutuante: fill surface/card, radius pill, Shadow/Float Nav, sem
+   borda. Item = Nav Item (Default/Hover/Active, node 83:14),
+   layoutSizingHorizontal=FILL — todos os itens dividem a largura disponível
+   igualmente, dinamicamente (5/4/3 itens, ver nodes 83:15/134:49/134:75).
+   Posicionamento/inset/respiro de conteúdo ficam a cargo do consumidor
+   (ver AppShell.css .shell-bottomnav-wrapper). */
+
 .bottom-nav {
-  display: inline-flex;
-  gap: var(--space-2);
-  padding: var(--space-2);
-  background: var(--surface-inverse);
+  position: relative;
+  display: flex;
+  width: 100%;
+  padding: var(--space-1);
+  background: var(--surface-card);
   border-radius: var(--radius-pill);
   box-shadow: var(--shadow-float-nav);
 }
 
+/* Shared active-capsule background — slides/resizes to the active item
+   (position/size supplied by BottomNav.tsx as --bottomnav-indicator-x/
+   width/height, measured per-render — same "computed custom property"
+   pattern as Segmented's --segmented-indicator-x/width) instead of each
+   button drawing its own background, so switching items reads as one
+   capsule gliding rather than an instant swap (iOS tab-bar style). */
+.bottom-nav__indicator {
+  position: absolute;
+  top: var(--space-1);
+  left: 0;
+  z-index: 0;
+  height: var(--bottomnav-indicator-height, 0);
+  width: var(--bottomnav-indicator-width, 0);
+  background: var(--alpha-orange-14);
+  border-radius: var(--radius-pill);
+  transform: translateX(var(--bottomnav-indicator-x, 0));
+  transition:
+    transform var(--dur-base) var(--ease-standard),
+    width var(--dur-base) var(--ease-standard),
+    height var(--dur-base) var(--ease-standard);
+  pointer-events: none;
+}
+
 .bottom-nav__item {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
   display: flex;
+  flex: 1 0 0;
+  min-width: 0;
   flex-direction: column;
   align-items: center;
-  gap: 2px;
-  padding: var(--space-2) var(--space-4);
+  justify-content: center;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
   border: none;
   border-radius: var(--radius-pill);
   background: transparent;
-  color: var(--text-inverse);
-  opacity: 0.8;
+  color: var(--text-muted);
   cursor: pointer;
+  transition:
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.bottom-nav__item:hover:not(.bottom-nav__item--active) {
+  background: var(--alpha-orange-14);
+}
+
+.bottom-nav__item:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .bottom-nav__item--active {
-  background: var(--interactive-primary);
-  color: var(--text-on-brand);
-  opacity: 1;
+  color: var(--text-on-brand-soft);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav__indicator {
+    transition: none;
+  }
 }
 
 .bottom-nav__label {

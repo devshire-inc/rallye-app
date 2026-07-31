@@ -15,13 +15,17 @@ export type OtpInputProps = {
   error?: boolean
   disabled?: boolean
   autoFocus?: boolean
+  /** 'numeric' (default) keeps the digit-only mobile numpad. 'alphanumeric'
+   * accepts letters too (uppercased) — use for backup/support codes that mix
+   * letters and numbers. */
+  mode?: 'numeric' | 'alphanumeric'
 }
 
 /**
- * Reusable 6-digit OTP input: one box per digit, auto-advance on entry,
- * backspace to go back, numeric keyboard on mobile, paste support. Built for
- * BEAC-1676's tela A4 (verificação de e-mail) but intentionally generic so
- * other verification screens (A3/A5, in other stories) can reuse it.
+ * Reusable OTP/code input: one box per character, auto-advance on entry,
+ * backspace to go back, paste support. Defaults to 6 numeric digits (BEAC-1676's
+ * tela A4, verificação de e-mail) but `mode="alphanumeric"` accepts letters
+ * too (uppercased) for codes that mix letters and numbers.
  */
 export function OtpInput({
   length = 6,
@@ -31,8 +35,11 @@ export function OtpInput({
   error = false,
   disabled = false,
   autoFocus = true,
+  mode = 'numeric',
 }: OtpInputProps) {
   const inputRefs = useRef<Array<HTMLInputElement | null>>([])
+  const sanitize = (raw: string) =>
+    mode === 'numeric' ? raw.replace(/[^0-9]/g, '') : raw.replace(/[^0-9a-zA-Z]/g, '').toUpperCase()
 
   useEffect(() => {
     if (autoFocus) {
@@ -59,7 +66,7 @@ export function OtpInput({
   }
 
   function handleChange(index: number, e: ChangeEvent<HTMLInputElement>) {
-    const raw = e.target.value.replace(/[^0-9]/g, '')
+    const raw = sanitize(e.target.value)
     if (raw === '') {
       setDigitAt(index, '')
       return
@@ -84,7 +91,7 @@ export function OtpInput({
   }
 
   function handlePaste(index: number, e: ClipboardEvent<HTMLInputElement>) {
-    const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '')
+    const pasted = sanitize(e.clipboardData.getData('text'))
     if (!pasted) return
     e.preventDefault()
     const next = digits.slice()
@@ -113,11 +120,11 @@ export function OtpInput({
             inputRefs.current[index] = el
           }}
           type="text"
-          inputMode="numeric"
-          pattern="[0-9]*"
+          inputMode={mode === 'numeric' ? 'numeric' : 'text'}
+          pattern={mode === 'numeric' ? '[0-9]*' : '[0-9a-zA-Z]*'}
           autoComplete="one-time-code"
           maxLength={1}
-          className="otp-input__box"
+          className={`otp-input__box${digit !== '' ? ' otp-input__box--filled' : ''}`}
           value={digit}
           disabled={disabled}
           onChange={(e) => handleChange(index, e)}

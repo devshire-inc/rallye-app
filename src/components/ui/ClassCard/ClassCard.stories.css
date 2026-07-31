@@ -1,0 +1,10 @@
+.class-card-story-wrap {
+  max-width: 420px;
+}
+
+.class-card-story-list {
+  display: flex;
+  max-width: 420px;
+  flex-direction: column;
+  gap: var(--space-3);
+}

@@ -1,0 +1,19 @@
+/* Rallye Design System — Icon (Figma node 115:2, canvas "Icons")
+   Catálogo genérico de ícones 24×24 / stroke 2px. Renderizado inline (não
+   <img>) para herdar `color` via currentColor — o traço acompanha o texto
+   ao redor e o tema claro/escuro automaticamente (ver doc/icon-scaling,
+   node 250:398: "o stroke é SEMPRE vinculado ao token text/heading"). */
+
+.icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: var(--icon-size, 24px);
+  height: var(--icon-size, 24px);
+  color: var(--text-heading);
+}
+
+.icon svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}

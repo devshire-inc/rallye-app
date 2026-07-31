@@ -71,4 +71,19 @@ describe('Switch', () => {
     expect(css).toMatch(/switch-thumb/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
+
+  it('CSS: turns green (state-success) when checked, not the usual brand orange', () => {
+    const css = readFileSync('src/components/ui/Switch/Switch.css', 'utf8')
+    expect(css).toMatch(/\[aria-checked='true'\]\s*\.switch-track\s*\{[^}]*var\(--state-success\)/)
+  })
+
+  it('CSS: thumb bounces via --ease-bounce on transform', () => {
+    const css = readFileSync('src/components/ui/Switch/Switch.css', 'utf8')
+    expect(css).toMatch(/\.switch-thumb\s*\{[^}]*transition:\s*transform[^}]*var\(--ease-bounce\)/)
+  })
+
+  it('CSS: focus-visible ring follows the shared focus-ring standard', () => {
+    const css = readFileSync('src/components/ui/Switch/Switch.css', 'utf8')
+    expect(css).toMatch(/\.switch:focus-visible\s*\{[^}]*box-shadow:\s*var\(--focus-ring\)/)
+  })
 })

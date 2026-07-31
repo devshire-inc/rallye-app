@@ -1,0 +1,69 @@
+/* Rallye Design System — WaitlistCard (Figma node 194:9, doc 240:513)
+   Situação do aluno na lista de espera: círculo de posição, texto de estado
+   e CTA "Reservar" (só em vaga-disponivel). Padding/gap seguem o padrão
+   já usado por Card/ClassCard (14px literal ao lado de --space-*). */
+
+.waitlist-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 320px;
+  max-width: 100%;
+  padding: 14px var(--space-4);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.waitlist-card__position {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--space-12);
+  height: var(--space-12);
+  border-radius: var(--radius-pill);
+  background: var(--surface-brand-soft);
+  font: var(--type-numeric);
+  color: var(--text-brand-strong);
+}
+
+.waitlist-card__text-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.waitlist-card__title {
+  overflow: hidden;
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--text-heading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.waitlist-card__subtitle {
+  overflow: hidden;
+  font: var(--type-small);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.waitlist-card__subtitle--aguardando {
+  color: var(--text-muted);
+}
+
+.waitlist-card__subtitle--vaga-disponivel {
+  color: var(--state-success-text);
+}
+
+.waitlist-card__subtitle--expirado {
+  color: var(--state-danger-text);
+}

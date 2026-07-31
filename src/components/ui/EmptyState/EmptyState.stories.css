@@ -1,0 +1,13 @@
+.empty-state-story-feedback {
+  margin-top: var(--space-3);
+  font: var(--type-small);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+.empty-state-story-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-6);
+}

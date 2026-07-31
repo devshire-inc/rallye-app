@@ -1,0 +1,69 @@
+/* Rallye Design System — ArenaCard (Figma node 126:289, símbolo 126:293)
+   Card de arena do seletor (login e troca de arena in-app): reaproveita o
+   List Row (Avatar + Chevron) sem a casca própria dele, com um selo de
+   papel e dots de esporte no rodapé — 360x93 no Figma. */
+
+.arena-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-3);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  text-align: left;
+  cursor: default;
+}
+
+button.arena-card {
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+button.arena-card:hover {
+  border-color: var(--interactive-primary-hover);
+  box-shadow: var(--shadow-raised);
+}
+
+.arena-card__row {
+  width: 100%;
+}
+
+.arena-card__row .list-row {
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+  cursor: inherit;
+}
+
+.arena-card__meta-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.arena-card__role-badge .badge {
+  height: auto;
+  padding: var(--space-1) 9px;
+  border: none;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+}
+
+.arena-card__dots {
+  display: flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.arena-card__dot {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--dot-color);
+}

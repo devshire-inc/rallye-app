@@ -1,0 +1,13 @@
+/* Rallye Design System — EventStatusBadge (Figma node 263:876)
+   Reaproveita o Badge (mesmos 5 tons de cor: info/success/brand/warning/
+   neutral) mas o Figma usa Overline (11px extrabold + tracking) em vez do
+   Label do Badge (13px bold) e não tem borda — restilizado por escopo,
+   mesmo precedente de `.product-card__tag .badge` em ProductCard.css. */
+
+.event-status-badge .badge {
+  height: auto;
+  padding: var(--space-1) var(--space-3);
+  border: none;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+}

@@ -1,0 +1,62 @@
+/* Rallye Design System — Nav Summary Card (Figma node 102:31)
+   Atalho com contagem: título + linha de contagem, seta indicando navegação. */
+
+.nav-summary-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 220px;
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  cursor: default;
+}
+
+button.nav-summary-card {
+  cursor: pointer;
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+button.nav-summary-card:hover,
+button.nav-summary-card:focus-visible {
+  box-shadow: var(--shadow-raised);
+}
+
+button.nav-summary-card:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-raised), var(--focus-ring);
+}
+
+.nav-summary-card__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.nav-summary-card__title {
+  font: var(--type-body);
+  color: var(--text-heading);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-summary-card__count {
+  font: var(--type-small);
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-summary-card__chevron {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}

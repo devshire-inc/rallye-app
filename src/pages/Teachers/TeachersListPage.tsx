@@ -157,7 +157,7 @@ function TeacherRow({ teacher, onClick }: { teacher: TeacherListItem; onClick: (
       onClick={onClick}
       data-testid={`teacher-row-${teacher.id}`}
     >
-      <Avatar name={teacher.fullName} size={38} />
+      <Avatar name={teacher.fullName} size="md" />
       <div className="pw">
         <div className="nm">{teacher.fullName}</div>
         <div className="mt">

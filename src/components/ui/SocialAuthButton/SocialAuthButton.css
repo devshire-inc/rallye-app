@@ -1,0 +1,74 @@
+/* Rallye Design System — SocialAuthButton (Figma node 278:1626)
+   Style (Outline/Dark/Light) x State (Default/Focus/Disabled), full width,
+   330x54 in Figma. Style=Light is a documented token exception: fixed
+   white/navy-900, never following the theme — Apple brand requirement, the
+   white "Sign in with Apple" button never inverts in dark mode. */
+
+.social-auth-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  width: 100%;
+  height: var(--control-h-lg);
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  font: var(--type-subtitle);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.social-auth-button:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.social-auth-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.social-auth-button__logo {
+  display: inline-flex;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+}
+
+.social-auth-button__logo-placeholder {
+  display: block;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--radius-sm);
+  border: 1.5px dashed var(--border-strong);
+}
+
+.social-auth-button__label {
+  white-space: nowrap;
+}
+
+/* Outline — light card fill, strong border, heading text */
+.social-auth-button--outline {
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-strong);
+  color: var(--text-heading);
+}
+
+/* Dark — fixed dark fill (mode-invariant navy/950), white text */
+.social-auth-button--dark {
+  background: var(--navy-950);
+  border: none;
+  color: var(--white);
+}
+
+/* Light — fixed white/navy-900, doc-exempted from theme tokens (Apple
+   brand requirement) */
+.social-auth-button--light {
+  background: var(--white);
+  border: 1.5px solid var(--border-default);
+  color: var(--navy-900);
+}

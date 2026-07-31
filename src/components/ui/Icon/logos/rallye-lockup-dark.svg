@@ -1,0 +1,9 @@
+<svg width="70" height="78" viewBox="0 0 70 78" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="logo/rallye-lockup" data-color="Dark">
+<g transform="translate(11 0) scale(2)">
+<path transform="translate(4.4 2.8)" d="M2.1 0V0C3.5 0 4.2 0.7 4.2 2.1V16.3C4.2 17.7 3.5 18.4 2.1 18.4V18.4C0.7 18.4 0 17.7 0 16.3V2.1C0 0.7 0.7 0 2.1 0ZM8.2 0C11.1824 0 13.6 2.41758 13.6 5.4C13.6 8.38242 11.1824 10.8 8.2 10.8C5.21758 10.8 2.8 8.38242 2.8 5.4C2.8 2.41758 5.21758 0 8.2 0ZM3.92958 11.2284L10.7296 18.2284C11.5185 19.0405 14.4593 16.1837 13.6704 15.3716L6.87042 8.37159C6.08151 7.55948 3.14067 10.4163 3.92958 11.2284Z" fill="#182838"/>
+<circle transform="translate(10 5.6)" cx="2.6" cy="2.6" r="2.6" fill="#F96420"/>
+</g>
+<text x="35" y="70" text-anchor="middle" font-family="'Baloo 2','Nunito',sans-serif" font-weight="800" font-size="18" fill="#182838">rallye</text>
+</g>
+</svg>

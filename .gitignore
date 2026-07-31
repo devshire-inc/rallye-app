@@ -43,3 +43,6 @@ android/*.iml
 
 # Wrangler (Cloudflare)
 .wrangler/
+
+*storybook.log
+storybook-static

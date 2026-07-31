@@ -27,19 +27,45 @@ describe('Segmented', () => {
     expect(onChange).toHaveBeenCalledWith('Semana')
   })
 
+  it('renders a single sliding indicator behind the active button, positioned via CSS custom properties', () => {
+    const { container } = render(
+      <Segmented options={['Dia', 'Semana', 'Mês']} value="Semana" ariaLabel="Período" />,
+    )
+    const indicators = container.querySelectorAll('.segmented__indicator')
+    expect(indicators).toHaveLength(1)
+    const indicator = indicators[0] as HTMLElement
+    expect(indicator).toHaveAttribute('aria-hidden', 'true')
+    expect(indicator.style.getPropertyValue('--segmented-indicator-x')).toMatch(/^-?\d+(\.\d+)?px$/)
+    expect(indicator.style.getPropertyValue('--segmented-indicator-width')).toMatch(/^\d+(\.\d+)?px$/)
+  })
+
+  it('renders no indicator when the current value matches no option', () => {
+    const { container } = render(
+      <Segmented options={['Dia', 'Semana']} value="Ano" ariaLabel="Período" />,
+    )
+    expect(container.querySelectorAll('.segmented__indicator')).toHaveLength(0)
+  })
+
   it('CSS: container and button dimensions/tokens per spec, no hex literals', () => {
     const css = readFileSync('src/components/ui/Segmented/Segmented.css', 'utf8')
-    expect(css).toMatch(/gap:\s*4px/)
-    expect(css).toMatch(/padding:\s*4px/)
+    expect(css).toMatch(/padding:\s*var\(--space-1\)/)
     expect(css).toMatch(/background:\s*var\(--surface-sunken\)/)
     expect(css).toMatch(/border-radius:\s*var\(--radius-pill\)/)
-    expect(css).toMatch(/height:\s*36px/)
-    expect(css).toMatch(/padding:\s*0 18px/)
+    expect(css).toMatch(/height:\s*var\(--control-h-sm\)/)
+    expect(css).toMatch(/padding:\s*0 var\(--space-4\)/)
     expect(css).toMatch(/font:\s*var\(--type-label\)/)
-    expect(css).toMatch(/background:\s*var\(--surface-card\)/)
     expect(css).toMatch(/color:\s*var\(--text-heading\)/)
-    expect(css).toMatch(/box-shadow:\s*var\(--shadow-card\)/)
+    expect(css).toMatch(/box-shadow:\s*var\(--focus-ring\)/)
     expect(css).toMatch(/color:\s*var\(--text-muted\)/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+  })
+
+  it('CSS: the shared indicator owns the active pill background and slides via transform/width transitions', () => {
+    const css = readFileSync('src/components/ui/Segmented/Segmented.css', 'utf8')
+    expect(css).toMatch(/\.segmented__indicator\s*\{[^}]*background:\s*var\(--surface-card\)/s)
+    expect(css).toMatch(/\.segmented__indicator\s*\{[^}]*transform:\s*translateX\(var\(--segmented-indicator-x, 0\)\)/s)
+    expect(css).toMatch(/\.segmented__indicator\s*\{[^}]*width:\s*var\(--segmented-indicator-width, 0\)/s)
+    expect(css).toMatch(/transition:\s*\n\s*transform var\(--dur-base\) var\(--ease-standard\),\s*\n\s*width var\(--dur-base\) var\(--ease-standard\)/)
+    expect(css).not.toMatch(/\.segmented__option--active\s*\{[^}]*background:/s)
   })
 })

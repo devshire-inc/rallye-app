@@ -1,0 +1,49 @@
+.bracket-example {
+  display: grid;
+  grid-template-columns: 240px 40px 240px 40px;
+  column-gap: var(--space-2);
+  row-gap: var(--space-3);
+  align-items: start;
+}
+
+.bracket-example__header--semi {
+  grid-row: 1;
+  grid-column: 1;
+}
+
+.bracket-example__header--final {
+  grid-row: 1;
+  grid-column: 3;
+}
+
+.bracket-example__column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bracket-example__column--semi {
+  grid-row: 2;
+  grid-column: 1;
+}
+
+.bracket-example__column--final {
+  grid-row: 2;
+  grid-column: 3;
+}
+
+.bracket-example__connector {
+  grid-row: 2;
+  align-self: center;
+}
+
+.bracket-example__connector--merge {
+  grid-column: 2;
+}
+
+.bracket-example__connector--up {
+  grid-column: 4;
+}

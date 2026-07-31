@@ -1,0 +1,36 @@
+/* Rallye Design System — Table Row (Figma node 202:369)
+   Linha de dados da tabela desktop, 56px, State=Default|Hover|Selected.
+   Selected precisa de dois sinais (doc a11y, node 239:382): aria-selected
+   (via prop `selected`, no componente) + a barra esquerda 3px abaixo — o
+   fundo sozinho não pode carregar o estado. Colunas reais (`<td>`) são
+   compostas pelo caller entre `<TableRow>` children. */
+
+.table-row {
+  height: 56px;
+  border-left: 3px solid transparent;
+}
+
+.table-row > td {
+  box-sizing: border-box;
+  padding: 0 var(--space-4);
+  vertical-align: middle;
+}
+
+.table-row--default {
+  background: var(--surface-card);
+}
+
+/* Real pointer hover, in addition to the explicit `hover` prop (used to
+   force the state programmatically, e.g. keyboard row navigation). */
+.table-row--default:hover {
+  background: var(--surface-sunken);
+}
+
+.table-row--hover {
+  background: var(--surface-sunken);
+}
+
+.table-row--selected {
+  background: var(--surface-brand-soft);
+  border-left-color: var(--interactive-primary);
+}

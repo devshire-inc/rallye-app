@@ -226,7 +226,7 @@ export default function TeacherProfilePage() {
 function TeacherHeader({ teacher }: { teacher: Teacher }) {
   return (
     <div className="prof-head">
-      <Avatar name={teacher.fullName} size={60} />
+      <Avatar name={teacher.fullName} size="lg" />
       <div className="ph-main">
         <h1>
           {teacher.fullName}{' '}

@@ -158,7 +158,7 @@ export default function StudentProfilePage() {
       {state.status === 'ready' ? (
         <>
           <div className="prof-head">
-            <Avatar name={state.student.fullName} size={60} />
+            <Avatar name={state.student.fullName} size="lg" />
             <div className="ph-main">
               <h1>
                 {state.student.fullName}{' '}

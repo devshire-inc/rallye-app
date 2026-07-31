@@ -1,0 +1,38 @@
+/* Rallye Design System — Avatar Indicator (Figma node 258:557)
+   Dot de presença: Online e Confirmed usam a mesma cor (state/success-text)
+   — só Confirmed ganha o check — Offline usa border/strong, Pending usa
+   state/warning-text. Todos os quatro mapeiam 1:1 em tokens já existentes,
+   sem gap de cor. Tamanho vem de --avatar-indicator-size, setado pelo
+   Avatar pai quando usado via prop `indicator`; solto (fora de um Avatar),
+   cai no fallback de 12px. */
+
+.avatar-indicator {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-indicator-size, 12px);
+  height: var(--avatar-indicator-size, 12px);
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--surface-card);
+  flex-shrink: 0;
+}
+
+.avatar-indicator--online,
+.avatar-indicator--confirmed {
+  background: var(--state-success-text);
+}
+
+.avatar-indicator--offline {
+  background: var(--border-strong);
+}
+
+.avatar-indicator--pending {
+  background: var(--state-warning-text);
+}
+
+.avatar-indicator__check {
+  color: var(--text-on-brand);
+  font-size: 9px;
+  line-height: 1;
+}

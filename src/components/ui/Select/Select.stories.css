@@ -1,0 +1,23 @@
+.select-story-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.select-story-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 220px;
+}
+
+.select-story-row__label {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* Storybook-only: forces the Focus visual for the States grid, since real
+   :focus-within can't be held on a static item without user interaction. */
+.select-story--focus .select__field {
+  box-shadow: var(--focus-ring);
+}

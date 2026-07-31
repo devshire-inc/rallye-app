@@ -1,0 +1,163 @@
+/* Rallye Design System — Sidebar (Figma node 58:2 "Sidebar"; Sidebar Item
+   58:15; Sidebar Panel (example) 263:1163) — navegação lateral do admin web.
+   Painel FLUTUANTE: surface/card, radius/xl, Shadow/Float Nav, sem borda —
+   a separação vem do vão (16px) que o CONSUMIDOR reserva ao redor, mesma
+   convenção de inset-owned-by-consumer do BottomNav (ver
+   AppShell.css .shell-bottomnav-wrapper). Estrutura: logo fixo · nav
+   rolável (seções com rótulo overline) · rodapé fixo (itens + seletor de
+   arena) — nenhuma das três rola exceto a área de nav. */
+
+.sidebar {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  width: 256px;
+  height: 100%;
+  gap: var(--space-2);
+  padding: 20px var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-float-nav);
+  overflow: hidden;
+}
+
+.sidebar__logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--text-heading);
+  font: var(--type-heading);
+}
+
+.sidebar__nav {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  min-height: 0;
+  gap: 2px;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+.sidebar__section-label {
+  margin: 0;
+  padding: var(--space-4) 0 var(--space-1) var(--space-3);
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+/* Sem cápsula deslizante compartilhada (diferente de BottomNav/Tabs/
+   Segmented): a lista aqui é vertical, seccionada e parcialmente rolável,
+   com um grupo de rodapé separado — não há um único eixo contínuo em que
+   medir/animar uma cápsula compartilhada faça sentido (o item ativo pode
+   estar fora da área visível rolada). Cada item alterna seu próprio fundo
+   via classe, como em BottomNav/Tabs pré-indicador. */
+.sidebar__item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 10px var(--space-3);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--text-muted);
+  font: var(--type-label);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard);
+}
+
+.sidebar__item:hover:not(.sidebar__item--active) {
+  background: var(--surface-sunken);
+  color: var(--text-body);
+}
+
+.sidebar__item:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.sidebar__item--active {
+  background: var(--alpha-orange-14);
+  color: var(--text-on-brand-soft);
+}
+
+.sidebar__item-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__footer {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-2);
+}
+
+.sidebar__arena-selector {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-2);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease-standard);
+}
+
+.sidebar__arena-selector:hover {
+  background: var(--surface-page);
+}
+
+.sidebar__arena-selector:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.sidebar__arena-avatar {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-brand);
+  overflow: hidden;
+}
+
+.sidebar__arena-labels {
+  display: flex;
+  flex: 1 0 0;
+  flex-direction: column;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.sidebar__arena-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-heading);
+  font: var(--type-label);
+}
+
+.sidebar__arena-action {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-muted);
+  font: var(--type-small);
+}

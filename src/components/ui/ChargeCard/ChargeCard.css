@@ -1,0 +1,50 @@
+/* Rallye Design System — Charge Card (Figma node 102:8)
+   Cobrança: pagador, descrição + valor, e status (Badge) + ação (Button
+   Soft/Small) opcional. Reusa Badge e Button — nenhuma implementação
+   paralela de selo/botão. */
+
+.charge-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 340px;
+  padding: var(--space-4);
+  background: var(--surface-card);
+  border: none;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.charge-card__payer {
+  font: var(--type-body);
+  color: var(--text-heading);
+}
+
+.charge-card__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.charge-card__description {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.charge-card__amount {
+  flex-shrink: 0;
+  font: 700 15px/1.3 var(--font-body);
+  color: var(--text-heading);
+}
+
+.charge-card__status {
+  flex: 1 1 0%;
+  min-width: 0;
+}
+
+.charge-card__status .badge {
+  width: 100%;
+}

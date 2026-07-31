@@ -1,0 +1,33 @@
+/* Rallye Design System — Alert Card (Figma node 102:6)
+   Variante tingida do Card para seções condicionais/aviso — mesmo raio/
+   tipografia do Card base, com fundo e borda tonais (Badge-like) por --tone. */
+
+.alert-card {
+  box-sizing: border-box;
+  width: 340px;
+  padding: var(--space-6);
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  font: var(--type-body);
+  color: var(--text-heading);
+}
+
+.alert-card--warning {
+  background: var(--state-warning-soft);
+  border-color: var(--state-warning-text);
+}
+
+.alert-card--danger {
+  background: var(--state-danger-soft);
+  border-color: var(--state-danger);
+}
+
+.alert-card--info {
+  background: var(--state-info-soft);
+  border-color: var(--state-info);
+}
+
+.alert-card--success {
+  background: var(--state-success-soft);
+  border-color: var(--state-success);
+}

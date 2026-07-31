@@ -1,3 +1,7 @@
+/* Rallye Design System — Select (Figma node 32:2, states grid 76:27)
+   Native <select>, styled. States: Default/Focus/Open/Error/Disabled.
+   "Open" is the native browser dropdown menu and can't be styled from CSS. */
+
 .select {
   display: flex;
   flex-direction: column;
@@ -9,12 +13,59 @@
   color: var(--text-heading);
 }
 
-.select__control {
+.select__field {
+  box-sizing: border-box;
+  position: relative;
+  display: flex;
+  align-items: center;
   height: var(--control-h-md);
-  padding: 0 var(--space-4);
-  border: 1px solid var(--border-default);
+  border: 1.5px solid var(--border-default);
   border-radius: var(--radius-md);
   background: var(--surface-card);
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.select__field--error {
+  border: 2px solid var(--state-danger);
+}
+
+/* Focus ring follows the file's focus standard (node 258:1066): a single
+   box-shadow ring around the control, same convention as Button/Checkbox. */
+.select__field:focus-within {
+  box-shadow: var(--focus-ring);
+}
+
+.select__control {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+  padding: 0 var(--space-4);
+  border: none;
+  outline: none;
+  background: transparent;
   font: var(--type-body);
-  color: var(--text-heading);
+  color: var(--text-body);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.select__control:disabled {
+  cursor: not-allowed;
+}
+
+.select__field:has(.select__control:disabled) {
+  opacity: 0.6;
+}
+
+.select__chevron {
+  position: absolute;
+  right: var(--space-4);
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+}
+
+.select__error {
+  font: var(--type-small);
+  color: var(--state-danger);
 }

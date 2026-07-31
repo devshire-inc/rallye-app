@@ -7,10 +7,21 @@ export interface ProductCardProps {
   oldPrice?: string
   tag?: string
   image?: string
+  arenaName?: string
+  reviewLabel?: string
   onClick?: () => void
 }
 
-export function ProductCard({ name, price, oldPrice, tag, image, onClick }: ProductCardProps) {
+export function ProductCard({
+  name,
+  price,
+  oldPrice,
+  tag,
+  image,
+  arenaName,
+  reviewLabel,
+  onClick,
+}: ProductCardProps) {
   const content = (
     <>
       <div className="product-card__media">
@@ -31,6 +42,8 @@ export function ProductCard({ name, price, oldPrice, tag, image, onClick }: Prod
           {price ? <span className="product-card__price">{price}</span> : null}
           {oldPrice ? <span className="product-card__old-price">{oldPrice}</span> : null}
         </div>
+        {arenaName ? <span className="product-card__arena">{arenaName}</span> : null}
+        {reviewLabel ? <span className="product-card__review">{reviewLabel}</span> : null}
       </div>
     </>
   )

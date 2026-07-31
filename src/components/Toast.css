@@ -1,29 +1,134 @@
-.toast {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  border-radius: var(--radius-sm);
-  padding: 11px 14px;
-  font-size: 13px;
-  font-weight: 500;
-  text-align: left;
-  position: fixed;
-  left: 50%;
-  bottom: 24px;
-  transform: translateX(-50%);
-  max-width: calc(100vw - 32px);
-  width: 360px;
-  cursor: pointer;
-  z-index: 100;
-  box-shadow: 0 8px 24px rgba(2, 10, 16, 0.18);
-}
+/* Rallye Design System — Toast (Figma node 194:3)
+   16 variantes: Tone(Success|Warning|Danger|Info) x Layout(Mobile 358px|
+   Desktop 420px) x HasAction. Cada tom expõe --toast-accent (state/{tone}) —
+   acento, ícone e ação sempre leem a mesma custom property.
+   Posição: Mobile ancora embaixo, Desktop no canto superior direito (doc
+   239:546). Sem prop `layout`, a troca é só CSS por breakpoint — mesmo
+   padrão do AppShell (sidebar/bottom-nav), ver src/lib/breakpoints.ts:
+   BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor. */
 
-.toast--error {
-  background: var(--state-danger-soft);
-  color: var(--state-danger);
+.toast {
+  box-sizing: border-box;
+  position: fixed;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 56px;
+  padding: 14px 12px 14px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-inverse);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  max-width: calc(100vw - 32px);
 }
 
 .toast--success {
-  background: var(--state-success-soft);
-  color: var(--state-success);
+  --toast-accent: var(--state-success);
+}
+
+.toast--warning {
+  --toast-accent: var(--state-warning);
+}
+
+.toast--danger {
+  --toast-accent: var(--state-danger);
+}
+
+.toast--info {
+  --toast-accent: var(--state-info);
+}
+
+.toast__accent {
+  flex-shrink: 0;
+  width: 4px;
+  height: 28px;
+  border-radius: 2px;
+  background: var(--toast-accent);
+}
+
+.toast__icon {
+  display: flex;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  color: var(--toast-accent);
+}
+
+.toast__message {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  font: var(--type-body);
+  color: var(--text-inverse);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
+}
+
+.toast__action {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  font: var(--type-label);
+  color: var(--toast-accent);
+  white-space: nowrap;
+}
+
+.toast__action:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.toast__close {
+  display: flex;
+  flex-shrink: 0;
+}
+
+/* IconButton ghost assume um fundo claro (--text-muted / --surface-sunken) —
+   errado sobre surface/inverse. Recolore para o par escuro do Toast; o
+   tamanho "sm" (34px) do IconButton cabe nos 56px de altura fixa do toast. */
+.toast__close .icon-button {
+  color: var(--text-inverse);
+}
+
+.toast__close .icon-button--ghost:hover:not(:disabled) {
+  background: rgba(253, 248, 240, 0.14);
+}
+
+/* Posição — Mobile: ancorado embaixo, centralizado, largura fixa 358px */
+.toast--pos-auto,
+.toast--pos-mobile {
+  left: 50%;
+  right: auto;
+  bottom: var(--space-6);
+  top: auto;
+  transform: translateX(-50%);
+  width: 358px;
+}
+
+/* Posição — Desktop: canto superior direito, largura fixa 420px */
+.toast--pos-desktop {
+  left: auto;
+  right: var(--space-6);
+  top: var(--space-6);
+  bottom: auto;
+  transform: none;
+  width: 420px;
+}
+
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
+@media (min-width: 860px) {
+  .toast--pos-auto {
+    left: auto;
+    right: var(--space-6);
+    top: var(--space-6);
+    bottom: auto;
+    transform: none;
+    width: 420px;
+  }
 }

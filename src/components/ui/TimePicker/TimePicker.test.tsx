@@ -173,17 +173,125 @@ describe('TimePicker — wheel variant', () => {
   })
 })
 
+describe('TimePicker — grid variant, responsive columns', () => {
+  it('does not set --time-picker-columns when columns is omitted (CSS handles the responsive default)', () => {
+    const { container } = render(<TimePicker start="07:00" end="08:00" step={30} />)
+    const grid = container.querySelector('.time-picker__grid') as HTMLElement
+    expect(grid.style.getPropertyValue('--time-picker-columns')).toBe('')
+    expect(grid.className).not.toMatch(/--fixed-columns/)
+  })
+
+  it('sets --time-picker-columns and the fixed-columns class when columns is explicitly passed', () => {
+    const { container } = render(
+      <TimePicker start="07:00" end="08:00" step={30} columns={2} />,
+    )
+    const grid = container.querySelector('.time-picker__grid') as HTMLElement
+    expect(grid.style.getPropertyValue('--time-picker-columns')).toBe('2')
+    expect(grid.className).toMatch(/--fixed-columns/)
+  })
+})
+
+describe('TimePicker — grid variant, Few state', () => {
+  it('marks a "few" slot without disabling it, and it remains selectable', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    render(
+      <TimePicker start="07:00" end="08:00" step={30} few={['07:30']} onChange={onChange} />,
+    )
+    const slot = screen.getByRole('button', { name: /07:30/ })
+    expect(slot).not.toBeDisabled()
+    await user.click(slot)
+    expect(onChange).toHaveBeenCalledWith('07:30')
+  })
+
+  it('busy (unavailable) takes precedence over few for the same slot', () => {
+    render(<TimePicker start="07:00" end="08:00" step={30} busy={['07:30']} few={['07:30']} />)
+    expect(screen.getByRole('button', { name: /07:30/ })).toBeDisabled()
+  })
+
+  it('shows the price when provided via the `prices` prop', () => {
+    render(
+      <TimePicker start="07:00" end="07:00" step={30} prices={{ '07:00': 'R$ 120' }} />,
+    )
+    expect(screen.getByText('R$ 120')).toBeInTheDocument()
+  })
+})
+
+describe('TimePicker — layout="grouped"', () => {
+  it('groups slots under Manhã/Tarde/Noite period headers', () => {
+    render(<TimePicker layout="grouped" start="09:00" end="19:00" step={60} />)
+    expect(screen.getByRole('button', { name: /Manhã/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Tarde/ })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /Noite/ })).toBeInTheDocument()
+  })
+
+  it('expands the first period by default and collapses the rest', () => {
+    render(<TimePicker layout="grouped" start="09:00" end="19:00" step={60} />)
+    expect(screen.getByRole('button', { name: /Manhã/ })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('button', { name: /Tarde/ })).toHaveAttribute('aria-expanded', 'false')
+    expect(screen.queryByRole('radio', { name: '13:00' })).not.toBeInTheDocument()
+  })
+
+  it('toggles a period open/closed on click, revealing its slots as radios', async () => {
+    const user = userEvent.setup()
+    render(<TimePicker layout="grouped" start="09:00" end="19:00" step={60} />)
+    await user.click(screen.getByRole('button', { name: /Tarde/ }))
+    expect(screen.getByRole('button', { name: /Tarde/ })).toHaveAttribute('aria-expanded', 'true')
+    expect(screen.getByRole('radio', { name: '13:00' })).toBeInTheDocument()
+  })
+
+  it('renders an unavailable slot as a focusable, aria-disabled radio (not removed from focus order)', () => {
+    render(<TimePicker layout="grouped" start="09:00" end="11:00" step={60} busy={['10:00']} />)
+    const radio = screen.getByRole('radio', { name: /10:00/ })
+    expect(radio).toHaveAttribute('aria-disabled', 'true')
+    expect(radio).not.toBeDisabled()
+  })
+
+  it('calls onChange when a radio slot is clicked, and marks it aria-checked', async () => {
+    const onChange = vi.fn()
+    const user = userEvent.setup()
+    render(<TimePicker layout="grouped" start="09:00" end="11:00" step={60} onChange={onChange} />)
+    await user.click(screen.getByRole('radio', { name: '10:00' }))
+    expect(onChange).toHaveBeenCalledWith('10:00')
+  })
+})
+
+describe('TimePicker — layout="list"', () => {
+  it('renders all periods and their slots without any collapse control', () => {
+    render(<TimePicker layout="list" start="09:00" end="19:00" step={60} />)
+    expect(screen.getByText('Manhã')).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '13:00' })).toBeInTheDocument()
+    expect(screen.getByRole('radio', { name: '19:00' })).toBeInTheDocument()
+  })
+
+  it('ArrowDown/ArrowUp move roving focus across the whole flattened list', async () => {
+    const user = userEvent.setup()
+    render(<TimePicker layout="list" start="09:00" end="11:00" step={60} />)
+    screen.getByRole('radio', { name: '09:00' }).focus()
+    await user.keyboard('{ArrowDown}')
+    expect(screen.getByRole('radio', { name: '10:00' })).toHaveFocus()
+    await user.keyboard('{ArrowUp}')
+    expect(screen.getByRole('radio', { name: '09:00' })).toHaveFocus()
+  })
+})
+
 describe('TimePicker — theming and tokens', () => {
   it('never uses the legacy --ink token', () => {
     const css = readFileSync('src/components/ui/TimePicker/TimePicker.css', 'utf8')
     expect(css).not.toMatch(/--ink\b/)
   })
 
-  it('renders without throwing regardless of the light/dark data-theme attribute, for both variants', () => {
+  it('renders without throwing regardless of the light/dark data-theme attribute, for every variant/layout', () => {
     document.documentElement.setAttribute('data-theme', 'dark')
     expect(() => render(<TimePicker start="07:00" end="08:00" step={30} />)).not.toThrow()
     expect(() =>
       render(<TimePicker variant="wheel" start="07:00" end="08:00" step={30} />),
+    ).not.toThrow()
+    expect(() =>
+      render(<TimePicker layout="grouped" start="07:00" end="20:00" step={30} />),
+    ).not.toThrow()
+    expect(() =>
+      render(<TimePicker layout="list" start="07:00" end="20:00" step={30} />),
     ).not.toThrow()
     document.documentElement.removeAttribute('data-theme')
   })

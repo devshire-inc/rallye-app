@@ -1,0 +1,38 @@
+/* Rallye Design System — StepIndicator (Figma node 278:1773)
+   Overline label over an N-segment progress track (Total 2/3 x Current). */
+
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.step-indicator__label {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-brand);
+  white-space: nowrap;
+}
+
+.step-indicator__track {
+  display: flex;
+  gap: var(--space-2);
+  height: 6px;
+  width: 100%;
+}
+
+.step-indicator__segment {
+  flex: 1 0 0;
+  min-width: 1px;
+  height: 100%;
+  border-radius: var(--radius-pill);
+}
+
+.step-indicator__segment--done {
+  background: var(--interactive-primary);
+}
+
+.step-indicator__segment--todo {
+  background: var(--border-default);
+}

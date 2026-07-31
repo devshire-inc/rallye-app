@@ -1,0 +1,154 @@
+/* Rallye Design System — Skeleton (Figma node 201:39)
+   Placeholder que ocupa o espaço do conteúdo enquanto ele carrega. Quatro
+   tipos — text, avatar, card, tableRow — cada um espelhando a forma do
+   conteúdo real que vai ocupar o lugar (node 240:91, "ANATOMIA E TOKENS"). */
+
+.skeleton__shape {
+  position: relative;
+  overflow: hidden;
+  background: var(--surface-sunken);
+}
+
+/* Exceção documentada (node 240:91): o gradiente do shimmer não é vinculado
+   a variável — gradientes com múltiplos stops não se beneficiam dos tokens
+   de cor sólida do DS, mesma lógica dos overlays alpha/*. Não migrar este
+   rgba() para token. */
+.skeleton__shape::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .55), transparent);
+  transform: translateX(-100%);
+  /* 1,5s não mapeia à escala --dur-fast/base/slow (120/200/320ms, todas
+     pensadas para micro-interações) — literal documentado (node 240:99). */
+  animation: skeleton-shimmer 1.5s linear infinite;
+}
+
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton__shape::after {
+    animation: none;
+    display: none;
+  }
+}
+
+/* Type=Text (node 201:2) — 3 linhas de largura decrescente, 220px de coluna. */
+.skeleton--text {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  width: 220px;
+}
+
+.skeleton--text .skeleton__line {
+  height: 12px;
+  width: 100%;
+  border-radius: var(--radius-pill);
+}
+
+.skeleton--text .skeleton__line:nth-child(3n+2) {
+  width: 82%;
+}
+
+.skeleton--text .skeleton__line:nth-child(3n) {
+  width: 64%;
+}
+
+/* Type=Avatar (node 201:12) — círculo de 48px. */
+.skeleton--avatar {
+  display: inline-block;
+  box-sizing: border-box;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+/* Type=Card (node 201:16) — imagem 240x120 + 2 linhas de legenda. */
+.skeleton--card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 240px;
+}
+
+.skeleton--card .skeleton__image {
+  width: 240px;
+  height: 120px;
+  border-radius: var(--radius-lg);
+  flex-shrink: 0;
+}
+
+.skeleton--card .skeleton__line {
+  height: 14px;
+  border-radius: var(--radius-pill);
+}
+
+.skeleton--card .skeleton__line:nth-of-type(2) {
+  width: 180px;
+}
+
+.skeleton--card .skeleton__line:nth-of-type(3) {
+  width: 120px;
+}
+
+/* Type=TableRow (node 201:26) — mesma altura (56px) da Table Row real, pra
+   layout não pular quando o dado chegar. */
+.skeleton--tableRow {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  width: 480px;
+  height: 56px;
+  padding: 0 var(--space-4);
+}
+
+.skeleton--tableRow .skeleton__avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+.skeleton--tableRow .skeleton__line {
+  height: 14px;
+  border-radius: var(--radius-pill);
+}
+
+.skeleton--tableRow .skeleton__line--flex {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.skeleton--tableRow .skeleton__line--md {
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.skeleton--tableRow .skeleton__line--sm {
+  width: 60px;
+  flex-shrink: 0;
+}
+
+/* SkeletonGroup — anúncio único de carregamento, visualmente oculto. */
+.skeleton-group__announcement {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

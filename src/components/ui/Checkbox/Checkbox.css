@@ -1,8 +1,16 @@
+/* Rallye Design System — Checkbox (Figma node 29:2, states grid 81:30)
+   Rounded orange checkbox. Checked x State (Default/Hover/Focus/Disabled). */
+
 .checkbox {
   display: inline-flex;
   align-items: center;
   gap: var(--space-2);
   cursor: pointer;
+}
+
+.checkbox--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .checkbox__input {
@@ -18,24 +26,54 @@
 }
 
 .checkbox__box {
-  width: 22px;
-  height: 22px;
-  border: 2px solid var(--border-strong);
-  border-radius: var(--radius-sm);
-  background: var(--surface-card);
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
+  border: 2px solid var(--border-strong);
+  /* Figma specifies 5px on a 20px box — no radius token matches (--radius-sm
+     is 10px, sized for larger controls); same literal-value precedent as
+     IconButton's sm/md/lg diameters. */
+  border-radius: 5px;
+  background: var(--surface-card);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
 }
 
-.checkbox__input:checked + .checkbox__box {
-  background: var(--interactive-primary);
+.checkbox:hover:not(.checkbox--disabled) .checkbox__box {
   border-color: var(--interactive-primary);
 }
 
+.checkbox__input:checked + .checkbox__box {
+  border-color: var(--interactive-primary);
+  background: var(--interactive-primary);
+}
+
+.checkbox:hover:not(.checkbox--disabled) .checkbox__input:checked + .checkbox__box {
+  border-color: var(--interactive-primary-hover);
+  background: var(--interactive-primary-hover);
+}
+
+/* Focus ring follows the same standard already applied to Button/IconButton
+   (node 258:745 "doc/focus-standard") — a single box-shadow ring around the
+   control itself, rather than the Figma-internal double-drop-shadow
+   technique used to fake it there. */
 .checkbox__input:focus-visible + .checkbox__box {
   box-shadow: var(--focus-ring);
 }
 
+.checkbox__check {
+  display: block;
+  width: 14px;
+  height: 14px;
+}
+
 .checkbox__label {
   font: var(--type-body);
-  color: var(--text-heading);
+  color: var(--text-body);
 }

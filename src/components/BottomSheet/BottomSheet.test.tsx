@@ -23,6 +23,36 @@ describe('BottomSheet', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument()
   })
 
+  it('renders the label as a visible header title and wires it as the accessible name', () => {
+    render(
+      <BottomSheet open onClose={vi.fn()} label="Escolher data">
+        <p>conteúdo</p>
+      </BottomSheet>,
+    )
+    expect(screen.getByRole('heading', { name: 'Escolher data' })).toBeInTheDocument()
+    expect(screen.getByRole('dialog', { name: 'Escolher data' })).toBeInTheDocument()
+  })
+
+  it('renders no header title when label is omitted', () => {
+    render(
+      <BottomSheet open onClose={vi.fn()}>
+        <p>conteúdo</p>
+      </BottomSheet>,
+    )
+    expect(screen.queryByRole('heading')).not.toBeInTheDocument()
+  })
+
+  it('calls onClose when the close button is clicked', () => {
+    const onClose = vi.fn()
+    render(
+      <BottomSheet open onClose={onClose} label="Escolher data">
+        <p>conteúdo</p>
+      </BottomSheet>,
+    )
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar' }))
+    expect(onClose).toHaveBeenCalledTimes(1)
+  })
+
   it('calls onClose when the backdrop is clicked', () => {
     const onClose = vi.fn()
     render(

@@ -1,0 +1,95 @@
+/* Rallye Design System — Medal (Figma node 196:32)
+   Círculo Tier=bronze..diamante x Size=Small(32)/Medium(48)/Large(64).
+   Fundo -soft (decorativo, "efeito metal"), stroke -strong e abreviação
+   -text — nunca o token base gamification/{tier} aqui, ver Medal.tsx. */
+
+.medal {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border-style: solid;
+  flex-shrink: 0;
+}
+
+.medal__letter {
+  font-family: var(--font-body);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.medal--sm {
+  width: 32px;
+  height: 32px;
+  border-width: 3px;
+}
+
+.medal--sm .medal__letter {
+  font-size: 12px;
+}
+
+.medal--md {
+  width: 48px;
+  height: 48px;
+  border-width: 4px;
+}
+
+.medal--md .medal__letter {
+  font-size: 16px;
+}
+
+.medal--lg {
+  width: 64px;
+  height: 64px;
+  border-width: 5px;
+}
+
+.medal--lg .medal__letter {
+  font-size: 20px;
+}
+
+.medal--bronze {
+  background: var(--gamification-bronze-soft);
+  border-color: var(--gamification-bronze-strong);
+}
+
+.medal--bronze .medal__letter {
+  color: var(--gamification-bronze-text);
+}
+
+.medal--prata {
+  background: var(--gamification-prata-soft);
+  border-color: var(--gamification-prata-strong);
+}
+
+.medal--prata .medal__letter {
+  color: var(--gamification-prata-text);
+}
+
+.medal--ouro {
+  background: var(--gamification-ouro-soft);
+  border-color: var(--gamification-ouro-strong);
+}
+
+.medal--ouro .medal__letter {
+  color: var(--gamification-ouro-text);
+}
+
+.medal--platina {
+  background: var(--gamification-platina-soft);
+  border-color: var(--gamification-platina-strong);
+}
+
+.medal--platina .medal__letter {
+  color: var(--gamification-platina-text);
+}
+
+.medal--diamante {
+  background: var(--gamification-diamante-soft);
+  border-color: var(--gamification-diamante-strong);
+}
+
+.medal--diamante .medal__letter {
+  color: var(--gamification-diamante-text);
+}

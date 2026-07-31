@@ -1,16 +1,148 @@
+/* Rallye Design System — Avatar (Figma node 24:27)
+   Size x HasPhoto x HasFallbackIcon grid, plus two overlay slots fed by
+   <AvatarIndicator>/<AvatarBadge> via the `indicator`/`badge` props:
+   Indicator bottom-right, Badge top-right (opposite corners, see node
+   24:3 "ANATOMIA E TOKENS"). */
+
 .avatar {
+  box-sizing: border-box;
+  position: relative;
+  display: inline-flex;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+  /* No overflow:hidden here — .avatar__indicator/.avatar__badge are
+     positioned at this element's corners and must NOT be clipped by the
+     circular avatar face. Clipping happens one level down, on
+     .avatar__clip, so only the photo/initials/fallback content is cropped
+     to the circle. */
+}
+
+.avatar__clip {
+  position: relative;
+  width: 100%;
+  height: 100%;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--avatar-size);
-  height: var(--avatar-size);
-  border-radius: 50%;
-  object-fit: cover;
-  flex-shrink: 0;
+  border-radius: inherit;
+  /* Figma's root Avatar frame is overflow-clip (see node 24:27 reference
+     code) — without it, the fallback silhouette's body (58%/56% top/height
+     = 114%) bleeds past the bottom of the circle instead of being cropped
+     by it. */
+  overflow: hidden;
 }
 
-.avatar--initials {
+.avatar__photo {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  object-fit: cover;
+  border-radius: var(--radius-pill);
+  /* Placeholder visível enquanto a imagem carrega ou se a URL falhar. */
+  background: var(--surface-sunken);
+  border: 1px solid var(--border-default);
+}
+
+.avatar--initials .avatar__clip {
   background: var(--avatar-color);
+}
+
+.avatar__initials {
   color: var(--text-on-brand);
+}
+
+.avatar--fallback .avatar__clip {
+  background: var(--surface-sunken);
+}
+
+.avatar__fallback {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* Proporções extraídas do symbols frame do Figma (idênticas nos 5
+   tamanhos: head 30%x30% em 35%/20%, body 62%x56% em 19%/58%) — um único
+   par de assets reescalado por porcentagem em vez de 10 exports fixos. */
+.avatar__fallback-head {
+  position: absolute;
+  left: 35%;
+  top: 20%;
+  width: 30%;
+  height: 30%;
+}
+
+.avatar__fallback-body {
+  position: absolute;
+  left: 19%;
+  top: 58%;
+  width: 62%;
+  height: 56%;
+}
+
+.avatar__indicator {
+  position: absolute;
+  right: 2px;
+  bottom: 2px;
+  line-height: 0;
+}
+
+.avatar__badge {
+  position: absolute;
+  right: 2px;
+  top: 2px;
+  line-height: 0;
+}
+
+/* Sizes — XSmall 24 / Small 32 / Medium 40 / Large 56 / XLarge 80, cada um
+   carregando o diâmetro do Indicator/Badge e a escala tipográfica das
+   iniciais (Label/Heading/Title/Display) que acompanham esse tamanho. */
+.avatar--xs {
+  width: 24px;
+  height: 24px;
+  --avatar-indicator-size: 9px;
+  --avatar-badge-size: 12px;
+}
+.avatar--xs .avatar__initials {
   font: var(--type-label);
+}
+
+.avatar--sm {
+  width: 32px;
+  height: 32px;
+  --avatar-indicator-size: 11px;
+  --avatar-badge-size: 14px;
+}
+.avatar--sm .avatar__initials {
+  font: var(--type-heading);
+}
+
+.avatar--md {
+  width: 40px;
+  height: 40px;
+  --avatar-indicator-size: 12px;
+  --avatar-badge-size: 16px;
+}
+.avatar--md .avatar__initials {
+  font: var(--type-heading);
+}
+
+.avatar--lg {
+  width: 56px;
+  height: 56px;
+  --avatar-indicator-size: 14px;
+  --avatar-badge-size: 20px;
+}
+.avatar--lg .avatar__initials {
+  font: var(--type-title);
+}
+
+.avatar--xl {
+  width: 80px;
+  height: 80px;
+  --avatar-indicator-size: 18px;
+  --avatar-badge-size: 26px;
+}
+.avatar--xl .avatar__initials {
+  font: var(--type-display);
 }

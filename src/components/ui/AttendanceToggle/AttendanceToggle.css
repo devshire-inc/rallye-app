@@ -1,0 +1,76 @@
+/* Rallye Design System — AttendanceToggle (Figma node 99:2 "Attendance
+   Toggle" / 99:26 variant grid)
+   Tri-state class check-in marker: Present/Absent/Justified, each with an
+   on/off state. Unselected uses one shared neutral surface (surface-sunken +
+   border-default) with the kind's semantic color carried only by the icon;
+   selected fills the whole 44x44 square with that kind's color and flips the
+   icon to text-on-brand — same "fill takes over, icon inverts" pattern as
+   IconButton's primary variant, but per-kind instead of per-variant. */
+
+.attendance-toggle {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--control-h-sm);
+  height: var(--control-h-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-bounce);
+}
+
+.attendance-toggle:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.attendance-toggle:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.attendance-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.attendance-toggle--present {
+  color: var(--state-success);
+}
+
+.attendance-toggle--absent {
+  color: var(--state-danger);
+}
+
+.attendance-toggle--justified {
+  color: var(--text-muted);
+}
+
+.attendance-toggle--present.attendance-toggle--selected {
+  background: var(--state-success);
+  border-color: var(--state-success);
+  color: var(--text-on-brand);
+}
+
+.attendance-toggle--absent.attendance-toggle--selected {
+  background: var(--state-danger);
+  border-color: var(--state-danger);
+  color: var(--text-on-brand);
+}
+
+.attendance-toggle--justified.attendance-toggle--selected {
+  background: var(--text-muted);
+  border-color: var(--text-muted);
+  color: var(--text-on-brand);
+}
+
+.attendance-group {
+  display: inline-flex;
+  gap: var(--space-2);
+}

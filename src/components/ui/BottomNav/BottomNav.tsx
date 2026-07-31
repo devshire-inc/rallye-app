@@ -1,3 +1,4 @@
+import { useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
 import './BottomNav.css'
 
 export interface BottomNavItem {
@@ -53,8 +54,48 @@ function NavIcon({ icon }: { icon: string }) {
 }
 
 export function BottomNav({ items = DEFAULT_ITEMS, active, onChange }: BottomNavProps) {
+  const containerRef = useRef<HTMLElement>(null)
+  const [indicatorStyle, setIndicatorStyle] = useState<CSSProperties>()
+
+  // Slides the shared indicator to the active item instead of each button
+  // toggling its own background instantly — measured on every active/items
+  // change (dynamic 5/4/3-item layouts + FILL sizing mean widths aren't
+  // fixed), plus a ResizeObserver since BottomNav's item widths, unlike
+  // Segmented's, genuinely depend on container width (viewport resize).
+  useLayoutEffect(() => {
+    const container = containerRef.current
+    if (!container) return
+
+    const measure = () => {
+      const activeButton = container.querySelector<HTMLButtonElement>('.bottom-nav__item--active')
+      if (!activeButton) {
+        setIndicatorStyle(undefined)
+        return
+      }
+      const style = {
+        '--bottomnav-indicator-x': `${activeButton.offsetLeft}px`,
+        '--bottomnav-indicator-width': `${activeButton.offsetWidth}px`,
+        '--bottomnav-indicator-height': `${activeButton.offsetHeight}px`,
+      } as CSSProperties
+      setIndicatorStyle(style)
+    }
+
+    measure()
+
+    // jsdom (unit tests, Storybook a11y checks) doesn't implement
+    // ResizeObserver — the [active, items] deps above already cover
+    // deliberate changes; this is a browser-only extra for reflow.
+    if (typeof ResizeObserver === 'undefined') return
+    const observer = new ResizeObserver(measure)
+    observer.observe(container)
+    return () => observer.disconnect()
+  }, [active, items])
+
   return (
-    <nav className="bottom-nav" aria-label="Navegação principal">
+    <nav className="bottom-nav" aria-label="Navegação principal" ref={containerRef}>
+      {indicatorStyle ? (
+        <span className="bottom-nav__indicator" style={indicatorStyle} aria-hidden="true" />
+      ) : null}
       {items.map((item) => {
         const isActive = item.label === active
         return (

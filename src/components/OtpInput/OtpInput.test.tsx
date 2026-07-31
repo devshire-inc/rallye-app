@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import { fireEvent, render, screen } from '@testing-library/react'
 import { axe } from 'jest-axe'
 import { describe, expect, it, vi } from 'vitest'
@@ -100,6 +101,27 @@ describe('OtpInput', () => {
     it('has no accessibility violations', async () => {
       const { container } = render(<OtpInput value="123" onChange={() => {}} />)
       expect(await axe(container)).toHaveNoViolations()
+    })
+  })
+
+  describe('visual spec (Figma node 277:1574)', () => {
+    it('marks a box as filled once it holds a digit', () => {
+      render(<OtpInput value="1" onChange={() => {}} />)
+      const inputs = boxes()
+      expect(inputs[0]).toHaveClass('otp-input__box--filled')
+      expect(inputs[1]).not.toHaveClass('otp-input__box--filled')
+    })
+
+    it('CSS: 48x56 boxes, radius/md, border/default vs border/strong, focus ring on the control', () => {
+      const css = readFileSync('src/components/OtpInput/OtpInput.css', 'utf8')
+      expect(css).toMatch(/width:\s*48px/)
+      expect(css).toMatch(/height:\s*56px/)
+      expect(css).toMatch(/border-radius:\s*var\(--radius-md\)/)
+      expect(css).toMatch(/border:\s*1\.5px solid var\(--border-default\)/)
+      expect(css).toMatch(/--border-strong\)/)
+      expect(css).toMatch(/box-shadow:\s*var\(--focus-ring\)/)
+      expect(css).toMatch(/--state-danger\)/)
+      expect(css).toMatch(/--state-danger-text\)/)
     })
   })
 })

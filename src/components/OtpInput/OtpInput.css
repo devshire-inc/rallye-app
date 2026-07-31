@@ -1,7 +1,15 @@
+/* Rallye Design System — OtpInput / Code Input (Figma node 277:1574)
+   Length (4/6) x State (Empty/Filled/Focus/Error). This component owns only
+   the box row — Label/Helper text around it stay the caller's responsibility
+   (existing OtpInput usages render their own heading/helper copy). */
+
 .otp-input {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   justify-content: center;
+  /* clipsContent=false per doc/FOCO: the row must not clip the focus ring
+     on the first/last box. */
+  overflow: visible;
 }
 
 .otp-input__sr-only {
@@ -17,28 +25,40 @@
 }
 
 .otp-input__box {
-  width: 44px;
-  height: 54px;
+  box-sizing: border-box;
+  width: 48px;
+  height: 56px;
   text-align: center;
-  font-size: 22px;
-  font-weight: 600;
-  font-family: var(--font-display);
-  border-radius: var(--radius-sm);
-  border: 1px solid var(--border-default);
+  font: var(--type-title);
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--border-default);
   background: var(--surface-card);
   color: var(--text-heading);
   outline: none;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
 }
 
+.otp-input__box--filled {
+  border-color: var(--border-strong);
+}
+
+/* Focus ring wraps the control itself (the box), per doc/FOCO — same
+   single box-shadow token already used by Input/Button, rather than
+   Figma's fake double-drop-shadow technique. The state border stays
+   underneath, so Focus + Error can coexist. */
 .otp-input__box:focus-visible {
   outline: none;
-  border-color: var(--interactive-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--interactive-primary) 22%, transparent);
+  border-color: var(--border-default);
+  box-shadow: var(--focus-ring);
 }
 
 .otp-input--error .otp-input__box {
+  border-width: 2px;
   border-color: var(--state-danger);
-  animation: otp-shake var(--motion-slow, 0.4s) ease-in-out;
+  color: var(--state-danger-text);
+  animation: otp-shake var(--dur-slow) var(--ease-standard);
 }
 
 @keyframes otp-shake {

@@ -1,0 +1,25 @@
+.switch-story-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.switch-story-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-8);
+}
+
+/* Storybook-only: forces the Hover/Focus visuals for the States grid, since
+   real :hover/:focus-visible can't be held on multiple items at once. */
+.switch-story--hover .switch-track {
+  border: 1.5px solid var(--interactive-primary);
+}
+
+.switch-story--hover .switch[aria-checked='true'] .switch-track {
+  border: 2px solid var(--interactive-primary);
+}
+
+.switch-story--focus .switch {
+  box-shadow: var(--focus-ring);
+}

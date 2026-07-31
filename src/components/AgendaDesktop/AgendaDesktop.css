@@ -1,0 +1,206 @@
+/* AgendaDesktop — Figma "Agenda — Desktop" (node 65:2/65:6). Pattern novo
+   (headerRow + legendRow + gridWrap), sem componente `ui/` equivalente —
+   ver comentário de módulo em AgendaDesktop.tsx. */
+
+.agenda-desktop {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+}
+
+/* headerRow — título + dateNav (prev/next flanqueando o rótulo do dia). */
+.agenda-desktop__header-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.agenda-desktop__title {
+  flex: 1 0 0;
+  margin: 0;
+  font: var(--type-title);
+  color: var(--text-heading);
+}
+
+.agenda-desktop__date-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.agenda-desktop__range {
+  font: var(--type-body);
+  color: var(--text-heading);
+  white-space: nowrap;
+}
+
+/* legendRow — 4 status (dot + rótulo) + espaçador + "+ Nova reserva". */
+.agenda-desktop__legend-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.agenda-desktop__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+}
+
+.agenda-desktop__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--agenda-desktop-legend-color);
+}
+
+.agenda-desktop__legend-label {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+.agenda-desktop__legend-spacer {
+  flex: 1 0 0;
+}
+
+/* gridWrap — cartão com a grade horário x quadra. */
+.agenda-desktop__grid-wrap {
+  width: 100%;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+/* Colunas: coluna de horas (fixa) + N colunas de quadra (flexíveis, mesma
+   largura) — número de quadras é dinâmico (--agenda-desktop-court-count),
+   então usamos CSS Grid com repeat(var(...)) em vez de larguras absolutas
+   fixas do Figma (218px), o que também deixa a grade responsiva.
+   Linhas: header (--control-h-sm, coincide com a altura de hora do Figma)
+   + N linhas de hora (--agenda-desktop-hour-h). */
+.agenda-desktop__grid {
+  display: grid;
+  grid-template-columns: 56px repeat(var(--agenda-desktop-court-count), minmax(0, 1fr));
+  grid-template-rows: var(--control-h-sm) repeat(var(--agenda-desktop-hour-count), var(--agenda-desktop-hour-h));
+}
+
+.agenda-desktop__corner {
+  grid-row: 1;
+  grid-column: 1;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.agenda-desktop__court-header {
+  grid-row: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--border-default);
+  border-bottom: 1px solid var(--border-default);
+}
+
+.agenda-desktop__court-header-top {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-width: 0;
+}
+
+.agenda-desktop__court-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--agenda-desktop-court-color);
+  flex-shrink: 0;
+}
+
+.agenda-desktop__court-name {
+  font: var(--type-heading);
+  color: var(--text-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-desktop__court-sport {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agenda-desktop__hour-label {
+  grid-column: 1;
+  grid-row: var(--agenda-desktop-row);
+  padding-top: var(--space-1);
+  padding-left: var(--space-3);
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+.agenda-desktop__hour-line {
+  grid-row: var(--agenda-desktop-row);
+  grid-column: 1 / -1;
+  align-self: start;
+  border-top: 1px solid var(--border-default);
+}
+
+.agenda-desktop__column {
+  grid-row: 2 / -1;
+  grid-column: var(--agenda-desktop-col);
+  position: relative;
+  min-width: 0;
+  border-left: 1px solid var(--border-default);
+}
+
+.agenda-desktop__event {
+  position: absolute;
+  top: var(--agenda-desktop-event-top);
+  height: var(--agenda-desktop-event-h);
+  left: var(--space-1);
+  right: var(--space-1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--space-1) var(--space-2) var(--space-1) 10px;
+  border: 1px solid var(--agenda-desktop-event-border);
+  border-radius: 6px;
+  background: var(--agenda-desktop-event-bg);
+  overflow: hidden;
+}
+
+.agenda-desktop__event-stripe {
+  position: absolute;
+  top: -1px;
+  left: -1px;
+  bottom: -1px;
+  width: 3px;
+  background: var(--agenda-desktop-event-border);
+}
+
+.agenda-desktop__event-title {
+  font: var(--type-subtitle);
+  color: var(--agenda-desktop-event-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.agenda-desktop__event-subtitle {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--agenda-desktop-event-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

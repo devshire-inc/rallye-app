@@ -1,0 +1,6 @@
+.tier-chip-story-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}

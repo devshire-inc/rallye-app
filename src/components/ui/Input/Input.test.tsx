@@ -31,9 +31,27 @@ describe('Input', () => {
     expect(screen.getByText('Senha inválida')).toBeInTheDocument()
   })
 
+  it('marks the control as aria-invalid when an error is given, not otherwise', () => {
+    const { rerender } = render(<Input label="Senha" />)
+    expect(screen.getByLabelText('Senha')).not.toHaveAttribute('aria-invalid')
+    rerender(<Input label="Senha" error="Senha inválida" />)
+    expect(screen.getByLabelText('Senha')).toHaveAttribute('aria-invalid', 'true')
+  })
+
   it('renders a prefix when given', () => {
     render(<Input label="Preço" prefix="R$" />)
     expect(screen.getByText('R$')).toBeInTheDocument()
+  })
+
+  it('renders a suffix slot inside the field, e.g. for PasswordInput\'s toggle', () => {
+    render(<Input label="Senha" suffix={<button type="button">toggle</button>} />)
+    expect(screen.getByRole('button', { name: 'toggle' })).toBeInTheDocument()
+  })
+
+  it('applies wrapperClassName to the outer wrapper without touching input__control', () => {
+    const { container } = render(<Input label="Senha" wrapperClassName="password-input" />)
+    expect(container.querySelector('.input')).toHaveClass('password-input')
+    expect(screen.getByLabelText('Senha')).toHaveClass('input__control')
   })
 
   it('forwards native input attributes and disabled without breaking id/htmlFor', async () => {
@@ -52,12 +70,49 @@ describe('Input', () => {
     expect(screen.getByLabelText('Campo')).toBeDisabled()
   })
 
-  it('CSS: height, radius, border, font per spec, no hex literals', () => {
+  it('adds the disabled wrapper class so the whole block dims (label + field + helper)', () => {
+    const { container } = render(<Input label="Campo" disabled />)
+    expect(container.querySelector('.input')).toHaveClass('input--disabled')
+  })
+
+  it('defaults size to md when omitted', () => {
+    const { container } = render(<Input label="Campo" />)
+    expect(container.querySelector('.input__field')).toHaveClass('input__field--md')
+  })
+
+  it.each(['sm', 'md', 'lg'] as const)('applies the input__field--%s class for size="%s"', (size) => {
+    const { container } = render(<Input label="Campo" size={size} />)
+    expect(container.querySelector('.input__field')).toHaveClass(`input__field--${size}`)
+  })
+
+  it('adds the input__field--error class when an error is given', () => {
+    const { container } = render(<Input label="Campo" error="Obrigatório" />)
+    expect(container.querySelector('.input__field')).toHaveClass('input__field--error')
+  })
+
+  it('CSS: sizes per spec (Figma node 31:26) — heights, radii, border widths, no hex literals', () => {
     const css = readFileSync('src/components/ui/Input/Input.css', 'utf8')
-    expect(css).toMatch(/height:\s*var\(--control-h-md\)/)
-    expect(css).toMatch(/border-radius:\s*var\(--radius-md\)/)
-    expect(css).toMatch(/border:\s*1px solid var\(--border-default\)/)
+    // Small
+    expect(css).toMatch(/\.input__field--sm\s*\{[^}]*height:\s*38px/)
+    expect(css).toMatch(/\.input__field--sm\s*\{[^}]*border-radius:\s*12px/)
+    // Medium — matches design system tokens exactly
+    expect(css).toMatch(/\.input__field--md\s*\{[^}]*height:\s*var\(--control-h-md\)/)
+    expect(css).toMatch(/\.input__field--md\s*\{[^}]*border-radius:\s*var\(--radius-md\)/)
+    // Large
+    expect(css).toMatch(/\.input__field--lg\s*\{[^}]*height:\s*var\(--control-h-lg\)/)
+    expect(css).toMatch(/\.input__field--lg\s*\{[^}]*border-radius:\s*16px/)
+    // Shared field styles
+    expect(css).toMatch(/border-color:\s*var\(--border-default\)/)
     expect(css).toMatch(/font:\s*var\(--type-body\)/)
+    expect(css).toMatch(/color:\s*var\(--text-body\)/)
+    // Error state — 2px danger border, danger-text helper color
+    expect(css).toMatch(/\.input__field--error\s*\{[^}]*border-width:\s*2px/)
+    expect(css).toMatch(/\.input__field--error\s*\{[^}]*border-color:\s*var\(--state-danger\)/)
+    expect(css).toMatch(/\.input__error\s*\{[^}]*color:\s*var\(--state-danger-text\)/)
+    // Focus ring standard (doc node 258:747)
+    expect(css).toMatch(/:focus-within\s*\{[^}]*box-shadow:\s*var\(--focus-ring\)/)
+    // Disabled — whole block dims per Figma (opacity-60)
+    expect(css).toMatch(/\.input--disabled\s*\{[^}]*opacity:\s*0\.6/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
 })

@@ -1,0 +1,13 @@
+.modal-story-wrap {
+  padding: var(--space-6);
+}
+
+.modal-story-sizes-wrap {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-6);
+}
+
+.modal-story-body {
+  margin: 0;
+}

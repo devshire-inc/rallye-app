@@ -62,12 +62,30 @@ describe('Select', () => {
     expect(screen.getByLabelText('Esporte')).toBeDisabled()
   })
 
+  it('renders an error message and marks the control as invalid', () => {
+    render(<Select label="Esporte" options={['Padel']} error="Campo obrigatório" />)
+    expect(screen.getByText('Campo obrigatório')).toBeInTheDocument()
+    expect(screen.getByLabelText('Esporte')).toHaveAttribute('aria-invalid', 'true')
+  })
+
+  it('does not render an error message or aria-invalid when no error is given', () => {
+    render(<Select label="Esporte" options={['Padel']} />)
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument()
+    expect(screen.getByLabelText('Esporte')).not.toHaveAttribute('aria-invalid')
+  })
+
   it('CSS: height, radius, border, font per spec, no hex literals', () => {
     const css = readFileSync('src/components/ui/Select/Select.css', 'utf8')
     expect(css).toMatch(/height:\s*var\(--control-h-md\)/)
     expect(css).toMatch(/border-radius:\s*var\(--radius-md\)/)
-    expect(css).toMatch(/border:\s*1px solid var\(--border-default\)/)
+    expect(css).toMatch(/border:\s*1\.5px solid var\(--border-default\)/)
     expect(css).toMatch(/font:\s*var\(--type-body\)/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+  })
+
+  it('CSS: error state uses the danger token', () => {
+    const css = readFileSync('src/components/ui/Select/Select.css', 'utf8')
+    expect(css).toMatch(/\.select__field--error\s*\{[^}]*border:\s*2px solid var\(--state-danger\)/)
+    expect(css).toMatch(/\.select__error\s*\{[^}]*color:\s*var\(--state-danger\)/)
   })
 })

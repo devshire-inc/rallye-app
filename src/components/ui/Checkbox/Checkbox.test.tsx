@@ -61,4 +61,17 @@ describe('Checkbox', () => {
     expect(css).not.toMatch(/display:\s*none/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
+
+  it('renders a check icon inside the decorative box only when checked', () => {
+    const { rerender } = render(<Checkbox label="Aceito os termos" checked={false} onChange={() => {}} />)
+    expect(document.querySelector('.checkbox__check')).not.toBeInTheDocument()
+
+    rerender(<Checkbox label="Aceito os termos" checked onChange={() => {}} />)
+    expect(document.querySelector('.checkbox__check')).toBeInTheDocument()
+  })
+
+  it('applies a disabled modifier class to the root for the dimmed Figma disabled state', () => {
+    render(<Checkbox label="Indisponível" disabled />)
+    expect(document.querySelector('.checkbox--disabled')).toBeInTheDocument()
+  })
 })

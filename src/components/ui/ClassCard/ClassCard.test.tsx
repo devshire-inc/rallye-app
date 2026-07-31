@@ -16,6 +16,11 @@ describe('ClassCard', () => {
     expect(screen.getByText('AS')).toBeInTheDocument()
   })
 
+  it('combines coach and court into a single meta line', () => {
+    render(<ClassCard sport="padel" coach="Ana Silva" court="Quadra 2" />)
+    expect(screen.getByText('Ana Silva · Quadra 2')).toBeInTheDocument()
+  })
+
   it.each([
     ['confirmada', 'Confirmada'],
     ['pendente', 'Pendente'],

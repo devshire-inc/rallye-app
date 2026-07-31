@@ -1,0 +1,67 @@
+/* Rallye Design System — Avatar Badge (Figma node 258:742)
+   Selo de papel (Professor/Admin, ícone) ou tier (Bronze..Diamante, letra).
+   Tamanho vem de --avatar-badge-size, setado pelo Avatar pai quando usado
+   via prop `badge`; solto, cai no fallback de 18px (o tamanho de
+   referência do frame de símbolos do Figma).
+
+   GAP DE TOKEN: o Figma define um grupo gamification/* (bronze/silver/
+   gold/platinum/diamond) que ainda não existe em colors.css. bronze
+   (#C74609), prata (#5D7186), ouro (#8A5A00) e diamante (#1E7FB5)
+   coincidem exatamente com tokens semânticos já existentes (mapeados
+   abaixo) — só platina (#1A7D72) não tem equivalente exato; usa
+   sport/futevolei (#14808A) como aproximação até o token dedicado ser
+   criado pelo dono do design system. */
+
+.avatar-badge {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--avatar-badge-size, 18px);
+  height: var(--avatar-badge-size, 18px);
+  border-radius: var(--radius-pill);
+  border: 2px solid var(--surface-card);
+  flex-shrink: 0;
+}
+
+.avatar-badge--professor {
+  background: var(--interactive-primary);
+}
+
+.avatar-badge--admin {
+  background: var(--state-info);
+}
+
+.avatar-badge--bronze {
+  background: var(--text-brand);
+}
+
+.avatar-badge--prata {
+  background: var(--text-muted);
+}
+
+.avatar-badge--ouro {
+  background: var(--state-warning-text);
+}
+
+.avatar-badge--platina {
+  /* Aproximação — sem token gamification/platinum dedicado, ver nota acima. */
+  background: var(--sport-futevolei);
+}
+
+.avatar-badge--diamante {
+  background: var(--state-info);
+}
+
+.avatar-badge__icon {
+  width: 12px;
+  height: 12px;
+  flex-shrink: 0;
+}
+
+.avatar-badge__letter {
+  color: var(--text-on-brand);
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}

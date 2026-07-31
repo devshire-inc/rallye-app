@@ -1,24 +1,47 @@
+/* Rallye Design System — SlotChip (Figma node 42:2, states grid 42:14)
+   Chip de horário na grade de reserva. State=available/selected/busy. */
+
 .slot-chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   height: var(--control-h-sm);
-  padding: 0 var(--space-3);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-pill);
+  padding: 0 var(--space-4);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
   background: var(--surface-card);
-  color: var(--text-heading);
+  color: var(--text-body);
   font: var(--type-numeric);
   cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
 }
 
-.slot-chip--busy {
-  background: var(--surface-sunken);
-  border: 1px solid transparent;
-  color: var(--text-muted);
-  text-decoration: line-through;
-  cursor: not-allowed;
+/* Focus follows the file-wide standard (node 258:1069) — a single
+   box-shadow ring around the control itself, same convention as
+   Button/Checkbox/Input/Select, rather than Figma's fake double-drop-shadow
+   technique used to fake it there. */
+.slot-chip:hover:not(:disabled) {
+  border-color: var(--interactive-primary-hover);
+}
+
+.slot-chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .slot-chip--selected {
   background: var(--interactive-primary);
   border-color: var(--interactive-primary);
   color: var(--text-on-brand);
+}
+
+.slot-chip--busy {
+  background: var(--surface-sunken);
+  border-color: transparent;
+  color: var(--text-muted);
+  cursor: not-allowed;
 }

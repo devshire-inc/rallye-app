@@ -1,0 +1,26 @@
+/* Rallye Design System — TierChip (Figma node 195:30)
+   Pill informativa (não interativa) do tier competitivo. Fundo
+   surface/brand-soft fixo, texto text/brand-strong fixo — só o dot muda de
+   cor por instância, via --tier-chip-dot-color (default interactive/primary,
+   sobrescrito com um --sport-* quando o contexto tem esporte definido). */
+
+.tier-chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-brand-soft);
+  color: var(--text-brand-strong);
+  font: var(--type-label);
+  white-space: nowrap;
+}
+
+.tier-chip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--tier-chip-dot-color, var(--interactive-primary));
+}

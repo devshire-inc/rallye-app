@@ -1,0 +1,124 @@
+/* Rallye Design System — MatchCard (Figma node 205:42, variants 205:2..265:1318)
+   Confronto da chave: header (seed/categoria/status) + 2 linhas de
+   participante separadas por vs-divider. State=Scheduled|Live|Finished|WO
+   x Format=Dupla|Individual, sempre 240px de largura, 108px de altura no
+   Figma (aqui a altura é implícita pelo conteúdo, não fixada — o valor do
+   Figma é o resultado do padding+gap+3 linhas de texto, não uma dimensão
+   independente a travar). Padding 14px horizontal não bate com nenhum
+   token de espaçamento (--space-3=12/--space-4=16) — literal intencional,
+   mesmo padrão já usado em ClassCard.css. */
+
+.match-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 240px;
+  padding: var(--space-3) 14px;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+
+.match-card__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.match-card__status--muted {
+  color: var(--text-muted);
+}
+
+.match-card__status--live {
+  color: var(--state-danger-text);
+}
+
+.match-card__status--finished {
+  color: var(--state-success-text);
+}
+
+.match-card__status--wo {
+  color: var(--state-warning-text);
+}
+
+.match-card__divider {
+  width: 100%;
+  height: 1px;
+  background: var(--border-default);
+}
+
+.match-card__participant {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+.match-card__identity {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+}
+
+.match-card__winner-bar {
+  flex-shrink: 0;
+  width: 3px;
+  height: 18px;
+  border-radius: 2px;
+  background: var(--interactive-primary);
+}
+
+.match-card__participant-seed {
+  flex-shrink: 0;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+.match-card__name {
+  overflow: hidden;
+  font: var(--type-body);
+  color: var(--text-heading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.match-card__result {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.match-card__check {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--interactive-primary);
+}
+
+.match-card__sets {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Figma chama essa célula de "Numeric", mas o estilo real (Nunito Bold
+   15px/1.3) não corresponde ao token --type-numeric do projeto (que é
+   mono, para outro contexto de placar). Gap de token — literal aqui até
+   existir um --type-numeric-body ou equivalente. */
+.match-card__score {
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.3;
+  color: var(--text-heading);
+}

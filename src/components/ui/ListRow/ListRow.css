@@ -1,0 +1,71 @@
+/* Rallye Design System — ListRow (Figma node 96:2, variants node 96:50)
+   Linha genérica de lista: leading (Avatar Medium ou tarja de 4px) + coluna
+   de título/meta + trailing opcional (Badge, Chevron ou nada). Sem sombra
+   no Figma (diferente de ClassCard/CourtCard) — só um leve highlight de
+   fundo no hover quando interativo. */
+
+.list-row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border: none;
+  border-radius: var(--radius-lg);
+  text-align: left;
+  cursor: default;
+}
+
+button.list-row {
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+
+button.list-row:hover {
+  background: var(--surface-sunken);
+}
+
+.list-row__strip {
+  flex-shrink: 0;
+  width: 4px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--list-row-strip-color);
+}
+
+.list-row__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.list-row__title {
+  width: 100%;
+  overflow: hidden;
+  font: var(--type-body);
+  color: var(--text-heading);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-row__meta {
+  width: 100%;
+  overflow: hidden;
+  font: var(--type-small);
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-row__trailing {
+  flex-shrink: 0;
+}
+
+.list-row__chevron {
+  flex-shrink: 0;
+  color: var(--text-muted);
+}

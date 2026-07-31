@@ -77,14 +77,31 @@ function computeFocusForView(
   return firstEnabledDayInMonth(year, month, min)
 }
 
-const MONTH_FORMATTER = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' })
+const MONTH_YEAR_FORMATTER = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' })
+const MONTH_ONLY_FORMATTER = new Intl.DateTimeFormat('pt-BR', { month: 'long' })
 const FULL_DATE_FORMATTER = new Intl.DateTimeFormat('pt-BR', {
   day: 'numeric',
   month: 'long',
   year: 'numeric',
   weekday: 'long',
 })
-const WEEKDAY_LABELS = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb']
+
+/** Rótulo visível do cabeçalho, ex. "Agosto 2026" (Figma node 47:7) — mês
+ * capitalizado sem o conector "de" que o Intl "long" normalmente inclui. */
+function formatHeaderLabel(date: Date): string {
+  const month = MONTH_ONLY_FORMATTER.format(date)
+  return `${month.charAt(0).toUpperCase()}${month.slice(1)} ${date.getFullYear()}`
+}
+
+const WEEKDAY_FULL = [
+  'Domingo',
+  'Segunda-feira',
+  'Terça-feira',
+  'Quarta-feira',
+  'Quinta-feira',
+  'Sexta-feira',
+  'Sábado',
+]
 
 export function DatePicker({ value, onChange, min, size = 'md', busyDates = [] }: DatePickerProps) {
   const selected = value ? parseIsoLocal(value) : null
@@ -206,26 +223,29 @@ export function DatePicker({ value, onChange, min, size = 'md', busyDates = [] }
         <button
           type="button"
           className="date-picker__nav"
-          aria-label={`Mês anterior: ${MONTH_FORMATTER.format(prevMonthDate)}`}
+          aria-label={`Mês anterior: ${MONTH_YEAR_FORMATTER.format(prevMonthDate)}`}
           onClick={handlePrevMonth}
         >
           ‹
         </button>
         <span className="date-picker__month-label">
-          {MONTH_FORMATTER.format(new Date(view.year, view.month, 1))}
+          {formatHeaderLabel(new Date(view.year, view.month, 1))}
         </span>
         <button
           type="button"
           className="date-picker__nav"
-          aria-label={`Próximo mês: ${MONTH_FORMATTER.format(nextMonthDate)}`}
+          aria-label={`Próximo mês: ${MONTH_YEAR_FORMATTER.format(nextMonthDate)}`}
           onClick={handleNextMonth}
         >
           ›
         </button>
       </div>
       <div className="date-picker__weekdays">
-        {WEEKDAY_LABELS.map((label) => (
-          <span key={label}>{label}</span>
+        {WEEKDAY_FULL.map((fullName) => (
+          <span key={fullName} className="date-picker__weekday">
+            <span aria-hidden="true">{fullName.charAt(0)}</span>
+            <span className="date-picker__sr-only">{fullName}</span>
+          </span>
         ))}
       </div>
       <div className="date-picker__grid">
@@ -248,6 +268,14 @@ export function DatePicker({ value, onChange, min, size = 'md', busyDates = [] }
           let label = FULL_DATE_FORMATTER.format(date)
           if (busy) label += ', ocupado'
 
+          const className = [
+            'date-picker__day',
+            isSelected && 'date-picker__day--selected',
+            isToday && !isSelected && 'date-picker__day--today',
+          ]
+            .filter(Boolean)
+            .join(' ')
+
           return (
             <button
               key={day}
@@ -255,7 +283,7 @@ export function DatePicker({ value, onChange, min, size = 'md', busyDates = [] }
                 dayRefs.current[day] = el
               }}
               type="button"
-              className={`date-picker__day${isSelected ? ' date-picker__day--selected' : ''}`}
+              className={className}
               disabled={isDisabled}
               aria-pressed={isSelected}
               aria-current={isToday ? 'date' : undefined}

@@ -47,12 +47,23 @@ describe('SlotChip', () => {
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
 
-  it('CSS: busy state uses --surface-sunken background, transparent border, line-through and --text-muted', () => {
+  it('CSS: busy state uses --surface-sunken background, transparent border and --text-muted', () => {
     const css = readFileSync('src/components/ui/SlotChip/SlotChip.css', 'utf8')
     const busyBlock = /\.slot-chip--busy\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
     expect(busyBlock).toMatch(/background:\s*var\(--surface-sunken\)/)
-    expect(busyBlock).toMatch(/border:\s*1px solid transparent/)
-    expect(busyBlock).toMatch(/text-decoration:\s*line-through/)
+    expect(busyBlock).toMatch(/border-color:\s*transparent/)
     expect(busyBlock).toMatch(/color:\s*var\(--text-muted\)/)
+  })
+
+  it('CSS: base state uses --radius-md and --type-numeric per Figma (node 42:14)', () => {
+    const css = readFileSync('src/components/ui/SlotChip/SlotChip.css', 'utf8')
+    const baseBlock = /\.slot-chip\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+    expect(baseBlock).toMatch(/border-radius:\s*var\(--radius-md\)/)
+    expect(baseBlock).toMatch(/font:\s*var\(--type-numeric\)/)
+  })
+
+  it('CSS: focus-visible uses the shared --focus-ring token', () => {
+    const css = readFileSync('src/components/ui/SlotChip/SlotChip.css', 'utf8')
+    expect(css).toMatch(/:focus-visible\s*\{[^}]*box-shadow:\s*var\(--focus-ring\)/)
   })
 })

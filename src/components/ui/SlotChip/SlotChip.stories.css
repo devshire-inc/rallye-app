@@ -1,0 +1,11 @@
+.slot-chip-story-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+/* Storybook-only: forces the Focus visual for the States grid, since a real
+   :focus-visible can't be held on a single chip on demand. */
+.slot-chip-story--focus .slot-chip {
+  box-shadow: var(--focus-ring);
+}

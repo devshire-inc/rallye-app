@@ -1,0 +1,75 @@
+/* Rallye Design System — Radio (Figma node 101:10, states grid 101:23)
+   Circular radio button. Selected x State (Default/Hover/Focus/Disabled). */
+
+.radio {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.radio--disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.radio__input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.radio__box {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  border: 2px solid var(--border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.radio:hover:not(.radio--disabled) .radio__box {
+  border-color: var(--interactive-primary);
+}
+
+.radio__input:checked + .radio__box {
+  border-color: var(--interactive-primary);
+}
+
+.radio:hover:not(.radio--disabled) .radio__input:checked + .radio__box {
+  border-color: var(--interactive-primary-hover);
+}
+
+/* Focus ring follows the same standard already applied to Button/Checkbox
+   (node 258:1070 "doc/focus-standard") — a single box-shadow ring around the
+   control itself, rather than the Figma-internal double-drop-shadow
+   technique used to fake it there. */
+.radio__input:focus-visible + .radio__box {
+  box-shadow: var(--focus-ring);
+}
+
+.radio__dot {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--interactive-primary);
+}
+
+.radio__label {
+  font: var(--type-body);
+  color: var(--text-body);
+}

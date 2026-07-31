@@ -1,0 +1,15 @@
+.segmented-story-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+/* Storybook-only: forces the Hover/Focus visuals for the States grid, since
+   real :hover/:focus-visible can't be held on a single segment on demand. */
+.segmented-story--hover .segmented__option {
+  background: var(--surface-card);
+}
+
+.segmented-story--focus .segmented__option {
+  box-shadow: var(--focus-ring);
+}

@@ -43,4 +43,26 @@ describe('CourtCard', () => {
   it('renders without throwing for an unknown sport slug', () => {
     expect(() => render(<CourtCard sport="krav-maga" name="Quadra X" />)).not.toThrow()
   })
+
+  it('renders the name inside the colored top band, not the footer', () => {
+    const { container } = render(<CourtCard sport="padel" name="Quadra Central" />)
+    const top = container.querySelector('.court-card__top')
+    expect(top?.querySelector('.court-card__name')?.textContent).toBe('Quadra Central')
+  })
+
+  it('renders the decorative court-lines motif as aria-hidden', () => {
+    const { container } = render(<CourtCard sport="padel" name="Quadra Central" />)
+    const lines = container.querySelector('.court-card__lines')
+    expect(lines).toHaveAttribute('aria-hidden', 'true')
+  })
+
+  it('omits the top band name span when no name is given', () => {
+    const { container } = render(<CourtCard sport="padel" />)
+    expect(container.querySelector('.court-card__name')).not.toBeInTheDocument()
+  })
+
+  it('omits the meta block entirely when neither status nor price is given', () => {
+    const { container } = render(<CourtCard sport="padel" name="Quadra Central" />)
+    expect(container.querySelector('.court-card__meta')).not.toBeInTheDocument()
+  })
 })

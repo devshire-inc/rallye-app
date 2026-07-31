@@ -36,7 +36,7 @@ describe('typography.css — --type-* shorthands', () => {
   const root = extractBlock(typographyCss, ':root')
 
   const types: Record<string, string> = {
-    '--type-display-xl': '800 clamp(36px,5vw,56px)/1.05 var(--font-display)',
+    '--type-display-xl': '800 44px/1.05 var(--font-display)',
     '--type-display': '800 32px/1.1 var(--font-display)',
     '--type-title': '700 24px/1.2 var(--font-display)',
     '--type-heading': '700 19px/1.3 var(--font-display)',
@@ -47,7 +47,7 @@ describe('typography.css — --type-* shorthands', () => {
     '--type-label': '700 13px/1.2 var(--font-body)',
     '--type-overline': '800 11px/1.2 var(--font-body)',
     '--type-numeric': '600 15px/1.3 var(--font-mono)',
-    '--type-score': '700 28px/1 var(--font-display)',
+    '--type-score': '800 28px/1 var(--font-display)',
   }
 
   it.each(Object.entries(types))('%s = %s', (name, value) => {

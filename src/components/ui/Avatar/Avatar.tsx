@@ -1,10 +1,25 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import './Avatar.css'
+import fallbackHead from './icons/fallback-head.svg'
+import fallbackBody from './icons/fallback-body.svg'
+
+export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl'
 
 export interface AvatarProps {
   name?: string
-  size?: number
+  size?: AvatarSize
   src?: string
+  /** Selo de presença/status no canto inferior direito — normalmente um
+   * `<AvatarIndicator />`. Passado como prop (não como children soltos),
+   * ver Figma node 258:557: "Use aninhado dentro de Avatar (prop
+   * Indicator) ou solto em listas de chamada." */
+  indicator?: ReactNode
+  /** Selo de papel/tier no canto superior direito — normalmente um
+   * `<AvatarBadge />`. Indicator e Badge ficam em cantos opostos e podem
+   * coexistir a partir de Medium; evite combinar os dois em XSmall/Small
+   * (Figma node 24:3, "QUANDO NÃO USAR": não há área para os dois e eles
+   * cobrem as iniciais). */
+  badge?: ReactNode
 }
 
 const AVATAR_COLOR_TOKENS = [
@@ -30,22 +45,45 @@ function colorTokenFor(name: string): (typeof AVATAR_COLOR_TOKENS)[number] {
   return AVATAR_COLOR_TOKENS[hash]!
 }
 
-export function Avatar({ name, size = 40, src }: AvatarProps) {
-  const sizeStyle = { '--avatar-size': `${size}px` } as CSSProperties
+export function Avatar({ name, size = 'md', src, indicator, badge }: AvatarProps) {
+  const trimmedName = name?.trim()
+
+  let modeClass: string
+  let content: ReactNode
+  let wrapperStyle: CSSProperties | undefined
 
   if (src) {
-    return <img className="avatar" style={sizeStyle} src={src} alt={name ?? ''} />
+    modeClass = 'avatar--photo'
+    content = <img className="avatar__photo" src={src} alt={trimmedName ?? ''} />
+  } else if (trimmedName) {
+    modeClass = 'avatar--initials'
+    // --avatar-color must live on the wrapper span, not this inner one:
+    // .avatar--initials' `background` rule reads it from its own element,
+    // and custom properties only cascade down to descendants, never up.
+    wrapperStyle = { '--avatar-color': `var(${colorTokenFor(trimmedName)})` } as CSSProperties
+    content = (
+      <span className="avatar__initials" role="img" aria-label={trimmedName}>
+        {initialsOf(trimmedName)}
+      </span>
+    )
+  } else {
+    // Sem nome e sem foto: silhueta genérica neutra (Figma HasFallbackIcon)
+    // — usuário sem nome não tem identidade de esporte, então não usa as
+    // cores sport/*.
+    modeClass = 'avatar--fallback'
+    content = (
+      <span className="avatar__fallback" aria-hidden="true">
+        <img className="avatar__fallback-head" src={fallbackHead} alt="" />
+        <img className="avatar__fallback-body" src={fallbackBody} alt="" />
+      </span>
+    )
   }
 
-  const displayName = name ?? '?'
-  const style = {
-    ...sizeStyle,
-    '--avatar-color': `var(${colorTokenFor(displayName)})`,
-  } as CSSProperties
-
   return (
-    <span className="avatar avatar--initials" style={style}>
-      {initialsOf(displayName)}
+    <span className={`avatar avatar--${size} ${modeClass}`} style={wrapperStyle}>
+      <span className="avatar__clip">{content}</span>
+      {indicator ? <span className="avatar__indicator">{indicator}</span> : null}
+      {badge ? <span className="avatar__badge">{badge}</span> : null}
     </span>
   )
 }

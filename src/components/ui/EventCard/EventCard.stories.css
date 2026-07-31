@@ -1,0 +1,9 @@
+.event-card-story-wrap {
+  width: 360px;
+}
+
+.event-card-story-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 360px);
+  gap: var(--space-4);
+}

@@ -1,44 +1,109 @@
+/* Rallye Design System — CourtCard (Figma node 34:2, variants node 52:79)
+   Card de quadra: topo de 74px na cor do esporte com linhas de quadra
+   sutis (--court-line), rodapé com SportTag + status/preço. 6 esportes ×
+   Default/Hover (Shadow/Card -> Shadow/Raised), recolorindo o mesmo
+   desenho — só a variável --court-card-accent muda entre esportes. */
+
 .court-card {
   display: flex;
   flex-direction: column;
   width: 100%;
   overflow: hidden;
   background: var(--surface-card);
-  border: none;
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-card);
   text-align: left;
   cursor: default;
   padding: 0;
+  box-sizing: border-box;
 }
 
 button.court-card {
   cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+button.court-card:hover {
+  border: 2px solid var(--interactive-primary-hover);
+  box-shadow: var(--shadow-raised);
 }
 
 .court-card__top {
-  height: 8px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  height: 74px;
+  overflow: hidden;
   background: var(--court-card-accent);
 }
 
-.court-card__body {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-2);
-  padding: var(--space-4);
+.court-card__lines {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.court-card__lines::before {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: -70px;
+  width: 200px;
+  height: 200px;
+  border: 2px solid var(--court-line);
+  opacity: 0.45;
+  transform: rotate(8deg);
+}
+
+.court-card__lines::after {
+  content: '';
+  position: absolute;
+  top: -60px;
+  right: 24px;
+  width: 2px;
+  height: 200px;
+  background: var(--court-line);
+  opacity: 0.45;
+  transform: rotate(8deg);
 }
 
 .court-card__name {
-  font: var(--type-subtitle);
-  color: var(--text-heading);
+  position: relative;
+  z-index: 1;
+  padding: 0 var(--space-4) var(--space-3);
+  font: var(--type-heading);
+  color: var(--text-on-brand);
+}
+
+.court-card__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+}
+
+.court-card__meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  min-width: 0;
 }
 
 .court-card__status {
   font: var(--type-small);
   color: var(--text-muted);
+  white-space: nowrap;
 }
 
 .court-card__price {
   font: var(--type-numeric);
   color: var(--text-heading);
+  white-space: nowrap;
 }

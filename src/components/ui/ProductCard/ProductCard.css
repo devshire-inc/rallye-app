@@ -1,7 +1,17 @@
+/* Rallye Design System — ProductCard (Figma node 44:2, variants node 44:33)
+   Card de produto do marketplace: mídia fixa de 120px + corpo com
+   nome/preço. HasOldPrice é independente de HasTag (node 330:1468). Largura
+   flexível 160–240px — priceRow quebra em wrap automático (node 44:21) e o
+   card só eleva de Shadow/Card para Shadow/Raised quando é <button>. */
+
 .product-card {
   display: flex;
   flex-direction: column;
+  gap: var(--space-1);
+  box-sizing: border-box;
   width: 100%;
+  min-width: 160px;
+  max-width: 240px;
   overflow: hidden;
   background: var(--surface-card);
   border: none;
@@ -14,14 +24,22 @@
 
 button.product-card {
   cursor: pointer;
+  transition: box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+button.product-card:hover,
+button.product-card:focus-visible {
+  box-shadow: var(--shadow-raised);
 }
 
 .product-card__media {
   position: relative;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  aspect-ratio: 4 / 3;
+  height: 120px;
+  overflow: hidden;
   background: var(--surface-sunken);
 }
 
@@ -40,8 +58,19 @@ button.product-card {
 
 .product-card__tag {
   position: absolute;
-  top: var(--space-2);
-  left: var(--space-2);
+  top: 10px;
+  left: 10px;
+}
+
+.product-card__tag .badge {
+  height: auto;
+  padding: var(--space-1) 10px;
+  border: none;
+  border-radius: var(--radius-pill);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
 }
 
 .product-card__body {
@@ -49,26 +78,34 @@ button.product-card {
   flex-direction: column;
   gap: var(--space-1);
   padding: var(--space-3);
+  word-break: break-word;
 }
 
 .product-card__name {
-  font: var(--type-body);
+  font: var(--type-label);
   color: var(--text-heading);
 }
 
 .product-card__prices {
   display: flex;
+  flex-wrap: wrap;
   align-items: baseline;
-  gap: var(--space-2);
+  gap: 2px var(--space-2);
 }
 
 .product-card__price {
-  font: var(--type-numeric);
+  font: 700 15px/1.3 var(--font-body);
   color: var(--text-brand);
 }
 
 .product-card__old-price {
-  font: var(--type-small);
+  font: 700 15px/1.3 var(--font-body);
   color: var(--text-muted);
   text-decoration: line-through;
+}
+
+.product-card__arena,
+.product-card__review {
+  font: 400 11px/normal var(--font-body);
+  color: var(--text-muted);
 }

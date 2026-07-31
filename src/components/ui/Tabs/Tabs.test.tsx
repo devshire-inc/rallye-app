@@ -106,13 +106,42 @@ describe('Tabs', () => {
     expect(screen.getByRole('tab', { name: 'Financeiro' })).toHaveFocus()
   })
 
-  it('CSS: border-bottom, active/inactive tokens per spec, no hex literals', () => {
+  it('renders a single sliding indicator under the active tab, positioned via CSS custom properties', () => {
+    const { container } = render(<Tabs tabs={TAB_NAMES} value="Financeiro" />)
+    const indicators = container.querySelectorAll('.tabs__indicator')
+    expect(indicators).toHaveLength(1)
+    const indicator = indicators[0] as HTMLElement
+    expect(indicator).toHaveAttribute('aria-hidden', 'true')
+    expect(indicator.style.getPropertyValue('--tabs-indicator-x')).toMatch(/^-?\d+(\.\d+)?px$/)
+    expect(indicator.style.getPropertyValue('--tabs-indicator-width')).toMatch(/^\d+(\.\d+)?px$/)
+  })
+
+  it('renders no indicator when the current value matches no tab', () => {
+    const { container } = render(<Tabs tabs={TAB_NAMES} value="Inexistente" />)
+    expect(container.querySelectorAll('.tabs__indicator')).toHaveLength(0)
+  })
+
+  it('CSS: container, tab, and indicator dimensions/tokens per spec, no hex literals', () => {
     const css = readFileSync('src/components/ui/Tabs/Tabs.css', 'utf8')
-    expect(css).toMatch(/border-bottom:\s*2px solid var\(--border-default\)/)
-    expect(css).toMatch(/font:\s*var\(--type-subtitle\)/)
-    expect(css).toMatch(/color:\s*var\(--text-brand\)/)
-    expect(css).toMatch(/box-shadow:\s*0 2px 0 0 var\(--interactive-primary\)/)
+    expect(css).toMatch(/gap:\s*var\(--space-6\)/)
+    expect(css).toMatch(/font:\s*var\(--type-label\)/)
+    expect(css).toMatch(/color:\s*var\(--text-heading\)/)
     expect(css).toMatch(/color:\s*var\(--text-muted\)/)
+    expect(css).toMatch(/min-height:\s*var\(--control-h-sm\)/)
+    expect(css).toMatch(/box-shadow:\s*var\(--focus-ring\)/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
+  })
+
+  it('CSS: the shared indicator owns the underline and slides via transform/width transitions', () => {
+    const css = readFileSync('src/components/ui/Tabs/Tabs.css', 'utf8')
+    expect(css).toMatch(/\.tabs__indicator\s*\{[^}]*background:\s*var\(--interactive-primary\)/s)
+    expect(css).toMatch(
+      /\.tabs__indicator\s*\{[^}]*transform:\s*translateX\(var\(--tabs-indicator-x, 0\)\)/s,
+    )
+    expect(css).toMatch(/\.tabs__indicator\s*\{[^}]*width:\s*var\(--tabs-indicator-width, 0\)/s)
+    expect(css).toMatch(
+      /transition:\s*\n\s*transform var\(--dur-base\) var\(--ease-standard\),\s*\n\s*width var\(--dur-base\) var\(--ease-standard\)/,
+    )
+    expect(css).not.toMatch(/\.tabs__tab--active\s*\{[^}]*box-shadow:/s)
   })
 })

@@ -1,5 +1,6 @@
 import { useId } from 'react'
 import type { AccessibleLabel } from '../accessibility'
+import checkIcon from './icons/check.svg'
 import './Checkbox.css'
 
 export type CheckboxProps = AccessibleLabel & {
@@ -32,20 +33,28 @@ export function Checkbox({
     />
   )
 
+  const box = (
+    <span className="checkbox__box" aria-hidden="true">
+      {checked && <img src={checkIcon} alt="" className="checkbox__check" />}
+    </span>
+  )
+
+  const className = disabled ? 'checkbox checkbox--disabled' : 'checkbox'
+
   if (label) {
     return (
-      <label htmlFor={checkboxId} className="checkbox">
+      <label htmlFor={checkboxId} className={className}>
         {input}
-        <span className="checkbox__box" aria-hidden="true" />
+        {box}
         <span className="checkbox__label">{label}</span>
       </label>
     )
   }
 
   return (
-    <span className="checkbox">
+    <span className={className}>
       {input}
-      <span className="checkbox__box" aria-hidden="true" />
+      {box}
     </span>
   )
 }

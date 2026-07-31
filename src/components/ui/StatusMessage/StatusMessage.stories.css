@@ -1,0 +1,18 @@
+.status-message-story-feedback {
+  margin-top: var(--space-3);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.status-message-story-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+
+.status-message-story-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-6);
+}

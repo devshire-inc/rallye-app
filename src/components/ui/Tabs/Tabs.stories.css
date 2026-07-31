@@ -1,0 +1,11 @@
+.tabs-story-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+
+/* Storybook-only: forces the Focus visual for the States grid, since real
+   :focus-visible can't be held on a single tab on demand. */
+.tabs-story--focus .tabs__tab {
+  box-shadow: var(--focus-ring);
+}

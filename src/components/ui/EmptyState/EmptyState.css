@@ -1,0 +1,42 @@
+/* Rallye Design System — EmptyState (Figma node 194:5)
+   Auto-layout vertical centralizado, 320px: círculo-placeholder 96px em
+   surface/sunken com ícone em text/muted, título (Heading), descrição
+   (Body/Base) e CTA opcional (Button Primary/Medium). */
+
+.empty-state {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 320px;
+  padding: var(--space-8) var(--space-6);
+}
+
+.empty-state__illustration {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 96px;
+  height: 96px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+}
+
+.empty-state__title {
+  margin: 0;
+  width: 100%;
+  font: var(--type-heading);
+  color: var(--text-heading);
+  text-align: center;
+}
+
+.empty-state__description {
+  margin: 0;
+  width: 100%;
+  font: var(--type-body);
+  color: var(--text-muted);
+  text-align: center;
+}

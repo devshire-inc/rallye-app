@@ -1,0 +1,52 @@
+/* Rallye Design System — Chip (Figma node 98:2, states grid 98:16)
+   Pill de filtro/alternância genérica — Selected=false|true x HasDot=false|true. */
+
+.chip {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 14px var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-heading);
+  font: var(--type-body);
+  cursor: pointer;
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard),
+    color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.chip:hover:not(.chip--selected) {
+  border-color: var(--interactive-primary-hover);
+}
+
+.chip:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.chip--selected {
+  background: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+  color: var(--text-on-brand);
+}
+
+.chip__label {
+  white-space: nowrap;
+}
+
+.chip__dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--chip-dot-color, var(--interactive-primary));
+}
+
+.chip--selected .chip__dot {
+  background: var(--text-on-brand);
+}
