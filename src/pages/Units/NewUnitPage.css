@@ -3,12 +3,66 @@
   gap: var(--space-4);
 }
 
+.unit-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 480px;
+  text-align: center;
+}
+
+.unit-success__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92px;
+  height: 92px;
+  border-radius: var(--radius-pill);
+  background: var(--state-success-soft);
+}
+
+.unit-success__badge-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-pill);
+  background: var(--state-success);
+}
+
+.unit-success__icon {
+  color: var(--text-on-brand);
+}
+
+.unit-success__title {
+  font: var(--type-display);
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.unit-success__subtitle {
+  font: var(--type-body);
+  color: var(--text-muted);
+  margin: 0;
+}
+
 .two-col {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
 }
 
+.chip-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+/* Usado por NewStudentPage.tsx e TeacherFormPage.tsx (import compartilhado
+   deste arquivo) — NewUnitPage.tsx não usa mais `.tabs2` (substituído por
+   `<Chip>` do DS), mas a classe permanece para não quebrar essas páginas. */
 .tabs2 {
   display: flex;
   flex-wrap: wrap;

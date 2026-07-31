@@ -1,6 +1,7 @@
 import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
+import { AlertCard } from '../components/ui/AlertCard/AlertCard'
 import { Button } from '../components/ui/Button/Button'
 import { Input } from '../components/ui/Input/Input'
 import { PasswordResetApiError, requestPasswordReset } from '../lib/passwordReset'
@@ -21,6 +22,7 @@ const GENERIC_ERROR_MESSAGE = 'Não foi possível processar sua solicitação. T
  * visualmente distintos permanecem: sucesso (genérico) e rate limit.
  */
 export function ForgotPassword() {
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [status, setStatus] = useState<Status>('idle')
   const [message, setMessage] = useState<string | null>(null)
@@ -61,19 +63,18 @@ export function ForgotPassword() {
     return (
       <section aria-labelledby="forgot-password-title">
         <AuthLayout
-          cornerMark
-          mark="none"
+          onBack={() => navigate(-1)}
+          heroTitle="Bora pra quadra!"
+          heroSubtitle="A gente te ajuda a voltar pra sua conta."
           title={<span id="forgot-password-title">Esqueci minha senha</span>}
           subtitle="Etapa 1 de 2 — informe seu e-mail e enviamos um código de redefinição."
         >
-          <p role="status" className="section-desc">
-            {message}
-          </p>
-          <p className="footer-link">
-            <Link to={`/redefinir-senha?email=${encodeURIComponent(email.trim())}`}>
-              Já tenho um código
+          <AlertCard tone="success">
+            <p role="status">{message}</p>
+            <Link to={`/redefinir-senha?email=${encodeURIComponent(email.trim())}`} className="link-inline">
+              Já tenho um código →
             </Link>
-          </p>
+          </AlertCard>
         </AuthLayout>
       </section>
     )
@@ -82,8 +83,9 @@ export function ForgotPassword() {
   return (
     <section aria-labelledby="forgot-password-title">
       <AuthLayout
-        cornerMark
-        mark="none"
+        onBack={() => navigate(-1)}
+        heroTitle="Bora pra quadra!"
+        heroSubtitle="A gente te ajuda a voltar pra sua conta."
         title={<span id="forgot-password-title">Esqueci minha senha</span>}
         subtitle="Etapa 1 de 2 — informe seu e-mail e enviamos um código de redefinição."
         hint="Máx. 3 códigos errados bloqueiam o pedido."

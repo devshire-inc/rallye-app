@@ -14,6 +14,10 @@ function renderLayout() {
   )
 }
 
+// title="Entrar" sem `hero`: renderiza o layout "plano" (mobile sem hero de
+// marca) — o selo compacto (`.auth-shell__compact-mark`) é o alvo do
+// long-press neste caso, no lugar do badge do Brand Panel.
+
 // Timers reais (não vi.useFakeTimers): o setTimeout de useLongPress dispara
 // `navigate`, cujo efeito no DOM precisa passar por um flush real do React —
 // avançar um fake timer fora de um `act()` async deixava a asserção instável
@@ -23,7 +27,7 @@ function renderLayout() {
 describe('AuthLayout long-press logo (BEAC-1835)', () => {
   it('navigates to /s1 when the rallye. mark is held past the long-press delay', async () => {
     const { container } = renderLayout()
-    const mark = container.querySelector('.hz-mark') as HTMLElement
+    const mark = container.querySelector('.auth-shell__compact-mark') as HTMLElement
 
     fireEvent.pointerDown(mark)
 
@@ -34,7 +38,7 @@ describe('AuthLayout long-press logo (BEAC-1835)', () => {
 
   it('does nothing on a short tap of the mark', async () => {
     const { container } = renderLayout()
-    const mark = container.querySelector('.hz-mark') as HTMLElement
+    const mark = container.querySelector('.auth-shell__compact-mark') as HTMLElement
 
     fireEvent.pointerDown(mark)
     fireEvent.pointerUp(mark)

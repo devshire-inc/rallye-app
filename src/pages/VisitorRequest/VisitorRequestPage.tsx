@@ -2,6 +2,9 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AuthLayout } from '../../components/AuthLayout/AuthLayout'
+import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
+import { Button } from '../../components/ui/Button/Button'
+import { Input } from '../../components/ui/Input/Input'
 import { VisitorRequestError, requestVisitorCode } from '../../lib/api'
 import { setPendingVisitorRequest } from '../../lib/pendingVisitorRequest'
 
@@ -54,51 +57,49 @@ export function VisitorRequestPage() {
   return (
     <section>
       <AuthLayout
-        cornerMark
-        mark="sm"
+        onBack={() => navigate(-1)}
+        heroTitle="Bora pra quadra!"
+        heroSubtitle="Acompanhe o torneio sem precisar de conta."
         wide
         title="Acompanhar torneio"
-        subtitle="Informe seu e-mail para receber um código de acesso temporário a este torneio."
-        hint="Sessão de visitante dura 72h ou até o fim do torneio + 24h."
+        subtitle="Informe seu e-mail pra receber um código de acesso temporário. Sessão de visitante dura 72h."
       >
         <form onSubmit={handleSubmit} className="stack">
-          <div className="field">
-            <label htmlFor="visitor-email">E-mail</label>
-            <div className="control">
-              <input
-                id="visitor-email"
-                type="email"
-                placeholder="voce@email.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={status === 'sending'}
-              />
-            </div>
-          </div>
-          <button
-            type="submit"
-            className="btn btn-primary btn-md btn-full"
-            disabled={status === 'sending' || !email}
-          >
+          <Input
+            id="visitor-email"
+            type="email"
+            label="E-mail"
+            placeholder="voce@email.com"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            disabled={status === 'sending'}
+          />
+
+          {status === 'account_exists' && (
+            <AlertCard tone="info">
+              <p role="alert">
+                Você já tem conta!{' '}
+                <button type="button" className="inline-action-button" onClick={handleGoToLogin}>
+                  Fazer login?
+                </button>
+              </p>
+            </AlertCard>
+          )}
+          {status === 'error' && errorMessage && (
+            <AlertCard tone="danger">
+              <p role="alert">{errorMessage}</p>
+            </AlertCard>
+          )}
+
+          <Button type="submit" fullWidth disabled={status === 'sending' || !email}>
             Enviar código
-          </button>
+          </Button>
         </form>
 
-        {status === 'account_exists' && (
-          <p role="alert" className="field-error">
-            Você já tem conta! <button onClick={handleGoToLogin}>Fazer login?</button>
-          </p>
-        )}
-        {status === 'error' && errorMessage && (
-          <p role="alert" className="field-error">
-            {errorMessage}
-          </p>
-        )}
-
-        <button type="button" className="btn btn-ghost btn-md btn-full" onClick={handleViewOnly}>
+        <Button type="button" variant="ghost" fullWidth onClick={handleViewOnly}>
           Apenas visualizar
-        </button>
+        </Button>
       </AuthLayout>
     </section>
   )

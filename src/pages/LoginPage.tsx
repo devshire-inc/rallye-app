@@ -1,13 +1,15 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
-import { SocialLoginButtons } from '../components/SocialLoginButtons'
 import { Toast } from '../components/Toast'
+import { AuthDivider } from '../components/ui/AuthDivider/AuthDivider'
 import { Button } from '../components/ui/Button/Button'
 import { Input } from '../components/ui/Input/Input'
+import { PasswordInput } from '../components/ui/PasswordInput/PasswordInput'
+import { SocialAuthButton } from '../components/ui/SocialAuthButton/SocialAuthButton'
 import { useToast } from '../hooks/useToast'
 import { checkExistingSession, login } from '../lib/httpClient'
-import type { OAuthProvider } from '../lib/oauth'
+import { startOAuthLogin, type OAuthProvider } from '../lib/oauth'
 import { redirectPathForMemberships } from '../lib/redirectTarget'
 
 const GENERIC_ERROR_MESSAGE = 'credenciais inválidas'
@@ -100,6 +102,15 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
     }
   }
 
+  function handleSocialLogin(provider: OAuthProvider) {
+    const apiBaseUrl = import.meta.env.VITE_API_BASE_URL as string | undefined
+    if (!apiBaseUrl) {
+      showError(toastMessageFor(provider))
+      return
+    }
+    startOAuthLogin(provider, apiBaseUrl)
+  }
+
   if (checkingSession) {
     return (
       <main aria-busy="true">
@@ -111,9 +122,10 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
   return (
     <main>
       <AuthLayout
-        tagline="Sua arena, seu jogo."
-        title={<span className="sr-only">Entrar</span>}
-        mark="lg"
+        hero
+        heroTitle="Bora pra quadra!"
+        heroSubtitle="Suas aulas e reservas te esperando."
+        title="Entrar"
         hint={
           <>
             5 tentativas erradas bloqueiam por 15 min · login social vincula conta existente com o
@@ -121,9 +133,6 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
           </>
         }
       >
-        <SocialLoginButtons appleEnabled={false} onError={showError} />
-        <div className="divider">ou</div>
-
         <form onSubmit={handleSubmit} className="stack">
           <Input
             id="email"
@@ -137,17 +146,22 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
             onChange={(e) => setEmail(e.target.value)}
           />
 
-          <Input
-            id="password"
-            name="password"
-            type="password"
-            label="Senha"
-            autoComplete="current-password"
-            required
-            placeholder="••••••••"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div>
+            <PasswordInput
+              id="password"
+              name="password"
+              label="Senha"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+              <Link to="/esqueci-senha" className="link-inline">
+                Esqueci minha senha
+              </Link>
+            </div>
+          </div>
 
           {error && (
             <p role="alert" className="field-error">
@@ -155,20 +169,23 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
             </p>
           )}
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Link to="/esqueci-senha" className="link-inline">
-              Esqueceu a senha?
-            </Link>
-          </div>
-
-          <Button type="submit" fullWidth disabled={submitting}>
+          <Button type="submit" size="lg" fullWidth disabled={submitting}>
             {submitting ? 'Entrando…' : 'Entrar'}
           </Button>
-
-          <div className="footer-link">
-            Novo por aqui? <Link to="/cadastro">Criar conta</Link>
-          </div>
         </form>
+
+        <AuthDivider label="ou" />
+
+        <SocialAuthButton
+          style="outline"
+          logo="google"
+          label="Continuar com Google"
+          onClick={() => handleSocialLogin('google')}
+        />
+
+        <div className="footer-link">
+          Novo por aqui? <Link to="/cadastro">Criar conta</Link>
+        </div>
       </AuthLayout>
 
       <Toast message={message} onDismiss={dismiss} />

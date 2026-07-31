@@ -1,9 +1,16 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { ResetPassword } from './ResetPassword'
 import * as passwordReset from '../lib/passwordReset'
+
+function fillOtp(code: string) {
+  const boxes = screen.getAllByRole('textbox', { name: /dígito \d de 6/i })
+  code.split('').forEach((digit, i) => {
+    fireEvent.change(boxes[i], { target: { value: digit } })
+  })
+}
 
 async function fillForm(
   user: ReturnType<typeof userEvent.setup>,
@@ -11,7 +18,7 @@ async function fillForm(
   password: string,
   confirm: string,
 ) {
-  await user.type(screen.getByLabelText(/^código$/i), code)
+  fillOtp(code)
   await user.type(screen.getByLabelText(/^nova senha$/i), password)
   await user.type(screen.getByLabelText(/^confirmar senha$/i), confirm)
 }

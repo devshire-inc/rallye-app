@@ -3,11 +3,14 @@ import { useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { BottomSheet } from '../components/BottomSheet/BottomSheet'
 import { EnterArenaSheet } from '../components/EnterArenaSheet/EnterArenaSheet'
+import { ArenaCard } from '../components/ui/ArenaCard/ArenaCard'
 import { Button } from '../components/ui/Button/Button'
+import { EmptyState } from '../components/ui/EmptyState/EmptyState'
+import { Icon } from '../components/ui/Icon/Icon'
+import { Skeleton, SkeletonGroup } from '../components/ui/Skeleton/Skeleton'
 import { usePermissionsContext } from '../hooks/usePermissionsContext'
 import { accessMembership, listMyMemberships, type MembershipListItem } from '../lib/api'
 import { dashboardPathForRole } from '../lib/dashboardTarget'
-import { sportCssVar, sportLabel } from '../lib/sports'
 import './S1Page.css'
 
 const EMPTY_STATE_MESSAGE =
@@ -18,49 +21,18 @@ type LoadState =
   | { status: 'error' }
   | { status: 'ready'; memberships: MembershipListItem[] }
 
-/** "AD" a partir de "Arena Areia Dourada" — placeholder de foto ausente
- * (nenhuma membership traz foto hoje, ver AC "foto/inicial ... ou
- * placeholder"). Uma palavra usa as 2 primeiras letras; várias, a inicial da
- * primeira + da última. */
-function initialsFor(name: string): string {
-  const parts = name.trim().split(/\s+/).filter(Boolean)
-  if (parts.length === 0) return '?'
-  if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase()
-  return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
-}
-
-/**
- * Admin=coral, Professor=aqua, Aluno=muted (AC de BEAC-1835). O design
- * system deste app ainda não tem tokens `coral`/`aqua` dedicados — ver
- * S1Page.css, que reaproveita `--sport-beach-tennis` (coral) e `--teal`
- * (aqua) já existentes em vez de inventar cores novas não revisadas.
- * `role === null` (membership sem role atribuído — RBAC é do Épico 3) não
- * ganha badge nenhum, em vez de um rótulo inventado.
- */
-function roleBadgeClass(role: string): string {
-  switch (role) {
-    case 'Admin':
-      return 's1-badge-admin'
-    case 'Professor':
-      return 's1-badge-professor'
-    case 'Aluno':
-      return 's1-badge-aluno'
-    default:
-      return 's1-badge-neutral'
-  }
-}
-
 function sportSlugs(sportsOffered: unknown): string[] {
   if (!Array.isArray(sportsOffered)) return []
   return sportsOffered.filter((slug): slug is string => typeof slug === 'string')
 }
 
 /**
- * S1 — Seletor de arena (BEAC-1681/1835). Markup segue scr-s1 do protótipo
- * real (Artifact "Rallye — Onboarding · Saque Noturno"): `data-arena` por
- * card, `s1OpenDialog`/`s1Code`/`s1DialogConfirm` no fluxo de convite
- * (reaproveitando `EnterArenaSheet`/`BottomSheet` de BEAC-1808 — não
- * recriado aqui).
+ * S1 — Seletor de arena (BEAC-1681/1835). Reskin a partir do Figma "Rallye —
+ * Protótipo" (frame "07 · Escolher Arena", canvases Auth — Mobile/Desktop):
+ * sem hero no mobile (só título + subtítulo, como as demais telas de auth),
+ * lista de `<ArenaCard>` (mesmo componente do DS já usado no login/troca de
+ * arena — Figma node 126:289, a instância literal usada neste frame) em vez
+ * da grade/CSS caseiro anterior.
  */
 export default function S1Page() {
   const navigate = useNavigate()
@@ -158,17 +130,20 @@ export default function S1Page() {
   return (
     <main>
       <AuthLayout
-        title="Onde você vai jogar hoje?"
-        subtitle="Você faz parte destas arenas — toque para entrar. Ordenadas pelo último acesso."
-        mark="sm"
-        formMaxWidth={820}
+        heroTitle="Bora pra quadra!"
+        heroSubtitle="Escolha em qual arena você quer entrar agora."
+        title="Escolha a arena"
+        subtitle="Você joga em mais de um lugar — entra na que quiser agora."
+        wide
       >
         {state.status === 'loading' && (
-          <div className="arena-grid s1-skeleton-grid" role="status" aria-label="Carregando arenas">
-            <div className="s1-skeleton-card" />
-            <div className="s1-skeleton-card" />
-            <div className="s1-skeleton-card" />
-          </div>
+          <SkeletonGroup label="Carregando arenas">
+            <div className="s1-skeleton-list">
+              <Skeleton type="tableRow" />
+              <Skeleton type="tableRow" />
+              <Skeleton type="tableRow" />
+            </div>
+          </SkeletonGroup>
         )}
 
         {state.status === 'error' && (
@@ -181,51 +156,27 @@ export default function S1Page() {
         )}
 
         {state.status === 'ready' && state.memberships.length === 0 && (
-          <p className="s1-empty">{EMPTY_STATE_MESSAGE}</p>
+          <EmptyState
+            icon={<Icon name="store" size={40} />}
+            title={EMPTY_STATE_MESSAGE}
+            actionLabel="Entrar com código de convite"
+            onAction={handleOpenDialog}
+          />
         )}
 
         {state.status === 'ready' && state.memberships.length > 0 && (
-          <div className="arena-grid">
+          <div className="s1-arena-list">
             {state.memberships.map((membership) => (
-              <button
+              <ArenaCard
                 key={membership.unitId}
-                type="button"
-                className="arena-card"
-                data-arena={membership.unitId}
-                disabled={enteringUnitId !== null}
-                onClick={() => enterMembership(membership)}
-              >
-                <div className="arena-cover">
-                  <span className="initials">{initialsFor(membership.unit.name)}</span>
-                  {membership.liveActivity && (
-                    <span className="live badge badge-success">{membership.liveActivity}</span>
-                  )}
-                </div>
-                <div className="arena-body">
-                  <div className="row1">
-                    <span className="name">{membership.unit.name}</span>
-                    {membership.role && (
-                      <span className={`badge ${roleBadgeClass(membership.role)}`}>
-                        {membership.role}
-                      </span>
-                    )}
-                  </div>
-                  {membership.unit.address && <div className="city">{membership.unit.address}</div>}
-                  {sportSlugs(membership.unit.sportsOffered).length > 0 && (
-                    <div className="arena-sports">
-                      {sportSlugs(membership.unit.sportsOffered).map((slug) => (
-                        <span className="sporttag" key={slug}>
-                          <span
-                            className="dot"
-                            style={{ background: `var(${sportCssVar(slug)})` }}
-                          />
-                          {sportLabel(slug)}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </button>
+                name={membership.unit.name}
+                subtitle={membership.unit.address ?? undefined}
+                roles={membership.role ? [membership.role] : []}
+                sports={sportSlugs(membership.unit.sportsOffered)}
+                onClick={
+                  enteringUnitId === null ? () => void enterMembership(membership) : undefined
+                }
+              />
             ))}
           </div>
         )}
@@ -236,18 +187,20 @@ export default function S1Page() {
           </p>
         )}
 
-        {state.status !== 'loading' && (
-          <div className="s1-invite-row">
-            <button
-              type="button"
-              className="btn btn-secondary btn-md"
-              id="s1OpenDialog"
-              onClick={handleOpenDialog}
-            >
-              Entrar em nova arena com código
-            </button>
-          </div>
-        )}
+        {state.status !== 'loading' &&
+          !(state.status === 'ready' && state.memberships.length === 0) && (
+            <div className="s1-invite-row">
+              <Button
+                type="button"
+                variant="soft"
+                fullWidth
+                icon={<span aria-hidden="true">+</span>}
+                onClick={handleOpenDialog}
+              >
+                Entrar com código de convite
+              </Button>
+            </div>
+          )}
 
         <div className="foot-note">
           Dica: segure o logo do app para trocar de arena a qualquer momento, sem sair da conta.

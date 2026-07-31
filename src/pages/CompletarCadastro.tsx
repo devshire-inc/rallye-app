@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
+import { AlertCard } from '../components/ui/AlertCard/AlertCard'
 import { Button } from '../components/ui/Button/Button'
 import { Input } from '../components/ui/Input/Input'
+import { PasswordInput } from '../components/ui/PasswordInput/PasswordInput'
 import { CompleteInviteError, completeInviteSignup } from '../lib/httpClient'
 import { requestPasswordReset, PasswordResetApiError } from '../lib/passwordReset'
 import { RedeemInviteError, listMyMemberships, redeemInvite } from '../lib/api'
@@ -196,13 +198,13 @@ export function CompletarCadastro() {
     return (
       <section aria-labelledby="completar-cadastro-title">
         <AuthLayout
-          cornerMark
-          mark="none"
+          heroTitle="Bora pra quadra!"
+          heroSubtitle="Sua arena já te cadastrou — falta ativar sua conta."
           title={<span id="completar-cadastro-title">Completar cadastro</span>}
         >
-          <p role="alert" className="field-error">
-            Link de convite inválido ou incompleto. Peça um novo link à sua arena.
-          </p>
+          <AlertCard tone="danger">
+            <p role="alert">Link de convite inválido ou incompleto. Peça um novo link à sua arena.</p>
+          </AlertCard>
         </AuthLayout>
       </section>
     )
@@ -212,8 +214,8 @@ export function CompletarCadastro() {
     return (
       <section aria-labelledby="completar-cadastro-title">
         <AuthLayout
-          cornerMark
-          mark="none"
+          heroTitle="Bora pra quadra!"
+          heroSubtitle="Sua arena já te cadastrou — falta ativar sua conta."
           title={<span id="completar-cadastro-title">Completar cadastro</span>}
         >
           <p className="section-desc">Enviando código de confirmação...</p>
@@ -226,13 +228,13 @@ export function CompletarCadastro() {
     return (
       <section aria-labelledby="completar-cadastro-title">
         <AuthLayout
-          cornerMark
-          mark="none"
+          heroTitle="Bora pra quadra!"
+          heroSubtitle="Sua arena já te cadastrou — falta ativar sua conta."
           title={<span id="completar-cadastro-title">Completar cadastro</span>}
         >
-          <p role="alert" className="field-error">
-            {serverError}
-          </p>
+          <AlertCard tone="danger">
+            <p role="alert">{serverError}</p>
+          </AlertCard>
           <Button type="button" fullWidth onClick={() => void sendCode()}>
             Tentar novamente
           </Button>
@@ -246,86 +248,67 @@ export function CompletarCadastro() {
   return (
     <section aria-labelledby="completar-cadastro-title">
       <AuthLayout
-        cornerMark
-        mark="none"
+        heroTitle="Bora pra quadra!"
+        heroSubtitle="Sua arena já te cadastrou — falta ativar sua conta."
         title={<span id="completar-cadastro-title">Completar cadastro</span>}
         subtitle="Enviamos um código de 6 dígitos para o seu e-mail — digite-o e escolha sua senha para ativar sua conta."
         hint="O link/código expira em 1 hora."
       >
         {redeemFeedback && (
-          <p
-            role={redeemFeedback === 'already_member' ? 'status' : 'alert'}
-            className="field-error"
-          >
-            {REDEEM_MESSAGES[redeemFeedback]}
-          </p>
+          <AlertCard tone={redeemFeedback === 'already_member' ? 'success' : 'danger'}>
+            <p role={redeemFeedback === 'already_member' ? 'status' : 'alert'}>
+              {REDEEM_MESSAGES[redeemFeedback]}
+            </p>
+          </AlertCard>
         )}
 
         <p className="section-desc">Código enviado para: {email}</p>
 
         <form onSubmit={handleSubmit} noValidate className="stack">
-          <div className="field">
-            <Input
-              id="code"
-              name="code"
-              type="text"
-              label="Código"
-              inputMode="numeric"
-              maxLength={6}
-              value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              disabled={submitting}
-              required
-            />
-            {fieldErrors.code && (
-              <p role="alert" className="field-error">
-                {fieldErrors.code}
-              </p>
-            )}
-          </div>
+          <Input
+            id="code"
+            name="code"
+            type="text"
+            label="Código"
+            inputMode="numeric"
+            maxLength={6}
+            value={code}
+            onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
+            disabled={submitting}
+            error={fieldErrors.code}
+            required
+          />
 
-          <div className="field">
-            <Input
-              id="new-password"
-              name="new-password"
-              type="password"
-              label="Senha"
-              placeholder="Mínimo 8 caracteres"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              disabled={submitting}
-              required
-            />
-            {fieldErrors.newPassword && (
-              <p role="alert" className="field-error">
-                {fieldErrors.newPassword}
-              </p>
-            )}
-          </div>
+          <PasswordInput
+            id="new-password"
+            name="new-password"
+            label="Senha"
+            placeholder="Mínimo 8 caracteres"
+            autoComplete="new-password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            disabled={submitting}
+            error={fieldErrors.newPassword}
+            required
+          />
 
-          <div className="field">
-            <Input
-              id="confirm-password"
-              name="confirm-password"
-              type="password"
-              label="Confirmar senha"
-              placeholder="Repita a senha"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              disabled={submitting}
-              required
-            />
-            {fieldErrors.confirmPassword && (
-              <p role="alert" className="field-error">
-                {fieldErrors.confirmPassword}
-              </p>
-            )}
-          </div>
+          <PasswordInput
+            id="confirm-password"
+            name="confirm-password"
+            label="Confirmar senha"
+            placeholder="Repita a senha"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            disabled={submitting}
+            error={fieldErrors.confirmPassword}
+            required
+          />
 
           {serverError && (
-            <p role="alert" className="field-error">
-              {serverError}
-            </p>
+            <AlertCard tone="danger">
+              <p role="alert">{serverError}</p>
+            </AlertCard>
           )}
 
           {canResend && (

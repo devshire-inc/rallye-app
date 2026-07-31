@@ -15,7 +15,11 @@ export function SignupPage() {
 
   return (
     <main aria-label="Cadastro">
-      <AuthLayout title="Criar conta" mark="sm">
+      <AuthLayout
+        heroTitle="Crie sua conta"
+        heroSubtitle="Uma conta só pra todas as arenas do Rallye."
+        title="Criar conta"
+      >
         <SocialLoginButtons appleEnabled={false} onError={showError} />
       </AuthLayout>
       <Toast message={message} onDismiss={dismiss} />

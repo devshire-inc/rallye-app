@@ -10,122 +10,177 @@
   border: 0;
 }
 
-/* ---------- Horizon shell (sky/sand) ---------- */
-.horizon {
+/* ---------- Auth shell ---------- */
+/* Mobile: coluna única (hero de marca opcional + painel de formulário). A
+   partir de 860px vira tela dividida — Brand Panel fixo à esquerda + Form
+   Panel à direita (ver @media min-width:860px abaixo). */
+.auth-shell {
   min-height: 100svh;
   display: flex;
   flex-direction: column;
 }
-.hz-sky {
-  background: var(--surface-inverse);
-  color: var(--text-inverse);
-  position: relative;
-  display: flex;
+
+/* Brand Panel — hero de marca. No mobile só existe visualmente quando
+   `.auth-shell--hero` está presente (AuthLayout.tsx liga isso via `hero`);
+   no desktop aparece sempre, independente de `hero` (ver @media abaixo). */
+.auth-shell__brand {
+  display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 170px;
-  padding: 30px 20px 34px;
+  gap: var(--space-2);
   text-align: center;
-  gap: 6px;
+  background: var(--surface-inverse);
+  color: var(--text-inverse);
+  padding: 32px 24px 36px;
 }
-.hz-sky h1 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 24px;
+.auth-shell--hero .auth-shell__brand {
+  display: flex;
+}
+.auth-shell__brand-title {
+  font: var(--type-heading);
   margin: 0;
   color: var(--text-inverse);
   text-wrap: balance;
 }
-.hz-sky .sub {
-  font-size: 13px;
-  color: var(--text-muted);
-  max-width: 46ch;
+.auth-shell__brand-subtitle {
+  font: var(--type-small);
   margin: 0;
+  color: var(--text-inverse);
+  opacity: 0.85;
+  max-width: 46ch;
 }
-.hz-tagline {
-  font-size: 13px;
-  color: var(--text-muted);
-  letter-spacing: 0.02em;
+
+/* Selo da marca (badge quadrado com o rallye-mark dentro) — 60px no hero
+   (mobile e desktop), reaproveitado do BrandLogo já reconstruído a partir do
+   design system em vez de um "R" digitado à mão. */
+.auth-shell__badge {
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-lg);
+  background: var(--sand-100);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
-.hz-mark {
-  position: absolute;
-  left: 50%;
-  bottom: 0;
-  transform: translate(-50%, 50%);
-  line-height: 1;
-  letter-spacing: -1.5px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  z-index: 5;
-  pointer-events: none;
-}
-/* BEAC-1835: segurar o logo (de qualquer tela) abre a S1 — precisa receber
-   pointer events só onde esse gesto está habilitado (AuthLayout.tsx liga
-   este modifier quando `mark !== 'none'`). Um toque/clique curto não faz
-   nada (ver useLongPress) — só o press sustentado navega. */
-.hz-mark--pressable {
+/* BEAC-1835: segurar o logo (de qualquer tela) abre a S1 — só recebe pointer
+   events onde o gesto está habilitado. Um toque/clique curto não faz nada
+   (ver useLongPress) — só o press sustentado navega. */
+.auth-shell__badge--pressable,
+.auth-shell__compact-mark--pressable {
   pointer-events: auto;
   cursor: pointer;
 }
-.hz-corner--pressable {
-  cursor: pointer;
-}
-.hz-mark.lg {
-  font-size: 54px;
-}
-.hz-mark.sm {
-  font-size: 30px;
-  letter-spacing: -0.8px;
-}
-.hz-mark .m {
-  display: block;
-}
-.hz-mark .m.bot {
-  position: absolute;
-  inset: 0;
-}
-.hz-mark .m.top {
-  color: var(--surface-page);
-  clip-path: inset(0 0 50% 0);
-}
-.hz-mark .m.bot {
-  color: var(--surface-inverse);
-  clip-path: inset(50% 0 0 0);
-}
-.hz-mark .dot {
-  color: var(--interactive-primary);
-}
-.hz-corner {
-  position: absolute;
-  top: 18px;
-  left: 22px;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 16px;
-  color: var(--text-inverse);
-  opacity: 0.85;
-}
-.hz-corner .dot {
-  color: var(--interactive-primary);
-}
-.hz-sand {
+
+/* Form Panel */
+.auth-shell__panel {
   flex: 1;
   background: var(--surface-page);
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 58px 20px 52px;
 }
-.hz-form {
+/* Telas de status sem formulário (ex.: Arena Criada) centralizam o conteúdo
+   verticalmente mesmo no mobile — diferente das telas de formulário, que
+   ficam ancoradas no topo para não pular durante o preenchimento. */
+.auth-shell__panel:has(.unit-success) {
+  justify-content: center;
+}
+.auth-shell--hero .auth-shell__panel {
+  border-radius: 28px 28px 0 0;
+}
+.auth-shell__panel-inner {
   width: 100%;
   max-width: 360px;
+  padding: 26px 20px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.auth-shell__panel-inner.wide {
+  max-width: 420px;
+}
+
+.auth-shell__header-row {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+/* Selo compacto — some do hero (redundante com o badge do Brand Panel) e,
+   no desktop, sempre some: o Brand Panel já está visível ali, cobrindo o
+   long-press (ver comentário em AuthLayout.tsx). Só existe pra manter o
+   gesto acessível nas telas "planas" do mobile (sem hero de marca). */
+.auth-shell__compact-mark {
+  margin-left: auto;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1.5px solid var(--border-default);
+  background: var(--surface-page);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.auth-shell__title {
+  font: var(--type-display);
+  margin: 0;
+  color: var(--text-heading);
+}
+.auth-shell__subtitle {
+  font: var(--type-small);
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.auth-shell__form {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 14px;
 }
-.hz-form.wide {
-  max-width: 420px;
+
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
+@media (min-width: 860px) {
+  .auth-shell {
+    flex-direction: row;
+  }
+  .auth-shell__brand {
+    display: flex;
+    width: 560px;
+    flex-shrink: 0;
+    align-items: flex-start;
+    text-align: left;
+    padding: 0 72px;
+  }
+  .auth-shell__brand-title {
+    font: var(--type-display);
+  }
+  .auth-shell__brand-subtitle {
+    font: var(--type-body-lg);
+    max-width: 400px;
+  }
+  .auth-shell__badge {
+    background: var(--surface-card);
+  }
+  .auth-shell__panel {
+    justify-content: center;
+  }
+  .auth-shell--hero .auth-shell__panel {
+    border-radius: 0;
+  }
+  .auth-shell__panel-inner {
+    max-width: 400px;
+    padding: 0 40px;
+  }
+  .auth-shell__panel-inner.wide {
+    max-width: 440px;
+  }
+  .auth-shell__compact-mark {
+    display: none;
+  }
 }
 
 /* ---------- Buttons ---------- */
@@ -310,4 +365,8 @@
   font-size: 13px;
   color: var(--text-muted);
   margin: 0;
+}
+.otp-label {
+  font: var(--type-label);
+  color: var(--text-heading);
 }

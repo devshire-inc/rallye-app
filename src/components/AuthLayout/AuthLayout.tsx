@@ -1,51 +1,68 @@
 import type { ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { BrandLogo } from '../ui/Icon/BrandLogo'
+import { Icon } from '../ui/Icon/Icon'
+import { IconButton } from '../ui/IconButton/IconButton'
 import { useLongPress } from '../../hooks/useLongPress'
 import { S1_PATH } from '../../lib/redirectTarget'
 import './AuthLayout.css'
 
 export interface AuthLayoutProps {
-  /** Frase curta acima da marca, usada quando não há título (ex.: A1 login). */
-  tagline?: ReactNode
-  /** Título grande exibido na faixa "sky" (topo). */
+  /**
+   * Título de marca/marketing (ex.: "Bora pra quadra!"). Sempre visível no
+   * Brand Panel do desktop (≥`BREAKPOINT_SHELL_DESKTOP_MIN`); no mobile só
+   * aparece quando `hero` é true.
+   */
+  heroTitle?: ReactNode
+  /** Subtítulo de marca, mesma visibilidade de `heroTitle`. */
+  heroSubtitle?: ReactNode
+  /**
+   * Ativa o hero de tela cheia no mobile (marca + heroTitle/heroSubtitle
+   * sobre fundo escuro, como em Login/Splash). Sem isso, o mobile pula
+   * direto para o conteúdo do formulário — com um selo compacto da marca no
+   * topo, no lugar do hero, para preservar o long-press (BEAC-1835) em toda
+   * tela. No desktop o Brand Panel aparece sempre, independente desta prop.
+   */
+  hero?: boolean
+  /** Título do formulário em si (ex.: "Entrar", "Confira seu e-mail"). */
   title?: ReactNode
-  /** Texto de apoio abaixo do título, na faixa "sky". */
+  /** Texto de apoio abaixo do título do formulário. */
   subtitle?: ReactNode
-  /** Marca "rallye." pequena, no canto superior esquerdo, no lugar do hz-mark central. */
-  cornerMark?: boolean
-  /** Marca "rallye." grande/central, sobre a linha do horizonte (padrão nas telas A1/A2/S1). */
-  mark?: 'lg' | 'sm' | 'none'
-  /** Formulário mais largo (A2/A5 etapa 1/3). */
+  /** Mostra o botão "Voltar" no topo do painel de formulário. */
+  onBack?: () => void
+  /** Formulário mais largo (Cadastro, Convidado). */
   wide?: boolean
   /**
-   * Override explícito do `max-width` do container de conteúdo, em px.
-   * Usado pela S1 real (BEAC-1835): o protótipo (scr-s1) não usa `.hz-form`
-   * (360/420px) para a grade de arenas — usa um wrapper próprio de até
-   * 820px direto em `.hz-sand`. Tem prioridade sobre `wide` quando setado.
+   * Override explícito do `max-width` da coluna de conteúdo, em px. Usado
+   * pela S1 real (grade de arenas foge da largura padrão de formulário).
+   * Tem prioridade sobre `wide` quando setado.
    */
   formMaxWidth?: number
-  /** Conteúdo do formulário, na faixa "sand" (base). */
+  /** Conteúdo do formulário. */
   children: ReactNode
   /** Nota de rodapé opcional, abaixo do cartão de formulário. */
   hint?: ReactNode
 }
 
 /**
- * Shell visual "Horizon" (tema Saque Noturno) compartilhado por todas as
- * telas de autenticação (A1 login, A2 cadastro, A3 esqueci/redefinir senha,
- * A4 verificação de e-mail, A5 magic link de visitante, S1 seletor de
- * arena): uma faixa "sky" no topo com o título e uma faixa "sand" na base
- * com o formulário, e a marca "rallye." sentada sobre a linha do horizonte.
+ * Shell "Auth" compartilhado por todas as telas de autenticação (Login,
+ * Cadastro, Esqueci/Redefinir senha, Verificação de e-mail, Convidado,
+ * Completar cadastro, S1 seletor de arena): no mobile é uma coluna única
+ * (opcionalmente com hero de marca no topo); a partir de
+ * `BREAKPOINT_SHELL_DESKTOP_MIN` vira uma tela dividida — Brand Panel fixo à
+ * esquerda + Form Panel centralizado à direita.
  *
- * Extraído do protótipo HTML de referência — ver AuthLayout.css para as
- * variáveis de cor/tipografia (definidas globalmente em src/index.css).
+ * Reconstruído a partir do protótipo Figma "Rallye — Protótipo" (canvases
+ * "Auth — Mobile"/"Auth — Desktop") — ver AuthLayout.css para a
+ * implementação visual (cores/tipografia vêm dos tokens globais).
  */
 export function AuthLayout({
-  tagline,
+  heroTitle,
+  heroSubtitle,
+  hero = false,
   title,
   subtitle,
-  cornerMark = false,
-  mark = 'lg',
+  onBack,
   wide = false,
   formMaxWidth,
   children,
@@ -53,41 +70,51 @@ export function AuthLayout({
 }: AuthLayoutProps) {
   const navigate = useNavigate()
   // BEAC-1835: "Acessível via long-press no logo Rallye, de qualquer tela do
-  // app" — AuthLayout é a shell "Horizon" compartilhada por A1/A2/A3/A4/A5/S1,
-  // então ligar aqui cobre todas essas telas de uma vez. Um toque/clique
-  // curto continua sem fazer nada (só o press sustentado navega).
+  // app" — AuthLayout é a shell compartilhada por todas as telas de auth,
+  // então ligar aqui cobre todas de uma vez. Um toque/clique curto continua
+  // sem fazer nada (só o press sustentado navega). Como o mark do Brand
+  // Panel some no mobile quando `hero` é false, o selo compacto abaixo
+  // carrega os mesmos handlers para que o gesto continue disponível ali.
   const longPress = useLongPress(() => navigate(S1_PATH))
 
   return (
-    <div className="horizon">
-      <div className="hz-sky">
-        {cornerMark && (
-          <span className="hz-corner hz-corner--pressable" aria-hidden="true" {...longPress}>
-            rallye<span className="dot">.</span>
-          </span>
-        )}
-        {tagline && <div className="hz-tagline">{tagline}</div>}
-        {title && <h1>{title}</h1>}
-        {subtitle && <p className="sub">{subtitle}</p>}
-        {mark !== 'none' && (
-          <div className={`hz-mark hz-mark--pressable ${mark}`} aria-hidden="true" {...longPress}>
-            <span className="m top">
-              rallye<span className="dot">.</span>
-            </span>
-            <span className="m bot">
-              rallye<span className="dot">.</span>
-            </span>
-          </div>
-        )}
+    <div className={`auth-shell${hero ? ' auth-shell--hero' : ''}`}>
+      <div className="auth-shell__brand">
+        <div className="auth-shell__badge auth-shell__badge--pressable" aria-hidden="true" {...longPress}>
+          <BrandLogo name="rallye-mark" variant="dark" size={28} />
+        </div>
+        {heroTitle && <p className="auth-shell__brand-title">{heroTitle}</p>}
+        {heroSubtitle && <p className="auth-shell__brand-subtitle">{heroSubtitle}</p>}
       </div>
-      <div className="hz-sand">
+
+      <div className="auth-shell__panel">
         <div
-          className={`hz-form${wide ? ' wide' : ''}`}
+          className={`auth-shell__panel-inner${wide ? ' wide' : ''}`}
           style={formMaxWidth ? { maxWidth: formMaxWidth } : undefined}
         >
-          {children}
+          {(onBack || !hero) && (
+            <div className="auth-shell__header-row">
+              {onBack && (
+                <IconButton variant="secondary" size="md" label="Voltar" onClick={onBack}>
+                  <Icon name="chevron-left" />
+                </IconButton>
+              )}
+              {!hero && (
+                <div
+                  className="auth-shell__compact-mark auth-shell__compact-mark--pressable"
+                  aria-hidden="true"
+                  {...longPress}
+                >
+                  <BrandLogo name="rallye-mark" variant="dark" size={18} />
+                </div>
+              )}
+            </div>
+          )}
+          {title && <h1 className="auth-shell__title">{title}</h1>}
+          {subtitle && <p className="auth-shell__subtitle">{subtitle}</p>}
+          <div className="auth-shell__form">{children}</div>
+          {hint && <div className="hint-note">{hint}</div>}
         </div>
-        {hint && <div className="hint-note">{hint}</div>}
       </div>
     </div>
   )

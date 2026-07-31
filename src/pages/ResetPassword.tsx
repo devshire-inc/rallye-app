@@ -3,9 +3,12 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { confirmPasswordReset, PasswordResetApiError } from '../lib/passwordReset'
 import { useToast } from '../hooks/useToast'
 import { Toast } from '../components/Toast'
+import { OtpInput } from '../components/OtpInput/OtpInput'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
+import { AlertCard } from '../components/ui/AlertCard/AlertCard'
 import { Button } from '../components/ui/Button/Button'
 import { Input } from '../components/ui/Input/Input'
+import { PasswordInput } from '../components/ui/PasswordInput/PasswordInput'
 
 const MIN_PASSWORD_LENGTH = 8
 
@@ -96,16 +99,17 @@ export function ResetPassword() {
     return (
       <section aria-labelledby="reset-password-title">
         <AuthLayout
-          cornerMark
-          mark="none"
+          onBack={() => navigate(-1)}
+          heroTitle="Quase lá!"
+          heroSubtitle="Só falta escolher sua nova senha."
           title={<span id="reset-password-title">Redefinir senha</span>}
         >
-          <p role="alert" className="field-error">
-            {restartMessage}
-          </p>
-          <p className="footer-link">
-            <Link to="/esqueci-senha">Solicitar novo código</Link>
-          </p>
+          <AlertCard tone="warning">
+            <p role="alert">{restartMessage}</p>
+            <Link to="/esqueci-senha" className="link-inline">
+              Solicitar novo código →
+            </Link>
+          </AlertCard>
         </AuthLayout>
       </section>
     )
@@ -114,8 +118,9 @@ export function ResetPassword() {
   return (
     <section aria-labelledby="reset-password-title">
       <AuthLayout
-        cornerMark
-        mark="none"
+        onBack={() => navigate(-1)}
+        heroTitle="Quase lá!"
+        heroSubtitle="Só falta escolher sua nova senha."
         title={<span id="reset-password-title">Redefinir senha</span>}
         subtitle="Etapa 2 de 2 — digite o código recebido e escolha uma nova senha."
         hint="O link/código expira em 1 hora."
@@ -136,17 +141,14 @@ export function ResetPassword() {
           )}
           {emailFromQuery && <p className="section-desc">Código enviado para: {emailFromQuery}</p>}
 
-          <div className="field">
-            <Input
-              id="code"
-              name="code"
-              type="text"
-              label="Código"
-              inputMode="numeric"
-              maxLength={6}
+          <div className="stack" style={{ gap: 8 }}>
+            <span className="otp-label">Código</span>
+            <OtpInput
               value={code}
-              onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
-              required
+              onChange={setCode}
+              error={Boolean(fieldErrors.code)}
+              disabled={submitting}
+              autoFocus={false}
             />
             {fieldErrors.code && (
               <p role="alert" className="field-error">
@@ -155,41 +157,29 @@ export function ResetPassword() {
             )}
           </div>
 
-          <div className="field">
-            <Input
-              id="new-password"
-              name="new-password"
-              type="password"
-              label="Nova senha"
-              placeholder="Mínimo 8 caracteres"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              required
-            />
-            {fieldErrors.newPassword && (
-              <p role="alert" className="field-error">
-                {fieldErrors.newPassword}
-              </p>
-            )}
-          </div>
+          <PasswordInput
+            id="new-password"
+            name="new-password"
+            label="Nova senha"
+            placeholder="Mínimo 8 caracteres"
+            autoComplete="new-password"
+            value={newPassword}
+            onChange={(e) => setNewPassword(e.target.value)}
+            error={fieldErrors.newPassword}
+            required
+          />
 
-          <div className="field">
-            <Input
-              id="confirm-password"
-              name="confirm-password"
-              type="password"
-              label="Confirmar senha"
-              placeholder="Repita a senha"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            {fieldErrors.confirmPassword && (
-              <p role="alert" className="field-error">
-                {fieldErrors.confirmPassword}
-              </p>
-            )}
-          </div>
+          <PasswordInput
+            id="confirm-password"
+            name="confirm-password"
+            label="Confirmar senha"
+            placeholder="Repita a senha"
+            autoComplete="new-password"
+            value={confirmPassword}
+            onChange={(e) => setConfirmPassword(e.target.value)}
+            error={fieldErrors.confirmPassword}
+            required
+          />
 
           {serverError && (
             <p role="alert" className="field-error">

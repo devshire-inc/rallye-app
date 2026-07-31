@@ -1,0 +1,8 @@
+/* O shell visual (sky/sand) vem de AuthLayout — esta folha só existe para
+   overrides pontuais desta tela, se necessário. */
+
+/* Destaca o e-mail dentro do subtítulo (herdado de .auth-shell__subtitle,
+   que é text-muted por padrão). Mesmo tratamento de VerifyEmailPage.css. */
+.auth-shell__subtitle b {
+  color: var(--text-heading);
+}

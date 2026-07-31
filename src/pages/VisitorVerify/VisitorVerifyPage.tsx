@@ -2,12 +2,14 @@ import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AuthLayout } from '../../components/AuthLayout/AuthLayout'
 import { OtpInput } from '../../components/OtpInput/OtpInput'
+import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { VisitorVerifyError, verifyVisitorCode } from '../../lib/api'
 import {
   getPendingVisitorRequest,
   clearPendingVisitorRequest,
 } from '../../lib/pendingVisitorRequest'
 import { setVisitorSession } from '../../lib/visitorSession'
+import './VisitorVerifyPage.css'
 
 type Status = 'idle' | 'verifying' | 'invalid' | 'success' | 'unrecoverable'
 
@@ -54,7 +56,12 @@ export function VisitorVerifyPage() {
   if (!email || !tournamentId) {
     return (
       <section>
-        <AuthLayout cornerMark mark="none" title="Código de acesso">
+        <AuthLayout
+          onBack={() => navigate(-1)}
+          heroTitle="Bora pra quadra!"
+          heroSubtitle="Confirme o código pra liberar seu acesso."
+          title="Código de acesso"
+        >
           <p className="section-desc">
             Não foi possível identificar seu pedido de código. Volte e informe seu e-mail novamente.
           </p>
@@ -66,36 +73,48 @@ export function VisitorVerifyPage() {
   return (
     <section>
       <AuthLayout
-        cornerMark
-        mark="none"
+        onBack={() => navigate(-1)}
+        heroTitle="Bora pra quadra!"
+        heroSubtitle="Confirme o código pra liberar seu acesso."
         title="Digite o código"
         subtitle={
           <>
-            Enviamos um código de 6 dígitos para <b style={{ color: 'var(--text-inverse)' }}>{email}</b>
-            .
+            Enviamos um código de 6 dígitos para <b>{email}</b>
+          </>
+        }
+        hint={
+          <>
+            <b>DEMO</b> 123456
           </>
         }
       >
-        <div className="stack" style={{ alignItems: 'center', textAlign: 'center' }}>
-          <OtpInput
-            value={code}
-            onChange={setCode}
-            onComplete={(full) => void attemptVerify(full)}
-            error={shake}
-            disabled={status === 'verifying' || status === 'success'}
-          />
+        <div className="stack">
+          <div className="stack" style={{ gap: 8 }}>
+            <span className="otp-label">Código</span>
+            <OtpInput
+              value={code}
+              onChange={setCode}
+              onComplete={(full) => void attemptVerify(full)}
+              error={shake}
+              disabled={status === 'verifying' || status === 'success'}
+            />
+          </div>
 
           {status === 'invalid' && (
-            <p role="alert" className="field-error">
-              Código incorreto
-            </p>
+            <AlertCard tone="danger">
+              <p role="alert">Código incorreto</p>
+            </AlertCard>
           )}
           {status === 'unrecoverable' && (
-            <p role="alert" className="field-error">
-              Não foi possível verificar agora. Tente novamente.
-            </p>
+            <AlertCard tone="danger">
+              <p role="alert">Não foi possível verificar agora. Tente novamente.</p>
+            </AlertCard>
           )}
-          {status === 'success' && <div role="status">Acesso liberado!</div>}
+          {status === 'success' && (
+            <AlertCard tone="success">
+              <p role="status">Acesso liberado!</p>
+            </AlertCard>
+          )}
         </div>
       </AuthLayout>
     </section>

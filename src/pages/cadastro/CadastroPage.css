@@ -1,10 +1,3 @@
-.cadastro-page form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 100%;
-}
-
 .oauth-buttons {
   display: flex;
   flex-direction: column;
@@ -12,63 +5,12 @@
   width: 100%;
 }
 
-.oauth-button {
-  min-height: var(--control-h-md);
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border-default);
-  background: var(--surface-card);
-  color: var(--text-heading);
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 14px;
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.field {
-  margin-bottom: 0;
-}
-
-.field input[aria-invalid='true'] {
-  border-color: var(--state-danger);
-}
-
-.field-error {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--state-danger);
-  font-size: 11.5px;
-  font-weight: 600;
-  margin: 0;
-}
-
 .field-hint {
   color: var(--text-muted);
   font-size: 11.5px;
-  margin: 0;
+  margin: 4px 0 0;
 }
 
 .field-hint--ok {
   color: var(--state-success);
-}
-
-.password-input {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.password-input input {
-  flex: 1;
-}
-
-.toggle-password {
-  background: none;
-  border: none;
-  color: var(--interactive-primary);
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
-  white-space: nowrap;
 }

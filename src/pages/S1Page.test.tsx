@@ -113,7 +113,7 @@ describe('S1Page — 0 memberships', () => {
     ).toBeInTheDocument()
     expect(document.querySelector('[data-arena]')).not.toBeInTheDocument()
     expect(
-      screen.getByRole('button', { name: /entrar em nova arena com código/i }),
+      screen.getByRole('button', { name: /entrar com código de convite/i }),
     ).toBeInTheDocument()
   })
 })
@@ -273,7 +273,7 @@ describe('S1Page — "Entrar em nova arena com código" bottom sheet (reuses Ent
     await screen.findByText('Arena Areia Dourada')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
 
-    await user.click(screen.getByRole('button', { name: /entrar em nova arena com código/i }))
+    await user.click(screen.getByRole('button', { name: /entrar com código de convite/i }))
 
     expect(screen.getByRole('dialog')).toBeInTheDocument()
     expect(document.getElementById('s1Code')).toBeInTheDocument()
@@ -300,7 +300,7 @@ describe('S1Page — "Entrar em nova arena com código" bottom sheet (reuses Ent
     renderPage()
 
     await screen.findByText('Arena Areia Dourada')
-    await user.click(screen.getByRole('button', { name: /entrar em nova arena com código/i }))
+    await user.click(screen.getByRole('button', { name: /entrar com código de convite/i }))
     await user.type(screen.getByLabelText(/código do convite/i), 'ABC123')
     await user.click(screen.getByRole('button', { name: /^entrar$/i }))
 
@@ -328,7 +328,7 @@ describe('S1Page — "Entrar em nova arena com código" bottom sheet (reuses Ent
     renderPage()
 
     await screen.findByText('Arena Areia Dourada')
-    await user.click(screen.getByRole('button', { name: /entrar em nova arena com código/i }))
+    await user.click(screen.getByRole('button', { name: /entrar com código de convite/i }))
     const backdrop = screen.getByRole('dialog').parentElement as HTMLElement
     await user.click(backdrop)
 

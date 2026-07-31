@@ -153,7 +153,7 @@
   gap: 8px;
   flex-wrap: wrap;
 }
-.chip {
+.chiprow .chip {
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -166,24 +166,24 @@
   background: var(--surface-card);
   color: var(--text-heading);
 }
-button.chip {
+.chiprow button.chip {
   cursor: pointer;
 }
-button.chip[aria-pressed='true'] {
+.chiprow button.chip[aria-pressed='true'] {
   background: var(--sand-200);
   border-color: var(--sand-200);
 }
-button.chip:disabled {
+.chiprow button.chip:disabled {
   opacity: 0.45;
   cursor: not-allowed;
 }
 /* Variante somente-leitura (sem alunos:write) — <span>, não <button>, sem
  * aria-pressed (inválido em elemento sem role=button); a seleção atual é
  * marcada só visualmente por esta classe. */
-span.chip {
+.chiprow span.chip {
   cursor: default;
 }
-span.chip.chip--selected {
+.chiprow span.chip.chip--selected {
   background: var(--sand-200);
   border-color: var(--sand-200);
 }
