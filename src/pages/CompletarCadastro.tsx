@@ -3,12 +3,14 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
 import { AlertCard } from '../components/ui/AlertCard/AlertCard'
 import { Button } from '../components/ui/Button/Button'
+import { Icon } from '../components/ui/Icon/Icon'
 import { Input } from '../components/ui/Input/Input'
 import { PasswordInput } from '../components/ui/PasswordInput/PasswordInput'
 import { CompleteInviteError, completeInviteSignup } from '../lib/httpClient'
 import { requestPasswordReset, PasswordResetApiError } from '../lib/passwordReset'
 import { RedeemInviteError, listMyMemberships, redeemInvite } from '../lib/api'
 import { redirectPathForMemberships } from '../lib/redirectTarget'
+import '../pages/Units/NewUnitPage.css'
 
 const MIN_PASSWORD_LENGTH = 8
 
@@ -56,10 +58,13 @@ const REDEEM_MESSAGES: Record<Exclude<RedeemFeedback, null>, string> = {
  *      encerrar todas as sessões (SignOutGlobal), porque aqui é ativação
  *      inicial de conta, não redefinição de senha esquecida.
  *   3. Com sessão ativa, chama POST /invites/{code}/redeem (BEAC-1807,
- *      EXISTENTE E INALTERADO) para criar a membership Aluno e então segue
- *      para o dashboard — dali em diante o aluno só edita o próprio perfil
- *      (critério de permissão já garantido pelo motor de RBAC do Épico 3,
- *      DONE — nenhum código novo necessário aqui).
+ *      EXISTENTE E INALTERADO) para criar a membership Aluno, exibe a tela
+ *      de sucesso "Você tá dentro!" (Figma frame 43:1337, mesmo padrão de
+ *      badge/título/subtítulo/CTA de "Arena Criada" em NewUnitPage.tsx) e só
+ *      ao clicar no CTA segue para o destino pós-convite — dali em diante o
+ *      aluno só edita o próprio perfil (critério de permissão já garantido
+ *      pelo motor de RBAC do Épico 3, DONE — nenhum código novo necessário
+ *      aqui).
  *
  * ⚠️ POST /auth/invite/complete ainda não existe no rallye-api no momento
  * desta implementação — ver relatório de execução de BEAC-1860. Esta tela
@@ -125,7 +130,6 @@ export function CompletarCadastro() {
     try {
       await redeemInvite(inviteCode)
       setPhase('redeemed')
-      await goToPostRedeemDestination()
     } catch (err) {
       setPhase('code_sent')
       if (err instanceof RedeemInviteError) {
@@ -238,6 +242,34 @@ export function CompletarCadastro() {
           <Button type="button" fullWidth onClick={() => void sendCode()}>
             Tentar novamente
           </Button>
+        </AuthLayout>
+      </section>
+    )
+  }
+
+  if (phase === 'redeemed') {
+    return (
+      <section aria-labelledby="completar-cadastro-success-title">
+        <AuthLayout
+          heroTitle="Você tá dentro!"
+          heroSubtitle="Painel da arena liberado — quadras, agenda e vendas na mão."
+        >
+          <div className="unit-success">
+            <div className="unit-success__badge">
+              <div className="unit-success__badge-inner">
+                <Icon name="check" size={28} className="unit-success__icon" />
+              </div>
+            </div>
+            <h1 id="completar-cadastro-success-title" className="unit-success__title">
+              Você tá dentro!
+            </h1>
+            <p className="unit-success__subtitle">
+              Painel da arena liberado — quadras, agenda e vendas na mão.
+            </p>
+            <Button fullWidth size="lg" onClick={() => void goToPostRedeemDestination()}>
+              Continuar
+            </Button>
+          </div>
         </AuthLayout>
       </section>
     )

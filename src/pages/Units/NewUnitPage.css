@@ -36,6 +36,13 @@
   color: var(--text-on-brand);
 }
 
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
+@media (min-width: 860px) {
+  .unit-success__badge {
+    width: 100%;
+  }
+}
+
 .unit-success__title {
   font: var(--type-display);
   color: var(--text-heading);

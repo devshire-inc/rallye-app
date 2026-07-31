@@ -105,6 +105,7 @@ describe('CompletarCadastro (BEAC-1860)', () => {
     await waitFor(() => {
       expect(redeemSpy).toHaveBeenCalledWith('INVITE123')
     })
+    await user.click(await screen.findByRole('button', { name: /continuar/i }))
     await waitFor(() => {
       expect(navigateMock).toHaveBeenCalledWith('/units/unit-1/dashboard', { replace: true })
     })
@@ -132,6 +133,7 @@ describe('CompletarCadastro (BEAC-1860)', () => {
     await fillForm(user, '123456', 'correct-horse-battery', 'correct-horse-battery')
     await user.click(screen.getByRole('button', { name: /ativar minha conta/i }))
 
+    await user.click(await screen.findByRole('button', { name: /continuar/i }))
     await waitFor(() => {
       expect(navigateMock).toHaveBeenCalledWith('/s1', { replace: true })
     })
@@ -252,6 +254,7 @@ describe('CompletarCadastro (BEAC-1860)', () => {
     await fillForm(user, '123456', 'correct-horse-battery', 'correct-horse-battery')
     await user.click(screen.getByRole('button', { name: /ativar minha conta/i }))
 
+    await user.click(await screen.findByRole('button', { name: /continuar/i }))
     await waitFor(() => {
       expect(navigateMock).toHaveBeenCalledWith('/s1', { replace: true })
     })
