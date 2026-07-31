@@ -2,6 +2,10 @@ import { useEffect, useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { BottomSheet } from '../BottomSheet/BottomSheet'
 import { BottomNav, type BottomNavItem } from '../ui/BottomNav/BottomNav'
+import { BrandLogo } from '../ui/Icon/BrandLogo'
+import { Icon } from '../ui/Icon/Icon'
+import { IconButton } from '../ui/IconButton/IconButton'
+import { Sidebar, type SidebarNavItem, type SidebarSection } from '../ui/Sidebar/Sidebar'
 import { useLongPress } from '../../hooks/useLongPress'
 import { usePermission } from '../../hooks/usePermission'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
@@ -40,15 +44,41 @@ function isActivePath(pathname: string, itemPath: string): boolean {
   return pathname === itemPath || pathname.startsWith(`${itemPath}/`)
 }
 
-/** Mapeia cada NavItem pro ícone correspondente no `BottomNav` real
- * (BEAC-2091). 'bar-chart'/'briefcase' foram adicionados ao `ICON_PATHS` do
- * componente especificamente pra Relatórios/Gestão (ver comentário lá). */
+/** Mapeia cada NavItem pro ícone correspondente — mesmo dicionário de nomes
+ * (BEAC-2091) reutilizado tanto pelo `BottomNav` real (mobile) quanto pelo
+ * `Sidebar` real (desktop, reskin desta task). 'bar-chart'/'briefcase' foram
+ * adicionados ao `ICON_PATHS` do `BottomNav` especificamente pra
+ * Relatórios/Gestão; 'trophy'/'bar-chart' foram replicados no `ICON_PATHS`
+ * do `Sidebar` pelo mesmo motivo (ver comentário em cada componente). */
 const NAV_ICON_BY_KEY: Record<string, string> = {
   inicio: 'home',
   agenda: 'calendar',
   torneios: 'trophy',
   relatorios: 'bar-chart',
   perfil: 'user',
+}
+
+/** Ícone por sub-item de "Gestão" — dicionário do `Sidebar` real (ver
+ * ../ui/Sidebar/Sidebar.tsx) não tem um ícone dedicado por destino
+ * administrativo; reaproveita os mais próximos semanticamente já
+ * disponíveis lá. */
+const GESTAO_ICON_BY_KEY: Record<string, string> = {
+  membros: 'users',
+  papeis: 'user-circle',
+  'config-arena': 'settings',
+  'minhas-unidades': 'briefcase',
+}
+
+/** Iniciais (até 2 letras) pro avatar redondo do seletor de arena no rodapé
+ * da sidebar (Figma node 152:5169 "Avatar") — não há foto de arena no
+ * catálogo real, só o rótulo textual já recebido via `orgLabel`. */
+function initialsOf(label: string): string {
+  return label
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase() ?? '')
+    .join('')
 }
 
 /** Os 4 destinos de "Gestão" (BEAC-2087). Não existe módulo de permissão
@@ -92,25 +122,28 @@ function gestaoSubItemsFor(
 }
 
 /**
- * Shell "PF3" (BEAC-1832) — sidebar (>=860px, markup próprio) + `BottomNav`
- * real (mobile, componente da Fundação desde BEAC-2091) no padrão
- * `.app-shell`/`.sidebar`/`.shell-bottomnav-wrapper`. Navegação real
- * (BEAC-2058, task BEAC-2086): cada item é gated por `usePermission`
- * (ver ../../hooks/usePermission.ts, contrato "esconder sempre, nunca
- * desabilitar") e aponta pra uma rota real de src/App.tsx — substitui os
- * itens antes inertes/desabilitados. "Loja" foi removida inteiramente
- * (decisão travada de BEAC-2048, nenhuma rota existe). O item ativo é
- * calculado via prefix-match do path atual (useLocation); a sidebar computa
- * seu próprio `.active` por item, e o `BottomNav` recebe um único
+ * Shell "PF3" (BEAC-1832) — `Sidebar` real (>=860px, componente da Fundação,
+ * reskin desta task) + `BottomNav` real (mobile, componente da Fundação
+ * desde BEAC-2091) no padrão `.app-shell`/`.shell-sidebar-wrapper`/
+ * `.shell-bottomnav-wrapper`. Navegação real (BEAC-2058, task BEAC-2086):
+ * cada item é gated por `usePermission` (ver ../../hooks/usePermission.ts,
+ * contrato "esconder sempre, nunca desabilitar") e aponta pra uma rota real
+ * de src/App.tsx — substitui os itens antes inertes/desabilitados. "Loja"
+ * foi removida inteiramente (decisão travada de BEAC-2048, nenhuma rota
+ * existe). O item ativo é calculado via prefix-match do path atual
+ * (useLocation); `Sidebar` e `BottomNav` recebem cada um seu próprio
  * `active` (label) equivalente — ambos sempre renderizam no DOM,
  * alternando-se só por CSS (ver AppShell.css), então recebem o mesmo item
- * set.
+ * set (mapeado pra `sections`/`footerItems` na sidebar, ver comentário de
+ * pacote acima de `sidebarSections`).
  *
  * Topbar (BEAC-2021, story BEAC-1723): AppShell é hoje a shell mais próxima
  * de "qualquer tela" do app (~35 páginas já usam), então o sino da N1
  * (Central de Notificações) mora aqui, não numa página específica —
  * renderizado em AMBOS breakpoints (diferente de sidebar/bottomnav, que se
- * alternam por largura, ver AppShell.css), só com o sino + badge de
+ * alternam por largura, ver AppShell.css), como `IconButton` ghost +
+ * `Icon name="bell"` (reskin desta task — DS ainda não tem um composto
+ * ícone+badge pronto, ver `.shell-bell-badge` em AppShell.css) + badge de
  * contagem alinhados à direita. O badge busca GET /me/notifications/
  * unread-count ao montar; falha é best-effort (badge só não aparece, sem
  * travar a tela).
@@ -193,6 +226,53 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
     setGestaoOpen(false)
   }
 
+  // Sidebar real (desktop, ver ../ui/Sidebar/Sidebar.tsx): API é `sections`
+  // (grupos com rótulo overline) + `footerItems`, sem suporte a dropdown
+  // aninhado — diferente do antigo markup próprio, que abria "Gestão" num
+  // popover. Mapeamento Figma (node 100:1238): "Gestão" vira sua própria
+  // seção "GESTÃO" com os 4 destinos direto (mesmo padrão do
+  // `DEFAULT_SECTIONS` do componente), e "Perfil" sai da seção principal
+  // pro rodapé, ao lado do seletor de arena — a dropdown/`gestaoOpen` segue
+  // existindo só pro `BottomSheet` do mobile (ver render abaixo).
+  const sidebarMainItems = visibleNavItems.filter((item) => item.key !== 'perfil')
+  const sidebarPerfilItem = visibleNavItems.find((item) => item.key === 'perfil')
+
+  const sidebarSections: SidebarSection[] = [
+    {
+      label: 'PRINCIPAL',
+      items: sidebarMainItems.map((item) => ({ icon: NAV_ICON_BY_KEY[item.key] ?? 'home', label: item.label })),
+    },
+    ...(showGestao
+      ? [
+          {
+            label: 'GESTÃO',
+            items: visibleGestaoSubItems.map((item) => ({
+              icon: GESTAO_ICON_BY_KEY[item.key] ?? 'settings',
+              label: item.label,
+            })),
+          },
+        ]
+      : []),
+  ]
+
+  const sidebarFooterItems: SidebarNavItem[] = sidebarPerfilItem
+    ? [{ icon: 'user-circle', label: sidebarPerfilItem.label }]
+    : []
+
+  const sidebarPathByLabel = new Map<string, string>([
+    ...visibleNavItems.map((item) => [item.label, item.path] as const),
+    ...visibleGestaoSubItems.map((item) => [item.label, item.path] as const),
+  ])
+
+  const activeSidebarLabel =
+    visibleNavItems.find((item) => isActivePath(location.pathname, item.path))?.label ??
+    visibleGestaoSubItems.find((item) => isActivePath(location.pathname, item.path))?.label
+
+  function handleSidebarChange(label: string) {
+    const path = sidebarPathByLabel.get(label)
+    if (path) navigate(path)
+  }
+
   // BEAC-2091: mesmo item set da sidebar, mapeado pro contrato do `BottomNav`
   // real (`{icon,label}`) — nunca os `DEFAULT_ITEMS` do próprio componente
   // (que ainda incluem "Loja"). "Gestão" não é alvo de navegação direta, por
@@ -217,70 +297,37 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
   return (
     <div className="app-shell">
       <div className="shell-topbar">
-        <button
-          type="button"
-          className="shell-bell"
-          aria-label="Notificações"
-          onClick={() => navigate(N1_PATH)}
-        >
-          🔔
+        <div className="shell-bell-wrapper">
+          <IconButton variant="ghost" size="md" label="Notificações" onClick={() => navigate(N1_PATH)}>
+            <Icon name="bell" />
+          </IconButton>
           {unreadCount > 0 && (
             <span className="shell-bell-badge">{unreadCount > 99 ? '99+' : unreadCount}</span>
           )}
-        </button>
+        </div>
       </div>
       <div className="shell-body">
-        <aside className="sidebar">
-          <div className="brand-mark brand-mark--pressable" {...longPress}>
-            rallye<span className="dot">.</span>
-          </div>
-          {visibleNavItems.map((item) => (
-            <button
-              key={item.key}
-              type="button"
-              className={`side-item${isActivePath(location.pathname, item.path) ? ' active' : ''}`}
-              onClick={() => navigate(item.path)}
-            >
-              {item.label}
-            </button>
-          ))}
-          {canConfig && visibleGestaoSubItems.length > 0 && (
-            <>
-              <div className="side-sep" />
-              <div className="side-gestao">
-                <button
-                  type="button"
-                  className={`side-item${gestaoActive ? ' active' : ''}`}
-                  aria-haspopup="menu"
-                  aria-expanded={gestaoOpen}
-                  onClick={() => setGestaoOpen((open) => !open)}
-                >
-                  Gestão
-                </button>
-                {gestaoOpen && (
-                  <div className="side-gestao-menu" role="menu">
-                    {visibleGestaoSubItems.map((item) => (
-                      <button
-                        key={item.key}
-                        type="button"
-                        role="menuitem"
-                        className="side-gestao-menu-item"
-                        onClick={() => navigateToGestaoItem(item.path)}
-                      >
-                        {item.label}
-                      </button>
-                    ))}
-                  </div>
-                )}
+        <div className="shell-sidebar-wrapper">
+          <Sidebar
+            logo={
+              <div className="shell-sidebar-logo shell-sidebar-logo--pressable" {...longPress}>
+                <BrandLogo name="rallye-mark" variant="dark" size={24} />
+                <span>
+                  rallye<span className="dot">.</span>
+                </span>
               </div>
-            </>
-          )}
-          <div className="side-foot">
-            {orgLabel}
-            <br />
-            {userLabel}
-          </div>
-        </aside>
+            }
+            sections={sidebarSections}
+            footerItems={sidebarFooterItems}
+            arenaSelector={{
+              label: orgLabel,
+              action: userLabel,
+              avatar: <span className="shell-sidebar-avatar-initials">{initialsOf(orgLabel)}</span>,
+            }}
+            active={activeSidebarLabel}
+            onChange={handleSidebarChange}
+          />
+        </div>
         <div className="shell-main">{children}</div>
       </div>
       <div className="shell-bottomnav-wrapper">

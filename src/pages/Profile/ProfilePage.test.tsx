@@ -64,11 +64,11 @@ describe('ProfilePage — AppShell recebe orgLabel/userLabel reais (BEAC-2080)',
     const { container } = renderPage()
 
     await waitFor(() =>
-      expect(container.querySelector('.side-foot')).toHaveTextContent('Arena Praia Sul'),
+      expect(container.querySelector('.sidebar__arena-selector')).toHaveTextContent('Arena Praia Sul'),
     )
-    const sideFoot = container.querySelector('.side-foot')
-    expect(sideFoot).toHaveTextContent('Ana Beatriz · Aluno')
-    expect(sideFoot).not.toHaveTextContent('Arena Areia Dourada')
-    expect(sideFoot).not.toHaveTextContent('Perfil')
+    const arenaSelector = container.querySelector('.sidebar__arena-selector')
+    expect(arenaSelector).toHaveTextContent('Ana Beatriz · Aluno')
+    expect(arenaSelector).not.toHaveTextContent('Arena Areia Dourada')
+    expect(arenaSelector).not.toHaveTextContent('Perfil')
   })
 })

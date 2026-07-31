@@ -62,7 +62,7 @@ function renderShell() {
 describe('AppShell long-press logo (BEAC-1835)', () => {
   it('navigates to /s1 when the sidebar brand mark is held past the long-press delay', async () => {
     const { container } = renderShell()
-    const mark = container.querySelector('.brand-mark') as HTMLElement
+    const mark = container.querySelector('.shell-sidebar-logo--pressable') as HTMLElement
 
     fireEvent.pointerDown(mark)
 
@@ -73,7 +73,7 @@ describe('AppShell long-press logo (BEAC-1835)', () => {
 
   it('does nothing on a short tap of the brand mark', async () => {
     const { container } = renderShell()
-    const mark = container.querySelector('.brand-mark') as HTMLElement
+    const mark = container.querySelector('.shell-sidebar-logo--pressable') as HTMLElement
 
     fireEvent.pointerDown(mark)
     fireEvent.pointerUp(mark)
@@ -149,17 +149,16 @@ function renderShellAt(initialPath: string) {
 }
 
 function itemsWithLabel(container: HTMLElement, label: string) {
-  return Array.from(container.querySelectorAll('.side-item, .bottom-nav__item')).filter(
+  return Array.from(container.querySelectorAll('.sidebar__item, .bottom-nav__item')).filter(
     (el) => el.textContent === label,
   )
 }
 
-// BEAC-2091: `.side-item` segue usando a classe `.active` (markup próprio,
-// inalterado); o `BottomNav` real (Fundação) usa a convenção BEM
-// `.bottom-nav__item--active`, daí o sufixo de seleção divergir por tipo.
-function activeLabels(container: HTMLElement, selector: '.side-item' | '.bottom-nav__item') {
+// Ambos os componentes reais (`ui/Sidebar`/`ui/BottomNav`) usam a mesma
+// convenção BEM de modificador (`--active`), só o nome base do bloco muda.
+function activeLabels(container: HTMLElement, selector: '.sidebar__item' | '.bottom-nav__item') {
   const activeSelector =
-    selector === '.side-item' ? '.side-item.active' : '.bottom-nav__item--active'
+    selector === '.sidebar__item' ? '.sidebar__item--active' : '.bottom-nav__item--active'
   return Array.from(container.querySelectorAll(activeSelector)).map((el) => el.textContent)
 }
 
@@ -280,7 +279,7 @@ describe('AppShell — navegação real dos itens de topo (BEAC-2086)', () => {
     vi.mocked(usePermission).mockReturnValue(true)
     const { container } = renderShellAt('/units/unit-1/tournaments/new')
 
-    expect(activeLabels(container, '.side-item')).toEqual(['Torneios'])
+    expect(activeLabels(container, '.sidebar__item')).toEqual(['Torneios'])
     expect(activeLabels(container, '.bottom-nav__item')).toEqual(['Torneios'])
   })
 })
@@ -314,28 +313,36 @@ describe('AppShell — menu "Gestão" (BEAC-2087)', () => {
     expect(container.querySelector('.gestao-sheet-wrapper')).not.toBeInTheDocument()
   })
 
-  it('config:read: clicar em "Gestão" (sidebar) abre um dropdown listando os 4 destinos, cada um navegando pra sua rota real e fechando o menu', async () => {
+  // Contrato do `ui/Sidebar` real (ver ../ui/Sidebar/Sidebar.tsx): só suporta
+  // `sections` fixas, sem item expansível/dropdown. No desktop os 4 destinos
+  // de Gestão aparecem direto numa seção "GESTÃO", sem clique extra — o
+  // BottomSheet mobile (via BottomNav) é o único lugar que ainda tem o
+  // padrão "clicar em Gestão pra revelar os destinos".
+  function gestaoSection(container: HTMLElement): HTMLElement {
+    return Array.from(container.querySelectorAll('.sidebar__section')).find(
+      (el) => el.querySelector('.sidebar__section-label')?.textContent === 'GESTÃO',
+    ) as HTMLElement
+  }
+
+  it('config:read: os 4 destinos de Gestão aparecem diretos na seção "GESTÃO" da sidebar, cada um navegando pra sua rota real', async () => {
     vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
     vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
     vi.mocked(usePermission).mockImplementation((module) => module === 'config')
     const user = userEvent.setup()
     const { container } = renderShellAt('/perfil')
 
-    await user.click(itemsWithLabel(container, 'Gestão')[0])
-
-    const menu = container.querySelector('.side-gestao-menu') as HTMLElement
-    expect(menu).toBeInTheDocument()
-    expect(subLabelsOf(menu, '.side-gestao-menu-item')).toEqual([
+    const section = gestaoSection(container)
+    expect(section).toBeInTheDocument()
+    expect(subLabelsOf(section, '.sidebar__item')).toEqual([
       'Membros',
       'Papéis',
       'Configurações da arena',
       'Minhas unidades',
     ])
 
-    await user.click(clickLabel(menu, '.side-gestao-menu-item', 'Papéis'))
+    await user.click(clickLabel(section, '.sidebar__item', 'Papéis'))
 
     expect(await screen.findByTestId('probe-path')).toHaveTextContent('/units/unit-1/roles')
-    expect(container.querySelector('.side-gestao-menu')).not.toBeInTheDocument()
   })
 
   it('config:read: clicar em "Gestão" (bottomnav) abre o BottomSheet listando os mesmos 4 destinos', async () => {
@@ -345,7 +352,7 @@ describe('AppShell — menu "Gestão" (BEAC-2087)', () => {
     const user = userEvent.setup()
     const { container } = renderShellAt('/perfil')
 
-    await user.click(itemsWithLabel(container, 'Gestão')[1])
+    await user.click(itemsWithLabel(container, 'Gestão')[0])
 
     const sheet = container.querySelector('.gestao-sheet') as HTMLElement
     expect(sheet).toBeInTheDocument()
@@ -362,43 +369,37 @@ describe('AppShell — menu "Gestão" (BEAC-2087)', () => {
     expect(container.querySelector('.gestao-sheet')).not.toBeInTheDocument()
   })
 
-  it('getActiveTenantId() null: "Minhas unidades" é omitido do menu, os outros 3 continuam', async () => {
+  it('getActiveTenantId() null: "Minhas unidades" é omitido da seção GESTÃO, os outros 3 continuam', () => {
     vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
     vi.mocked(getActiveTenantId).mockReturnValue(null)
     vi.mocked(usePermission).mockImplementation((module) => module === 'config')
-    const user = userEvent.setup()
     const { container } = renderShellAt('/perfil')
 
-    await user.click(itemsWithLabel(container, 'Gestão')[0])
-
-    const menu = container.querySelector('.side-gestao-menu') as HTMLElement
-    expect(subLabelsOf(menu, '.side-gestao-menu-item')).toEqual([
+    const section = gestaoSection(container)
+    expect(subLabelsOf(section, '.sidebar__item')).toEqual([
       'Membros',
       'Papéis',
       'Configurações da arena',
     ])
   })
 
-  it('getActiveUnitId() null: só "Minhas unidades" (tenant-scoped) permanece no menu', async () => {
+  it('getActiveUnitId() null: só "Minhas unidades" (tenant-scoped) permanece na seção GESTÃO', () => {
     vi.mocked(getActiveUnitId).mockReturnValue(null)
     vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
     vi.mocked(usePermission).mockImplementation((module) => module === 'config')
-    const user = userEvent.setup()
     const { container } = renderShellAt('/dashboard')
 
-    await user.click(itemsWithLabel(container, 'Gestão')[0])
-
-    const menu = container.querySelector('.side-gestao-menu') as HTMLElement
-    expect(subLabelsOf(menu, '.side-gestao-menu-item')).toEqual(['Minhas unidades'])
+    const section = gestaoSection(container)
+    expect(subLabelsOf(section, '.sidebar__item')).toEqual(['Minhas unidades'])
   })
 
-  it('rota atual bate com um dos 4 sub-destinos: "Gestão" também mostra o estilo ativo', () => {
+  it('rota atual bate com um dos 4 sub-destinos: o sub-item correspondente mostra o estilo ativo na sidebar, e "Gestão" no bottomnav', () => {
     vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
     vi.mocked(getActiveTenantId).mockReturnValue('tenant-1')
     vi.mocked(usePermission).mockImplementation((module) => module === 'config')
     const { container } = renderShellAt('/units/unit-1/roles')
 
-    expect(activeLabels(container, '.side-item')).toEqual(['Gestão'])
+    expect(activeLabels(container, '.sidebar__item')).toEqual(['Papéis'])
     expect(activeLabels(container, '.bottom-nav__item')).toEqual(['Gestão'])
   })
 })

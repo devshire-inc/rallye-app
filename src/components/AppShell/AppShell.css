@@ -1,4 +1,5 @@
-/* Shell mínima "PF3" (BEAC-1832) — estrutura `.app-shell` / `.sidebar` /
+/* Shell mínima "PF3" (BEAC-1832) — estrutura `.app-shell` /
+   `.shell-sidebar-wrapper` (desktop, via componente `Sidebar` real) /
    `.shell-bottomnav-wrapper` (mobile, via componente `BottomNav` real desde
    BEAC-2091). Cores/tipografia usam os tokens nativos Claude Design de
    src/styles/tokens/*.css (BEAC-2059). */
@@ -30,29 +31,20 @@
   }
 }
 
-.shell-bell {
+/* Sino de notificação (BEAC-2021) — `IconButton` ghost real + `Icon
+   name="bell"` (AppShell.tsx), com o badge de contagem sobreposto no canto.
+   O DS não tem hoje um composto ícone+badge pronto (ver comentário de
+   pacote em AppShell.tsx) — este wrapper + badge absoluto é a extensão
+   mínima até esse composto existir. */
+.shell-bell-wrapper {
   position: relative;
   display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 36px;
-  height: 36px;
-  border: none;
-  border-radius: 50%;
-  background: none;
-  font-size: 18px;
-  line-height: 1;
-  cursor: pointer;
-  color: var(--text-heading);
-}
-.shell-bell:hover {
-  background: var(--surface-sunken);
 }
 
 .shell-bell-badge {
   position: absolute;
-  top: 1px;
-  right: 1px;
+  top: -2px;
+  right: -2px;
   min-width: 16px;
   height: 16px;
   padding: 0 4px;
@@ -63,6 +55,7 @@
   font-weight: 700;
   line-height: 16px;
   text-align: center;
+  pointer-events: none;
 }
 
 /* Sidebar + conteúdo principal, lado a lado — abaixo do topbar. */
@@ -72,108 +65,48 @@
   min-height: 0;
 }
 
-.sidebar {
+/* Wrapper do `Sidebar` real (reskin desta task, ver ../ui/Sidebar/Sidebar.tsx
+   e .css) — o componente em si já é um painel FLUTUANTE (surface/card,
+   radius/xl, shadow/float-nav, width:256px, height:100%), mesma convenção
+   de inset-owned-by-consumer do `BottomNav` (ver .shell-bottomnav-wrapper
+   abaixo): este wrapper é quem reserva o vão ao redor e esconde por
+   breakpoint. */
+.shell-sidebar-wrapper {
   display: none;
-  flex-direction: column;
-  width: 232px;
   flex: none;
-  padding: var(--space-5) var(--space-4);
-  border-right: 1px solid var(--border-default);
-  background: var(--surface-card);
-  gap: 2px;
+  padding: var(--space-4);
 }
 
 /* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
 @media (min-width: 860px) {
-  .sidebar {
+  .shell-sidebar-wrapper {
     display: flex;
   }
 }
 
-.sidebar .brand-mark {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 18px;
-  color: var(--text-heading);
-  margin-bottom: var(--space-5);
+.shell-sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
 }
 /* BEAC-1835: segurar o logo abre a S1 (ver useLongPress em AppShell.tsx). */
-.sidebar .brand-mark--pressable {
+.shell-sidebar-logo--pressable {
   cursor: pointer;
   width: fit-content;
 }
-.sidebar .brand-mark .dot {
+.shell-sidebar-logo .dot {
   color: var(--interactive-primary);
 }
 
-.side-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  width: 100%;
-  padding: 10px 12px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: none;
-  font-family: inherit;
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--text-heading);
-  text-align: left;
-  cursor: pointer;
-}
-.side-item.active {
-  background: var(--surface-brand-soft);
-  color: var(--text-heading);
-}
-
-.side-sep {
-  height: 1px;
-  background: var(--border-default);
-  margin: var(--space-3) 0;
-}
-
-/* Dropdown de "Gestão" (BEAC-2087) — posicionado relativo ao próprio item,
-   nested dentro de .sidebar: fica escondido no mobile de graça, já que
-   .sidebar já é display:none abaixo de 860px (ver acima). */
-.side-gestao {
-  position: relative;
-}
-.side-gestao-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  z-index: 10;
-  display: flex;
-  flex-direction: column;
-  min-width: 200px;
-  margin-top: 4px;
-  padding: 6px;
-  gap: 2px;
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  background: var(--surface-card);
-  box-shadow: var(--shadow-raised);
-}
-.side-gestao-menu-item {
-  padding: 8px 10px;
-  border: none;
-  border-radius: var(--radius-sm);
-  background: none;
-  font-family: inherit;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--text-heading);
-  text-align: left;
-  cursor: pointer;
-}
-.side-gestao-menu-item:hover {
-  background: var(--surface-sunken);
+.shell-sidebar-avatar-initials {
+  color: var(--text-on-brand);
+  font: var(--type-label);
 }
 
 /* Sheet de "Gestão" no mobile (mesmo BottomSheet de BEAC-1808) — o wrapper
-   se esconde no mesmo breakpoint em que .bottomnav se esconde, pra não
-   coexistir com o dropdown desktop acima. */
+   se esconde no mesmo breakpoint em que .bottomnav se esconde: no desktop
+   os mesmos destinos já aparecem direto na seção "GESTÃO" do `Sidebar`
+   (ver sidebarSections em AppShell.tsx), então o sheet seria redundante. */
 /* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
 @media (min-width: 860px) {
   .gestao-sheet-wrapper {
@@ -195,15 +128,6 @@
   color: var(--text-heading);
   text-align: left;
   cursor: pointer;
-}
-
-.side-foot {
-  margin-top: auto;
-  padding-top: var(--space-4);
-  border-top: 1px solid var(--border-default);
-  font-size: 11.5px;
-  line-height: 1.5;
-  color: var(--text-muted);
 }
 
 .shell-main {
