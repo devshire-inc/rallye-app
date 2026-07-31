@@ -1,0 +1,28 @@
+/* Rallye Design System — Pill (Figma node 46:1085, ex. "Verificar E-mail" 43:1134) */
+
+.pill {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+  text-align: center;
+  /* Figma chama o valor de "Spline Sans Mono Bold 13px", que não corresponde
+     ao token --type-numeric do projeto (mono, mas 600/15px, para placares) —
+     mesmo gap de token documentado em MatchCard.css. */
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.45;
+  color: var(--text-heading);
+}
+
+.pill b,
+.pill strong {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}

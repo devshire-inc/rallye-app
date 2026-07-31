@@ -1,6 +1,6 @@
 import type { CSSProperties } from 'react'
 import { sportCssVar } from '../../../lib/sports'
-import { Badge } from '../Badge/Badge'
+import { Badge, type BadgeProps } from '../Badge/Badge'
 import { ListRow } from '../ListRow/ListRow'
 import './ArenaCard.css'
 
@@ -11,12 +11,28 @@ export interface ArenaCardProps {
   avatarSrc?: string
   /** Papéis do usuário na arena, ex.: `['Dono', 'Admin']` — vira "DONO · ADMIN" no selo. */
   roles?: string[]
+  /** Tom do selo de papel (Figma: Dono/Admin = success, Professor = info). Default `success`, igual ao comportamento anterior. */
+  roleTone?: BadgeProps['tone']
   /** Slugs de esporte (ver `SPORTS` em `lib/sports.ts`) — um dot colorido por esporte oferecido. */
   sports?: string[]
   onClick?: () => void
+  /** Estado visualmente desabilitado (opacidade reduzida, sem hover, sem clique) — ex.: os demais cards enquanto um deles está entrando. */
+  disabled?: boolean
+  /** Vira `data-arena` no elemento raiz, pra hooks de teste localizarem o card sem depender do texto. */
+  testId?: string
 }
 
-export function ArenaCard({ name, subtitle, avatarSrc, roles = [], sports = [], onClick }: ArenaCardProps) {
+export function ArenaCard({
+  name,
+  subtitle,
+  avatarSrc,
+  roles = [],
+  roleTone = 'success',
+  sports = [],
+  onClick,
+  disabled = false,
+  testId,
+}: ArenaCardProps) {
   const content = (
     <>
       {/* ListRow traz seu próprio card (bg/padding/radius) para uso solto em
@@ -30,7 +46,7 @@ export function ArenaCard({ name, subtitle, avatarSrc, roles = [], sports = [], 
         <div className="arena-card__meta-row">
           {roles.length > 0 ? (
             <span className="arena-card__role-badge">
-              <Badge tone="success">{roles.join(' · ').toUpperCase()}</Badge>
+              <Badge tone={roleTone}>{roles.join(' · ').toUpperCase()}</Badge>
             </span>
           ) : null}
           {sports.length > 0 ? (
@@ -49,13 +65,25 @@ export function ArenaCard({ name, subtitle, avatarSrc, roles = [], sports = [], 
     </>
   )
 
+  const className = disabled ? 'arena-card arena-card--disabled' : 'arena-card'
+
   if (onClick) {
     return (
-      <button type="button" className="arena-card" onClick={onClick}>
+      <button
+        type="button"
+        className={className}
+        onClick={disabled ? undefined : onClick}
+        disabled={disabled}
+        data-arena={testId}
+      >
         {content}
       </button>
     )
   }
 
-  return <div className="arena-card">{content}</div>
+  return (
+    <div className={className} data-arena={testId}>
+      {content}
+    </div>
+  )
 }

@@ -20,8 +20,11 @@ const meta = {
     subtitle: { control: 'text' },
     avatarSrc: { control: 'text' },
     roles: { control: 'object' },
+    roleTone: { control: 'select', options: ['success', 'warning', 'danger', 'info', 'brand', 'neutral'] },
     sports: { control: 'object' },
     onClick: { control: 'boolean' },
+    disabled: { control: 'boolean' },
+    testId: { control: 'text' },
   },
   args: {
     name: 'Arena Beira-Mar',
@@ -85,4 +88,25 @@ export const ArenaPickerList: Story = {
       </div>
     )
   },
+}
+
+/** Cores de selo por role (Figma node 43:1221/133:1145): Dono/Admin = verde
+ * (`roleTone` default, "success"), Professor = azul (`roleTone="info"`). */
+export const RoleTones: Story = {
+  render: () => (
+    <div className="arena-card-story-list">
+      <ArenaCard name="Arena Beira-Mar" subtitle="Rua das Palmeiras, 120" roles={['Dono', 'Admin']} sports={['beach_tennis', 'padel']} />
+      <ArenaCard name="Praia Norte Beach Club" subtitle="8 membros" roles={['Professor']} roleTone="info" sports={['padel', 'volei']} />
+    </div>
+  ),
+}
+
+/** Card desabilitado (ex.: os demais cards enquanto um deles está "entrando"
+ * — troca de unit em progresso): opacidade reduzida, sem hover, sem clique. */
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+    onClick: true,
+  },
+  render: (args) => <PlaygroundInner {...args} />,
 }

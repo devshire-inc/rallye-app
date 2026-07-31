@@ -74,4 +74,36 @@ describe('ArenaCard', () => {
   it('renders without throwing for an unknown sport slug', () => {
     expect(() => render(<ArenaCard name="Arena Beira-Mar" sports={['krav-maga']} />)).not.toThrow()
   })
+
+  it('renders the role badge with a custom tone via roleTone', () => {
+    render(<ArenaCard name="Arena Beira-Mar" roles={['Professor']} roleTone="info" />)
+    const badge = screen.getByText('PROFESSOR')
+    expect(badge.className).toContain('badge--info')
+  })
+
+  it('sets data-arena on the root element from testId', () => {
+    const { container } = render(<ArenaCard name="Arena Beira-Mar" testId="unit-1" />)
+    expect(container.querySelector('div.arena-card')).toHaveAttribute('data-arena', 'unit-1')
+  })
+
+  it('sets data-arena on the root button when interactive', () => {
+    render(<ArenaCard name="Arena Beira-Mar" onClick={vi.fn()} testId="unit-1" />)
+    expect(screen.getByRole('button')).toHaveAttribute('data-arena', 'unit-1')
+  })
+
+  it('applies the disabled visual state and blocks clicks when disabled', async () => {
+    const onClick = vi.fn()
+    const user = userEvent.setup()
+    render(<ArenaCard name="Arena Beira-Mar" onClick={onClick} disabled />)
+    const button = screen.getByRole('button', { name: /Arena Beira-Mar/ })
+    expect(button.className).toContain('arena-card--disabled')
+    expect(button).toBeDisabled()
+    await user.click(button)
+    expect(onClick).not.toHaveBeenCalled()
+  })
+
+  it('applies the disabled visual class to a non-interactive card too', () => {
+    const { container } = render(<ArenaCard name="Arena Beira-Mar" disabled />)
+    expect(container.querySelector('div.arena-card')?.className).toContain('arena-card--disabled')
+  })
 })

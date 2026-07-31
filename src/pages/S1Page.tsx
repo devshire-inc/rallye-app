@@ -26,6 +26,13 @@ function sportSlugs(sportsOffered: unknown): string[] {
   return sportsOffered.filter((slug): slug is string => typeof slug === 'string')
 }
 
+// Figma "Rallye — Protótipo" (node 43:1221/133:1145): Dono/Admin usam o selo
+// verde (default do Badge), Professor usa o selo azul. Qualquer outro role
+// (Gestor, Aluno etc.) não aparece no frame — mantém o verde default.
+function roleTone(role: string | null): 'success' | 'info' {
+  return role === 'Professor' ? 'info' : 'success'
+}
+
 /**
  * S1 — Seletor de arena (BEAC-1681/1835). Reskin a partir do Figma "Rallye —
  * Protótipo" (frame "07 · Escolher Arena", canvases Auth — Mobile/Desktop):
@@ -169,13 +176,14 @@ export default function S1Page() {
             {state.memberships.map((membership) => (
               <ArenaCard
                 key={membership.unitId}
+                testId={membership.unitId}
                 name={membership.unit.name}
                 subtitle={membership.unit.address ?? undefined}
                 roles={membership.role ? [membership.role] : []}
+                roleTone={roleTone(membership.role)}
                 sports={sportSlugs(membership.unit.sportsOffered)}
-                onClick={
-                  enteringUnitId === null ? () => void enterMembership(membership) : undefined
-                }
+                disabled={enteringUnitId !== null}
+                onClick={() => void enterMembership(membership)}
               />
             ))}
           </div>

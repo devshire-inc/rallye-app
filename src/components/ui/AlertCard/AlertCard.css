@@ -1,33 +1,49 @@
 /* Rallye Design System — Alert Card (Figma node 102:6)
    Variante tingida do Card para seções condicionais/aviso — mesmo raio/
-   tipografia do Card base, com fundo e borda tonais (Badge-like) por --tone. */
+   tipografia do Card base, com fundo, borda e texto tonais (Badge-like) por
+   --tone. Ícone opcional (node 150:1311, "Status Message") no slot à esquerda. */
 
 .alert-card {
   box-sizing: border-box;
   width: 340px;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
   padding: var(--space-6);
   border: 1px solid transparent;
   border-radius: var(--radius-lg);
   font: var(--type-body);
-  color: var(--text-heading);
+}
+
+.alert-card__icon {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.alert-card__text {
+  flex: 1;
 }
 
 .alert-card--warning {
   background: var(--state-warning-soft);
   border-color: var(--state-warning-text);
+  color: var(--state-warning-text);
 }
 
 .alert-card--danger {
   background: var(--state-danger-soft);
   border-color: var(--state-danger);
+  color: var(--state-danger-text);
 }
 
 .alert-card--info {
   background: var(--state-info-soft);
   border-color: var(--state-info);
+  color: var(--state-info-text);
 }
 
 .alert-card--success {
   background: var(--state-success-soft);
   border-color: var(--state-success);
+  color: var(--state-success-text);
 }

@@ -1,0 +1,5 @@
+.alert-card-stories__stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

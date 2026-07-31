@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { AuthLayout } from '../../components/AuthLayout/AuthLayout'
 import { OtpInput } from '../../components/OtpInput/OtpInput'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
+import { Pill } from '../../components/ui/Pill/Pill'
 import { VisitorVerifyError, verifyVisitorCode } from '../../lib/api'
 import {
   getPendingVisitorRequest,
@@ -83,9 +84,9 @@ export function VisitorVerifyPage() {
           </>
         }
         hint={
-          <>
+          <Pill>
             <b>DEMO</b> 123456
-          </>
+          </Pill>
         }
       >
         <div className="stack">

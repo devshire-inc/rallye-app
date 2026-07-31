@@ -29,6 +29,19 @@ button.arena-card:hover {
   box-shadow: var(--shadow-raised);
 }
 
+.arena-card--disabled {
+  opacity: 0.5;
+}
+
+button.arena-card--disabled {
+  cursor: not-allowed;
+}
+
+button.arena-card--disabled:hover {
+  border-color: var(--border-default);
+  box-shadow: none;
+}
+
 .arena-card__row {
   width: 100%;
 }
