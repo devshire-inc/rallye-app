@@ -39,7 +39,7 @@ describe('OfferSheet', () => {
   it('renders the exact prototype copy: title, subtitle, professor/turma rows and footnote', () => {
     renderSheet()
 
-    expect(screen.getByText('Abriu uma vaga pra você!')).toBeInTheDocument()
+    expect(screen.getByText('Vaga disponível!')).toBeInTheDocument()
     expect(screen.getByText('Futevôlei avançado · sáb 12 jul, 09:00 · Quadra 6')).toBeInTheDocument()
     expect(screen.getByText('Duda Rocha')).toBeInTheDocument()
     expect(screen.getByText('7/8 (a vaga é sua)')).toBeInTheDocument()
@@ -86,7 +86,7 @@ describe('OfferSheet', () => {
       .mockResolvedValue({ ok: true, status: 'declined', entryId: 'entry-1' })
     const { onResolved } = renderSheet()
 
-    await userEvent.click(screen.getByRole('button', { name: 'Recusar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Recusar e sair da fila' }))
 
     expect(declineSpy).toHaveBeenCalledWith('entry-1')
     expect(await screen.findByText('Sem problema — a vaga passou pro próximo da fila.')).toBeInTheDocument()
@@ -129,18 +129,18 @@ describe('OfferSheet', () => {
     const message = await screen.findByText(
       'O prazo pra confirmar esta vaga expirou — ela já passou pro próximo da fila.',
     )
-    expect(message.getAttribute('role')).toBe('status')
+    expect(message.closest('[role]')?.getAttribute('role')).toBe('status')
   })
 
   it('stops ticking and hides action buttons once resolved', async () => {
     vi.spyOn(waitlistApi, 'declineOffer').mockResolvedValue({ ok: true, status: 'declined', entryId: 'entry-1' })
     renderSheet()
 
-    await userEvent.click(screen.getByRole('button', { name: 'Recusar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Recusar e sair da fila' }))
     await screen.findByText('Sem problema — a vaga passou pro próximo da fila.')
 
     expect(screen.queryByRole('button', { name: 'Confirmar vaga' })).not.toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Recusar' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Recusar e sair da fila' })).not.toBeInTheDocument()
     expect(screen.queryByRole('button', { name: 'Fechar' })).not.toBeInTheDocument()
   })
 

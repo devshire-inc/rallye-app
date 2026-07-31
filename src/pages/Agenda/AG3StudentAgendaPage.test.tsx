@@ -311,7 +311,7 @@ describe('AG3StudentAgendaPage', () => {
 
       renderPageWithOffer('entry-1')
 
-      expect(await screen.findByText('Abriu uma vaga pra você!')).toBeInTheDocument()
+      expect(await screen.findByText('Vaga disponível!')).toBeInTheDocument()
       expect(screen.getByText('Duda Rocha')).toBeInTheDocument()
       // Sem nextOccurrenceAt na fixture: cai pra "turma · quadra" sem data/hora
       // (ver formatOfferClassSchedule, mesmo "avisa, não bloqueia" do backend).
@@ -331,7 +331,7 @@ describe('AG3StudentAgendaPage', () => {
 
       await waitFor(() => expect(screen.getByText('Minha agenda')).toBeInTheDocument())
       expect(detailSpy).not.toHaveBeenCalled()
-      expect(screen.queryByText('Abriu uma vaga pra você!')).not.toBeInTheDocument()
+      expect(screen.queryByText('Vaga disponível!')).not.toBeInTheDocument()
       await waitFor(() => expect(gridSpy).toHaveBeenCalled())
     })
 
@@ -343,7 +343,7 @@ describe('AG3StudentAgendaPage', () => {
       expect(
         await screen.findByText('Não foi possível carregar esta oferta — ela pode já ter sido resolvida ou expirado.'),
       ).toBeInTheDocument()
-      expect(screen.queryByText('Abriu uma vaga pra você!')).not.toBeInTheDocument()
+      expect(screen.queryByText('Vaga disponível!')).not.toBeInTheDocument()
       await waitFor(() => expect(gridSpy).toHaveBeenCalled())
     })
 
@@ -352,11 +352,17 @@ describe('AG3StudentAgendaPage', () => {
       const user = userEvent.setup()
 
       renderPageWithOffer('entry-1')
-      await screen.findByText('Abriu uma vaga pra você!')
+      await screen.findByText('Vaga disponível!')
 
-      await user.click(screen.getByRole('button', { name: 'Fechar' }))
+      // Two "Fechar" controls exist here: BottomSheet's own header × (always
+      // present) and OfferSheet's own footer button — both wired to the same
+      // onCancel/onClose (closeOfferSheet), so either is functionally
+      // equivalent. Target the last one (OfferSheet's) to keep the click
+      // inside the component under test.
+      const fecharButtons = screen.getAllByRole('button', { name: 'Fechar' })
+      await user.click(fecharButtons[fecharButtons.length - 1])
 
-      expect(screen.queryByText('Abriu uma vaga pra você!')).not.toBeInTheDocument()
+      expect(screen.queryByText('Vaga disponível!')).not.toBeInTheDocument()
       await waitFor(() => expect(gridSpy).toHaveBeenCalled())
     })
 
@@ -377,13 +383,13 @@ describe('AG3StudentAgendaPage', () => {
       const gridSpy = vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
 
       renderPageWithOffer('entry-1')
-      await screen.findByText('Abriu uma vaga pra você!')
+      await screen.findByText('Vaga disponível!')
       const callsBeforeAccept = gridSpy.mock.calls.length
 
       await userEvent.click(screen.getByRole('button', { name: 'Confirmar vaga' }))
 
       expect(await screen.findByText('Vaga confirmada! A aula já apareceu na sua agenda.')).toBeInTheDocument()
-      await waitFor(() => expect(screen.queryByText('Abriu uma vaga pra você!')).not.toBeInTheDocument(), { timeout: 2000 })
+      await waitFor(() => expect(screen.queryByText('Vaga disponível!')).not.toBeInTheDocument(), { timeout: 2000 })
       await waitFor(() => expect(gridSpy.mock.calls.length).toBeGreaterThan(callsBeforeAccept))
     })
   })

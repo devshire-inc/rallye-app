@@ -1,21 +1,13 @@
-/* WaitlistSheet — AG8 (BEAC-1922, story BEAC-1708). Classes .srow/.lbl/.ssub/
-   .toast* copiadas do protótipo real (`#sheet-ag8`, Artifact "Rallye —
-   Agenda") — self-contained, mesmo padrão de NovaReservaSheet.css/
-   StudentProfilePage.css (não assume que outra página já carregou o CSS
-   equivalente). Classes próprias prefixadas `.waitlist-sheet-*` pra não
-   colidir com o resto do app. */
+/* WaitlistSheet — AG8 (BEAC-1922, story BEAC-1708). Reskin DS (grupo
+   "Agendamento"): Card/Badge/AlertCard/Button do design system substituem os
+   estilos ad-hoc antigos. Classes próprias que sobram (linhas internas do
+   Card, toggle) seguem prefixadas `.waitlist-sheet-*` pra não colidir com o
+   resto do app — cópia estrutural de `#sheet-ag8` (node Figma 163:5163). */
 
 .waitlist-sheet {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
-}
-
-.sec-head-title {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 16px;
-  margin: 0;
 }
 
 .ssub {
@@ -30,56 +22,62 @@
   gap: var(--space-4);
 }
 
+.waitlist-sheet-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.waitlist-sheet-card-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 16px;
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.waitlist-sheet-divider {
+  width: 100%;
+  border: none;
+  border-top: 1px solid var(--border-default);
+  margin: 0;
+}
+
 .srow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   font-size: 13px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-default);
+  width: 100%;
 }
 .srow .lbl {
-  min-width: 60px;
   color: var(--text-muted);
-  font-weight: 600;
-  font-size: 12px;
 }
 
-.toast {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 12.5px;
-  margin: 0;
-}
-.toast-neutral {
-  background: var(--sand-200);
-  color: var(--text-heading);
+.waitlist-sheet-position {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--interactive-primary);
 }
 
-.waitlist-sheet-full {
+.waitlist-sheet-notify {
+  border: none;
+  background: none;
+  padding: var(--space-2) 0;
+  font-family: inherit;
+  font-weight: 700;
   font-size: 13px;
-  font-weight: 600;
-  color: var(--text-muted);
+  color: var(--interactive-primary);
   text-align: center;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  background: var(--sand-200);
-  margin: 0;
+  cursor: pointer;
 }
 
-.waitlist-sheet-toggle {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: var(--text-heading);
-  cursor: pointer;
-}
-.waitlist-sheet-toggle input {
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
+.foot-note {
+  color: var(--text-muted);
+  font-size: 12px;
+  text-align: center;
 }

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { getWaitlistStatus, joinWaitlist, leaveWaitlist } from '../../lib/api/waitlist'
-import '../../components/AuthLayout/AuthLayout.css'
+import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { Card } from '../../components/ui/Card/Card'
 import './WaitlistSheet.css'
 
 export interface WaitlistJoinedResult {
@@ -72,6 +75,16 @@ const ERROR_MESSAGES: Record<string, string> = {
  * do que BEAC-1922 pede ("Files Likely Involved" lista só o componente do
  * sheet) — não adivinhada aqui, reportada como questão em aberto no
  * relatório de execução.
+ *
+ * # Reskin DS (grupo "Agendamento", handover desta dispatch)
+ *
+ * Título próprio removido — `AG3StudentAgendaPage` já abre este sheet dentro
+ * de `<BottomSheet label="Fila de espera">`, que renderiza o título no
+ * header do sheet (ver node Figma 163:5163: lá o título faz parte da página
+ * cheia, aqui o wrapper já cobre esse papel). O toggle "Me avise..." virou
+ * um botão real com `aria-pressed` (o Figma mostra um link, não um
+ * checkbox) — o estado `notifyMe` e seu comportamento client-side-only não
+ * mudaram.
  */
 export function WaitlistSheet({ classId, studentId, classSchedule, onJoined, onCancel }: WaitlistSheetProps) {
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -155,72 +168,93 @@ export function WaitlistSheet({ classId, studentId, classSchedule, onJoined, onC
 
   return (
     <div className="waitlist-sheet">
-      <h2 className="sec-head-title">Fila de espera</h2>
-      <p className="ssub">{classSchedule}</p>
+      <p className="ssub">Essa turma está cheia — mas você pode entrar na fila.</p>
 
-      {state.status === 'loading' ? <p role="status">Carregando…</p> : null}
-      {state.status === 'error' ? <p role="alert">Não foi possível carregar a fila de espera agora.</p> : null}
+      {state.status === 'loading' ? (
+        <div role="status">
+          <AlertCard tone="info">Carregando…</AlertCard>
+        </div>
+      ) : null}
+      {state.status === 'error' ? (
+        <div role="alert">
+          <AlertCard tone="danger" showIcon>
+            Não foi possível carregar a fila de espera agora.
+          </AlertCard>
+        </div>
+      ) : null}
 
       {state.status === 'ready' ? (
         <div className="stack">
-          <div className="srow">
-            <span className="lbl">Turma</span>
-            <span>
-              {state.activeEnrollments >= state.capacity ? 'Lotada · ' : ''}
-              {state.activeEnrollments}/{state.capacity}
-            </span>
-          </div>
-          <div className="srow">
-            <span className="lbl">Fila</span>
-            <span>
-              {state.queueSize} {state.queueSize === 1 ? 'pessoa' : 'pessoas'}
-              {inQueue
-                ? ` · sua posição: #${state.yourPosition}`
-                : queueFull
-                  ? ''
-                  : ` · sua posição seria #${state.queueSize + 1}`}
-            </span>
-          </div>
+          <Card>
+            <div className="waitlist-sheet-card">
+              <p className="waitlist-sheet-card-title">{classSchedule}</p>
+              <Badge tone="warning">
+                ⏱ Turma lotada · {state.activeEnrollments} de {state.capacity} vagas
+              </Badge>
+              <hr className="waitlist-sheet-divider" />
+              <div className="srow">
+                <span className="lbl">Pessoas na fila</span>
+                <span>{state.queueSize}</span>
+              </div>
+              <div className="srow">
+                <span className="lbl">{inQueue ? 'Sua posição' : 'Sua posição seria'}</span>
+                <span className="waitlist-sheet-position">
+                  {inQueue ? `#${state.yourPosition}` : queueFull ? '—' : `#${state.queueSize + 1}`}
+                </span>
+              </div>
+            </div>
+          </Card>
 
-          <p role="status" className="toast toast-neutral">
-            Se abrir vaga, você recebe uma notificação e abre a tela de confirmação com 2 horas pra aceitar. Se
-            não confirmar, passa pro próximo. Sem cobrança nenhuma — waitlist só existe para turmas de
-            mensalidade.
-          </p>
+          <div role="status">
+            <AlertCard tone="info" showIcon>
+              Quando uma vaga abrir, você recebe uma notificação e tem 2h para confirmar. Se não confirmar a tempo,
+              a vaga passa para o próximo da fila. Sem cobrança nenhuma — waitlist só existe para turmas de
+              mensalidade.
+            </AlertCard>
+          </div>
 
           {queueFull ? (
-            <p role="alert" className="waitlist-sheet-full">
-              Waitlist cheia (5/5). Tente novamente mais tarde.
-            </p>
+            <div role="alert">
+              <AlertCard tone="warning" showIcon>
+                Waitlist cheia (5/5). Tente novamente mais tarde.
+              </AlertCard>
+            </div>
           ) : (
-            <button
-              type="button"
-              className={inQueue ? 'btn btn-ghost btn-md btn-full' : 'btn btn-primary btn-md btn-full'}
-              disabled={submitting}
+            <Button
+              variant={inQueue ? 'secondary' : 'primary'}
+              size="lg"
+              fullWidth
+              loading={submitting}
               onClick={inQueue ? handleLeave : handleJoin}
             >
-              {submitting ? 'Aguarde…' : inQueue ? 'Sair da fila' : 'Entrar na fila'}
-            </button>
+              {inQueue ? 'Sair da fila' : 'Entrar na fila'}
+            </Button>
           )}
 
-          <label className="waitlist-sheet-toggle">
-            <input type="checkbox" checked={notifyMe} onChange={(e) => setNotifyMe(e.target.checked)} />
-            🔔 Me avise de qualquer vaga nesta turma
-          </label>
+          <button
+            type="button"
+            className="waitlist-sheet-notify"
+            aria-pressed={notifyMe}
+            onClick={() => setNotifyMe((v) => !v)}
+          >
+            {notifyMe ? '✓ Você será avisado de qualquer vaga nesta turma' : 'Me avise de qualquer vaga nesta turma'}
+          </button>
 
           {submitError ? (
-            <p role="alert" className="field-error">
-              {submitError}
-            </p>
+            <div role="alert">
+              <AlertCard tone="danger" showIcon>
+                {submitError}
+              </AlertCard>
+            </div>
           ) : null}
 
           <div className="foot-note">Fila FIFO · máx. 5 pessoas · você pode sair a qualquer momento.</div>
         </div>
       ) : null}
 
-      <button type="button" className="btn btn-ghost btn-sm" onClick={onCancel}>
+      <Button variant="ghost" size="sm" onClick={onCancel}>
         Fechar
-      </button>
+      </Button>
     </div>
   )
 }

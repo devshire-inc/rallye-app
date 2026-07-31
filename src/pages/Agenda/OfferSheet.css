@@ -1,8 +1,10 @@
-/* OfferSheet — AG9 (BEAC-1923, story BEAC-1708). Classes .srow/.lbl/.ssub/
-   .toast*/.row copiadas do protótipo real (`#sheet-ag9`, Artifact "Rallye —
-   Agenda") — self-contained, mesmo padrão de WaitlistSheet.css/
-   NovaReservaSheet.css (não assume que outra página já carregou o CSS
-   equivalente). Classes próprias prefixadas `.offer-sheet-*`. */
+/* OfferSheet — AG9 (BEAC-1923, story BEAC-1708). Reskin DS (grupo
+   "Agendamento"): AlertCard/Button/Icon do design system substituem os
+   estilos ad-hoc antigos. O bloco de contagem regressiva e o card de
+   resumo não têm equivalente pronto no DS (checado StepIndicator/Skeleton)
+   — implementados aqui com markup simples sobre os tokens do arquivo,
+   copiando a estrutura de `#sheet-ag9` (node Figma 163:5295). Classes
+   próprias prefixadas `.offer-sheet-*`. */
 
 .offer-sheet {
   display: flex;
@@ -14,24 +16,25 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
   text-align: center;
 }
 .offer-sheet-head h2 {
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 18px;
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text-heading);
   margin: 0;
 }
 .offer-sheet-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: 999px;
-  background: color-mix(in srgb, var(--interactive-primary) 20%, transparent);
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  background: var(--state-warning-soft);
+  color: var(--state-warning-text);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 24px;
 }
 
 .ssub {
@@ -46,51 +49,56 @@
   gap: var(--space-4);
 }
 
+.offer-sheet-countdown {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: var(--radius-md);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
+}
+.offer-sheet-countdown-value {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 28px;
+}
+.offer-sheet-countdown-label {
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.offer-sheet-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
 .srow {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 10px;
   font-size: 13px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-default);
 }
 .srow .lbl {
-  min-width: 70px;
   color: var(--text-muted);
   font-weight: 600;
+}
+
+.offer-sheet-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.foot-note {
+  color: var(--text-muted);
   font-size: 12px;
-}
-
-.row {
-  display: flex;
-  gap: 10px;
-}
-.offer-sheet-actions button {
-  flex: 1;
-}
-
-.toast {
-  display: flex;
-  align-items: flex-start;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: var(--radius-sm);
-  font-size: 12.5px;
-  margin: 0;
-}
-.toast-warning {
-  background: var(--state-warning-soft);
-  color: var(--state-warning);
-}
-.toast-success {
-  background: var(--state-success-soft);
-  color: var(--state-success);
-}
-.toast-neutral {
-  background: var(--sand-200);
-  color: var(--text-heading);
-}
-.toast-error {
-  background: var(--state-danger-soft);
-  color: var(--state-danger);
+  text-align: center;
 }

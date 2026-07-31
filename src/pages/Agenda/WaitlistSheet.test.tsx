@@ -41,8 +41,9 @@ describe('WaitlistSheet', () => {
     })
     renderSheet()
 
-    expect(await screen.findByText('Lotada · 8/8')).toBeInTheDocument()
-    expect(screen.getByText('2 pessoas · sua posição seria #3')).toBeInTheDocument()
+    expect(await screen.findByText('⏱ Turma lotada · 8 de 8 vagas')).toBeInTheDocument()
+    expect(screen.getByText('Pessoas na fila').nextElementSibling?.textContent).toBe('2')
+    expect(screen.getByText('Sua posição seria').nextElementSibling?.textContent).toBe('#3')
     expect(screen.getByRole('button', { name: 'Entrar na fila' })).toBeInTheDocument()
   })
 
@@ -61,7 +62,9 @@ describe('WaitlistSheet', () => {
     await userEvent.click(joinButton)
 
     expect(joinSpy).toHaveBeenCalledWith('class-1')
-    expect(await screen.findByText('3 pessoas · sua posição: #3')).toBeInTheDocument()
+    const posLabel = await screen.findByText('Sua posição')
+    expect(posLabel.nextElementSibling?.textContent).toBe('#3')
+    expect(screen.getByText('Pessoas na fila').nextElementSibling?.textContent).toBe('3')
     expect(screen.getByRole('button', { name: 'Sair da fila' })).toBeInTheDocument()
     expect(onJoined).toHaveBeenCalledWith({ position: 3 })
   })
@@ -76,9 +79,11 @@ describe('WaitlistSheet', () => {
     })
     renderSheet()
 
-    expect(await screen.findByText('3 pessoas · sua posição: #2')).toBeInTheDocument()
+    const posLabel = await screen.findByText('Sua posição')
+    expect(posLabel.nextElementSibling?.textContent).toBe('#2')
+    expect(screen.getByText('Pessoas na fila').nextElementSibling?.textContent).toBe('3')
     const leaveButton = screen.getByRole('button', { name: 'Sair da fila' })
-    expect(leaveButton.className).toContain('btn-ghost')
+    expect(leaveButton.className).toContain('button--secondary')
   })
 
   it('leaves the queue and reverts to the join state', async () => {
@@ -142,10 +147,13 @@ describe('WaitlistSheet', () => {
     const joinSpy = vi.spyOn(waitlistApi, 'joinWaitlist')
     renderSheet()
 
-    const toggle = await screen.findByRole('checkbox', { name: /Me avise de qualquer vaga/ })
-    expect(toggle).not.toBeChecked()
+    const toggle = await screen.findByRole('button', { name: 'Me avise de qualquer vaga nesta turma' })
+    expect(toggle).toHaveAttribute('aria-pressed', 'false')
     await userEvent.click(toggle)
-    expect(toggle).toBeChecked()
+    expect(await screen.findByRole('button', { name: /Você será avisado de qualquer vaga/ })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
     expect(joinSpy).not.toHaveBeenCalled()
   })
 

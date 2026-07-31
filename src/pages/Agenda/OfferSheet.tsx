@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { acceptOffer, declineOffer } from '../../lib/api/waitlist'
-import '../../components/AuthLayout/AuthLayout.css'
+import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
+import { Button } from '../../components/ui/Button/Button'
+import { Icon } from '../../components/ui/Icon/Icon'
 import './OfferSheet.css'
 
 export interface OfferResolvedResult {
@@ -39,6 +41,12 @@ function formatCountdown(ms: number): string {
 
 type Resolution = { message: string; tone: 'success' | 'neutral' | 'error' }
 
+const RESOLUTION_ALERT_TONE: Record<Resolution['tone'], 'success' | 'info' | 'danger'> = {
+  success: 'success',
+  neutral: 'info',
+  error: 'danger',
+}
+
 /**
  * AG9 — bottom sheet "Confirmação de vaga" (BEAC-1923, story BEAC-1708).
  * Cópia exata de `#sheet-ag9` no protótipo real (Artifact "Rallye —
@@ -59,6 +67,19 @@ type Resolution = { message: string; tone: 'success' | 'neutral' | 'error' }
  * ver comentário de pacote em offer_handler.go/rallye-api). Este componente
  * distingue os 2 casos pelo campo `status` da resposta, nunca pelo próprio
  * relógio do cliente.
+ *
+ * # Reskin DS (grupo "Agendamento", handover desta dispatch)
+ *
+ * Título próprio ("Abriu uma vaga pra você!") trocado pelo texto do node
+ * Figma 163:5295 ("Vaga disponível!") — mesmo papel, cópia atualizada pra
+ * bater char-a-char com o protótipo mais recente. Fica fora do header do
+ * `BottomSheet` (que já mostra "Vaga disponível" via `label` em
+ * `AG3StudentAgendaPage`) porque o Figma trata este título como parte do
+ * bloco de ícone+título+subtítulo centralizado, não como um header de
+ * sheet genérico — mantido inline para preservar esse layout. O timer
+ * (Figma: bloco laranja sólido com número grande) não tem componente DS
+ * equivalente (checado StepIndicator/Skeleton, nenhum cobre contagem
+ * regressiva) — implementado com markup simples próprio.
  */
 export function OfferSheet({
   entryId,
@@ -139,43 +160,48 @@ export function OfferSheet({
     <div className="offer-sheet">
       <div className="offer-sheet-head">
         <div className="offer-sheet-icon" aria-hidden="true">
-          🔔
+          <Icon name="clock" size={28} />
         </div>
-        <h2>Abriu uma vaga pra você!</h2>
+        <h2>Vaga disponível!</h2>
         <p className="ssub">{classSchedule}</p>
       </div>
 
       <div className="stack">
         {!resolution ? (
-          <p role="status" className="toast toast-warning">
-            Confirme em <b>{formatCountdown(remainingMs)}</b> ou a vaga passa pro próximo da fila.
-          </p>
+          <div className="offer-sheet-countdown" role="status">
+            <span className="offer-sheet-countdown-value">{formatCountdown(remainingMs)}</span>
+            <span className="offer-sheet-countdown-label">restantes para confirmar</span>
+          </div>
         ) : null}
 
-        <div className="srow">
-          <span className="lbl">Professor</span>
-          <span>{teacherName}</span>
-        </div>
-        <div className="srow">
-          <span className="lbl">Turma</span>
-          <span>
-            {activeEnrollments}/{capacity} (a vaga é sua)
-          </span>
+        <div className="offer-sheet-summary">
+          <div className="srow">
+            <span className="lbl">Professor</span>
+            <span>{teacherName}</span>
+          </div>
+          <div className="srow">
+            <span className="lbl">Turma</span>
+            <span>
+              {activeEnrollments}/{capacity} (a vaga é sua)
+            </span>
+          </div>
         </div>
 
         {!resolution ? (
-          <div className="row offer-sheet-actions">
-            <button type="button" className="btn btn-ghost btn-md" disabled={submitting} onClick={handleDecline}>
-              Recusar
-            </button>
-            <button type="button" className="btn btn-primary btn-md" disabled={submitting} onClick={handleAccept}>
-              {submitting ? 'Aguarde…' : 'Confirmar vaga'}
-            </button>
+          <div className="offer-sheet-actions">
+            <Button variant="primary" size="lg" fullWidth loading={submitting} onClick={handleAccept}>
+              Confirmar vaga
+            </Button>
+            <Button variant="ghost" size="sm" disabled={submitting} onClick={handleDecline}>
+              Recusar e sair da fila
+            </Button>
           </div>
         ) : (
-          <p role={resolution.tone === 'error' ? 'alert' : 'status'} className={`toast toast-${resolution.tone}`}>
-            {resolution.message}
-          </p>
+          <div role={resolution.tone === 'error' ? 'alert' : 'status'}>
+            <AlertCard tone={RESOLUTION_ALERT_TONE[resolution.tone]} showIcon>
+              {resolution.message}
+            </AlertCard>
+          </div>
         )}
 
         <div className="foot-note">
@@ -184,9 +210,9 @@ export function OfferSheet({
       </div>
 
       {!resolution ? (
-        <button type="button" className="btn btn-ghost btn-sm" onClick={onCancel}>
+        <Button variant="ghost" size="sm" onClick={onCancel}>
           Fechar
-        </button>
+        </Button>
       ) : null}
     </div>
   )
