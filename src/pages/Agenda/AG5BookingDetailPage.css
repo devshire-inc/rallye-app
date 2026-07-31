@@ -1,7 +1,13 @@
-/* AG5 — Detalhe da Aula/Reserva (BEAC-1905). Classes .srow/.lbl copiadas do
- * `sheet-ag5` real do protótipo (ver comentário de AG5BookingDetailPage.tsx);
- * .badge/.b-success/.b-muted redefinidas aqui (self-contained, mesmo padrão
- * de StudentProfilePage.css). */
+/* AG5 — Detalhe da Aula/Reserva (BEAC-1905). Reskin (rodada posterior, sem
+ * story própria — mesmo padrão do reskin de AG3StudentAgendaPage.css) com os
+ * componentes reais do design system, seguindo os frames Figma "03 · Detalhe
+ * de Reserva — Aluno — Mobile" (36:1119) / "— Desktop" (100:2575) e o estado
+ * "03b · Confirmar Cancelamento" (152:2646) — ver comentário de módulo em
+ * AG5BookingDetailPage.tsx para a decisão de mapeamento do 03b. Layout único
+ * (mobile-first), reaproveitado em desktop — mesmo padrão de
+ * AG3StudentAgendaPage.css: sem breakpoint dedicado, o AppShell já resolve
+ * sidebar vs bottom nav. */
+
 .pg-head {
   display: flex;
   align-items: center;
@@ -12,67 +18,144 @@
 .pg-head .spacer {
   flex: 1;
 }
-.pg-head .back {
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 600;
+
+.ag5-back {
+  color: var(--text-brand);
+  font: var(--type-small);
   text-decoration: none;
 }
 
 .ag5-body {
-  max-width: 480px;
-}
-.ssub {
-  color: var(--text-muted);
-  font-size: 13px;
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
 }
 
-.srow {
+.ag5-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.ag5-heading h1 {
+  font: var(--type-heading);
+  margin: 0;
+}
+
+.ag5-subtitle {
+  color: var(--text-muted);
+  font: var(--type-body);
+}
+
+.ag5-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.ag5-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 13px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-default);
-}
-.srow .lbl {
-  min-width: 90px;
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 12px;
+  justify-content: space-between;
+  gap: var(--space-3);
 }
 
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-}
-.badge.b-success {
-  background: var(--state-success-soft);
-  color: var(--state-success);
-}
-.badge.b-muted {
-  background: var(--sand-200);
+.ag5-row-label {
   color: var(--text-muted);
+  font: var(--type-small);
+  flex-shrink: 0;
 }
 
-.row {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+.ag5-row-value {
+  color: var(--text-heading);
+  font: var(--type-body);
+  text-align: right;
 }
+
+.ag5-row-value--hint {
+  color: var(--text-muted);
+  font: var(--type-small);
+}
+
+.ag5-note {
+  width: 100%;
+  margin-top: var(--space-3);
+}
+.ag5-note .alert-card {
+  width: 100%;
+}
+.ag5-note strong {
+  display: block;
+  color: var(--state-warning-text);
+}
+
 .ag5-actions {
-  margin-top: var(--space-4);
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-top: var(--space-2);
+}
+.ag5-actions > * {
+  flex: 1 1 auto;
 }
 
-.btn-danger {
-  background: var(--state-danger);
-  color: #fff;
+/* Ações do aluno (Remarcar / Cancelar presença): Figma (36:1119) mostra os
+ * dois botões lado a lado, sempre em uma única linha — flex-basis:auto
+ * (acima) deixa cada um crescer até o tamanho do texto e estoura a largura
+ * em telas de 375px, quebrando para duas linhas empilhadas. Aqui os dois
+ * dividem a linha em partes iguais e não quebram. */
+.ag5-actions--split {
+  flex-wrap: nowrap;
 }
-.btn-danger:hover:not(:disabled) {
-  filter: brightness(1.08);
+.ag5-actions--split > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* "Cancelar presença" (aluno): o Figma (36:1146) pinta este botão num tom de
+ * perigo suave (bg #fae2dc / texto #d8452b) que não corresponde a nenhum
+ * variant existente do Button (soft = tingido de marca, danger = preenchido
+ * sólido) — ver relatório de dispatch, questão em aberto. Reaproveita
+ * variant="soft" e retinge via override escopado a esta página, mesmo
+ * padrão já usado por AG3StudentAgendaPage.css (`.ag-row-actions
+ * .button--sm`), em vez de alterar o Button.css global por uma única tela. */
+.ag5-cancel-attendance {
+  flex: 1 1 auto;
+}
+.ag5-cancel-attendance .button--soft {
+  background: var(--state-danger-soft);
+  color: var(--state-danger-text);
+  border-color: var(--state-danger);
+}
+
+.ag5-actions-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Subseção de cancelamento do sheet "Ações" (admin) — reestilizada no
+ * espírito do frame "03b · Confirmar Cancelamento" (título + parágrafo +
+ * botão de perigo cheio). Ver comentário de módulo no .tsx sobre o campo
+ * Motivo (sem equivalente no 03b, mantido por ser obrigatório na regra de
+ * negócio real). */
+.ag5-cancel-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+  margin-top: var(--space-2);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border-default);
+}
+.ag5-cancel-section h3 {
+  font: var(--type-subtitle);
+  color: var(--text-heading);
+  margin: 0;
+}
+.ag5-cancel-section p {
+  font: var(--type-body);
+  color: var(--text-muted);
 }

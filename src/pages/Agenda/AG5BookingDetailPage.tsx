@@ -3,6 +3,11 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
+import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { Card } from '../../components/ui/Card/Card'
+import { Input } from '../../components/ui/Input/Input'
 import { usePermission } from '../../hooks/usePermission'
 import { cancelBooking, type Booking, type Participant } from '../../lib/api/bookings'
 import { getMe } from '../../lib/api/me'
@@ -42,6 +47,33 @@ import './AG5BookingDetailPage.css'
  * papel. A distinção de conteúdo por papel exigida pelo AC é inferida por
  * heurística (ver isAdmin/isStaff abaixo) — não é um sinal confiável, ver
  * relatório de dispatch.
+ *
+ * RESKIN (rodada posterior, sem story própria — mesmo padrão do reskin de
+ * AG3StudentAgendaPage.tsx): componentes reais do design system (Card/Badge/
+ * Button/AlertCard/Input), seguindo os frames Figma "03 · Detalhe de Reserva
+ * — Aluno — Mobile" (36:1119) e "— Desktop" (100:2575). Nenhuma lógica de
+ * negócio, fetch ou fluxo de cancelamento foi alterado — só a casca visual.
+ *
+ * MAPEAMENTO "03b · Confirmar Cancelamento — Aluno — Mobile" (152:2646): o
+ * 03b é um sheet de confirmação separado (título + parágrafo estático +
+ * botão "Sim, cancelar presença" cheio + botão "Voltar") para o fluxo
+ * self-service "Cancelar presença" (aluno cancela SÓ a própria presença) —
+ * que nesta página está com o botão propositalmente `disabled` (ver abaixo,
+ * endpoint existe mas fiar este botão a ele não fazia parte da task
+ * BEAC-1912/1912). O único fluxo de cancelamento que REALMENTE executa
+ * nesta tela é o admin, dentro do sheet "Ações" (`handleConfirmCancel`,
+ * cancela a reserva/ocorrência inteira, motivo obrigatório). Em vez de
+ * inventar um segundo sheet de confirmação sem lógica por trás, o
+ * subseção de cancelamento do sheet "Ações" foi reestilizada no ESPÍRITO
+ * do 03b (título + parágrafo explicativo + botão de perigo cheio) — ver
+ * `.ag5-cancel-section` abaixo. O 03b não modela nenhum campo de motivo
+ * (o cancelamento de presença não pede motivo); como o cancelamento real
+ * (admin) EXIGE motivo (`cancelReason`, validado em `handleConfirmCancel`),
+ * esse campo foi mapeado para `Input` (texto livre — Figma não mostra
+ * select/radio em nenhum dos 3 frames, então não há ambiguidade de tipo de
+ * campo) e mantido, mesmo sem equivalente visual direto no 03b. Documentado
+ * como decisão de mapeamento no relatório do reskin (não uma pergunta em
+ * aberto).
  */
 export default function AG5BookingDetailPage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -105,15 +137,17 @@ export default function AG5BookingDetailPage() {
     return (
       <AppShell orgLabel={orgLabel} userLabel={userLabel}>
         <div className="pg-head">
-          <Link className="back" to={`/units/${unitId}/agenda`}>
-            ‹ Agenda
+          <Link className="ag5-back" to={`/units/${unitId}/agenda`}>
+            ‹ Voltar
           </Link>
         </div>
-        <p role="alert">
-          Não foi possível carregar os detalhes desta reserva fora do fluxo do calendário — volte para a
-          Agenda e toque no bloco novamente. (Sem GET /bookings/{'{id}'} para deep link direto — ver
-          relatório de dispatch.)
-        </p>
+        <div role="alert" className="ag5-body">
+          <AlertCard tone="danger" showIcon>
+            Não foi possível carregar os detalhes desta reserva fora do fluxo do calendário — volte para a
+            Agenda e toque no bloco novamente. (Sem GET /bookings/{'{id}'} para deep link direto — ver
+            relatório de dispatch.)
+          </AlertCard>
+        </div>
       </AppShell>
     )
   }
@@ -143,153 +177,173 @@ export default function AG5BookingDetailPage() {
     navigate(`/units/${unitId}/agenda`)
   }
 
+  const isConfirmed = booking.status === 'confirmed'
+
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
       <div className="pg-head">
-        <Link className="back" to={`/units/${unitId}/agenda`}>
-          ‹ Agenda
+        <Link className="ag5-back" to={`/units/${unitId}/agenda`}>
+          ‹ Voltar
         </Link>
         <div className="spacer" />
       </div>
 
       <div className="dash-body ag5-body">
-        <h1>{bookingTitle(booking)}</h1>
-        <p className="ssub">
-          {bookingTypeLabel(booking.type)} · {new Date(booking.startAt).toLocaleString('pt-BR')}
-        </p>
-
-        <div className="stack">
-          <div className="srow">
-            <span className="lbl">Horário</span>
-            <span>
-              {new Date(booking.startAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-              –
-              {new Date(booking.endAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
-            </span>
-          </div>
-          <div className="srow">
-            <span className="lbl">Quadra</span>
-            <span>{booking.courtName}</span>
-          </div>
-          {booking.type !== 'block' ? (
-            <div className="srow">
-              <span className="lbl">Professor</span>
-              <span>{booking.teacherName ?? '—'}</span>
-            </div>
-          ) : null}
-          {booking.type === 'private' ? (
-            <div className="srow">
-              <span className="lbl">Aluno</span>
-              <span>{booking.studentName ?? '—'}</span>
-            </div>
-          ) : null}
-          {booking.type === 'class_occurrence' ? (
-            <div className="srow">
-              <span className="lbl">Alunos</span>
-              <span className="hint">
-                Lista de alunos indisponível — não existe matrícula modelada no backend ainda (ver
-                BEAC-1861/1862, gap documentado em api/internal/classes/handler.go).
-              </span>
-            </div>
-          ) : null}
-          {booking.responsibleName ? (
-            <div className="srow">
-              <span className="lbl">Responsável</span>
-              <span>{booking.responsibleName}</span>
-            </div>
-          ) : null}
-          {booking.type === 'block' ? (
-            <div className="srow">
-              <span className="lbl">Motivo</span>
-              <span>{booking.reason ?? '—'}</span>
-            </div>
-          ) : null}
-          <div className="srow">
-            <span className="lbl">Status</span>
-            <span className={`badge ${booking.status === 'confirmed' ? 'b-success' : 'b-muted'}`}>
-              {booking.status === 'confirmed' ? 'Confirmada' : 'Cancelada'}
-            </span>
-          </div>
+        <div className="ag5-heading">
+          <h1>{bookingTitle(booking)}</h1>
+          <p className="ag5-subtitle">
+            {bookingTypeLabel(booking.type)} · {new Date(booking.startAt).toLocaleString('pt-BR')}
+          </p>
         </div>
 
+        <Card>
+          <div className="ag5-rows">
+            <div className="ag5-row">
+              <span className="ag5-row-label">Horário</span>
+              <span className="ag5-row-value">
+                {new Date(booking.startAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                {' – '}
+                {new Date(booking.endAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
+            <div className="ag5-row">
+              <span className="ag5-row-label">Quadra</span>
+              <span className="ag5-row-value">{booking.courtName}</span>
+            </div>
+            {booking.type !== 'block' ? (
+              <div className="ag5-row">
+                <span className="ag5-row-label">Professor</span>
+                <span className="ag5-row-value">{booking.teacherName ?? '—'}</span>
+              </div>
+            ) : null}
+            {booking.type === 'private' ? (
+              <div className="ag5-row">
+                <span className="ag5-row-label">Aluno</span>
+                <span className="ag5-row-value">{booking.studentName ?? '—'}</span>
+              </div>
+            ) : null}
+            {booking.type === 'class_occurrence' ? (
+              <div className="ag5-row">
+                <span className="ag5-row-label">Alunos</span>
+                <span className="ag5-row-value ag5-row-value--hint">
+                  Lista de alunos indisponível — não existe matrícula modelada no backend ainda (ver
+                  BEAC-1861/1862, gap documentado em api/internal/classes/handler.go).
+                </span>
+              </div>
+            ) : null}
+            {booking.responsibleName ? (
+              <div className="ag5-row">
+                <span className="ag5-row-label">Responsável</span>
+                <span className="ag5-row-value">{booking.responsibleName}</span>
+              </div>
+            ) : null}
+            {booking.type === 'block' ? (
+              <div className="ag5-row">
+                <span className="ag5-row-label">Motivo</span>
+                <span className="ag5-row-value">{booking.reason ?? '—'}</span>
+              </div>
+            ) : null}
+            <div className="ag5-row">
+              <span className="ag5-row-label">Status</span>
+              <Badge tone={isConfirmed ? 'success' : 'neutral'}>{isConfirmed ? '✓ Confirmada' : 'Cancelada'}</Badge>
+            </div>
+          </div>
+
+          {isAluno && isConfirmed && booking.type === 'class_occurrence' ? (
+            <div className="ag5-note">
+              <AlertCard tone="warning">
+                <strong>Cancele até 24h antes e ganhe 1 crédito</strong>
+                <p>
+                  O crédito vale para remarcar qualquer aula no mês vigente. Com menos de 24h, o cancelamento não
+                  gera crédito.
+                </p>
+              </AlertCard>
+            </div>
+          ) : null}
+        </Card>
+
         {addStudentSuccessMessage ? (
-          <p role="status" className="hint">
-            {addStudentSuccessMessage}
-          </p>
+          <div role="status">
+            <AlertCard tone="success" showIcon>
+              {addStudentSuccessMessage}
+            </AlertCard>
+          </div>
         ) : null}
 
         {remarcarMessage ? (
-          <p role="status" className="hint">
-            {remarcarMessage}
-          </p>
+          <div role="status">
+            <AlertCard tone="success" showIcon>
+              {remarcarMessage}
+            </AlertCard>
+          </div>
         ) : null}
 
         {waitlistMessage ? (
-          <p role="status" className="hint">
-            {waitlistMessage}
-          </p>
+          <div role="status">
+            <AlertCard tone="success" showIcon>
+              {waitlistMessage}
+            </AlertCard>
+          </div>
         ) : null}
 
         {isAluno ? (
-          <div className="row ag5-actions">
-            <button className="btn btn-ghost btn-sm" type="button" onClick={() => setRemarcarOpen(true)}>
+          <div className="ag5-actions ag5-actions--split">
+            <Button variant="soft" size="md" onClick={() => setRemarcarOpen(true)}>
               Remarcar
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              type="button"
-              disabled
-              title="POST /bookings/{id}/cancel-attendance já existe (BEAC-1909), mas fiar este botão a ele não fazia parte da task BEAC-1912 (só o sheet Remarcar) — não implementado neste dispatch"
-            >
-              Cancelar presença
-            </button>
+            </Button>
+            <div className="ag5-cancel-attendance">
+              <Button
+                variant="soft"
+                size="md"
+                fullWidth
+                disabled
+                title="POST /bookings/{id}/cancel-attendance já existe (BEAC-1909), mas fiar este botão a ele não fazia parte da task BEAC-1912 (só o sheet Remarcar) — não implementado neste dispatch"
+              >
+                Cancelar presença
+              </Button>
+            </div>
           </div>
         ) : null}
 
         {isProfessor ? (
-          <div className="row ag5-actions">
-            <button
-              className="btn btn-ghost btn-sm"
-              type="button"
+          <div className="ag5-actions">
+            <Button
+              variant="ghost"
+              size="md"
               onClick={() => navigate(`/units/${unitId}/bookings/${bookingId}/checkin`, { state: { booking } })}
             >
               Abrir Check-in
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              type="button"
-              disabled
-              title="FB1, não implementado neste dispatch"
-            >
+            </Button>
+            <Button variant="ghost" size="md" disabled title="FB1, não implementado neste dispatch">
               Dar Feedback
-            </button>
-            <button
-              className="btn btn-ghost btn-sm"
-              type="button"
+            </Button>
+            <Button
+              variant="ghost"
+              size="md"
               disabled
               title="Sem student_id no contrato de GET /units/{id}/bookings, só student_name — ver relatório de dispatch"
             >
               Ver perfil aluno
-            </button>
+            </Button>
           </div>
         ) : null}
 
         {isAdmin ? (
-          <div className="row ag5-actions">
-            <button className="btn btn-primary btn-sm" type="button" onClick={() => setActionsOpen(true)}>
+          <div className="ag5-actions">
+            <Button variant="primary" size="md" onClick={() => setActionsOpen(true)}>
               Ações
-            </button>
+            </Button>
           </div>
         ) : null}
       </div>
 
       <BottomSheet open={actionsOpen} onClose={() => setActionsOpen(false)} label="Ações">
-        <h2>Ações</h2>
-        <div className="stack">
+        <div className="ag5-actions-sheet">
           {booking.type === 'class_occurrence' && canSearchStudents ? (
-            <button
-              className="btn btn-ghost btn-sm btn-full"
-              type="button"
+            <Button
+              variant="ghost"
+              size="md"
+              fullWidth
               onClick={() => {
                 setActionsOpen(false)
                 setAddStudentSuccessMessage(null)
@@ -297,43 +351,46 @@ export default function AG5BookingDetailPage() {
               }}
             >
               👤 Adicionar aluno
-            </button>
+            </Button>
           ) : null}
-          <button className="btn btn-ghost btn-sm btn-full" type="button" disabled title="Sem endpoint de edição de reserva ainda">
+          <Button variant="ghost" size="md" fullWidth disabled title="Sem endpoint de edição de reserva ainda">
             Editar reserva
-          </button>
-          <button className="btn btn-ghost btn-sm btn-full" type="button" disabled title="Sem endpoint de realocação ainda">
+          </Button>
+          <Button variant="ghost" size="md" fullWidth disabled title="Sem endpoint de realocação ainda">
             Realocar quadra
-          </button>
-          <button className="btn btn-ghost btn-sm btn-full" type="button" disabled title="Sem endpoint de notificação ainda">
+          </Button>
+          <Button variant="ghost" size="md" fullWidth disabled title="Sem endpoint de notificação ainda">
             Notificar alunos
-          </button>
+          </Button>
 
-          <div className="field">
-            <label htmlFor="ag5-cancel-reason">Motivo do cancelamento</label>
-            <textarea
+          {/* Subseção de cancelamento — reestilizada no espírito do frame Figma
+           * "03b · Confirmar Cancelamento" (título + parágrafo + botão de
+           * perigo cheio); ver comentário de módulo no topo do arquivo sobre
+           * por que o campo Motivo (sem equivalente no 03b) foi mantido como
+           * Input. */}
+          <div className="ag5-cancel-section">
+            <h3>Cancelar aula</h3>
+            <p>
+              Cancelamento (status=cancelled). Desde BEAC-1913 (story BEAC-1705), o backend gera automaticamente
+              um crédito de reagendamento para CADA aluno matriculado nesta ocorrência — sem ação adicional
+              aqui na UI (o crédito aparece pro aluno no sheet Remarcar, AG7).
+            </p>
+            <Input
+              label="Motivo do cancelamento"
               id="ag5-cancel-reason"
               value={cancelReason}
               onChange={(e) => setCancelReason(e.target.value)}
             />
-          </div>
-          {message ? (
-            <p role="alert" className="field-error">
-              {message}
-            </p>
-          ) : null}
-          <button
-            className="btn btn-danger btn-sm btn-full"
-            type="button"
-            disabled={cancelling}
-            onClick={handleConfirmCancel}
-          >
-            {cancelling ? 'Cancelando…' : 'Cancelar aula'}
-          </button>
-          <div className="foot-note">
-            Cancelamento (status=cancelled). Desde BEAC-1913 (story BEAC-1705), o backend gera automaticamente
-            um crédito de reagendamento para CADA aluno matriculado nesta ocorrência — sem ação adicional
-            aqui na UI (o crédito aparece pro aluno no sheet Remarcar, AG7).
+            {message ? (
+              <div role="alert">
+                <AlertCard tone="danger" showIcon>
+                  {message}
+                </AlertCard>
+              </div>
+            ) : null}
+            <Button variant="danger" size="md" fullWidth disabled={cancelling} onClick={handleConfirmCancel}>
+              {cancelling ? 'Cancelando…' : 'Cancelar aula'}
+            </Button>
           </div>
         </div>
       </BottomSheet>
