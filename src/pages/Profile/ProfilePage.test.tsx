@@ -36,8 +36,8 @@ describe('ProfilePage — link "Configurações" (BEAC-2035)', () => {
 
     const editar = screen.getByText('Editar perfil').closest('.menu-row')
     const notificacoes = screen.getByText('Notificações').closest('.menu-row')
-    expect(editar).toHaveClass('inert')
-    expect(notificacoes).toHaveClass('inert')
+    expect(editar?.tagName).toBe('DIV')
+    expect(notificacoes?.tagName).toBe('DIV')
   })
 })
 

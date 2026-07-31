@@ -8,9 +8,10 @@ export interface MenuRowProps {
   /** Valor à direita (ex.: "Ativado") — quando ausente, mostra o chevron de navegação. */
   value?: string
   onClick?: () => void
+  testId?: string
 }
 
-export function MenuRow({ icon, label, value, onClick }: MenuRowProps) {
+export function MenuRow({ icon, label, value, onClick, testId }: MenuRowProps) {
   const content = (
     <>
       <span className="menu-row__leading">
@@ -31,11 +32,15 @@ export function MenuRow({ icon, label, value, onClick }: MenuRowProps) {
 
   if (onClick) {
     return (
-      <button type="button" className="menu-row" onClick={onClick}>
+      <button type="button" className="menu-row" onClick={onClick} data-testid={testId}>
         {content}
       </button>
     )
   }
 
-  return <div className="menu-row">{content}</div>
+  return (
+    <div className="menu-row" data-testid={testId}>
+      {content}
+    </div>
+  )
 }

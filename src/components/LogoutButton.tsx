@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { Button } from './ui/Button/Button'
 import { logout } from '../lib/httpClient'
 import { clearTokens } from '../lib/secureStorage'
 
@@ -10,6 +11,10 @@ import { clearTokens } from '../lib/secureStorage'
  * Nota: este repositório ainda não tem um cache de dados client-side (ex.:
  * React Query) para limpar — só há o secure storage. Se/quando um cache
  * global for introduzido, ele deve ser invalidado aqui também.
+ *
+ * Markup no `Button` do design system (variant secondary, Figma node
+ * 36:1154/289:6194) desde o reskin de ProfilePage — mesma lógica, só troca
+ * o `<button>` cru.
  */
 export default function LogoutButton() {
   const navigate = useNavigate()
@@ -24,8 +29,8 @@ export default function LogoutButton() {
   }
 
   return (
-    <button type="button" onClick={handleLogout}>
+    <Button type="button" variant="secondary" fullWidth onClick={handleLogout}>
       Sair
-    </button>
+    </Button>
   )
 }

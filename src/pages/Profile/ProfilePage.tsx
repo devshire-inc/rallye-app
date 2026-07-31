@@ -1,7 +1,11 @@
-import { Link } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
+import { Avatar } from '../../components/ui/Avatar/Avatar'
+import { MenuRow } from '../../components/ui/ListRow/MenuRow'
 import LogoutButton from '../../components/LogoutButton'
+import { useShellIdentity } from '../../hooks/useShellIdentity'
+import { getMe } from '../../lib/api/me'
 import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
 import './ProfilePage.css'
@@ -67,19 +71,49 @@ import './ProfilePage.css'
  * ...)` (Épico 3) — este item de menu, como os outros, só evita link morto
  * (gate por `unitId`); quem não tem `config:read` ainda vê o link aqui, mas
  * a seção em si não renderiza nada ao entrar.
+ *
+ * Reskin (BEAC-2093-family, Figma node 36:1154 mobile / 100:2632 desktop)
+ * sobre o design system: `Avatar` para o cabeçalho de identidade (nome real
+ * via `GET /me`, já que `useShellIdentity` só expõe `userLabel` combinado
+ * "{nome} · {papel}") e `MenuRow` para as linhas de menu — troca o shim
+ * local `MenuRow` (ad-hoc, `.chev-note`) que existia só por não ter o
+ * componente real do DS ainda. Rotas preservadas 1:1, agora disparadas via
+ * `useNavigate` (MenuRow não aceita `to`/Link, só `onClick`) em vez de
+ * `<Link>`. Linhas inertes preservam o texto "outra story" que já existia
+ * (agora no slot `value` do MenuRow, que substitui o chevron quando
+ * presente). Gap de dado real e decisões de escopo do reskin documentados
+ * em /tmp/profile-builder-summary.md — a Figma "Perfil — Aluno" mostra
+ * cartão de gamificação (medalha/XP/tier) e conquistas que esta tela (PF3,
+ * admin/dono) não tem: nenhum dado de aluno é buscado aqui, então nada foi
+ * inventado.
  */
 export default function ProfilePage() {
-  const { orgLabel, userLabel } = useShellIdentity()
+  const navigate = useNavigate()
+  const { orgLabel, userLabel, role } = useShellIdentity()
+  const [fullName, setFullName] = useState('')
   const tenantId = getActiveTenantId()
   const unitId = getActiveUnitId()
 
+  useEffect(() => {
+    let cancelled = false
+    getMe().then((result) => {
+      if (!cancelled && result.ok) setFullName(result.fullName)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const subtitle = [role, orgLabel].filter(Boolean).join(' · ')
+
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+      <div className="profile-page">
       <div className="prof-head">
-        <div className="avatar-lg">?</div>
+        <Avatar name={fullName} size="lg" />
         <div className="ph-main">
-          <h1>Minha conta</h1>
-          <div className="mt">Perfil e configurações</div>
+          <h1>{fullName || 'Minha conta'}</h1>
+          <div className="mt">{subtitle || 'Perfil e configurações'}</div>
         </div>
       </div>
       <div className="dash-body">
@@ -87,50 +121,38 @@ export default function ProfilePage() {
           <div className="set-title">Gestão</div>
           <div className="menu-list">
             {unitId ? (
-              <Link
-                className="menu-row"
-                to={`/units/${unitId}/settings`}
-                data-testid="menu-config-arena"
-              >
-                <span>Configurações da arena</span>
-                <span className="chev">›</span>
-              </Link>
+              <MenuRow
+                label="Configurações da arena"
+                onClick={() => navigate(`/units/${unitId}/settings`)}
+                testId="menu-config-arena"
+              />
             ) : (
-              <MenuRow label="Configurações da arena" />
+              <MenuRow label="Configurações da arena" value="outra story" testId="menu-config-arena" />
             )}
-            <MenuRow label="Quadras" />
+            <MenuRow label="Quadras" value="outra story" />
             {unitId ? (
-              <Link
-                className="menu-row"
-                to={`/units/${unitId}/roles`}
-                data-testid="menu-papeis-permissoes"
-              >
-                <span>Papéis e permissões</span>
-                <span className="chev">›</span>
-              </Link>
+              <MenuRow
+                label="Papéis e permissões"
+                onClick={() => navigate(`/units/${unitId}/roles`)}
+                testId="menu-papeis-permissoes"
+              />
             ) : (
-              <MenuRow label="Papéis e permissões" />
+              <MenuRow label="Papéis e permissões" value="outra story" testId="menu-papeis-permissoes" />
             )}
             {unitId ? (
-              <Link
-                className="menu-row"
-                to={`/units/${unitId}/members`}
-                data-testid="menu-membros-papeis"
-              >
-                <span>Membros e papéis</span>
-                <span className="chev">›</span>
-              </Link>
+              <MenuRow
+                label="Membros e papéis"
+                onClick={() => navigate(`/units/${unitId}/members`)}
+                testId="menu-membros-papeis"
+              />
             ) : (
-              <MenuRow label="Membros e papéis" />
+              <MenuRow label="Membros e papéis" value="outra story" testId="menu-membros-papeis" />
             )}
-            <Link
-              className="menu-row"
-              to={`/tenants/${tenantId ?? 'unknown'}/units`}
-              data-testid="menu-minhas-unidades"
-            >
-              <span>Minhas unidades</span>
-              <span className="chev">›</span>
-            </Link>
+            <MenuRow
+              label="Minhas unidades"
+              onClick={() => navigate(`/tenants/${tenantId ?? 'unknown'}/units`)}
+              testId="menu-minhas-unidades"
+            />
           </div>
           <p className="hint">
             "Minhas unidades" sempre aparece pro Tenant Owner, mesmo com 1 unidade só — nunca fica
@@ -140,26 +162,19 @@ export default function ProfilePage() {
         <div>
           <div className="set-title">Conta</div>
           <div className="menu-list">
-            <MenuRow label="Editar perfil" />
-            <MenuRow label="Notificações" />
-            <Link className="menu-row" to="/configuracoes" data-testid="menu-configuracoes">
-              <span>Configurações</span>
-              <span className="chev">›</span>
-            </Link>
+            <MenuRow label="Editar perfil" value="outra story" />
+            <MenuRow label="Notificações" value="outra story" />
+            <MenuRow
+              label="Configurações"
+              onClick={() => navigate('/configuracoes')}
+              testId="menu-configuracoes"
+            />
           </div>
         </div>
         <LogoutButton />
         <div className="foot-note">Rallye v1.0.0</div>
       </div>
+      </div>
     </AppShell>
-  )
-}
-
-function MenuRow({ label }: { label: string }) {
-  return (
-    <div className="menu-row inert">
-      <span>{label}</span>
-      <span className="chev-note">outra story</span>
-    </div>
   )
 }

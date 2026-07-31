@@ -1,87 +1,56 @@
-.prof-head {
+/* Seletores escopados sob `.profile-page`: `.dash-body`/`.set-title`/
+   `.menu-list`/`.hint` são nomes genéricos reaproveitados por várias telas
+   (SettingsPage, TeacherProfilePage, MembersPage, RolesPage, ...), cada uma
+   com seu próprio CSS global (sem CSS modules). Sem esse escopo, a cascata
+   do bundle inteiro decide quem "ganha" por ordem de import — foi assim que
+   o cartão com borda/fundo que este reskin removeu daqui voltou a aparecer,
+   herdado do `.menu-list` de SettingsPage.css. */
+.profile-page .prof-head {
   display: flex;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-3);
   margin-bottom: var(--space-6);
 }
 
-.avatar-lg {
-  width: 56px;
-  height: 56px;
-  flex: none;
-  border-radius: 50%;
-  background: var(--interactive-primary);
-  color: var(--text-on-brand);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 20px;
-}
-
-.ph-main h1 {
-  font-size: 20px;
+.profile-page .ph-main h1 {
+  font: var(--type-heading);
+  color: var(--text-heading);
   margin: 0;
 }
-.ph-main .mt {
-  font-size: 12.5px;
+.profile-page .ph-main .mt {
+  font-size: 13px;
   color: var(--text-muted);
 }
 
-.dash-body {
+.profile-page .dash-body {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
   max-width: 560px;
 }
 
-.set-title {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 13px;
+.profile-page .set-title {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
   color: var(--text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.04em;
   margin-bottom: var(--space-2);
 }
 
-.menu-list {
+.profile-page .menu-list {
   display: flex;
   flex-direction: column;
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border-default);
-  overflow: hidden;
-  background: var(--surface-card);
+  border-radius: 0;
+  border: none;
+  overflow: visible;
+  background: transparent;
 }
 
-.menu-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 13px var(--space-4);
-  font-size: 13.5px;
-  font-weight: 600;
-  color: var(--text-heading);
-  border-bottom: 1px solid var(--border-default);
-}
-.menu-row:last-child {
+.profile-page .menu-list .menu-row:last-child {
   border-bottom: none;
 }
-.menu-row.inert {
-  color: var(--text-muted);
-  cursor: default;
-}
-.menu-row .chev {
-  color: var(--text-muted);
-}
-.menu-row .chev-note {
-  font-size: 10.5px;
-  font-weight: 500;
-  color: var(--text-muted);
-}
 
-.hint {
+.profile-page .hint {
   font-size: 11px;
   color: var(--text-muted);
   margin-top: var(--space-2);
