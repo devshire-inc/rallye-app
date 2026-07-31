@@ -1,0 +1,114 @@
+/* "05 · Trocar de Arena" (BEAC-1835) — a listagem em si é o `ArenaCard` do
+   design system (src/components/ui/ArenaCard); este arquivo cobre o resto:
+   breadcrumb/voltar, título, lista/loading/erro/confirmação/CTAs. Seletores
+   escopados sob `.trocar-arena-page` (ver comentário de pacote de
+   ProfilePage.css sobre nomes genéricos + CSS global sem módulos). */
+.trocar-arena-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: 420px;
+}
+
+/* Breadcrumb "Perfil > Trocar de Arena" (Figma desktop, node 129:3325) —
+   desktop-only: no mobile o Figma usa o botão Voltar circular em vez disso
+   (ver .trocar-arena-back abaixo). */
+.trocar-arena-breadcrumb {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font: var(--type-body);
+  color: var(--text-muted);
+}
+.trocar-arena-breadcrumb__link {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-brand);
+  font: inherit;
+}
+
+/* Botão Voltar circular (Figma mobile, node 51:1760) — mobile-only. */
+.trocar-arena-back {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--surface-sunken);
+  color: var(--text-heading);
+  cursor: pointer;
+}
+
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
+@media (min-width: 860px) {
+  .trocar-arena-page {
+    max-width: 560px;
+  }
+  .trocar-arena-breadcrumb {
+    display: flex;
+  }
+  .trocar-arena-back {
+    display: none;
+  }
+}
+
+.trocar-arena-heading {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.trocar-arena-heading h1 {
+  font: var(--type-display);
+  margin: 0;
+  color: var(--text-heading);
+}
+.trocar-arena-heading p {
+  font: var(--type-body);
+  margin: 0;
+  color: var(--text-muted);
+}
+
+.trocar-arena-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.trocar-arena-skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.trocar-arena-error {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  text-align: center;
+  padding: var(--space-6) 0;
+  color: var(--text-muted);
+}
+
+.trocar-arena-confirmation {
+  background: var(--state-success-soft);
+  color: var(--state-success);
+  padding: 10px 12px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+  text-align: center;
+}
+
+.trocar-arena-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}

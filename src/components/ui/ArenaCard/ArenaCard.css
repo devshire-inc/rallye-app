@@ -33,6 +33,10 @@ button.arena-card:hover {
   opacity: 0.5;
 }
 
+.arena-card--current {
+  border: 2px solid var(--interactive-primary);
+}
+
 button.arena-card--disabled {
   cursor: not-allowed;
 }

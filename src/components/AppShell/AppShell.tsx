@@ -10,7 +10,7 @@ import { useLongPress } from '../../hooks/useLongPress'
 import { usePermission } from '../../hooks/usePermission'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getUnreadNotificationCount } from '../../lib/api/notifications'
-import { N1_PATH, S1_PATH } from '../../lib/redirectTarget'
+import { N1_PATH, S1_PATH, TROCAR_ARENA_PATH } from '../../lib/redirectTarget'
 import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import './AppShell.css'
 
@@ -323,6 +323,7 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
               label: orgLabel,
               action: userLabel,
               avatar: <span className="shell-sidebar-avatar-initials">{initialsOf(orgLabel)}</span>,
+              onClick: () => navigate(TROCAR_ARENA_PATH),
             }}
             active={activeSidebarLabel}
             onChange={handleSidebarChange}

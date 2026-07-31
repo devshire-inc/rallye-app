@@ -46,6 +46,7 @@ import ReportsHubPage from './pages/Reports/ReportsHubPage'
 import { ResetPassword } from './pages/ResetPassword'
 import RolesPage from './pages/Roles/RolesPage'
 import S1Page from './pages/S1Page'
+import TrocarArenaPage from './pages/TrocarArenaPage'
 import SettingsPage from './pages/Settings/SettingsPage'
 import { SignupPage } from './pages/SignupPage'
 import NewStudentPage from './pages/Students/NewStudentPage'
@@ -167,6 +168,7 @@ function AppRoutes() {
           /dashboard ou /login. */}
       <Route path="/oauth/callback" element={<OAuthCallback />} />
       <Route path="/s1" element={<S1Page />} />
+      <Route path="/trocar-arena" element={<TrocarArenaPage />} />
       <Route path="/dashboard" element={<DashboardPage />} />
       {/* D3 — Dashboard Admin, parcial (BEAC-1893: só o card "Central de
           Pendências", ver comentário de pacote de DashboardPage.tsx e

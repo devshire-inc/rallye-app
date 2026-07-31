@@ -15,6 +15,10 @@ export const DASHBOARD_PATH = '/dashboard'
  * AppShell.tsx a partir de qualquer tela. Vive aqui (não em N1Page.tsx) pra
  * ser importável por AppShell sem depender da página. */
 export const N1_PATH = '/notificacoes'
+/** "05 · Trocar de Arena", alcançada pelo seletor de arena no rodapé da
+ * sidebar de AppShell.tsx a partir de qualquer tela do app. Vive aqui (não
+ * em TrocarArenaPage.tsx) pelo mesmo motivo de N1_PATH acima. */
+export const TROCAR_ARENA_PATH = '/trocar-arena'
 
 /**
  * BEAC-1893 (Central de Pendências no D3): quando há exatamente 1

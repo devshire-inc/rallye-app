@@ -18,6 +18,11 @@ export interface ArenaCardProps {
   onClick?: () => void
   /** Estado visualmente desabilitado (opacidade reduzida, sem hover, sem clique) — ex.: os demais cards enquanto um deles está entrando. */
   disabled?: boolean
+  /** Destaca o card como a arena ativa (borda laranja de 2px) — Figma "05 ·
+   * Trocar de Arena" (node 150:1519), única diferença visual do card nesse
+   * frame vs. o seletor de login. Não mexe no conteúdo dos `roles`: o
+   * chamador já deve incluir "Você está aqui" na lista quando aplicável. */
+  current?: boolean
   /** Vira `data-arena` no elemento raiz, pra hooks de teste localizarem o card sem depender do texto. */
   testId?: string
 }
@@ -31,6 +36,7 @@ export function ArenaCard({
   sports = [],
   onClick,
   disabled = false,
+  current = false,
   testId,
 }: ArenaCardProps) {
   const content = (
@@ -65,7 +71,13 @@ export function ArenaCard({
     </>
   )
 
-  const className = disabled ? 'arena-card arena-card--disabled' : 'arena-card'
+  const className = [
+    'arena-card',
+    disabled ? 'arena-card--disabled' : '',
+    current ? 'arena-card--current' : '',
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   if (onClick) {
     return (
