@@ -11,6 +11,9 @@ import AG2WeekPage from './pages/Agenda/AG2WeekPage'
 import AG3StudentAgendaPage from './pages/Agenda/AG3StudentAgendaPage'
 import AG4TeacherAgendaPage from './pages/Agenda/AG4TeacherAgendaPage'
 import AG5BookingDetailPage from './pages/Agenda/AG5BookingDetailPage'
+import AgendarConfirmarPage from './pages/Agenda/AgendarConfirmarPage'
+import AgendarEscolherHorarioPage from './pages/Agenda/AgendarEscolherHorarioPage'
+import AgendarSucessoPage from './pages/Agenda/AgendarSucessoPage'
 import CheckinPage from './pages/Agenda/CheckinPage'
 import ArenaSettingsPage from './pages/ArenaSettings/ArenaSettingsPage'
 import BracketPage from './pages/Bracket/BracketPage'
@@ -263,6 +266,21 @@ function AppRoutes() {
           AG5BookingDetailPage.tsx — sem GET /bookings/{id} para deep link
           direto). */}
       <Route path="/units/:unitId/bookings/:bookingId" element={<AG5BookingDetailPage />} />
+      {/* Agendar aula (Aluno) — fluxo self-service NOVO (não reskin),
+          construído do zero seguindo Figma "06/07/08 · Agendar — Escolher
+          Horário/Confirmar/Sucesso — Aluno" (nodes 159:1576/183:2954,
+          159:1618/183:2973, 159:1660/183:2992). NÃO linkado ao botão
+          "Agendar aula" de AG3StudentAgendaPage.tsx (permanece
+          propositalmente `disabled` lá) — sem endpoint de disponibilidade de
+          quadra e sem permission `agenda:write` para o role Aluno (ver
+          comentário de pacote de AgendarEscolherHorarioPage.tsx para o
+          levantamento completo). Estas rotas existem, com dados mockados na
+          tela de horários e sem chamada real de criação de reserva, prontas
+          para o dia em que o backend suportar o fluxo — acessíveis hoje só
+          por URL direta, não por nenhum ponto de entrada da navegação. */}
+      <Route path="/units/:unitId/agenda/agendar" element={<AgendarEscolherHorarioPage />} />
+      <Route path="/units/:unitId/agenda/agendar/confirmar" element={<AgendarConfirmarPage />} />
+      <Route path="/units/:unitId/agenda/agendar/sucesso" element={<AgendarSucessoPage />} />
       {/* T3 — Check-in de Presença (BEAC-1907, mesma story). Alcançada a
           partir de AG5 ("Abrir Check-in", Professor) — mesmo padrão de
           router state de AG5 acima (sem GET /bookings/{id}, ver comentário

@@ -1,0 +1,308 @@
+/* Fluxo self-service "Agendar aula" (Aluno) — 3 telas (Escolher Horário /
+ * Confirmar / Sucesso), Figma nodes 159:1576/183:2954, 159:1618/183:2973,
+ * 159:1660/183:2992. Ver comentário de pacote de AgendarEscolherHorarioPage
+ * para o gap de backend (dados mockados, sem persistência real). */
+
+.agendar-body {
+  padding: 0 var(--space-6) var(--space-6);
+  max-width: 560px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.agendar-back {
+  color: var(--interactive-primary);
+  font: var(--type-small);
+  text-decoration: none;
+  align-self: flex-start;
+}
+
+.agendar-header h1 {
+  font: var(--type-display);
+  color: var(--text-heading);
+  margin: 0 0 var(--space-1);
+}
+
+.agendar-header p {
+  font: var(--type-body);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.agendar-section-label {
+  font: var(--type-overline);
+  color: var(--text-muted);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.agendar-sport-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.agendar-date-strip {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: var(--space-1);
+}
+
+.agendar-date-chip {
+  box-sizing: border-box;
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 52px;
+  padding: var(--space-2) var(--space-3);
+  border-radius: 14px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  color: var(--text-heading);
+  cursor: pointer;
+  font-family: var(--font-body);
+}
+
+.agendar-date-chip__weekday {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.agendar-date-chip__day {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 16px;
+}
+
+.agendar-date-chip--selected {
+  background: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+  color: var(--text-on-brand);
+}
+
+.agendar-date-chip--selected .agendar-date-chip__weekday,
+.agendar-date-chip--selected .agendar-date-chip__day {
+  color: var(--text-on-brand);
+}
+
+.agendar-slots-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+
+.agendar-slot {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: flex-start;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid var(--border-default);
+  background: var(--surface-card);
+  cursor: pointer;
+  text-align: left;
+  font-family: var(--font-body);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    border-color var(--dur-fast) var(--ease-standard);
+}
+
+.agendar-slot__time {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+  color: var(--text-heading);
+}
+
+.agendar-slot__price {
+  font-weight: 800;
+  font-size: 13px;
+  color: var(--interactive-primary);
+}
+
+.agendar-slot__spots {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.agendar-slot--selected {
+  background: var(--interactive-primary);
+  border-color: var(--interactive-primary);
+}
+
+.agendar-slot--selected .agendar-slot__time,
+.agendar-slot--selected .agendar-slot__price,
+.agendar-slot--selected .agendar-slot__spots {
+  color: var(--text-on-brand);
+}
+
+.agendar-slot--busy {
+  background: var(--surface-sunken);
+  border-color: transparent;
+  cursor: not-allowed;
+}
+
+.agendar-slot--busy .agendar-slot__spots {
+  color: var(--text-muted);
+}
+
+.agendar-hint {
+  font: var(--type-small);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+@media (min-width: 860px) {
+  .agendar-slots-grid {
+    grid-template-columns: repeat(4, minmax(0, 250px));
+  }
+}
+
+/* --- Confirmar --- */
+
+.agendar-summary-card .card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.agendar-summary-title {
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--text-heading);
+  margin: 0 0 2px;
+}
+
+.agendar-summary-subtitle {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.agendar-summary-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.agendar-summary-row span:first-child {
+  color: var(--text-muted);
+}
+
+.agendar-summary-row span:last-child {
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.agendar-summary-divider {
+  height: 1px;
+  background: var(--border-default);
+  border: none;
+  margin: 0;
+}
+
+.agendar-summary-total span:last-child {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 20px;
+}
+
+.agendar-confirm-actions {
+  display: flex;
+  flex-direction: column;
+}
+
+.agendar-confirm-actions .button--ghost {
+  display: none;
+}
+
+@media (min-width: 860px) {
+  .agendar-confirm-actions {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+  }
+
+  .agendar-confirm-actions .button--ghost {
+    display: inline-flex;
+  }
+
+  .agendar-confirm-actions .button--full-width {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 280px;
+  }
+}
+
+/* --- Sucesso --- */
+
+.agendar-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  max-width: 480px;
+  margin: var(--space-8) auto 0;
+  text-align: center;
+}
+
+.agendar-success__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-pill);
+  background: var(--state-success-soft);
+  color: var(--state-success);
+}
+
+.agendar-success__title {
+  font: var(--type-display);
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.agendar-success__subtitle {
+  font: var(--type-body);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.agendar-success__summary {
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4) var(--space-5);
+  border-radius: 16px;
+  background: var(--surface-sunken);
+}
+
+.agendar-success__summary strong {
+  font-size: 13px;
+  color: var(--text-heading);
+}
+
+.agendar-success__summary span {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.agendar-success__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+}
