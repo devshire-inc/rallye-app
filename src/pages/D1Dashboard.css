@@ -1,0 +1,276 @@
+/* D1 — Dashboard Aluno (Figma node 36:1067 mobile / 100:1237 desktop).
+   AppShell já cuida do chrome (sidebar/bottom nav); este arquivo só estiliza
+   o conteúdo da página. `.dashboard-page` (DashboardPage.css) continua
+   compartilhada com D2/GenericDashboard — `.d1-dashboard` sobrescreve o
+   layout de centralização genérico só para esta variante. */
+
+.dashboard-page.d1-dashboard {
+  align-items: stretch;
+  justify-content: flex-start;
+  text-align: left;
+  gap: var(--space-6);
+  width: 100%;
+  max-width: var(--page-max-web);
+  margin: 0 auto;
+  padding: var(--space-6) var(--page-pad-app) var(--space-10);
+}
+
+.d1-dashboard__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.d1-dashboard__eyebrow {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-brand);
+}
+
+.d1-dashboard__title {
+  font: var(--type-display);
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.d1-dashboard__subtitle {
+  font: var(--type-body);
+  color: var(--text-muted);
+}
+
+.d1-dashboard__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-4);
+}
+
+.d1-dashboard__tiers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.tier-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-5);
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.tier-card__row-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.tier-card__eyebrow {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-brand);
+}
+
+.tier-card__row-tier {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.tier-card__tier-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tier-card__tier-name {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.tier-card__tier-detail {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.tier-card__max {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.d1-dashboard__engagement .engagement-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.engagement-card__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.engagement-card__label {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+.engagement-card__medal {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.engagement-card__xp {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.d1-dashboard__quick-actions {
+  display: flex;
+  gap: var(--space-6);
+  flex-wrap: wrap;
+}
+
+.quick-action {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.quick-action--disabled {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.quick-action__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-brand-soft);
+  color: var(--text-brand);
+  font: var(--type-label);
+}
+
+.quick-action__label {
+  font: var(--type-small);
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.d1-dashboard__agenda {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.d1-dashboard__agenda-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.d1-dashboard__agenda-title {
+  font: var(--type-heading);
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.d1-dashboard__agenda-link {
+  font: var(--type-small);
+  color: var(--text-brand);
+  text-decoration: none;
+}
+
+.agenda-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.agenda-group__title {
+  font: var(--type-subtitle);
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.agenda-group__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.agenda-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-3) var(--space-4);
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+}
+
+.agenda-row__bar {
+  flex-shrink: 0;
+  width: 4px;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  background: var(--state-success);
+}
+
+.agenda-row__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.agenda-row__title-line {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.agenda-row__time {
+  font: var(--type-body);
+  font-weight: 600;
+  color: var(--text-heading);
+  flex-shrink: 0;
+}
+
+.agenda-row__time::after {
+  content: '·';
+  margin-left: var(--space-2);
+  color: var(--text-muted);
+}
+
+.agenda-row__title {
+  font: var(--type-body);
+  color: var(--text-heading);
+}
+
+.agenda-row__meta {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
