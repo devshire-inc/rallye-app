@@ -15,6 +15,10 @@ export interface ButtonProps {
   children?: ReactNode
   onClick?: () => void
   type?: 'button' | 'submit'
+  /** Tooltip nativo (ex.: explicar por que um botão está `disabled`) — repassado
+   * direto pro `<button>`. Ausente por padrão, igual a qualquer outro atributo
+   * HTML opcional. */
+  title?: string
 }
 
 export function Button({
@@ -27,6 +31,7 @@ export function Button({
   children,
   onClick,
   type = 'button',
+  title,
 }: ButtonProps) {
   const className = [
     'button',
@@ -45,6 +50,7 @@ export function Button({
       disabled={disabled || loading}
       aria-busy={loading || undefined}
       onClick={onClick}
+      title={title}
     >
       {loading ? <span className="button__spinner" aria-hidden="true" /> : icon}
       <span className="button__label">{children}</span>

@@ -1,35 +1,42 @@
-/* AG3 — Minha agenda (Aluno), BEAC-1926. .dgroup/.ag-list/.ag-row já vêm de
- * Agenda.css (compartilhado com AG1/AG2, mesmas classes reais do
- * protótipo); aqui só o que é específico desta tela. */
+/* AG3 — Minha agenda (Aluno), BEAC-1926. .dgroup/.ag-list já vêm de
+ * Agenda.css (compartilhado com AG1/AG2/AG4, separador de seção por data);
+ * aqui só o que é específico desta tela — reskin com os componentes reais
+ * do DS (Tabs/ListRow/Badge/AlertCard/EmptyState/Button), ver comentário de
+ * módulo em AG3StudentAgendaPage.tsx. */
 .dash-body {
   padding: 0 var(--space-6) var(--space-6);
   max-width: 560px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-2);
+  gap: var(--space-4);
 }
-.hint {
-  font-size: 12.5px;
-  color: var(--text-muted);
+
+/* Coluna do horário dentro do título composto do ListRow ("18:00 · Aula") —
+ * só reserva peso visual (Bold), sem virar uma coluna de largura fixa como o
+ * antigo `.ag-row .when` (o ListRow não tem esse conceito de coluna). */
+.ag-row-time {
+  font-weight: 700;
 }
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
+
+/* Trailing custom do ListRow (BEAC-1926): botão "Remarcar" + Badge de status
+ * empilhados à direita — o Figma só mostra o Badge; o botão é lógica de
+ * negócio preexistente que precisava continuar acessível por linha. */
+.ag-row-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
 }
-.badge.b-success {
-  background: var(--state-success-soft);
-  color: var(--state-success);
-}
-.badge.b-error {
-  background: var(--state-danger-soft);
-  color: var(--state-danger);
-}
-.badge.b-neutral {
-  background: var(--sand-200);
-  color: var(--text-heading);
+
+/* Alvo de toque do "Remarcar" (BEAC-1926, achado de QA): a doc do componente
+ * Button no Figma marca Size=Small (34px) como "desktop-only — não usar em
+ * superfícies touch (alvo <44pt)", mas esta tela é mobile-first. Trocar pro
+ * `size="md"` do Button alargaria o botão (padding 22px vs 14px) e reduziria
+ * o espaço da coluna de título/meta no ListRow (flex:1, mesma linha),
+ * piorando a truncagem em mobile. Em vez disso, mantém a pílula visual
+ * compacta do `sm` e só estende a altura do alvo de toque pra 44px — sem
+ * crescer a largura nem tocar no Button.css global (outros consumidores de
+ * `size="sm"` continuam com 34px). */
+.ag-row-actions .button--sm {
+  height: 44px;
 }

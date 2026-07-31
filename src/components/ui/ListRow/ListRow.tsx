@@ -10,11 +10,19 @@ export type ListRowLeading =
 export type ListRowTrailing =
   | { type: 'badge'; tone?: BadgeProps['tone']; children: ReactNode }
   | { type: 'chevron' }
+  /** Escape hatch para trailing composto (ex.: uma ação + um Badge
+   * empilhados) que não cabe em `badge`/`chevron` — ver AG3StudentAgendaPage
+   * (BEAC-1926), única consumidora até agora. */
+  | { type: 'custom'; children: ReactNode }
   | { type: 'none' }
 
 export interface ListRowProps {
   leading: ListRowLeading
-  title: string
+  /** Normalmente uma string; aceita `ReactNode` para casos como AG3 (BEAC-1926)
+   * que precisam de um trecho do título isolado em seu próprio elemento
+   * (ex.: para asserts de teste em `getByText` num nome de aula específico
+   * dentro de uma linha "horário · nome"). */
+  title: ReactNode
   meta?: string
   trailing?: ListRowTrailing
   onClick?: () => void
@@ -68,6 +76,7 @@ export function ListRow({ leading, title, meta, trailing = DEFAULT_TRAILING, onC
         </span>
       ) : null}
       {trailing.type === 'chevron' ? <ChevronRightIcon className="list-row__chevron" /> : null}
+      {trailing.type === 'custom' ? <span className="list-row__trailing">{trailing.children}</span> : null}
     </>
   )
 

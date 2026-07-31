@@ -3,6 +3,13 @@ import { useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
+import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
+import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
+import { Icon } from '../../components/ui/Icon/Icon'
+import { ListRow } from '../../components/ui/ListRow/ListRow'
+import { Tabs } from '../../components/ui/Tabs/Tabs'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { getMe } from '../../lib/api/me'
 import { listRescheduleCredits } from '../../lib/api/reschedule'
@@ -65,10 +72,22 @@ function groupByDate(bookings: Booking[]): { label: string; items: Booking[] }[]
 }
 
 /**
- * AG3 — Minha agenda (Aluno), BEAC-1926, story BEAC-1704. Markup/classes
- * (`.dgroup`, `.ag-list`, `.ag-row`, `.tail`) copiados do protótipo real
- * (scr-ag3, artifact "Rallye — Agenda", linhas 658-731 do HTML salvo, lidas
- * integralmente antes de implementar).
+ * AG3 — Minha agenda (Aluno), BEAC-1926, story BEAC-1704. Reskin (rodada
+ * posterior, sem story própria — pareado ao reskin do AppShell) com os
+ * componentes reais do design system, seguindo os frames Figma "02 · Minha
+ * Agenda — Aluno" (Mobile 36:1093 / Desktop 100:2523) e o estado vazio "02b"
+ * (187:2916): `Tabs` para Próximas/Histórico, `ListRow` (leading=strip,
+ * trailing=custom) para cada reserva — o Figma usa exatamente esse "List
+ * Row" (tarja de 4px + Badge de status), `AlertCard` para mensagens de
+ * erro/status e `EmptyState` para "Sem aulas por aqui". `.dgroup`/`.ag-list`
+ * (rótulo de data + wrapper da lista) seguem vindo de Agenda.css — não são um
+ * componente do DS, só um separador de seção compartilhado com AG1/AG2/AG4.
+ * `ListRow.title` foi ampliado pra `ReactNode` e ganhou um trailing
+ * `type: 'custom'` (ver ListRow.tsx) especificamente para caber o botão
+ * "Remarcar" + Badge lado a lado — o Figma não mostra esse botão na linha
+ * (provavelmente fora do escopo do protótipo estático), mas a lógica de
+ * negócio existente (abrir RemarcarSheet a partir de qualquer linha) não
+ * podia ser removida.
  *
  * ESCOPO POR ALUNO (corrigido na rodada de correção 2, achado do review de
  * BEAC-1926 — vazamento de privacidade): a aba "Próximas" agora busca o
@@ -293,109 +312,129 @@ export default function AG3StudentAgendaPage() {
     setRefreshKey((k) => k + 1)
   }
 
+  const tabValue = tab === 'prox' ? 'Próximas' : 'Histórico'
+
+  function handleTabChange(next: string) {
+    setTab(next === 'Próximas' ? 'prox' : 'hist')
+  }
+
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <div className="ag-head">
+      <div className="dash-body">
         <h1>Minha agenda</h1>
-        <div className="spacer" />
-        <div className="seg2" role="tablist">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'prox'}
-            className={tab === 'prox' ? 'active' : ''}
-            onClick={() => setTab('prox')}
-          >
-            Próximas
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={tab === 'hist'}
-            className={tab === 'hist' ? 'active' : ''}
-            onClick={() => setTab('hist')}
-          >
-            Histórico
-          </button>
-        </div>
-      </div>
+        <Tabs tabs={['Próximas', 'Histórico']} value={tabValue} onChange={handleTabChange} ariaLabel="Abas da agenda" />
 
-      {loadError ? <p role="alert">{loadError}</p> : null}
-      {remarcarMessage ? (
-        <p role="status" className="hint">
-          {remarcarMessage}
-        </p>
-      ) : null}
-      {waitlistMessage ? (
-        <p role="status" className="hint">
-          {waitlistMessage}
-        </p>
-      ) : null}
-      {offerMessage ? (
-        <p role="status" className="hint">
-          {offerMessage}
-        </p>
-      ) : null}
+        {loadError ? (
+          <div role="alert">
+            <AlertCard tone="danger" showIcon>
+              {loadError}
+            </AlertCard>
+          </div>
+        ) : null}
+        {remarcarMessage ? (
+          <div role="status">
+            <AlertCard tone="success" showIcon>
+              {remarcarMessage}
+            </AlertCard>
+          </div>
+        ) : null}
+        {waitlistMessage ? (
+          <div role="status">
+            <AlertCard tone="success" showIcon>
+              {waitlistMessage}
+            </AlertCard>
+          </div>
+        ) : null}
+        {offerMessage ? (
+          <div role="status">
+            <AlertCard tone="success" showIcon>
+              {offerMessage}
+            </AlertCard>
+          </div>
+        ) : null}
 
-      {tab === 'prox' ? (
-        <div className="dash-body">
-          {groups.length === 0 ? <p className="hint">Nenhuma aula nas próximas 2 semanas.</p> : null}
-          {groups.map((group) => (
-            <div key={group.label}>
-              <div className="dgroup">{group.label}</div>
-              <div className="ag-list">
-                {group.items.map((booking) => (
-                  <div className="ag-row" key={booking.id}>
-                    <span className="when">
-                      {new Date(booking.startAt).toLocaleTimeString('pt-BR', {
+        {tab === 'prox' ? (
+          <>
+            {groups.length === 0 ? (
+              <EmptyState
+                icon={<Icon name="calendar" size={40} />}
+                title="Sem aulas por aqui"
+                description="Que tal agendar seu próximo horário na arena?"
+              />
+            ) : (
+              groups.map((group) => (
+                <div key={group.label}>
+                  <div className="dgroup">{group.label}</div>
+                  <div className="ag-list">
+                    {group.items.map((booking) => {
+                      const time = new Date(booking.startAt).toLocaleTimeString('pt-BR', {
                         hour: '2-digit',
                         minute: '2-digit',
-                      })}
-                    </span>
-                    <span className="strip" />
-                    <div className="what">
-                      <div className="nm">{booking.className ?? 'Aula particular'}</div>
-                      <div className="mt">
-                        {booking.teacherName ? `Prof. ${booking.teacherName}` : ''} · {booking.courtName}
-                      </div>
-                    </div>
-                    <div className="tail">
-                      <button
-                        className="linkbtn"
-                        type="button"
-                        data-sheet="ag7"
-                        disabled={hasNoCredits}
-                        title={hasNoCredits ? 'Nenhum crédito de reagendamento disponível este mês' : undefined}
-                        onClick={() => {
-                          setRemarcarMessage(null)
-                          setRemarcarOpen(true)
-                        }}
-                      >
-                        Remarcar
-                      </button>
-                      <span className="badge b-success">Confirmada</span>
-                    </div>
+                      })
+                      const title = booking.className ?? 'Aula particular'
+                      const meta = `${booking.teacherName ? `Prof. ${booking.teacherName} · ` : ''}${booking.courtName}`
+                      return (
+                        <ListRow
+                          key={booking.id}
+                          leading={{ type: 'strip', color: 'var(--state-success)' }}
+                          title={
+                            <>
+                              <span className="ag-row-time">{time}</span> · <span>{title}</span>
+                            </>
+                          }
+                          meta={meta}
+                          trailing={{
+                            type: 'custom',
+                            children: (
+                              <div className="ag-row-actions">
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  disabled={hasNoCredits}
+                                  title={
+                                    hasNoCredits
+                                      ? 'Nenhum crédito de reagendamento disponível este mês'
+                                      : undefined
+                                  }
+                                  onClick={() => {
+                                    setRemarcarMessage(null)
+                                    setRemarcarOpen(true)
+                                  }}
+                                >
+                                  Remarcar
+                                </Button>
+                                <Badge tone="success">Confirmada</Badge>
+                              </div>
+                            ),
+                          }}
+                        />
+                      )
+                    })}
                   </div>
-                ))}
-              </div>
-            </div>
-          ))}
+                </div>
+              ))
+            )}
 
-          <button className="btn btn-primary btn-md btn-full" type="button" disabled title="Sem endpoint de agendamento self-service ainda — ver relatório de dispatch">
-            Agendar aula
-          </button>
-          {creditsFootNote(creditsState) ? <div className="foot-note">{creditsFootNote(creditsState)}</div> : null}
-        </div>
-      ) : (
-        <div className="dash-body">
-          <p className="hint">
+            <Button
+              variant="primary"
+              size="md"
+              fullWidth
+              disabled
+              title="Sem endpoint de agendamento self-service ainda — ver relatório de dispatch"
+            >
+              Agendar aula
+            </Button>
+            {creditsFootNote(creditsState) ? <div className="foot-note">{creditsFootNote(creditsState)}</div> : null}
+          </>
+        ) : (
+          <AlertCard tone="info" showIcon>
             Histórico indisponível nesta versão — não existe tabela/endpoint de presença no backend ainda
             (BEAC-1906, bloqueado/nunca modelado). Assim que existir, esta aba lista os últimos 3 meses
             agrupados por data, com badges de presença (✓ Presente / ✕ Falta / ◐ Falta justificada) e o
             indicador "⭐ feedback recebido".
-          </p>
-        </div>
-      )}
+          </AlertCard>
+        )}
+      </div>
 
       <BottomSheet open={remarcarOpen} onClose={() => setRemarcarOpen(false)} label="Remarcar">
         {unitId && loggedInStudentId ? (
@@ -407,7 +446,11 @@ export default function AG3StudentAgendaPage() {
             onCancel={() => setRemarcarOpen(false)}
           />
         ) : (
-          <p role="alert">Não foi possível identificar sua conta para remarcar (tente recarregar a página).</p>
+          <div role="alert">
+            <AlertCard tone="danger" showIcon>
+              Não foi possível identificar sua conta para remarcar (tente recarregar a página).
+            </AlertCard>
+          </div>
         )}
       </BottomSheet>
 
@@ -421,13 +464,23 @@ export default function AG3StudentAgendaPage() {
             onCancel={() => setWaitlistOpen(false)}
           />
         ) : (
-          <p role="alert">Não foi possível identificar sua conta para entrar na fila (tente recarregar a página).</p>
+          <div role="alert">
+            <AlertCard tone="danger" showIcon>
+              Não foi possível identificar sua conta para entrar na fila (tente recarregar a página).
+            </AlertCard>
+          </div>
         )}
       </BottomSheet>
 
       <BottomSheet open={offerState.status !== 'idle'} onClose={closeOfferSheet} label="Vaga disponível">
-        {offerState.status === 'loading' ? <p className="hint">Carregando oferta…</p> : null}
-        {offerState.status === 'error' ? <p role="alert">{offerState.message}</p> : null}
+        {offerState.status === 'loading' ? <AlertCard tone="info">Carregando oferta…</AlertCard> : null}
+        {offerState.status === 'error' ? (
+          <div role="alert">
+            <AlertCard tone="danger" showIcon>
+              {offerState.message}
+            </AlertCard>
+          </div>
+        ) : null}
         {offerState.status === 'ready' ? (
           <OfferSheet
             entryId={offerState.offer.entryId}
