@@ -81,7 +81,10 @@ export function AuthLayout({
     <div className={`auth-shell${hero ? ' auth-shell--hero' : ''}`}>
       <div className="auth-shell__brand">
         <div className="auth-shell__badge auth-shell__badge--pressable" aria-hidden="true" {...longPress}>
-          <BrandLogo name="rallye-mark" variant="dark" size={28} />
+          {/* 38 e não 28: o SVG do mark tem padding embutido (glifo ocupa ~18
+              de um viewBox 24), então o size nominal rende ~77% em glifo
+              visível — a 28 ele ficava pequeno demais dentro do badge de 60. */}
+          <BrandLogo name="rallye-mark" variant="dark" size={38} />
         </div>
         {heroTitle && <p className="auth-shell__brand-title">{heroTitle}</p>}
         {heroSubtitle && <p className="auth-shell__brand-subtitle">{heroSubtitle}</p>}

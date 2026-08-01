@@ -117,7 +117,10 @@
   height: 32px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--border-default);
-  background: var(--surface-page);
+  /* Primitivo, não --surface-page: mesma razão do .auth-shell__badge acima —
+     o `rallye-mark` é sempre a variante dark, então o fundo do selo precisa
+     ficar claro nos dois temas, senão a marca some no escuro. */
+  background: var(--sand-50);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -163,7 +166,12 @@
     max-width: 400px;
   }
   .auth-shell__badge {
-    background: var(--surface-card);
+    /* Primitivo --white de propósito, não o semântico --surface-card: este é o
+       fundo de um lockup de marca, e o `rallye-mark` é sempre a variante dark
+       (BrandLogo não troca de variante por tema, por design). Com
+       --surface-card o badge virava navy no tema escuro e a marca escura
+       sumia dentro dele. Mesma razão do --sand-100 fixo no mobile. */
+    background: var(--white);
   }
   .auth-shell__panel {
     justify-content: center;
