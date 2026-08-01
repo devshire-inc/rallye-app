@@ -59,6 +59,19 @@
   box-shadow: none;
 }
 
+/* Mesmo tratamento de autofill do Input (ver comentário detalhado em
+   Input.css): o azul fixo do Chrome só cobre o controle interno e destoa do
+   fundo do wrapper. */
+.select__control:-webkit-autofill,
+.select__control:-webkit-autofill:hover,
+.select__control:-webkit-autofill:focus,
+.select__control:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 100px var(--surface-card) inset;
+  box-shadow: 0 0 0 100px var(--surface-card) inset;
+  -webkit-text-fill-color: var(--text-body);
+  caret-color: var(--text-body);
+}
+
 .select__control:disabled {
   cursor: not-allowed;
 }

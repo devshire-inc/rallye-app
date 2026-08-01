@@ -90,6 +90,27 @@
   box-shadow: none;
 }
 
+/* Autofill: Chrome/Safari pintam o fundo de campos preenchidos automaticamente
+   com um azul fixo (rgb(232,240,254)) que NÃO responde a `background-color`.
+   Como só o <input> interno recebe essa cor — o wrapper, que tem o fundo e o
+   raio, fica de fora — o resultado é uma faixa azulada dentro do campo, que
+   destoa do resto do formulário (e fica pior no tema escuro).
+   O único override aceito pelo engine é um box-shadow inset grande o bastante
+   para cobrir o campo; usa o token de superfície para acompanhar claro/escuro.
+   As variações :hover/:focus/:active são necessárias porque o Chrome
+   reaplica o estilo de autofill em cada uma delas — e a especificidade maior
+   (2 pseudo-classes) também garante que este anel vença o
+   `.input__control:focus-visible { box-shadow: none }` acima. */
+.input__control:-webkit-autofill,
+.input__control:-webkit-autofill:hover,
+.input__control:-webkit-autofill:focus,
+.input__control:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 100px var(--surface-card) inset;
+  box-shadow: 0 0 0 100px var(--surface-card) inset;
+  -webkit-text-fill-color: var(--text-body);
+  caret-color: var(--text-body);
+}
+
 .input__control::placeholder {
   color: var(--text-muted);
 }
