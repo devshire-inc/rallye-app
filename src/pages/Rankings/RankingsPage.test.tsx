@@ -52,8 +52,11 @@ describe('RankingsPage — loading and error', () => {
   })
 })
 
-describe('RankingsPage — podium and list', () => {
-  it('renders the top 3 in the podium and the rest as numbered rows', async () => {
+// O reskin (Figma 175:2340 / 187:6805) removeu o pódio de 3 degraus: os três
+// primeiros são as três primeiras LINHAS da mesma lista, com medalha no lugar
+// do número. Estes testes seguem a lista única.
+describe('RankingsPage — list', () => {
+  it('renders every place as a row, with a medal for the top 3', async () => {
     vi.spyOn(rankingsApi, 'getRankings').mockResolvedValue({
       ok: true,
       scope: 'arena',
@@ -67,16 +70,17 @@ describe('RankingsPage — podium and list', () => {
 
     renderPage()
 
-    const podium = await screen.findByTestId('podium')
-    expect(within(podium).getByText('Bia Santos')).toBeInTheDocument()
-    expect(within(podium).getByText('850 pts')).toBeInTheDocument()
-    expect(within(podium).getByText('Carla Trindade')).toBeInTheDocument()
-    expect(within(podium).getByText('Duda Melo')).toBeInTheDocument()
+    const first = await screen.findByTestId('ranking-row-stu-1')
+    expect(within(first).getByText('Bia Santos')).toBeInTheDocument()
+    expect(within(first).getByText('850 pts')).toBeInTheDocument()
+    // A medalha é decorativa; quem carrega a posição é o texto sr-only.
+    expect(within(first).getByText('1º lugar')).toBeInTheDocument()
+    expect(within(screen.getByTestId('ranking-row-stu-3')).getByText('3º lugar')).toBeInTheDocument()
 
     const row = screen.getByTestId('ranking-row-stu-4')
     expect(within(row).getByText('4')).toBeInTheDocument()
     expect(within(row).getByText('Lia Renata')).toBeInTheDocument()
-    expect(within(row).getByText('610')).toBeInTheDocument()
+    expect(within(row).getByText('610 pts')).toBeInTheDocument()
   })
 
   it('shows the total player count in the footnote', async () => {
@@ -125,8 +129,7 @@ describe('RankingsPage — current user row', () => {
 
     renderPage()
 
-    await screen.findByTestId('podium')
-    expect(screen.queryByTestId('ranking-row-stu-me-visible')).not.toBeInTheDocument()
+    await screen.findByTestId('ranking-list')
 
     const meRow = screen.getByTestId('ranking-row-stu-me')
     expect(within(meRow).getByText('55')).toBeInTheDocument()
@@ -153,7 +156,7 @@ describe('RankingsPage — scope tabs', () => {
     vi.spyOn(rankingsApi, 'getRankings').mockResolvedValue({ ok: true, scope: 'arena', rankings: [] })
 
     renderPage()
-    await screen.findByTestId('podium')
+    await screen.findByRole('tab', { name: 'Cidade' })
 
     expect(screen.getByRole('tab', { name: 'Cidade' })).toBeDisabled()
     expect(screen.getByRole('tab', { name: 'Estado' })).toBeDisabled()

@@ -215,13 +215,13 @@ describe('BracketPage — single elimination bracket', () => {
     expect(screen.getByText('Final')).toBeInTheDocument()
 
     const winnerCard = screen.getByTestId('match-card-match-qf1')
-    const winnerRow = within(winnerCard).getByText('Marina / Carla').closest('.mrow')
-    expect(winnerRow).toHaveClass('win')
+    const winnerRow = within(winnerCard).getByText('Marina / Carla').closest('.brk-match__row')
+    expect(winnerRow).toHaveClass('brk-match__row--win')
     expect(within(winnerCard).getByText(/finalizado/i)).toBeInTheDocument()
 
     expect(screen.getAllByText('A definir')).toHaveLength(4)
     for (const label of screen.getAllByText('A definir')) {
-      expect(label.closest('.mrow')).not.toHaveClass('win')
+      expect(label.closest('.brk-match__row')).not.toHaveClass('brk-match__row--win')
     }
 
     expect(screen.getByText(/2 duplas · 3 jogos · 1 finalizados/i)).toBeInTheDocument()

@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { Card } from '../../components/ui/Card/Card'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
@@ -16,13 +18,6 @@ type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'
 
 const SET_COLUMNS = 3
 
-function initials(name: string): string {
-  const parts = name.trim().split(/\s+/)
-  const first = parts[0]?.[0] ?? ''
-  const last = parts.length > 1 ? (parts[parts.length - 1]?.[0] ?? '') : ''
-  return (first + last).toUpperCase()
-}
-
 function courtLabel(courtId: string | null): string {
   return courtId ? `Quadra #${courtId.slice(0, 4)}` : 'Quadra a definir'
 }
@@ -32,16 +27,21 @@ function currentSet(sets: MatchSet[]): MatchSet {
   return sets.reduce((latest, s) => (s.setNumber > latest.setNumber ? s : latest))
 }
 
+/** Quem está ganhando/ganhou o confronto — só para o realce de placar do
+ * hero (o frame põe o número do lado à frente em text/brand). Contagem de
+ * sets vencidos, não o placar do set corrente: é assim que se lê um jogo. */
+function setsWonBy(match: MatchDetailResponse): { one: number; two: number } {
+  let one = 0
+  let two = 0
+  for (const set of match.sets) {
+    if (set.registration1Score > set.registration2Score) one++
+    else if (set.registration2Score > set.registration1Score) two++
+  }
+  return { one, two }
+}
+
 /**
- * TO6 — Detalhe da Partida (BEAC-2007, story BEAC-1719). Markup segue
- * scr-to6 do protótipo real (score hero + tabela de sets). Estatísticas de
- * comparação são opcionais no MVP (AC explícito) — não implementadas.
- *
- * O badge do pg-head do protótipo mostra "Quartas · Fem B" (rodada +
- * categoria) — resolver o nome da categoria exigiria mais uma chamada
- * (GET /tournaments/{id}) só para isso, e não está nos ACs explícitos
- * desta tela (só o badge do score-hero, "SET N · AO VIVO · QUADRA X" ou
- * "FINAL", está); por isso o pg-head aqui mostra só "Rodada {round}".
+ * TO6 — Detalhe da Partida (BEAC-2007, story BEAC-1719).
  *
  * O backend só tem status pending/completed/walkover — sem "próximo" vs
  * "ao vivo" (mesmo gap documentado em BracketPage.tsx). O AC desta tela só
@@ -54,6 +54,52 @@ function currentSet(sets: MatchSet[]): MatchSet {
  * useTournamentLive) — só refaz o GET quando o evento é desta partida
  * específica (diferente de BracketPage, que não tem como filtrar por
  * partida porque mostra uma categoria inteira).
+ *
+ * ## Reskin design system (Figma "20 · Torneios — Detalhe da Partida",
+ * node 177:2415 mobile / 187:6786 desktop)
+ *
+ * Layout único (coluna) nos dois frames, só mais larga no desktop — padrão de
+ * F3, sem o par cards/tabela de F5. Blocos:
+ *
+ * - Retorno: "‹ Voltar" no mobile (177:2454) trocado por breadcrumb
+ *   "Chaves › Partida" a partir de BREAKPOINT_SHELL_DESKTOP_MIN, 100% em CSS.
+ * - Título + subtítulo (177:2456): o `<h1>` é a rodada. O subtítulo do frame
+ *   ("Copa Verão BT · Masculino A") NÃO é renderizado — `MatchDetailResponse`
+ *   não traz nome do torneio nem da categoria, e resolvê-los custaria um
+ *   segundo GET /tournaments/{id} que nenhum AC desta tela pede. Mesmo gap
+ *   que a versão anterior desta tela já documentava para o badge do topo;
+ *   preferimos o campo vazio a inventar o dado.
+ * - Score hero (177:2459 / 188:3692): surface/sunken no mobile, card com
+ *   borda no desktop; uma linha por dupla com o placar grande, `ui/Badge` de
+ *   estado e a linha de quadra. O "👤" do frame é decorativo e entra por
+ *   `::before` no CSS — `ui/Avatar` não cabe aqui: o participante é uma DUPLA
+ *   ("Marina / Carla"), e as iniciais que o Avatar deriva de um nome
+ *   ("MC") descreveriam uma pessoa que não existe.
+ * - Card "Sets" (177:2474 / 188:3706): `ui/Card` + `<table>` com cabeçalhos
+ *   S1/S2/S3 (a forma escrita por extenso fica no nome acessível).
+ * - Nota de estatísticas (177:2491): o texto do frame, que descreve
+ *   exatamente o escopo reduzido já acordado (stats avançadas são opcionais
+ *   no MVP).
+ *
+ * ### Não renderizado de propósito
+ *
+ * As abas "Resumo · Sets · Stats" (177:2470 / 188:3702) ficam de fora: duas
+ * das três não têm conteúdo nenhum nesta tela (Resumo é o próprio hero,
+ * Stats está fora do MVP por AC) e, nos frames, mobile e desktop marcam abas
+ * ATIVAS diferentes mostrando o mesmo card — é decoração do protótipo, não um
+ * controle. Renderizá-las criaria dois destinos inertes.
+ *
+ * ### `ui/MatchCard` — avaliado e NÃO usado
+ *
+ * O componente do DS foi desenhado com esta tela em mente, mas modela o card
+ * COMPACTO da chave: `width: 240px` fixo, header próprio de
+ * seed/categoria/status, nome em `--type-body` e placar de 15px por set. O
+ * hero destes frames é o oposto — bloco de 640px, nome de 18px e placar de
+ * 26px em `--font-display`, com o badge de estado e a quadra abaixo, não
+ * dentro de um header. E a grade de sets do frame é uma `<table>` com
+ * cabeçalhos S1/S2/S3, enquanto o `MatchCard` põe os sets soltos na linha do
+ * participante, sem cabeçalho. Não há prop que aproxime os dois; forçar
+ * exigiria reescrever o componente do DS a partir desta tela.
  */
 export default function MatchDetailPage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -97,6 +143,8 @@ export default function MatchDetailPage() {
   const match = state.status === 'ready' ? state.match : null
   const isFinal = match?.status === 'completed' || match?.status === 'walkover'
   const live = match ? currentSet(match.sets) : null
+  const won = match ? setsWonBy(match) : null
+  const bracketHref = tournamentId ? `/tournaments/${tournamentId}/bracket` : '#'
 
   /** registerMatchResult devolve um MatchResponse (sem sets/nomes — o
    * POST /tournament-matches/{id}/result não os ecoa de volta, só as leituras
@@ -109,95 +157,121 @@ export default function MatchDetailPage() {
 
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <div className="pg-head">
-        <Link className="back" to={tournamentId ? `/tournaments/${tournamentId}/bracket` : '#'}>
-          ‹ Chaves
-        </Link>
-        <div className="spacer" />
-        {match ? <Badge tone="neutral">Rodada {match.round}</Badge> : null}
-      </div>
+      <div className="mtc-page">
+        <div className="pg-head mtc-head">
+          <Link className="mtc-back" to={bracketHref}>
+            ‹ Voltar
+          </Link>
+          <nav className="mtc-crumbs" aria-label="Trilha de navegação">
+            <Link className="mtc-crumbs__link" to={bracketHref}>
+              Chaves
+            </Link>
+            <span className="mtc-crumbs__sep" aria-hidden="true">
+              ›
+            </span>
+            <span aria-current="page">Partida</span>
+          </nav>
+        </div>
 
-      <div className="dash-body" style={{ maxWidth: 560 }}>
-        {state.status === 'loading' ? (
-          <PageLoading label="Carregando partida" variant="section" />
-        ) : state.status === 'error' ? (
-          <p role="alert">Não foi possível carregar a partida.</p>
-        ) : match && live ? (
-          <>
-            <div className="score-hero" data-testid="score-hero">
-              <div className="hero-badge">
-                {isFinal ? 'FINAL' : `SET ${live.setNumber} · AO VIVO · ${courtLabel(match.courtId).toUpperCase()}`}
-              </div>
-              <div className="teams">
-                <div className="team">
-                  <div className="avs">
-                    <span className="avatar-sm">{initials(match.registration1Name ?? 'A definir')}</span>
-                  </div>
-                  <div className="tn">{match.registration1Name ?? 'A definir'}</div>
-                </div>
-                <div className="big">
-                  <span>{live.registration1Score}</span>
-                  <span className="x">×</span>
-                  <span>{live.registration2Score}</span>
-                </div>
-                <div className="team">
-                  <div className="avs">
-                    <span className="avatar-sm">{initials(match.registration2Name ?? 'A definir')}</span>
-                  </div>
-                  <div className="tn">{match.registration2Name ?? 'A definir'}</div>
-                </div>
-              </div>
-            </div>
+        <div className="dash-body mtc-body">
+          <h1 className="mtc-title">{match ? `Rodada ${match.round}` : 'Partida'}</h1>
 
-            <div>
-              <div className="sec-head">
-                <h2>Sets</h2>
+          {state.status === 'loading' ? (
+            <PageLoading label="Carregando partida" variant="section" />
+          ) : state.status === 'error' ? (
+            <p className="mtc-alert" role="alert">
+              Não foi possível carregar a partida.
+            </p>
+          ) : match && live && won ? (
+            <>
+              <div className="mtc-hero" data-testid="score-hero">
+                <div className="mtc-hero__side">
+                  <span className="mtc-hero__duo">{match.registration1Name ?? 'A definir'}</span>
+                  <span
+                    className={`mtc-hero__score${won.one > won.two ? ' mtc-hero__score--lead' : ''}`}
+                  >
+                    {live.registration1Score}
+                  </span>
+                </div>
+                <div className="mtc-hero__side">
+                  <span className="mtc-hero__duo">{match.registration2Name ?? 'A definir'}</span>
+                  <span
+                    className={`mtc-hero__score${won.two > won.one ? ' mtc-hero__score--lead' : ''}`}
+                  >
+                    {live.registration2Score}
+                  </span>
+                </div>
+                <div className="mtc-hero__badge">
+                  {isFinal ? (
+                    <Badge tone="neutral">FINAL</Badge>
+                  ) : (
+                    <Badge tone="danger">
+                      <span className="mtc-live-dot" aria-hidden="true" />
+                      SET {live.setNumber} · AO VIVO
+                    </Badge>
+                  )}
+                </div>
+                <p className="mtc-hero__court">{courtLabel(match.courtId)}</p>
               </div>
-              <table className="set-table">
-                <thead>
-                  <tr>
-                    <th>Dupla</th>
-                    {Array.from({ length: SET_COLUMNS }, (_, i) => (
-                      <th key={i}>Set {i + 1}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>{match.registration1Name ?? 'A definir'}</td>
-                    {Array.from({ length: SET_COLUMNS }, (_, i) => {
-                      const set = match.sets.find((s) => s.setNumber === i + 1)
-                      const won = set && set.registration1Score > set.registration2Score
-                      return (
-                        <td key={i} className={won ? 'w' : undefined}>
-                          {set ? set.registration1Score : '—'}
-                        </td>
-                      )
-                    })}
-                  </tr>
-                  <tr>
-                    <td>{match.registration2Name ?? 'A definir'}</td>
-                    {Array.from({ length: SET_COLUMNS }, (_, i) => {
-                      const set = match.sets.find((s) => s.setNumber === i + 1)
-                      const won = set && set.registration2Score > set.registration1Score
-                      return (
-                        <td key={i} className={won ? 'w' : undefined}>
-                          {set ? set.registration2Score : '—'}
-                        </td>
-                      )
-                    })}
-                  </tr>
-                </tbody>
-              </table>
-            </div>
 
-            {canRegisterResult ? (
-              <button type="button" className="btn btn-primary btn-md" onClick={() => setSheetOpen(true)}>
-                Registrar resultado (admin)
-              </button>
-            ) : null}
-          </>
-        ) : null}
+              <Card>
+                <h2 className="mtc-sets__title">Sets</h2>
+                <table className="mtc-sets__table">
+                  <thead>
+                    <tr>
+                      <th scope="col">
+                        <span className="mtc-sr-only">Dupla</span>
+                      </th>
+                      {Array.from({ length: SET_COLUMNS }, (_, i) => (
+                        <th scope="col" key={i}>
+                          <span aria-hidden="true">S{i + 1}</span>
+                          <span className="mtc-sr-only">Set {i + 1}</span>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <th scope="row">{match.registration1Name ?? 'A definir'}</th>
+                      {Array.from({ length: SET_COLUMNS }, (_, i) => {
+                        const set = match.sets.find((s) => s.setNumber === i + 1)
+                        const winner = set && set.registration1Score > set.registration2Score
+                        return (
+                          <td key={i} className={winner ? 'w' : undefined}>
+                            {set ? set.registration1Score : '—'}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                    <tr>
+                      <th scope="row">{match.registration2Name ?? 'A definir'}</th>
+                      {Array.from({ length: SET_COLUMNS }, (_, i) => {
+                        const set = match.sets.find((s) => s.setNumber === i + 1)
+                        const winner = set && set.registration2Score > set.registration1Score
+                        return (
+                          <td key={i} className={winner ? 'w' : undefined}>
+                            {set ? set.registration2Score : '—'}
+                          </td>
+                        )
+                      })}
+                    </tr>
+                  </tbody>
+                </table>
+              </Card>
+
+              <p className="mtc-note">
+                Estatísticas detalhadas ficam disponíveis quando o admin registra o jogo com dados
+                avançados.
+              </p>
+
+              {canRegisterResult ? (
+                <Button variant="primary" size="md" fullWidth onClick={() => setSheetOpen(true)}>
+                  Registrar resultado (admin)
+                </Button>
+              ) : null}
+            </>
+          ) : null}
+        </div>
       </div>
 
       <BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)} label="Registrar resultado">

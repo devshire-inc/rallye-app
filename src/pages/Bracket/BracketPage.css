@@ -1,9 +1,19 @@
-/* TO5 — Chaves/Bracket (BEAC-2006). Self-contained: redefine as classes
- * genéricas que esta página usa. .bracket-wrap/.bracket/.b-round/.match/
- * .mrow/.mstatus traduzidas 1:1 do protótipo real (scr-to5). .bracket-table
- * (round robin/suíço/grupos) não tem protótipo — extensão própria seguindo
- * o mesmo componente .match/.mrow. Tokens migrados pra Claude Design
- * (BEAC-2055). */
+/* TO5 — Chaves/Bracket (BEAC-2006).
+ *
+ * As classes genéricas do bundle que esta página ainda carrega (`.pg-head`,
+ * `.tabs2`, `.dash-body`, `.foot-note`) FICAM declaradas aqui: são as mesmas
+ * declarações replicadas em ~20 CSS de página e outras telas dependem de
+ * alguma delas estar no bundle — mexer nisso está fora do escopo desta task
+ * (mesma decisão registrada em TournamentViewPage.css).
+ *
+ * Tudo que o reskin escreve leva prefixo `.brk-`: o bundle de CSS é único e
+ * nomes genéricos já colidiram entre telas nesta leva. Nenhum `.brk-*` existia
+ * em nenhum outro CSS. As classes exclusivas da versão anterior desta tela
+ * (`.bracket`, `.b-round`, `.match`, `.mrow`, `.mstatus`, `.rlabel`,
+ * `.bracket-table`, `.bt-*`) foram removidas — não eram usadas por nenhum
+ * outro arquivo. `.bracket*` em particular estava a um caractere de colidir
+ * com `.bracket-connector`/`.bracket-round-header` do DS.
+ */
 
 .pg-head {
   display: flex;
@@ -58,118 +68,304 @@
   gap: var(--space-3);
 }
 
-.bracket-wrap {
-  overflow-x: auto;
-  padding-bottom: 8px;
-}
-.bracket {
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: 200px;
-  gap: 18px;
-  min-width: 640px;
-}
-.b-round {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.b-round .rlabel {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-.match {
-  background: var(--surface-card);
-  border: 1px solid var(--border-default);
-  border-radius: 12px;
-  overflow: hidden;
-  cursor: pointer;
-  font-size: 12px;
-  width: 100%;
-  text-align: left;
-  padding: 0;
-  font-family: var(--font-body);
-  color: inherit;
-}
-.match .mrow {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 8px 12px;
-}
-.match .mrow + .mrow {
-  border-top: 1px solid var(--border-default);
-}
-.match .mrow .duo {
-  font-weight: 600;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.match .mrow .sc {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
-}
-.match .mrow.win .duo,
-.match .mrow.win .sc {
-  color: var(--text-heading);
-}
-.match .mrow.win .sc {
-  color: var(--state-info);
-}
-.match.live {
-  border-color: var(--state-danger);
-}
-.match.live .mstatus {
-  color: var(--state-danger);
-}
-.match .mstatus {
-  font-size: 9.5px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  padding: 4px 12px;
-  background: var(--surface-page);
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.match.done .mstatus {
-  color: var(--state-success);
-}
-
-.bracket-table {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-4);
-}
-.bt-group .rlabel {
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  margin-bottom: 6px;
-}
-.bt-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.bt-list .match {
-  max-width: 100%;
-}
-
 .foot-note {
   font-size: 11.5px;
   color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Reskin design system — Figma "19 · Torneios — Chave" (node 177:2307 mobile,
+   187:6767 desktop, 186:3408 mobile Dark).
+
+   O tema escuro não tem NENHUMA regra própria neste arquivo: todas as cores
+   abaixo são tokens (`--surface-card`, `--border-default`, `--text-*`,
+   `--state-*`), e os tokens já resolvem em `[data-theme="dark"]`. O frame
+   Dark foi conferido em captura e é exatamente o mesmo layout — o que muda
+   é só o valor por trás de cada token.
+   -------------------------------------------------------------------------- */
+
+.brk-page {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+
+/* Retorno: "‹ Voltar" no mobile, breadcrumb no desktop. Os dois no DOM, quem
+   escolhe é a @media de 860 lá embaixo — sem matchMedia, sem flash na
+   primeira pintura (mesmo mecanismo de F3/TrocarArenaPage). */
+.brk-back {
+  font: var(--type-small);
+  color: var(--text-brand-strong);
+  text-decoration: none;
+}
+.brk-back:hover {
+  text-decoration: underline;
+}
+
+.brk-crumbs {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.brk-crumbs__link {
+  color: var(--text-muted);
+  text-decoration: none;
+}
+.brk-crumbs__link:hover {
+  color: var(--text-brand);
+}
+.brk-crumbs__sep {
+  color: var(--border-strong);
+}
+
+.brk-title-block {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Especificidade 0,2,0 de propósito: `.pg-head h1 { font-size: 18px }` está
+   declarado em ~20 CSS de página e vale para qualquer h1 do bundle. */
+.brk-page .brk-title {
+  margin: 0;
+  font: var(--type-title);
+  color: var(--text-heading);
+}
+
+/* Ponto vermelho antes de "AO VIVO" dentro do ui/Badge (frame 177:2349).
+   Nome próprio: `.live-dot` já existe em TournamentViewPage.css e
+   TournamentsListPage.css com valores próprios. */
+.brk-live-dot {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 5px;
+  border-radius: 50%;
+  background: var(--state-danger);
+  vertical-align: middle;
+}
+
+/* Pílulas de categoria (177:2351 mobile / 188:3621 desktop). O frame não usa
+   as abas sublinhadas de `ui/Tabs`; e a lista é dinâmica (uma pílula por
+   categoria do torneio), então o markup segue `role="tablist"` local. */
+.brk-cats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.brk-cat {
+  padding: 6px var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-muted);
+  /* 11px no mobile (177:2353), 13px no desktop (188:3623) — os nomes de
+     categoria vêm do backend e podem ser vários, então o tamanho menor é o
+     que mantém a fileira legível a 375px. */
+  font-family: var(--font-body);
+  font-size: 11.5px;
+  font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
+}
+.brk-cat:hover {
+  color: var(--text-heading);
+}
+.brk-cat--active {
+  border-color: var(--interactive-primary);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
+}
+.brk-cat--active:hover {
+  color: var(--text-on-brand);
+}
+
+.brk-alert {
+  margin: 0;
+  color: var(--state-danger-text);
+  font: var(--type-small);
+}
+
+/* Container de rolagem da chave — a rolagem horizontal fica AQUI dentro,
+   nunca no <body>. `padding-bottom` reserva a barra de rolagem para ela não
+   cobrir a última linha dos cards. */
+.brk-scroll {
+  overflow-x: auto;
+  padding-bottom: var(--space-2);
+}
+
+/* Mobile (177:2307): pilha de rodadas em coluna cheia.
+   Desktop (187:6767): mesma pilha virada de lado, colunas de 320px. */
+.brk-bracket {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.brk-groups {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.brk-round {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Overline em text/muted (177:2367 / 188:3632). A caixa alta é CSS: o texto
+   do DOM continua "Quartas"/"Semifinal"/"Final", o que roteiros de teste e
+   leitores de tela leem melhor. */
+.brk-round__label {
+  margin: 0;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+  text-transform: uppercase;
+}
+
+.brk-round__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Card de confronto (177:2368 mobile / 188:3633 desktop). Local, e não
+   `ui/MatchCard` — ver a justificativa longa em BracketPage.tsx. */
+.brk-match {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-sm);
+  background: var(--surface-card);
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+.brk-match:hover {
+  border-color: var(--border-strong);
+}
+
+/* Estados ao vivo/próximo recebem contorno de 1.5px no frame mobile
+   (177:2383 danger, 177:2406 muted); o encerrado fica com a borda neutra. */
+.brk-match--live {
+  border-width: 1.5px;
+  border-color: var(--state-danger);
+}
+.brk-match--next {
+  border-width: 1.5px;
+  border-color: var(--border-strong);
+}
+
+.brk-match__row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.brk-match__duo {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font: var(--type-small);
+  color: var(--text-body);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.brk-match__score {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text-heading);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Vencedor: só peso e cor de marca, como nos frames — sem barra nem check. */
+.brk-match__row--win .brk-match__duo {
+  color: var(--text-brand-strong);
+  font-weight: 800;
+}
+
+.brk-match__status {
+  font: var(--type-overline);
+  color: var(--text-muted);
+}
+/* Os glifos do frame vêm daqui, não do DOM (texto limpo para leitor de tela). */
+.brk-match__status--done::before {
+  content: '✓ ';
+}
+.brk-match__status--live::before {
+  content: '🔴 ';
+}
+.brk-match__status--next::before {
+  content: '⏳ ';
+}
+.brk-match__status--done {
+  color: var(--state-success-text);
+}
+.brk-match__status--live {
+  color: var(--state-danger-text);
+}
+
+.brk-stats {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica do 860 —
+   ponto em que a sidebar do shell aparece e o topo vira o do desktop. */
+@media (min-width: 860px) {
+  .brk-page .brk-back {
+    display: none;
+  }
+  .brk-page .brk-crumbs {
+    display: flex;
+  }
+  .brk-page .brk-title {
+    font: var(--type-display);
+  }
+  .brk-cat {
+    font: var(--type-label);
+    padding: var(--space-2) 14px;
+  }
+}
+
+/* breakpoints.ts: BREAKPOINT_BRACKET_COLUMNS_MIN é a fonte canônica do 1080 —
+   ponto em que caberem DUAS colunas de rodada (320px + gap 40) na largura
+   útil do shell. Ver a aritmética completa lá. */
+@media (min-width: 1080px) {
+  /* Solta o `max-width: 560px` que `.dash-body` carrega globalmente — sem
+     isto a chave inteira rolaria dentro de meia coluna. Seletor 0,2,0 pela
+     mesma razão descrita em src/styles/utilities.css. */
+  .brk-page .dash-body {
+    max-width: none;
+  }
+
+  .brk-bracket {
+    flex-direction: row;
+    align-items: flex-start;
+    gap: var(--space-10);
+  }
+
+  .brk-round {
+    flex: 0 0 320px;
+  }
+
+  .brk-match {
+    padding: var(--space-2) var(--space-3) 10px;
+    border-radius: 12px;
+  }
+
+  .brk-match__duo,
+  .brk-match__score {
+    font-size: 14px;
+  }
 }

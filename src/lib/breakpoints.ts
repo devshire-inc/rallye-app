@@ -35,6 +35,23 @@ export const BREAKPOINT_SHELL_DESKTOP_MIN = 860
  * (src/styles/utilities.css), que solta a coluna de 560px onde há tabela. */
 export const BREAKPOINT_TABLE_MIN = 1220
 
+/** BracketPage.css — ponto em que a chave deixa de ser uma pilha de rodadas
+ * (frame mobile 177:2307) e vira colunas lado a lado (frame desktop
+ * 187:6767). Também MAIOR que BREAKPOINT_SHELL_DESKTOP_MIN, pela mesma razão
+ * de BREAKPOINT_TABLE_MIN: a 860 a sidebar já existe mas a coluna útil não
+ * comporta duas colunas de chave.
+ *
+ * Valor derivado, não arbitrado: o cromo do shell consome os mesmos 400px do
+ * desktop (sidebar 288 + `.shell-main` 2×32 + `.dash-body` 2×24), logo
+ * largura útil = viewport − 400. A coluna de rodada tem 320px e o gap entre
+ * rodadas 40px (Figma 188:3630), então DUAS rodadas visíveis pedem
+ * 320×2 + 40 = 680 de largura útil → 680 + 400 = 1080. Trocar antes disso
+ * mostraria uma coluna e meia, que é pior do que a pilha do mobile.
+ *
+ * Acima do breakpoint a chave continua podendo passar da largura útil (5+
+ * rodadas): quem rola é `.brk-scroll` (`overflow-x: auto`), nunca o `<body>`. */
+export const BREAKPOINT_BRACKET_COLUMNS_MIN = 1080
+
 /** App.css — boilerplate do template Vite, não importado por nenhuma
  * página do app; mantido aqui só porque a query existe no arquivo. */
 export const BREAKPOINT_VITE_TEMPLATE_MAX = 1024

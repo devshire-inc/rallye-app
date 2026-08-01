@@ -1,4 +1,8 @@
 import { useState } from 'react'
+import { Button } from '../../components/ui/Button/Button'
+import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
+import { Input } from '../../components/ui/Input/Input'
+import { Radio } from '../../components/ui/Radio/Radio'
 import {
   registerMatchResult,
   type MatchResponse,
@@ -73,6 +77,18 @@ function playedSets(sets: SetInputRow[]): { registration1Score: number; registra
  * exige `walkover: "registration1"|"registration2"`, então este componente
  * adiciona um seletor de lado (rádio) quando WO é marcado, além do que o
  * protótipo desenha.
+ *
+ * ## Reskin design system
+ *
+ * O sheet não tem frame próprio no Figma "Rallye — Protótipo" (as telas 19–21
+ * cobrem Chave, Detalhe da Partida e Rankings; o sheet de resultado não é
+ * desenhado em nenhuma delas). Então aqui o reskin é o que dá para fazer sem
+ * inventar layout: trocar os controles crus pelos primitivos do DS
+ * (`ui/Input`, `ui/Checkbox`, `ui/Radio`, `ui/Button`, que trazem foco,
+ * estado desabilitado e contraste já resolvidos) e prefixar as classes locais
+ * com `.rrs-` — `.set-in`, `.radio-opt`, `.stack` e `.foot-note` eram nomes
+ * genéricos, e `.radio-opt`/`.foot-note` são declarados também por outras
+ * telas do bundle. A estrutura e todos os rótulos ficam idênticos.
  */
 export function RegisterResultSheet({
   matchId,
@@ -127,40 +143,44 @@ export function RegisterResultSheet({
 
   return (
     <div className="register-result-sheet">
-      <h2>Registrar resultado</h2>
-      <p className="ssub">{subtitle}</p>
+      <h2 className="rrs-title">Registrar resultado</h2>
+      <p className="rrs-subtitle">{subtitle}</p>
 
-      <div className="stack">
-        <div className="set-in">
-          <span className="tn" />
-          <span className="set-label">SET 1</span>
-          <span className="set-label">SET 2</span>
-          <span className="set-label">SET 3</span>
+      <div className="rrs-stack">
+        <div className="rrs-set-row rrs-set-row--head" aria-hidden="true">
+          <span />
+          <span className="rrs-set-label">SET 1</span>
+          <span className="rrs-set-label">SET 2</span>
+          <span className="rrs-set-label">SET 3</span>
         </div>
-        <div className="set-in" data-testid="set-row-team1">
-          <span className="tn">{team1Name}</span>
+        <div className="rrs-set-row" data-testid="set-row-team1">
+          <span className="rrs-set-team">{team1Name}</span>
           {sets.map((set, i) => (
-            <input
+            <Input
               key={i}
+              size="sm"
               type="number"
               inputMode="numeric"
               role="spinbutton"
-              aria-label={`${team1Name} — set ${i + 1}`}
+              wrapperClassName="rrs-set-input"
+              ariaLabel={`${team1Name} — set ${i + 1}`}
               value={set.s1}
               disabled={wo || submitting}
               onChange={(e) => updateSet(i, 's1', e.target.value)}
             />
           ))}
         </div>
-        <div className="set-in" data-testid="set-row-team2">
-          <span className="tn">{team2Name}</span>
+        <div className="rrs-set-row" data-testid="set-row-team2">
+          <span className="rrs-set-team">{team2Name}</span>
           {sets.map((set, i) => (
-            <input
+            <Input
               key={i}
+              size="sm"
               type="number"
               inputMode="numeric"
               role="spinbutton"
-              aria-label={`${team2Name} — set ${i + 1}`}
+              wrapperClassName="rrs-set-input"
+              ariaLabel={`${team2Name} — set ${i + 1}`}
               value={set.s2}
               disabled={wo || submitting}
               onChange={(e) => updateSet(i, 's2', e.target.value)}
@@ -168,70 +188,65 @@ export function RegisterResultSheet({
           ))}
         </div>
 
-        <label className={`radio-opt${wo ? ' checked' : ''}`}>
-          <input
-            type="checkbox"
+        <div className={`rrs-option${wo ? ' rrs-option--checked' : ''}`}>
+          <Checkbox
+            label="WO (walkover) — pula o placar"
             checked={wo}
             disabled={submitting}
-            onChange={(e) => {
-              setWo(e.target.checked)
+            onChange={(checked) => {
+              setWo(checked)
               setWoWinner(null)
             }}
           />
-          <span>WO (walkover) — pula o placar</span>
-        </label>
+        </div>
 
         {wo ? (
-          <div className="wo-winner-picker" role="radiogroup" aria-label="Quem venceu por WO">
-            <label className={`radio-opt${woWinner === 'registration1' ? ' checked' : ''}`}>
-              <input
-                type="radio"
+          <div className="rrs-wo-picker" role="radiogroup" aria-label="Quem venceu por WO">
+            <div
+              className={`rrs-option${woWinner === 'registration1' ? ' rrs-option--checked' : ''}`}
+            >
+              <Radio
+                label={team1Name}
                 name="wo-winner"
                 checked={woWinner === 'registration1'}
                 disabled={submitting}
                 onChange={() => setWoWinner('registration1')}
               />
-              <span>{team1Name}</span>
-            </label>
-            <label className={`radio-opt${woWinner === 'registration2' ? ' checked' : ''}`}>
-              <input
-                type="radio"
+            </div>
+            <div
+              className={`rrs-option${woWinner === 'registration2' ? ' rrs-option--checked' : ''}`}
+            >
+              <Radio
+                label={team2Name}
                 name="wo-winner"
                 checked={woWinner === 'registration2'}
                 disabled={submitting}
                 onChange={() => setWoWinner('registration2')}
               />
-              <span>{team2Name}</span>
-            </label>
+            </div>
           </div>
         ) : null}
 
         {detectedWinner ? (
-          <p className="detected-winner" data-testid="detected-winner">
+          <p className="rrs-detected" data-testid="detected-winner">
             Vencedor detectado: {detectedWinner === 'registration1' ? team1Name : team2Name}
           </p>
         ) : null}
 
-        {error ? <p role="alert">{error}</p> : null}
+        {error ? (
+          <p className="rrs-error" role="alert">
+            {error}
+          </p>
+        ) : null}
 
-        <button
-          type="button"
-          className="btn btn-primary btn-md btn-full"
-          disabled={submitting}
-          onClick={handleSubmit}
-        >
+        <Button variant="primary" size="md" fullWidth disabled={submitting} onClick={handleSubmit}>
           Confirmar resultado
-        </button>
-        <button
-          type="button"
-          className="btn btn-ghost btn-md btn-full"
-          disabled={submitting}
-          onClick={onCancel}
-        >
+        </Button>
+        <Button variant="ghost" size="md" fullWidth disabled={submitting} onClick={onCancel}>
           Cancelar
-        </button>
+        </Button>
 
-        <div className="foot-note">{FOOTNOTE_TEXT}</div>
+        <p className="rrs-footnote">{FOOTNOTE_TEXT}</p>
       </div>
     </div>
   )

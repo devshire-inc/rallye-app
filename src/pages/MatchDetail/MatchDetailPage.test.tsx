@@ -102,8 +102,14 @@ describe('MatchDetailPage — score hero', () => {
     const hero = await screen.findByTestId('score-hero')
     expect(within(hero).getByText('Julia / Fer')).toBeInTheDocument()
     expect(within(hero).getByText('Camila / Rê')).toBeInTheDocument()
-    expect(within(hero.querySelector('.big') as HTMLElement).getAllByText('5')).toHaveLength(2)
-    expect(within(hero).getByText(/SET 2 · AO VIVO · QUADRA #COUR/i)).toBeInTheDocument()
+    // Um placar grande por lado (`.mtc-hero__score`), não mais um bloco
+    // `.big` com os dois números juntos — ver o reskin em MatchDetailPage.css.
+    expect(hero.querySelectorAll('.mtc-hero__score')).toHaveLength(2)
+    expect(within(hero).getAllByText('5')).toHaveLength(2)
+    // A quadra saiu do badge (o frame 177:2467 mostra só "SET N · AO VIVO") e
+    // passou a ter a sua própria linha logo abaixo.
+    expect(within(hero).getByText(/SET 2 · AO VIVO/i)).toBeInTheDocument()
+    expect(within(hero).getByText(/Quadra #cour/i)).toBeInTheDocument()
   })
 
   it('shows the FINAL badge once the match is completed', async () => {

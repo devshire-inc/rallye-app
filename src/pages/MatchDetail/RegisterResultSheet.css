@@ -1,95 +1,103 @@
-/* TO7 — sheet "Registrar resultado" (BEAC-2008). Self-contained: redefine
- * as classes genéricas que este componente usa. .ssub/.stack/.set-in/
- * .radio-opt traduzidas 1:1 do protótipo real (#sheet-to7). Tokens
- * migrados pra Claude Design (BEAC-2055). */
+/* TO7 — sheet "Registrar resultado" (BEAC-2008).
+ *
+ * Sem frame próprio no Figma (as telas 19–21 não desenham este sheet), então
+ * o reskin é retokenização + adoção dos primitivos do DS, não um layout novo
+ * — ver o comentário de pacote em RegisterResultSheet.tsx.
+ *
+ * Todas as classes locais passaram a `.rrs-*`: as antigas (`.ssub`, `.stack`,
+ * `.set-in`, `.radio-opt`, `.foot-note`, `.detected-winner`) eram genéricas, e
+ * `.radio-opt`/`.foot-note` são declaradas também por outras folhas do
+ * bundle — este arquivo estava sobrescrevendo-as para o app inteiro.
+ */
 
-.register-result-sheet h2 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 18px;
-  margin: 0 0 4px;
+.rrs-title {
+  margin: 0 0 var(--space-1);
+  font: var(--type-heading);
+  color: var(--text-heading);
 }
 
-.register-result-sheet .ssub {
-  font-size: 12.5px;
+.rrs-subtitle {
+  margin: 0 0 var(--space-4);
+  font: var(--type-small);
   color: var(--text-muted);
-  margin: 0 0 14px;
 }
 
-.register-result-sheet .stack {
+.rrs-stack {
   display: flex;
   flex-direction: column;
   gap: var(--space-4);
 }
 
-.set-in {
+/* Grade de placar: nome da dupla + 3 células de set. */
+.rrs-set-row {
   display: grid;
   grid-template-columns: 1fr repeat(3, 54px);
-  gap: 8px;
+  gap: var(--space-2);
   align-items: center;
-  font-size: 12.5px;
 }
-.set-in .tn {
+
+.rrs-set-team {
+  min-width: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
   font-weight: 600;
-}
-.set-in .set-label {
-  text-align: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--text-muted);
-}
-.set-in input {
-  min-height: 40px;
-  border-radius: 8px;
-  border: 1px solid var(--border-default);
-  background: var(--surface-page);
   color: var(--text-heading);
+}
+
+.rrs-set-label {
+  font: var(--type-overline);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* `ui/Input` entrega o campo (borda, foco, estado desabilitado); daqui saem
+   só o encaixe na grade e o alinhamento central do placar. */
+.rrs-set-input {
+  min-width: 0;
+}
+.rrs-set-input .input__control {
   text-align: center;
   font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 15px;
-  width: 100%;
-}
-.set-in input:disabled {
-  opacity: 0.5;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
 
-.radio-opt {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
+/* Cartão de opção em volta do Checkbox/Radio do DS — o realce de "escolhido"
+   é do cartão, o controle em si continua o primitivo padrão. */
+.rrs-option {
+  padding: var(--space-3) 14px;
   border: 1px solid var(--border-default);
   border-radius: var(--radius-sm);
-  cursor: pointer;
-  font-size: 13px;
+  background: var(--surface-card);
 }
-.radio-opt input {
-  width: 16px;
-  height: 16px;
-  accent-color: var(--interactive-primary);
-  flex: none;
-}
-.radio-opt.checked {
+.rrs-option--checked {
   border-color: var(--interactive-primary);
-  background: color-mix(in srgb, var(--interactive-primary) 8%, var(--surface-card));
+  background: var(--surface-brand-soft);
 }
 
-.wo-winner-picker {
+.rrs-wo-picker {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
-.detected-winner {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--state-success);
+.rrs-detected {
   margin: 0;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--state-success-text);
 }
 
-.foot-note {
-  font-size: 11.5px;
+.rrs-error {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--state-danger-text);
+}
+
+.rrs-footnote {
+  margin: 0;
+  font: var(--type-small);
   color: var(--text-muted);
   text-align: center;
 }

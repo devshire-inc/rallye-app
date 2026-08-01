@@ -1,7 +1,14 @@
-/* TO8 — Rankings (BEAC-2009). Self-contained: redefine as classes genéricas
- * que esta página usa, mesmo padrão de RolesPage.css/ProfilePage.css. Classes
- * .tabs2/.podium/.rk-row traduzidas 1:1 do protótipo real (scr-to8, linhas
- * 902-938 do artifact). */
+/* TO8 — Rankings (BEAC-2009).
+ *
+ * `.pg-head`/`.tabs2`/`.dash-body` continuam declarados aqui pelo motivo já
+ * registrado em BracketPage.css (cópias das mesmas declarações espalhadas por
+ * ~20 CSS de página). As classes exclusivas da versão anterior desta tela
+ * (`.podium`, `.rk-row`, `.me-badge`, `.avatar-sm` local, `.foot-note` local)
+ * saíram junto com o pódio — nenhum outro arquivo as usava.
+ *
+ * Tudo do reskin leva prefixo `.rnk-`. Nenhum `.rnk-*` existia em nenhum
+ * outro CSS do projeto.
+ */
 
 .pg-head {
   display: flex;
@@ -50,126 +57,196 @@
   gap: var(--space-3);
 }
 
-.podium {
+/* ---------------------------------------------------------------------------
+   Reskin design system — Figma "21 · Rankings" (node 175:2340 mobile /
+   187:6805 desktop).
+
+   Layout ÚNICO: o frame desktop é a mesma lista do mobile num card mais
+   largo, sem `<table>` nenhuma — este arquivo não tem par cards/tabela, só
+   uma soltura de largura na @media de 1220. Cores só por token, então o tema
+   escuro sai de graça.
+   -------------------------------------------------------------------------- */
+
+.rnk-page {
   display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  gap: 10px;
-  padding: 10px 0 4px;
-}
-.podium .p {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
   flex: 1;
-  max-width: 110px;
+  flex-direction: column;
 }
-.podium .p .avatar-sm {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--sand-200);
+
+.rnk-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* 0,2,0 de propósito: `.pg-head h1 { font-size: 18px }` de outras folhas do
+   bundle vale para qualquer h1 (ver a mesma nota em BracketPage.css). */
+.rnk-page .rnk-title {
+  margin: 0;
+  font: var(--type-title);
+  color: var(--text-heading);
+}
+
+/* Pílulas de abrangência (175:2381 mobile / 188:3725 desktop). Markup local
+   e não `ui/Tabs`: o frame usa pílulas, e Cidade/Estado precisam do estado
+   desabilitado que o componente não expõe. */
+.rnk-scopes {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 14px;
+  flex-wrap: wrap;
+  gap: var(--space-2);
 }
-.podium .p.first .avatar-sm {
-  width: 56px;
-  height: 56px;
-  border: 2px solid var(--interactive-primary);
-}
-.podium .p .pn {
+.rnk-scope {
+  padding: 6px var(--space-3);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-muted);
+  /* 11px no mobile (frame 175:2383) e 13px no desktop (188:3727) — as quatro
+     pílulas fixas só cabem numa linha a 375px com o tamanho menor. */
+  font-family: var(--font-body);
   font-size: 11.5px;
-  font-weight: 600;
-  text-align: center;
-}
-.podium .p .pp {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--state-info);
-  font-variant-numeric: tabular-nums;
-}
-.podium .p .base {
-  width: 100%;
-  border-radius: 8px 8px 0 0;
-  background: var(--sand-200);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
   font-weight: 700;
+  line-height: 1.2;
+  cursor: pointer;
 }
-.podium .p.first .base {
-  height: 44px;
+.rnk-scope:hover:not(:disabled) {
+  color: var(--text-heading);
+}
+.rnk-scope--active {
+  border-color: var(--interactive-primary);
   background: var(--interactive-primary);
   color: var(--text-on-brand);
 }
-.podium .p.second .base {
-  height: 32px;
-}
-.podium .p.third .base {
-  height: 24px;
+.rnk-scope:disabled {
+  opacity: 0.55;
+  cursor: default;
 }
 
-.rk-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: var(--surface-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  padding: 9px 14px;
-  font-size: 13px;
-}
-.rk-row .pos {
-  font-family: var(--font-display);
-  font-weight: 600;
-  width: 30px;
-  font-variant-numeric: tabular-nums;
-  color: var(--text-muted);
-}
-.rk-row .avatar-sm {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--sand-200);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 10.5px;
-  flex: none;
-}
-.rk-row .rn {
-  flex: 1;
-  font-weight: 600;
-}
-.rk-row .rp {
-  font-family: var(--font-display);
-  font-weight: 600;
-  color: var(--state-info);
-  font-variant-numeric: tabular-nums;
-}
-.rk-row.me {
-  border-color: var(--interactive-primary);
-  background: color-mix(in srgb, var(--interactive-primary) 7%, var(--surface-card));
+.rnk-alert {
+  margin: 0;
+  color: var(--state-danger-text);
+  font: var(--type-small);
 }
 
-.me-badge {
-  font-size: 9.5px;
+/* COLISÃO GLOBAL — `ui/Card` sendo sobrescrito por `.card` de outra folha.
+   TournamentViewPage.css declara um `.card` genérico próprio
+   (`padding: var(--space-4)` + borda) com a MESMA especificidade (0,1,0) da
+   regra do componente (`.card { padding: var(--card-padding) }`), e a ordem
+   das folhas no bundle não é garantida — na prática a da página vence, e a
+   prop `padding` do `ui/Card` (que só seta a custom property inline) era
+   ignorada. Reafirmado aqui com o escopo da página (0,2,0), que vence
+   sempre. Medido no browser: sem esta regra o card vinha com 16px de padding
+   em vez de 0. */
+.rnk-page .card {
+  padding: 0;
+}
+
+/* Lista dentro do `ui/Card` (padding={0}): o respiro é de cada linha, como no
+   frame, e o `overflow: hidden` faz o realce da linha "Você" respeitar o raio
+   do card nas pontas. */
+.rnk-list {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  list-style: none;
+}
+
+.rnk-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+}
+
+/* Coluna de posição: medalha nas 3 primeiras, número depois (175:2399/2426). */
+.rnk-row__place {
+  flex-shrink: 0;
+  width: 30px;
+  font-family: var(--font-body);
+  font-size: 16px;
   font-weight: 700;
-  color: var(--interactive-primary);
-  margin-left: 4px;
+  color: var(--text-heading);
+  font-variant-numeric: tabular-nums;
 }
 
-.foot-note {
-  font-size: 11.5px;
+.rnk-row__name {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-heading);
+}
+/* O nome trunca; o selo "Você" nunca encolhe nem empurra o nome para uma
+   segunda linha (o que acontecia a 375px antes deste par de regras). */
+.rnk-row__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rnk-row__name .badge {
+  flex-shrink: 0;
+}
+
+.rnk-row__points {
+  flex-shrink: 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-brand-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Linha do próprio usuário (188:3778): faixa em surface/sunken. */
+.rnk-row--me {
+  background: var(--surface-sunken);
+}
+
+.rnk-note {
+  margin: 0;
+  font: var(--type-small);
   color: var(--text-muted);
-  text-align: center;
+}
+
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica do 860. */
+@media (min-width: 860px) {
+  .rnk-page .rnk-title {
+    font: var(--type-display);
+  }
+
+  .rnk-scope {
+    font: var(--type-label);
+    padding: var(--space-2) 14px;
+  }
+
+  .rnk-row {
+    gap: var(--space-4);
+    padding: var(--space-3) var(--space-5);
+  }
+
+  .rnk-row__name,
+  .rnk-row__points {
+    font-size: 15px;
+  }
+}
+
+/* breakpoints.ts: BREAKPOINT_TABLE_MIN é a fonte canônica do 1220. Esta tela
+   não tem tabela (e por isso não usa `.dash-body--wide`, que é gatilhado por
+   `:has(table)`), mas o ponto em que a coluna útil comporta a lista larga do
+   frame é o mesmo — reusar o valor evita inventar um terceiro breakpoint.
+   Seletor 0,2,0 pela razão descrita em src/styles/utilities.css. */
+@media (min-width: 1220px) {
+  .rnk-page .dash-body {
+    max-width: 1080px;
+  }
 }
