@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
@@ -118,16 +118,16 @@ function groupByDate(bookings: Booking[]): { label: string; items: Booking[] }[]
  * (BEAC-1906, confirmado bloqueado/nunca modelado) — implementado só o shell
  * da aba, com estado vazio explícito, sem inventar dado de presença.
  *
- * "Agendar aula": sem flag de self-service em nenhum módulo de
- * src/lib/api existente (só unitSettings.ts, que só tem
- * delinquency-block-level) — decisão desta implementação: sempre mostrar o
- * botão (default seguro per instrução do dispatch), como stub desabilitado
- * (nenhum endpoint de agendamento self-service existe ainda) — questão em
- * aberto no relatório.
+ * "Agendar aula": linka para o fluxo self-service real
+ * (AgendarEscolherHorarioPage.tsx, .../agenda/agendar) desde que o backend
+ * de disponibilidade por ocorrência (GET/POST .../classes/occurrences) foi
+ * implementado — antes disso o botão ficava `disabled` (stub, sem endpoint
+ * para religar).
  */
 export default function AG3StudentAgendaPage() {
   const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
+  const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
   const [tab, setTab] = useState<Tab>('prox')
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -419,8 +419,7 @@ export default function AG3StudentAgendaPage() {
               variant="primary"
               size="md"
               fullWidth
-              disabled
-              title="Sem endpoint de agendamento self-service ainda — ver relatório de dispatch"
+              onClick={() => navigate(`/units/${unitId}/agenda/agendar`)}
             >
               Agendar aula
             </Button>

@@ -4,13 +4,7 @@ import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Button } from '../../components/ui/Button/Button'
 import { Icon } from '../../components/ui/Icon/Icon'
-import {
-  AGENDAR_MOCK_COURT_NAME,
-  AGENDAR_MOCK_TEACHER_NAME,
-  agendarClassTitle,
-  formatPriceCents,
-  type AgendarResult,
-} from './agendarMockData'
+import { formatPriceCents, type AgendarResult } from './agendarMockData'
 import './AgendarFlow.css'
 
 /**
@@ -39,9 +33,13 @@ export default function AgendarSucessoPage() {
 
   if (!unitId) return null
 
-  const classTitle = result ? agendarClassTitle(result.sportLabel) : 'sua aula'
+  const classTitle = result?.occurrence.className ?? 'sua aula'
   const subtitle = result
-    ? `Sua vaga em ${classTitle} está garantida para ${result.date.weekdayShort}, ${result.date.day} ${result.date.monthShort} às ${result.slot.time}.`
+    ? `Sua vaga em ${classTitle} está garantida para ${new Date(result.occurrence.startAt).toLocaleDateString('pt-BR', {
+        weekday: 'short',
+        day: '2-digit',
+        month: 'short',
+      })} às ${new Date(result.occurrence.startAt).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}.`
     : 'Sua vaga está garantida.'
 
   return (
@@ -58,9 +56,9 @@ export default function AgendarSucessoPage() {
         {result ? (
           <div className="agendar-success__summary">
             <strong>
-              {AGENDAR_MOCK_COURT_NAME} · Prof. {AGENDAR_MOCK_TEACHER_NAME}
+              {result.courtName} · Prof. {result.teacherName}
             </strong>
-            <span>Pago via PIX · {formatPriceCents(result.slot.priceValue)}</span>
+            <span>Pago via PIX · {formatPriceCents(result.occurrence.priceCents as number)}</span>
           </div>
         ) : (
           <AlertCard tone="info">

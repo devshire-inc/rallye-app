@@ -269,15 +269,10 @@ function AppRoutes() {
       {/* Agendar aula (Aluno) — fluxo self-service NOVO (não reskin),
           construído do zero seguindo Figma "06/07/08 · Agendar — Escolher
           Horário/Confirmar/Sucesso — Aluno" (nodes 159:1576/183:2954,
-          159:1618/183:2973, 159:1660/183:2992). NÃO linkado ao botão
-          "Agendar aula" de AG3StudentAgendaPage.tsx (permanece
-          propositalmente `disabled` lá) — sem endpoint de disponibilidade de
-          quadra e sem permission `agenda:write` para o role Aluno (ver
-          comentário de pacote de AgendarEscolherHorarioPage.tsx para o
-          levantamento completo). Estas rotas existem, com dados mockados na
-          tela de horários e sem chamada real de criação de reserva, prontas
-          para o dia em que o backend suportar o fluxo — acessíveis hoje só
-          por URL direta, não por nenhum ponto de entrada da navegação. */}
+          159:1618/183:2973, 159:1660/183:2992). Integrado com o backend real
+          de disponibilidade/reserva por ocorrência (GET/POST
+          .../classes/occurrences, ../lib/api/classOccurrences.ts) e linkado
+          ao botão "Agendar aula" de AG3StudentAgendaPage.tsx. */}
       <Route path="/units/:unitId/agenda/agendar" element={<AgendarEscolherHorarioPage />} />
       <Route path="/units/:unitId/agenda/agendar/confirmar" element={<AgendarConfirmarPage />} />
       <Route path="/units/:unitId/agenda/agendar/sucesso" element={<AgendarSucessoPage />} />

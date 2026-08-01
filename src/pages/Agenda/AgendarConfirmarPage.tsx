@@ -5,21 +5,38 @@ import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Button } from '../../components/ui/Button/Button'
 import { Card } from '../../components/ui/Card/Card'
-// GAP DE BACKEND — ver bloco de comentário abaixo: createBooking NÃO é
-// chamado de verdade nesta tela ainda, mas o import fica comentado junto do
-// código morto para deixar claro o que falta plugar quando o backend
-// suportar self-service (ver AgendarEscolherHorarioPage.tsx para o
-// levantamento completo).
-// import { createBooking } from '../../lib/api/bookings'
-import {
-  AGENDAR_MOCK_COURT_NAME,
-  AGENDAR_MOCK_TEACHER_NAME,
-  agendarClassTitle,
-  formatPriceCents,
-  type AgendarResult,
-  type AgendarSelection,
-} from './agendarMockData'
+import { bookClassOccurrence } from '../../lib/api/classOccurrences'
+import { formatPriceCents, type AgendarResult, type AgendarSelection } from './agendarMockData'
 import './AgendarFlow.css'
+
+function formatDateTime(iso: string): { weekdayShort: string; day: number; monthShort: string; time: string } {
+  const d = new Date(iso)
+  return {
+    weekdayShort: d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', ''),
+    day: d.getDate(),
+    monthShort: d.toLocaleDateString('pt-BR', { month: 'short' }).replace('.', ''),
+    time: d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+  }
+}
+
+/** Mensagens de erro específicas para os códigos documentados de
+ * POST .../occurrences/book — fallback genérico para qualquer outro. */
+function bookingErrorMessage(error: string): string {
+  switch (error) {
+    case 'occurrence_full':
+      return 'Essa turma acabou de lotar — escolha outro horário.'
+    case 'already_booked':
+      return 'Você já tem uma reserva nesta ocorrência.'
+    case 'class_not_found':
+      return 'Essa turma não existe mais — volte e escolha outro horário.'
+    case 'class_inactive':
+      return 'Essa turma foi desativada — volte e escolha outro horário.'
+    case 'invalid_occurrence':
+      return 'Esse horário não é mais válido — volte e escolha outro.'
+    default:
+      return 'Não foi possível confirmar seu agendamento agora. Tente novamente.'
+  }
+}
 
 /**
  * Tela 2/3 do fluxo self-service "Agendar aula" (Aluno) — Figma "07 · Agendar
@@ -30,31 +47,13 @@ import './AgendarFlow.css'
  * state não tem como montar o resumo, então mostra um aviso e um link de
  * volta em vez de quebrar (mesmo tratamento de AG5).
  *
- * NÃO CHAMA createBooking DE VERDADE — decisão explícita, não esquecimento:
- * ver o comentário de pacote de AgendarEscolherHorarioPage.tsx para o
- * levantamento completo. Resumo: (1) não existe endpoint de disponibilidade
- * de quadra consumível por este fluxo — o preço/vagas mostrados aqui vêm do
- * mock do passo anterior, não de um cálculo real de servidor; (2) o role
- * Aluno não tem a permission `agenda:write` que `POST /units/{id}/bookings`
- * exige (ver ../../lib/api/permissions.ts e o comentário equivalente em
- * AG5BookingDetailPage.tsx) — chamar o endpoint real aqui daria 403 sempre,
- * então simular uma chamada real seria pior que deixar o gap explícito. O
- * botão "Confirmar e pagar com PIX" abaixo só SIMULA uma confirmação
- * (delay + navegação pro passo 3) — nenhuma reserva é persistida.
- *
- * Chamada real comentada, pronta para religar assim que o backend suportar
- * self-service (endpoint de disponibilidade + permission de Aluno em
- * bookings:write, ou um endpoint dedicado de self-booking):
- *
- * ```ts
- * const result = await createBooking(selection.unitId, {
- *   type: 'private', // ou um novo BookingType dedicado a self-service
- *   courtId: /* precisa de um courtId real, hoje só temos o nome mockado * /,
- *   startAt: combineDateAndTime(selection.date.iso, selection.slot.time),
- *   endAt: combineDateAndTime(selection.date.iso, selection.slot.endTime),
- * })
- * if (!result.ok) { setError(...); return }
- * ```
+ * Chama POST /units/{id}/classes/{classId}/occurrences/book de verdade
+ * (../../lib/api/classOccurrences.ts) ao confirmar — os erros documentados
+ * do endpoint (409 occurrence_full/already_booked, 404 class_not_found, 409
+ * class_inactive, 400 invalid_occurrence/invalid_body) viram uma mensagem
+ * amigável no AlertCard já usado nesta tela (ver bookingErrorMessage acima).
+ * Não há gateway PIX real: a confirmação já acontece nesta chamada, sem
+ * pagamento — o texto "Confirmar e pagar com PIX" é só a copy do Figma.
  */
 export default function AgendarConfirmarPage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -64,6 +63,7 @@ export default function AgendarConfirmarPage() {
   const selection = (location.state as { selection?: AgendarSelection } | null)?.selection
 
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   if (!unitId) return null
 
@@ -85,20 +85,26 @@ export default function AgendarConfirmarPage() {
     )
   }
 
-  function handleConfirm() {
-    if (!selection) return
+  async function handleConfirm() {
+    if (!selection || !unitId) return
     setSubmitting(true)
-    // Simulação client-side (ver comentário de módulo) — sem chamada real de
-    // API. O timeout só existe para dar feedback visual de "processando"
-    // condizente com o botão de loading do DS.
-    setTimeout(() => {
-      const result: AgendarResult = { ...selection, confirmedAt: new Date().toISOString() }
-      navigate(`/units/${unitId}/agenda/agendar/sucesso`, { state: { result } })
-    }, 600)
+    setError(null)
+    const response = await bookClassOccurrence(unitId, selection.occurrence.classId, selection.occurrence.startAt)
+    setSubmitting(false)
+    if (!response.ok) {
+      setError(bookingErrorMessage(response.error))
+      return
+    }
+    const result: AgendarResult = { ...selection, bookingId: response.bookingId, confirmedAt: response.addedAt }
+    navigate(`/units/${unitId}/agenda/agendar/sucesso`, { state: { result } })
   }
 
-  const classTitle = agendarClassTitle(selection.sportLabel)
-  const total = formatPriceCents(selection.slot.priceValue)
+  const { weekdayShort, day, monthShort, time } = formatDateTime(selection.occurrence.startAt)
+  const endTime = new Date(selection.occurrence.endAt).toLocaleTimeString('pt-BR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+  const total = formatPriceCents(selection.occurrence.priceCents as number)
 
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
@@ -115,24 +121,23 @@ export default function AgendarConfirmarPage() {
         <div className="agendar-summary-card">
           <Card>
             <div>
-              <p className="agendar-summary-title">{classTitle}</p>
+              <p className="agendar-summary-title">{selection.occurrence.className}</p>
               <p className="agendar-summary-subtitle">
-                Aula em turma · {selection.date.weekdayShort}, {selection.date.day} {selection.date.monthShort} ·{' '}
-                {selection.slot.time} – {selection.slot.endTime}
+                Aula em turma · {weekdayShort}, {day} {monthShort} · {time} – {endTime}
               </p>
             </div>
             <div className="agendar-summary-row">
               <span>Quadra</span>
-              <span>{AGENDAR_MOCK_COURT_NAME}</span>
+              <span>{selection.courtName}</span>
             </div>
             <div className="agendar-summary-row">
               <span>Professor</span>
-              <span>{AGENDAR_MOCK_TEACHER_NAME}</span>
+              <span>{selection.teacherName}</span>
             </div>
             <div className="agendar-summary-row">
               <span>Vagas</span>
               <span>
-                {selection.slot.spotsTaken} de {selection.slot.spotsTotal} vagas
+                {selection.occurrence.availableSeats} de {selection.occurrence.capacity} vagas
               </span>
             </div>
             <div className="agendar-summary-row">
@@ -151,6 +156,14 @@ export default function AgendarConfirmarPage() {
           <strong>Cancele até 24h antes e ganhe 1 crédito</strong>
           <p>Com menos de 24h, o cancelamento não gera crédito. O pagamento é feito por PIX na confirmação.</p>
         </AlertCard>
+
+        {error ? (
+          <div role="alert">
+            <AlertCard tone="danger" showIcon>
+              {error}
+            </AlertCard>
+          </div>
+        ) : null}
 
         <div className="agendar-confirm-actions">
           <Button variant="ghost" size="lg" onClick={() => navigate(`/units/${unitId}/agenda/agendar`)}>
