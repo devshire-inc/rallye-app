@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
-import { getMe } from '../../lib/api/me'
+import { useMe } from '../../hooks/useMe'
 import { getRankings, type RankingEntry, type RankingScope } from '../../lib/api/rankings'
 import { getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -47,18 +47,9 @@ export default function RankingsPage() {
   const { orgLabel, userLabel } = useShellIdentity()
   const [scope, setScope] = useState<RankingScope>('arena')
   const [state, setState] = useState<LoadState>({ status: 'loading' })
-  const [myId, setMyId] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    getMe().then((result) => {
-      if (cancelled) return
-      if (result.ok) setMyId(result.id)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
+  // Compartilha o `GET /me` do useShellIdentity acima — ver hooks/useMe.ts.
+  const { me } = useMe()
+  const myId = me?.id ?? null
 
   const load = useCallback(
     (onCancelled: () => boolean) => {

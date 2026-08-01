@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { fireEvent, screen, waitFor } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as usePermissionModule from '../../hooks/usePermission'
@@ -38,7 +39,7 @@ function detailOk(invoice: InvoiceDetail): GetInvoiceResult {
 }
 
 function renderPage() {
-  return render(
+  return renderWithQuery(
     <MemoryRouter initialEntries={['/invoices/inv-1']}>
       <Routes>
         <Route path="/invoices/:invoiceId" element={<F3InvoiceDetailPage />} />

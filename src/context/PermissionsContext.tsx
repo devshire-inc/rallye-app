@@ -31,30 +31,57 @@
  * ../hooks/usePermissionsContext.ts — este arquivo só exporta o componente
  * Provider (exigido pelo eslint react-refresh/only-export-components).
  */
-import { useCallback, useEffect, useState, type ReactNode } from 'react'
-import { fetchMePermissions } from '../lib/api/permissions'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { permissionsQueryOptions } from '../lib/query/identity'
 import { SESSION_ESTABLISHED_EVENT } from '../lib/httpClient'
 import { PermissionsContext, type PermissionsState } from './permissionsContextInstance'
 
 export function PermissionsProvider({ children }: { children: ReactNode }) {
-  const [state, setState] = useState<PermissionsState>({ status: 'idle' })
+  const queryClient = useQueryClient()
 
+  /**
+   * A query fica DESABILITADA até a primeira sessão ser estabelecida (ou
+   * até alguém chamar `refetch()` explicitamente). Isso preserva ao pé da
+   * letra a regra (a) do comentário de pacote: este Provider nunca buscou
+   * permissions na montagem — só ao receber SESSION_ESTABLISHED_EVENT — e
+   * o estado antes disso é `idle`, que `usePermission` lê como "false para
+   * tudo".
+   */
+  const [enabled, setEnabled] = useState(false)
+
+  const query = useQuery({ ...permissionsQueryOptions(), enabled })
+
+  /**
+   * Regra (b): `refetch()` continua AWAITABLE, e continua sendo o que
+   * S1Page.enterMembership/TrocarArenaPage aguardam antes de navegar — o
+   * contrato é que nenhuma tela da nova unit renderize antes das permissions
+   * novas chegarem.
+   *
+   * Usa `fetchQuery` e não o `refetch` do `useQuery` por duas razões
+   * concretas: (1) `fetchQuery` funciona mesmo com a query ainda
+   * desabilitada, então a primeira chamada não depende da ordem em que o
+   * evento de sessão chegou; (2) `staleTime: 0` força ida à rede de
+   * verdade — numa troca de arena, devolver o mapa cacheado da unit
+   * ANTERIOR seria justamente o bug que este await existe para impedir.
+   *
+   * A promise resolve depois que o resultado já está escrito no cache, e é
+   * o mesmo cache que o `useQuery` acima observa — quando o await retorna,
+   * o `state` exposto no contexto já reflete as permissions novas.
+   */
   const refetch = useCallback(async () => {
-    setState({ status: 'loading' })
+    setEnabled(true)
     try {
-      const result = await fetchMePermissions()
-      if (result.kind === 'temporary') {
-        setState({ status: 'ready', kind: 'temporary' })
-      } else {
-        setState({ status: 'ready', kind: 'full', permissions: result.permissions })
-      }
+      await queryClient.fetchQuery({ ...permissionsQueryOptions(), staleTime: 0 })
     } catch {
       // Esconder sempre: uma falha ao buscar permissions nunca deve virar
-      // "liberado por omissão" — cai num estado explícito que
-      // usePermission trata como false para tudo.
-      setState({ status: 'error' })
+      // "liberado por omissão". O erro já está registrado no cache da query
+      // e vira `status: 'error'` no mapeamento abaixo, que `usePermission`
+      // trata como false para tudo — aqui só impedimos que a rejeição
+      // escape para o chamador, que apenas aguarda ("terminou de tentar"),
+      // não trata falha.
     }
-  }, [])
+  }, [queryClient])
 
   useEffect(() => {
     function handleSessionEstablished() {
@@ -64,7 +91,30 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
     return () => window.removeEventListener(SESSION_ESTABLISHED_EVENT, handleSessionEstablished)
   }, [refetch])
 
-  return (
-    <PermissionsContext.Provider value={{ state, refetch }}>{children}</PermissionsContext.Provider>
-  )
+  /**
+   * Mapeia o estado da query para o `PermissionsState` que o contexto
+   * sempre expôs — a forma pública não mudou.
+   *
+   * A ordem dos ramos importa: `data` vem ANTES de `fetching`, então um
+   * refetch em segundo plano (revalidação por foco, ver
+   * ../lib/query/platformBridge.ts) mantém as permissions atuais visíveis
+   * em vez de piscar tudo para escondido. Nas transições que importam para
+   * o AC — primeira carga e troca de arena — não há divergência: na
+   * primeira não existe `data`, e na troca a navegação só acontece depois
+   * do await acima.
+   */
+  const state = useMemo<PermissionsState>(() => {
+    if (query.data) {
+      return query.data.kind === 'temporary'
+        ? { status: 'ready', kind: 'temporary' }
+        : { status: 'ready', kind: 'full', permissions: query.data.permissions }
+    }
+    if (query.isError) return { status: 'error' }
+    if (query.fetchStatus === 'fetching') return { status: 'loading' }
+    return { status: 'idle' }
+  }, [query.data, query.isError, query.fetchStatus])
+
+  const value = useMemo(() => ({ state, refetch }), [state, refetch])
+
+  return <PermissionsContext.Provider value={value}>{children}</PermissionsContext.Provider>
 }

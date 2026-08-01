@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react'
-import { listMyMemberships } from '../lib/api'
-import { getMe } from '../lib/api/me'
+import { useQuery } from '@tanstack/react-query'
+import { useMemo } from 'react'
+import { membershipsQueryOptions, meQueryOptions } from '../lib/query/identity'
 import { getActiveUnitId } from '../lib/tenantContext'
 
 export interface ShellIdentity {
@@ -63,43 +63,45 @@ function userLabelFor(fullName: string, role: string | null): string {
  * usePermission. O que separa os dois casos é `loading`: `true` só enquanto
  * os fetches estão em voo, `false` assim que qualquer desfecho chega
  * (inclusive erro — erro NÃO fica preso em "carregando pra sempre").
+ *
+ * MIGRAÇÃO PARA TANSTACK QUERY: a assinatura pública acima (ShellIdentity e
+ * a semântica de cada campo) é IDÊNTICA à da versão anterior — os ~57
+ * consumidores não mudaram uma linha. O que mudou é o motor: antes cada
+ * instância do hook tinha o próprio `useState` + `useEffect(…, [])` e
+ * portanto disparava os próprios `GET /me` e `GET /me/memberships` (10 e 8
+ * numa única navegação ao dashboard, medidos). Agora as duas queries são
+ * compartilhadas por chave (../lib/query/identity.ts): N componentes
+ * montando no mesmo commit colapsam numa requisição de cada, e as
+ * navegações seguintes leem do cache dentro do staleTime.
+ *
+ * Mapeamento dos desfechos, preservando o contrato campo a campo:
+ *   - qualquer uma das duas queries ainda em `pending`  -> LOADING_IDENTITY
+ *   - `GET /me` falhou (erro de rede OU resposta `!ok`) -> RESOLVED_EMPTY
+ *     (`loading: false` — nunca prende em "carregando", igual antes)
+ *   - `me` ok e memberships falhou -> memberships tratado como lista vazia,
+ *     exatamente o que o antigo `.catch(() => [])` produzia
  */
 export function useShellIdentity(): ShellIdentity {
-  const [identity, setIdentity] = useState<ShellIdentity>(LOADING_IDENTITY)
+  const meQuery = useQuery(meQueryOptions())
+  const membershipsQuery = useQuery(membershipsQueryOptions())
 
-  useEffect(() => {
-    let cancelled = false
+  const me = meQuery.data
+  const memberships = membershipsQuery.data
+  const loading = meQuery.isPending || membershipsQuery.isPending
 
-    async function load() {
-      const [meResult, memberships] = await Promise.all([
-        getMe().catch(() => ({ ok: false as const, status: 0, error: 'network_error' })),
-        listMyMemberships().catch(() => []),
-      ])
-      if (cancelled) return
-      if (!meResult.ok) {
-        // Best-effort como antes (identidade vazia), mas resolvido: quem
-        // despacha por papel precisa sair do estado de carregamento.
-        setIdentity(RESOLVED_EMPTY)
-        return
-      }
+  return useMemo<ShellIdentity>(() => {
+    if (loading) return LOADING_IDENTITY
+    if (!me) return RESOLVED_EMPTY
 
-      const activeUnitId = getActiveUnitId()
-      const activeMembership =
-        memberships.find((m) => m.unitId === activeUnitId) ?? memberships[0]
+    const activeUnitId = getActiveUnitId()
+    const list = memberships ?? []
+    const activeMembership = list.find((m) => m.unitId === activeUnitId) ?? list[0]
 
-      setIdentity({
-        orgLabel: activeMembership?.unit.name ?? '',
-        userLabel: userLabelFor(meResult.fullName, activeMembership?.role ?? null),
-        role: activeMembership?.role ?? null,
-        loading: false,
-      })
+    return {
+      orgLabel: activeMembership?.unit.name ?? '',
+      userLabel: userLabelFor(me.fullName, activeMembership?.role ?? null),
+      role: activeMembership?.role ?? null,
+      loading: false,
     }
-
-    void load()
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
-  return identity
+  }, [loading, me, memberships])
 }

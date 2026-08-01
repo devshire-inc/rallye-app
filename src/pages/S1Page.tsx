@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthLayout } from '../components/AuthLayout/AuthLayout'
@@ -11,6 +12,7 @@ import { Skeleton, SkeletonGroup } from '../components/ui/Skeleton/Skeleton'
 import { usePermissionsContext } from '../hooks/usePermissionsContext'
 import { accessMembership, listMyMemberships, type MembershipListItem } from '../lib/api'
 import { dashboardPathForRole } from '../lib/dashboardTarget'
+import { invalidateIdentity } from '../lib/query/identity'
 import './S1Page.css'
 
 const EMPTY_STATE_MESSAGE =
@@ -44,6 +46,7 @@ function roleTone(role: string | null): 'success' | 'info' {
 export default function S1Page() {
   const navigate = useNavigate()
   const { refetch: refetchPermissions } = usePermissionsContext()
+  const queryClient = useQueryClient()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [sheetOpen, setSheetOpen] = useState(false)
   const [confirmation, setConfirmation] = useState<string | null>(null)
@@ -64,10 +67,18 @@ export default function S1Page() {
       } catch {
         // ver comentário acima — best-effort.
       }
+      // Invalida o cache de identidade (me + memberships + permissions):
+      // trocar de arena muda o papel do usuário e o `last_accessed_at` das
+      // memberships, então o dado cacheado da arena ANTERIOR não pode
+      // sobreviver à navegação. Não é aguardado de propósito — quem precisa
+      // ser esperado é `refetchPermissions()` logo abaixo (AC de BEAC-1841),
+      // e bloquear a navegação também no refetch da shell só somaria latência
+      // à troca sem mudar o que a tela de destino renderiza.
+      void invalidateIdentity(queryClient)
       await refetchPermissions()
       navigate(dashboardPathForRole(membership.role, membership.unitId), { replace: true })
     },
-    [navigate, refetchPermissions],
+    [navigate, queryClient, refetchPermissions],
   )
 
   // Carga "inicial" (mount + botão Retry): se a resposta tiver exatamente 1

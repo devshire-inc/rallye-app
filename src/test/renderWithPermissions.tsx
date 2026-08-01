@@ -1,6 +1,7 @@
 import { render, type RenderResult } from '@testing-library/react'
 import type { ReactElement } from 'react'
 import { PermissionsProvider } from '../context/PermissionsContext'
+import { QueryTestProvider } from './queryTestClient'
 
 /**
  * Pages under `AppShell` (BEAC-2058) render it as a child, and AppShell
@@ -14,7 +15,17 @@ import { PermissionsProvider } from '../context/PermissionsContext'
  * DayUseBookingsPage) mock `fetchMePermissions` and dispatch
  * `SESSION_ESTABLISHED_EVENT` directly instead — this helper is for
  * everyone else.
+ *
+ * O `QueryClientProvider` por fora passou a ser obrigatório desde que os
+ * dados globais de identidade (`/me`, `/me/memberships`, `/me/permissions`)
+ * viraram queries do TanStack Query: tanto o `PermissionsProvider` quanto o
+ * `useShellIdentity`/`useMe` das páginas leem do cache, e sem um client em
+ * contexto o render lança "No QueryClient set".
  */
 export function renderWithPermissions(ui: ReactElement): RenderResult {
-  return render(<PermissionsProvider>{ui}</PermissionsProvider>)
+  return render(
+    <QueryTestProvider>
+      <PermissionsProvider>{ui}</PermissionsProvider>
+    </QueryTestProvider>,
+  )
 }

@@ -12,7 +12,7 @@ import {
   type BookingParticipant,
   type GetBookingsGridSuccess,
 } from '../../lib/api/bookings'
-import { getMe } from '../../lib/api/me'
+import { useMe } from '../../hooks/useMe'
 import { getSessionMemberships } from '../../lib/tenantContext'
 import { SKILL_TIERS } from '../../lib/api/skillLevels'
 import { groupByArenaLabel } from '../../lib/agenda/groupByArena'
@@ -108,27 +108,18 @@ export default function AG4TeacherAgendaPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loadError, setLoadError] = useState<string | null>(null)
 
-  const [teacherId, setTeacherId] = useState<string | undefined>(undefined)
-  const [identityResolved, setIdentityResolved] = useState(false)
+  // teacherId do cache COMPARTILHADO de GET /me (hooks/useMe.ts) em vez de
+  // um fetch próprio desta tela. `settled` é o antigo `identityResolved`:
+  // true depois de sucesso OU falha. Falha (ex.: 403 de sessão temporary)
+  // segue sem teacher_id — mesmo fail-open de AG3StudentAgendaPage
+  // (loggedInStudentId). Não bloqueia a tela; só deixa de escopar por
+  // professor.
+  const { me, settled: identityResolved } = useMe()
+  const teacherId = me?.id
 
   const [participantsBooking, setParticipantsBooking] = useState<Booking | null>(null)
   const [participants, setParticipants] = useState<BookingParticipant[]>([])
   const [participantsError, setParticipantsError] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    getMe().then((result) => {
-      if (cancelled) return
-      if (result.ok) setTeacherId(result.id)
-      // Falha (ex.: 403 de sessão temporary): segue sem teacher_id — mesmo
-      // fail-open de AG3StudentAgendaPage (loggedInStudentId). Não bloqueia
-      // a tela; só deixa de escopar por professor.
-      setIdentityResolved(true)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   useEffect(() => {
     if (!identityResolved) return

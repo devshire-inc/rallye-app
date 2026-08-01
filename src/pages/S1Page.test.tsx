@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { renderWithQuery } from '../test/renderWithQuery'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -50,7 +51,7 @@ function membership(overrides: Partial<MembershipListItem> = {}): MembershipList
 }
 
 function renderPage() {
-  return render(
+  return renderWithQuery(
     <PermissionsProvider>
       <MemoryRouter initialEntries={['/s1']}>
         <Routes>

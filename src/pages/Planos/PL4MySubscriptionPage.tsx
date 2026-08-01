@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
@@ -7,7 +8,7 @@ import { Card } from '../../components/ui/Card/Card'
 import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
-import { getMe } from '../../lib/api/me'
+import { ensureMe } from '../../lib/query/identity'
 import type { BillingCycle } from '../../lib/api/plans'
 import {
   getSubscription,
@@ -135,9 +136,12 @@ export default function PL4MySubscriptionPage() {
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [showCancelInfo, setShowCancelInfo] = useState(false)
+  const queryClient = useQueryClient()
 
   const load = useCallback((onCancelled: () => boolean) => {
-    getMe()
+    // `ensureMe` no lugar de `getMe()`: mesmo contrato de retorno, mas
+    // reaproveitando o GET /me que o `useShellIdentity` acima já buscou.
+    ensureMe(queryClient)
       .then((meResult) => {
         if (onCancelled()) return
         if (!meResult.ok) {
@@ -161,7 +165,7 @@ export default function PL4MySubscriptionPage() {
         if (onCancelled()) return
         setState({ status: 'error' })
       })
-  }, [])
+  }, [queryClient])
 
   useEffect(() => {
     let cancelled = false

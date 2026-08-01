@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../components/AppShell/AppShell'
@@ -12,6 +13,7 @@ import { useShellIdentity } from '../hooks/useShellIdentity'
 import { usePermissionsContext } from '../hooks/usePermissionsContext'
 import { accessMembership, listMyMemberships, type MembershipListItem } from '../lib/api'
 import { dashboardPathForRole } from '../lib/dashboardTarget'
+import { invalidateIdentity } from '../lib/query/identity'
 import { getActiveTenantId, getActiveUnitId } from '../lib/tenantContext'
 import './TrocarArenaPage.css'
 
@@ -53,6 +55,7 @@ export default function TrocarArenaPage() {
   const navigate = useNavigate()
   const { orgLabel, userLabel } = useShellIdentity()
   const { refetch: refetchPermissions } = usePermissionsContext()
+  const queryClient = useQueryClient()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [sheetOpen, setSheetOpen] = useState(false)
   const [confirmation, setConfirmation] = useState<string | null>(null)
@@ -71,10 +74,14 @@ export default function TrocarArenaPage() {
       } catch {
         // best-effort — ver comentário acima.
       }
+      // Mesma invalidação de identidade de S1Page.enterMembership (ver o
+      // comentário detalhado lá): o cache de me/memberships/permissions da
+      // arena ANTERIOR não pode sobreviver à troca.
+      void invalidateIdentity(queryClient)
       await refetchPermissions()
       navigate(dashboardPathForRole(membership.role, membership.unitId), { replace: true })
     },
-    [navigate, refetchPermissions],
+    [navigate, queryClient, refetchPermissions],
   )
 
   const loadInitial = useCallback((onCancelled: () => boolean) => {

@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -34,7 +35,7 @@ function teacher(overrides: Partial<Teacher> = {}): Teacher {
 }
 
 function renderCreatePage(unitId = 'unit-1') {
-  return render(
+  return renderWithQuery(
     <MemoryRouter initialEntries={[`/units/${unitId}/teachers/new`]}>
       <Routes>
         <Route path="/units/:unitId/teachers/new" element={<TeacherFormPage />} />
@@ -49,7 +50,7 @@ function renderCreatePage(unitId = 'unit-1') {
 }
 
 function renderEditPage(unitId = 'unit-1', teacherId = 'teacher-1') {
-  return render(
+  return renderWithQuery(
     <MemoryRouter initialEntries={[`/units/${unitId}/teachers/${teacherId}/edit`]}>
       <Routes>
         <Route path="/units/:unitId/teachers/:teacherId/edit" element={<TeacherFormPage />} />

@@ -11,7 +11,7 @@ import { Icon } from '../../components/ui/Icon/Icon'
 import { ListRow } from '../../components/ui/ListRow/ListRow'
 import { Tabs } from '../../components/ui/Tabs/Tabs'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
-import { getMe } from '../../lib/api/me'
+import { useMe } from '../../hooks/useMe'
 import { listRescheduleCredits } from '../../lib/api/reschedule'
 import { getOfferDetail, type OfferDetailResult, type OfferDetailSuccess } from '../../lib/api/waitlist'
 import { formatWeekdayDate, isSameDay } from './agendaShared'
@@ -134,13 +134,15 @@ export default function AG3StudentAgendaPage() {
   const [bookings, setBookings] = useState<Booking[]>([])
   const [loadError, setLoadError] = useState<string | null>(null)
 
-  // loggedInStudentId: resolvido via GET /me (ver comentário de módulo).
-  // identityResolved só vira true depois que a chamada a GET /me termina
-  // (sucesso OU falha) — a busca de bookings abaixo espera por isso antes
-  // de disparar, pra nunca renderizar (nem momentaneamente) a lista
-  // NÃO filtrada por aluno enquanto o id ainda está carregando.
-  const [loggedInStudentId, setLoggedInStudentId] = useState<string | undefined>(undefined)
-  const [identityResolved, setIdentityResolved] = useState(false)
+  // loggedInStudentId: resolvido via GET /me (ver comentário de módulo),
+  // agora lido do cache COMPARTILHADO (hooks/useMe.ts) em vez de um fetch
+  // próprio desta tela. `settled` é exatamente o antigo `identityResolved`:
+  // só vira true depois que o GET /me termina (sucesso OU falha) — a busca
+  // de bookings abaixo espera por isso antes de disparar, pra nunca
+  // renderizar (nem momentaneamente) a lista NÃO filtrada por aluno
+  // enquanto o id ainda está carregando.
+  const { me, settled: identityResolved } = useMe()
+  const loggedInStudentId = me?.id
 
   // remarcarOpen/remarcarMessage: sheet AG7 "Remarcar" (BEAC-1912, story
   // BEAC-1705). Não é escopado a UMA linha específica — opera sobre os
@@ -212,20 +214,6 @@ export default function AG3StudentAgendaPage() {
       : !offerFetch.result.ok
         ? { status: 'error', message: 'Não foi possível carregar esta oferta — ela pode já ter sido resolvida ou expirado.' }
         : { status: 'ready', offer: offerFetch.result }
-
-  useEffect(() => {
-    let cancelled = false
-    getMe().then((result) => {
-      if (cancelled) return
-      if (result.ok) setLoggedInStudentId(result.id)
-      // Falha (ex.: 403 de sessão temporary): segue sem student_id — ver
-      // comentário de módulo. Não bloqueia a tela.
-      setIdentityResolved(true)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   useEffect(() => {
     if (!unitId || !identityResolved) return

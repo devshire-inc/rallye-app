@@ -1,9 +1,11 @@
+import { QueryClientProvider } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { Navigate, Route, BrowserRouter, Routes, useNavigate } from 'react-router-dom'
 import { ThemeToggle } from './components/ThemeToggle/ThemeToggle'
 import { PermissionsProvider } from './context/PermissionsContext'
 import { ThemeProvider } from './context/ThemeContext'
 import { SESSION_ESTABLISHED_EVENT, SESSION_EXPIRED_EVENT } from './lib/httpClient'
+import { appQueryClient } from './lib/query/queryClient'
 import { resolveNotificationRoute } from './lib/notificationRouting'
 import { PUSH_NOTIFICATION_TAPPED_EVENT, setupPushNotifications } from './lib/push'
 import AG1DayPage from './pages/Agenda/AG1DayPage'
@@ -421,22 +423,31 @@ function AppRoutes() {
 
 function App() {
   return (
-    // ThemeProvider (BEAC-2065) envolve TODA a árvore, inclusive fora de
-    // BrowserRouter: ThemeToggle precisa alcançar rotas públicas (login,
-    // signup) que ficam fora do AppShell autenticado, então não pode viver
-    // dentro de PermissionsProvider nem de AppRoutes.
-    <ThemeProvider>
-      <ThemeToggle />
-      <BrowserRouter>
-        {/* PermissionsProvider (BEAC-1841) precisa envolver toda a árvore de
-            rotas autenticadas: usePermission é o mecanismo de UI de permissão
-            do qual todo outro épico/feature depende, então nenhuma tela pode
-            ficar fora do seu alcance. */}
-        <PermissionsProvider>
-          <AppRoutes />
-        </PermissionsProvider>
-      </BrowserRouter>
-    </ThemeProvider>
+    // QueryClientProvider é o wrapper MAIS EXTERNO — acima até do
+    // ThemeProvider — porque o PermissionsProvider abaixo já depende dele
+    // (as permissions agora são uma query, ver context/PermissionsContext.tsx)
+    // e porque nada na árvore deve ficar fora do alcance do cache: a mesma
+    // convenção de "o provider global envolve tudo" que ThemeProvider e
+    // PermissionsProvider já seguem. Ver lib/query/queryClient.ts para os
+    // defaults de staleTime/gcTime e o porquê deles.
+    <QueryClientProvider client={appQueryClient}>
+      {/* ThemeProvider (BEAC-2065) envolve TODA a árvore, inclusive fora de
+          BrowserRouter: ThemeToggle precisa alcançar rotas públicas (login,
+          signup) que ficam fora do AppShell autenticado, então não pode viver
+          dentro de PermissionsProvider nem de AppRoutes. */}
+      <ThemeProvider>
+        <ThemeToggle />
+        <BrowserRouter>
+          {/* PermissionsProvider (BEAC-1841) precisa envolver toda a árvore de
+              rotas autenticadas: usePermission é o mecanismo de UI de permissão
+              do qual todo outro épico/feature depende, então nenhuma tela pode
+              ficar fora do seu alcance. */}
+          <PermissionsProvider>
+            <AppRoutes />
+          </PermissionsProvider>
+        </BrowserRouter>
+      </ThemeProvider>
+    </QueryClientProvider>
   )
 }
 

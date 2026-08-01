@@ -1,4 +1,5 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -49,7 +50,7 @@ function makeSummary(overrides: Partial<OccupancySummary> = {}): OccupancySummar
 async function renderPage(permissions: Record<string, string[]>, unitId = 'unit-1') {
   fetchMePermissionsMock.mockResolvedValue({ kind: 'full', permissions })
 
-  const utils = render(
+  const utils = renderWithQuery(
     <PermissionsProvider>
       <MemoryRouter initialEntries={[`/units/${unitId}/day-use/reservas`]}>
         <Routes>
@@ -345,7 +346,7 @@ describe('DayUseConfigPage (DU5) — link "Ver reservas" chega em DU6 de verdade
       kind: 'full',
       permissions: { financeiro: ['write', 'read'] },
     })
-    render(
+    renderWithQuery(
       <PermissionsProvider>
         <MemoryRouter initialEntries={['/units/unit-1/day-use']}>
           <Routes>

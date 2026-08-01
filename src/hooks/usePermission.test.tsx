@@ -13,6 +13,9 @@ vi.mock('../lib/api/permissions', async () => {
 
 import { PermissionsProvider } from '../context/PermissionsContext'
 import { SESSION_ESTABLISHED_EVENT } from '../lib/httpClient'
+// O PermissionsProvider passou a ler /me/permissions via TanStack Query —
+// precisa de um QueryClient em contexto (novo por render).
+import { QueryTestProvider } from '../test/queryTestClient'
 import { usePermission } from './usePermission'
 
 /** Regra de ouro do épico (AC de BEAC-1841): "esconder sempre, nunca
@@ -29,7 +32,11 @@ async function renderWithPermissions(
   ui: React.ReactNode,
 ) {
   if (fetchResult) fetchMePermissionsMock.mockResolvedValue(fetchResult)
-  const utils = render(<PermissionsProvider>{ui}</PermissionsProvider>)
+  const utils = render(
+    <QueryTestProvider>
+      <PermissionsProvider>{ui}</PermissionsProvider>
+    </QueryTestProvider>,
+  )
   if (fetchResult) {
     act(() => {
       window.dispatchEvent(new Event(SESSION_ESTABLISHED_EVENT))
@@ -70,9 +77,11 @@ describe('usePermission', () => {
 
   it('returns false before any fetch resolves (idle state) — hides by default', () => {
     render(
-      <PermissionsProvider>
-        <GatedButton module="agenda" action="read" />
-      </PermissionsProvider>,
+      <QueryTestProvider>
+        <PermissionsProvider>
+          <GatedButton module="agenda" action="read" />
+        </PermissionsProvider>
+      </QueryTestProvider>,
     )
     expect(screen.queryByRole('button')).not.toBeInTheDocument()
   })

@@ -1,4 +1,5 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { act, screen, waitFor, within } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -44,7 +45,7 @@ function makeConfig(overrides: Partial<DayUseConfig> = {}): DayUseConfig {
 async function renderPage(permissions: Record<string, string[]>, unitId = 'unit-1') {
   fetchMePermissionsMock.mockResolvedValue({ kind: 'full', permissions })
 
-  const utils = render(
+  const utils = renderWithQuery(
     <PermissionsProvider>
       <MemoryRouter initialEntries={[`/units/${unitId}/day-use`]}>
         <Routes>

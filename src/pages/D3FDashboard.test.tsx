@@ -1,4 +1,5 @@
-import { act, render, screen, waitFor } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
+import { renderWithQuery } from '../test/renderWithQuery'
 import { MemoryRouter } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
@@ -22,7 +23,7 @@ import D3FDashboard from './D3FDashboard'
 async function renderDashboard(permissions: Record<string, string[]>) {
   fetchMePermissionsMock.mockResolvedValue({ kind: 'full', permissions })
 
-  const utils = render(
+  const utils = renderWithQuery(
     <PermissionsProvider>
       <MemoryRouter>
         <D3FDashboard />

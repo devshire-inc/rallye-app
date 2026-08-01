@@ -1,4 +1,5 @@
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -38,7 +39,7 @@ function turma(overrides: Partial<RallyeClass> = {}): RallyeClass {
 }
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithQuery(
     <MemoryRouter initialEntries={[`/units/${unitId}/classes`]}>
       <Routes>
         <Route path="/units/:unitId/classes" element={<TurmasListPage />} />

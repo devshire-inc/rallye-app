@@ -6,7 +6,7 @@ import { useShellIdentity } from '../hooks/useShellIdentity'
 import { isWithinCheckinWindow } from '../lib/agenda/checkinWindow'
 import { dayWindow } from './Agenda/agendaShared'
 import { getBookingsGrid, type Booking, type GetBookingsGridSuccess } from '../lib/api/bookings'
-import { getMe } from '../lib/api/me'
+import { useMe } from '../hooks/useMe'
 import { getActiveUnitId, getSessionMemberships } from '../lib/tenantContext'
 import './DashboardPage.css'
 
@@ -25,19 +25,11 @@ import './DashboardPage.css'
 export default function D2Dashboard() {
   const { orgLabel, userLabel } = useShellIdentity()
   const unitId = getActiveUnitId()
-  const [teacherId, setTeacherId] = useState<string | null>(null)
+  // Compartilha o `GET /me` do useShellIdentity acima em vez de disparar um
+  // segundo fetch só pelo id — ver hooks/useMe.ts.
+  const { me } = useMe()
+  const teacherId = me?.id ?? null
   const [bookings, setBookings] = useState<Booking[]>([])
-
-  useEffect(() => {
-    let cancelled = false
-    getMe().then((result) => {
-      if (cancelled || !result.ok) return
-      setTeacherId(result.id)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   useEffect(() => {
     if (!teacherId) return

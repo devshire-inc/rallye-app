@@ -13,6 +13,9 @@ vi.mock('../lib/api/permissions', async () => {
 
 import { usePermissionsContext } from '../hooks/usePermissionsContext'
 import { SESSION_ESTABLISHED_EVENT } from '../lib/httpClient'
+// O Provider passou a ler /me/permissions via TanStack Query — precisa de um
+// QueryClient em contexto (novo por render, para não vazar cache entre testes).
+import { QueryTestProvider } from '../test/queryTestClient'
 import { PermissionsProvider } from './PermissionsContext'
 
 function Probe() {
@@ -31,9 +34,11 @@ describe('PermissionsContext', () => {
 
   it('starts idle (nada liberado) antes de qualquer fetch', () => {
     render(
-      <PermissionsProvider>
-        <Probe />
-      </PermissionsProvider>,
+      <QueryTestProvider>
+        <PermissionsProvider>
+          <Probe />
+        </PermissionsProvider>
+      </QueryTestProvider>,
     )
     expect(screen.getByTestId('status').textContent).toBe('idle')
   })
@@ -45,9 +50,11 @@ describe('PermissionsContext', () => {
     })
 
     render(
-      <PermissionsProvider>
-        <Probe />
-      </PermissionsProvider>,
+      <QueryTestProvider>
+        <PermissionsProvider>
+          <Probe />
+        </PermissionsProvider>
+      </QueryTestProvider>,
     )
 
     // Dispara o mesmo evento que httpClient.ts emite após login/refresh
@@ -67,9 +74,11 @@ describe('PermissionsContext', () => {
     })
 
     render(
-      <PermissionsProvider>
-        <Probe />
-      </PermissionsProvider>,
+      <QueryTestProvider>
+        <PermissionsProvider>
+          <Probe />
+        </PermissionsProvider>
+      </QueryTestProvider>,
     )
 
     act(() => {
@@ -83,9 +92,11 @@ describe('PermissionsContext', () => {
     fetchMePermissionsMock.mockRejectedValue(new Error('network down'))
 
     render(
-      <PermissionsProvider>
-        <Probe />
-      </PermissionsProvider>,
+      <QueryTestProvider>
+        <PermissionsProvider>
+          <Probe />
+        </PermissionsProvider>
+      </QueryTestProvider>,
     )
 
     act(() => {

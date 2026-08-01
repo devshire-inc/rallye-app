@@ -11,7 +11,7 @@ import { useShellIdentity } from '../hooks/useShellIdentity'
 import { dayWindow } from './Agenda/agendaShared'
 import { groupByArenaLabel } from '../lib/agenda/groupByArena'
 import { getBookingsGrid, type Booking, type GetBookingsGridSuccess } from '../lib/api/bookings'
-import { getMe } from '../lib/api/me'
+import { useMe } from '../hooks/useMe'
 import { listSkillLevels, SKILL_TIERS, type SkillLevel, type SkillTier } from '../lib/api/skillLevels'
 import { getActiveUnitId, getSessionMemberships } from '../lib/tenantContext'
 import { fetchStudentXP, type StudentXP } from '../lib/api/xp'
@@ -76,21 +76,14 @@ function nextTierLabel(tier: SkillTier): string | null {
  */
 export default function D1Dashboard() {
   const { orgLabel, userLabel } = useShellIdentity()
-  const [studentId, setStudentId] = useState<string | null>(null)
+  // Mesma entrada de cache de `GET /me` que o `useShellIdentity` acima já
+  // lê: antes esta tela disparava um SEGUNDO `GET /me` num useEffect só
+  // para extrair o id (o hook de shell só expõe o `userLabel` combinado).
+  const { me } = useMe()
+  const studentId = me?.id ?? null
   const [xp, setXp] = useState<StudentXP | null>(null)
   const [skillLevels, setSkillLevels] = useState<SkillLevel[]>([])
   const [bookings, setBookings] = useState<Booking[]>([])
-
-  useEffect(() => {
-    let cancelled = false
-    getMe().then((result) => {
-      if (cancelled || !result.ok) return
-      setStudentId(result.id)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   useEffect(() => {
     if (!studentId) return

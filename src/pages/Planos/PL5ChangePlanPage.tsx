@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
@@ -7,7 +8,7 @@ import { Card } from '../../components/ui/Card/Card'
 import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
-import { getMe } from '../../lib/api/me'
+import { ensureMe } from '../../lib/query/identity'
 import { getPlan, listPlans, type BillingCycle } from '../../lib/api/plans'
 import { changePlan, getSubscription, type SubscriptionDetail } from '../../lib/api/subscriptions'
 import { formatBRL } from '../../lib/money'
@@ -122,11 +123,14 @@ export default function PL5ChangePlanPage() {
   /** `null` = nenhuma confirmação de downgrade pendente; caso contrário, o
    * crédito aplicado (R$) a mostrar no BottomSheet de confirmação. */
   const [downgradeCredit, setDowngradeCredit] = useState<number | null>(null)
+  const queryClient = useQueryClient()
 
   const load = useCallback(
     (onCancelled: () => boolean) => {
       if (!unitId) return
-      getMe()
+      // `ensureMe` no lugar de `getMe()`: mesmo contrato de retorno, mas
+      // reaproveitando o GET /me que o `useShellIdentity` acima já buscou.
+      ensureMe(queryClient)
         .then((meResult) => {
           if (onCancelled()) return
           if (!meResult.ok) {
@@ -195,7 +199,7 @@ export default function PL5ChangePlanPage() {
           setState({ status: 'error' })
         })
     },
-    [unitId],
+    [unitId, queryClient],
   )
 
   useEffect(() => {

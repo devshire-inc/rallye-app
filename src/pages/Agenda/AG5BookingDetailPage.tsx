@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
@@ -10,7 +10,7 @@ import { Card } from '../../components/ui/Card/Card'
 import { Input } from '../../components/ui/Input/Input'
 import { usePermission } from '../../hooks/usePermission'
 import { cancelBooking, type Booking, type Participant } from '../../lib/api/bookings'
-import { getMe } from '../../lib/api/me'
+import { useMe } from '../../hooks/useMe'
 import { AddStudentSheet } from './AddStudentSheet'
 import { RemarcarSheet, type RemarcarResult } from './RemarcarSheet'
 import { WaitlistSheet, type WaitlistJoinedResult } from './WaitlistSheet'
@@ -107,10 +107,11 @@ export default function AG5BookingDetailPage() {
   // remarcarOpen/loggedInStudentId: sheet AG7 "Remarcar" (BEAC-1912, story
   // BEAC-1705) — mesmo componente reaproveitado por AG3StudentAgendaPage.tsx.
   // GET /me (mesmo padrão de AG3) resolve o profile id do chamador — este
-  // endpoint self-only (POST /students/{id}/reschedule) precisa dele.
+  // endpoint self-only (POST /students/{id}/reschedule) precisa dele. Vem do
+  // cache compartilhado (hooks/useMe.ts), não de um fetch próprio.
   const [remarcarOpen, setRemarcarOpen] = useState(false)
   const [remarcarMessage, setRemarcarMessage] = useState<string | null>(null)
-  const [loggedInStudentId, setLoggedInStudentId] = useState<string | undefined>(undefined)
+  const loggedInStudentId = useMe().me?.id
 
   // waitlistOpen/waitlistTarget: sheet AG8 "Fila de espera" (BEAC-1922, story
   // BEAC-1708), aberto a partir de uma linha lotada dentro do sheet AG7
@@ -119,17 +120,6 @@ export default function AG5BookingDetailPage() {
   const [waitlistOpen, setWaitlistOpen] = useState(false)
   const [waitlistTarget, setWaitlistTarget] = useState<{ classId: string; classSchedule: string } | null>(null)
   const [waitlistMessage, setWaitlistMessage] = useState<string | null>(null)
-
-  useEffect(() => {
-    let cancelled = false
-    getMe().then((result) => {
-      if (cancelled) return
-      if (result.ok) setLoggedInStudentId(result.id)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   if (!unitId || !bookingId) return null
 

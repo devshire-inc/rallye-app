@@ -1,4 +1,5 @@
-import { render, screen, within } from '@testing-library/react'
+import { screen, within } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -58,7 +59,7 @@ function matchDetail(overrides: Partial<MatchDetailResponse> = {}): MatchDetailR
 
 function renderPage(matchId = 'match-1', tournamentId = 'tournament-1') {
   mockPermissions({})
-  return render(
+  return renderWithQuery(
     <MemoryRouter initialEntries={[`/tournaments/${tournamentId}/matches/${matchId}`]}>
       <Routes>
         <Route path="/tournaments/:tournamentId/matches/:matchId" element={<MatchDetailPage />} />
@@ -143,7 +144,7 @@ describe('MatchDetailPage — register result (admin)', () => {
     })
     mockPermissions({})
 
-    render(
+    renderWithQuery(
       <MemoryRouter initialEntries={['/tournaments/tournament-1/matches/match-1']}>
         <Routes>
           <Route path="/tournaments/:tournamentId/matches/:matchId" element={<MatchDetailPage />} />
@@ -191,7 +192,7 @@ describe('MatchDetailPage — register result (admin)', () => {
     mockPermissions({ 'torneios:write': true })
     const user = userEvent.setup()
 
-    render(
+    renderWithQuery(
       <MemoryRouter initialEntries={['/tournaments/tournament-1/matches/match-1']}>
         <Routes>
           <Route path="/tournaments/:tournamentId/matches/:matchId" element={<MatchDetailPage />} />

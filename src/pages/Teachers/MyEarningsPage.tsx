@@ -1,9 +1,10 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getEarnings, type Earnings } from '../../lib/api/earnings'
-import { getMe } from '../../lib/api/me'
+import { ensureMe } from '../../lib/query/identity'
 import { getTeacher } from '../../lib/api/teachers'
 import { EarningsSummary } from './EarningsSummary'
 import '../../components/AuthLayout/AuthLayout.css'
@@ -32,11 +33,15 @@ type LoadState =
 export default function MyEarningsPage() {
   const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
+  const queryClient = useQueryClient()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
 
   useEffect(() => {
     let cancelled = false
-    getMe().then((meResult) => {
+    // `ensureMe` no lugar de `getMe()`: mesmo contrato de retorno
+    // (GetMeResult, nunca lança), mas lendo o GET /me que o
+    // `useShellIdentity` acima já buscou em vez de disparar um segundo.
+    ensureMe(queryClient).then((meResult) => {
       if (cancelled) return
       if (!meResult.ok) {
         setState({ status: 'error' })
@@ -60,7 +65,7 @@ export default function MyEarningsPage() {
     return () => {
       cancelled = true
     }
-  }, [])
+  }, [queryClient])
 
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>

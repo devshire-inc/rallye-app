@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { Avatar } from '../../components/ui/Avatar/Avatar'
 import { MenuRow } from '../../components/ui/ListRow/MenuRow'
 import LogoutButton from '../../components/LogoutButton'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
-import { getMe } from '../../lib/api/me'
+import { useMe } from '../../hooks/useMe'
 import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
 import './ProfilePage.css'
@@ -90,19 +89,13 @@ import './ProfilePage.css'
 export default function ProfilePage() {
   const navigate = useNavigate()
   const { orgLabel, userLabel, role } = useShellIdentity()
-  const [fullName, setFullName] = useState('')
+  // O nome cru vem da MESMA entrada de cache de `GET /me` que o
+  // `useShellIdentity` acima já lê (ele só expõe o `userLabel` combinado
+  // "{nome} · {papel}") — antes esta tela pagava um segundo fetch por isso.
+  const { me } = useMe()
+  const fullName = me?.fullName ?? ''
   const tenantId = getActiveTenantId()
   const unitId = getActiveUnitId()
-
-  useEffect(() => {
-    let cancelled = false
-    getMe().then((result) => {
-      if (!cancelled && result.ok) setFullName(result.fullName)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const subtitle = [role, orgLabel].filter(Boolean).join(' · ')
 

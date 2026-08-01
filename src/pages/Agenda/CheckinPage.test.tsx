@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -52,7 +53,7 @@ function participant(overrides: Partial<BookingParticipant> = {}): BookingPartic
 }
 
 function renderWithState(state: { booking?: Booking } | null) {
-  return render(
+  return renderWithQuery(
     <MemoryRouter initialEntries={[{ pathname: '/units/unit-1/bookings/b1/checkin', state }]}>
       <Routes>
         <Route path="/units/:unitId/bookings/:bookingId/checkin" element={<CheckinPage />} />

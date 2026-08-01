@@ -1,4 +1,5 @@
-import { render, screen } from '@testing-library/react'
+import { screen } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as studentsApi from '../../lib/api/students'
@@ -20,7 +21,7 @@ function mockPermissions(map: PermissionMap) {
 }
 
 function renderPage(unitId = 'unit-1', studentId = 'student-1') {
-  return render(
+  return renderWithQuery(
     <MemoryRouter initialEntries={[`/units/${unitId}/students/${studentId}`]}>
       <Routes>
         <Route path="/units/:unitId/students/:studentId" element={<StudentProfilePage />} />

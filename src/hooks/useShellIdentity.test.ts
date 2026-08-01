@@ -4,6 +4,10 @@ import * as api from '../lib/api'
 import type { MembershipListItem } from '../lib/api'
 import * as meApi from '../lib/api/me'
 import * as tenantContext from '../lib/tenantContext'
+// O hook agora compõe duas queries do TanStack Query (../lib/query/identity.ts),
+// então precisa de um QueryClient em contexto — um novo por render, para o
+// cache de um teste não vazar para o seguinte.
+import { QueryTestProvider } from '../test/queryTestClient'
 import { useShellIdentity } from './useShellIdentity'
 
 function membershipItem(overrides: Partial<MembershipListItem> = {}): MembershipListItem {
@@ -27,7 +31,7 @@ describe('useShellIdentity', () => {
     vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem({ role: 'Aluno' })])
     vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
 
-    const { result } = renderHook(() => useShellIdentity())
+    const { result } = renderHook(() => useShellIdentity(), { wrapper: QueryTestProvider })
 
     await waitFor(() => expect(result.current.userLabel).toBe('Ana Beatriz · Aluno'))
     expect(result.current.orgLabel).toBe('Arena Areia Dourada')
@@ -39,7 +43,7 @@ describe('useShellIdentity', () => {
     vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem({ role: 'Professor' })])
     vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
 
-    const { result } = renderHook(() => useShellIdentity())
+    const { result } = renderHook(() => useShellIdentity(), { wrapper: QueryTestProvider })
 
     await waitFor(() => expect(result.current.userLabel).toBe('Carlos Souza · Professor'))
     expect(result.current.role).toBe('Professor')
@@ -50,7 +54,7 @@ describe('useShellIdentity', () => {
     vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem({ role: 'Tenant Owner' })])
     vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
 
-    const { result } = renderHook(() => useShellIdentity())
+    const { result } = renderHook(() => useShellIdentity(), { wrapper: QueryTestProvider })
 
     await waitFor(() => expect(result.current.userLabel).toBe('Rafael Andrade · Admin'))
     // role continua o valor bruto da membership (BEAC-2058 precisa dele pra
@@ -63,7 +67,7 @@ describe('useShellIdentity', () => {
     vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem()])
     vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
 
-    const { result } = renderHook(() => useShellIdentity())
+    const { result } = renderHook(() => useShellIdentity(), { wrapper: QueryTestProvider })
 
     await waitFor(() => {
       // dá tempo pro load() assíncrono rodar; sem asserção específica além
@@ -85,7 +89,7 @@ describe('useShellIdentity', () => {
     vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem({ role: 'Aluno' })])
     vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
 
-    const { result } = renderHook(() => useShellIdentity())
+    const { result } = renderHook(() => useShellIdentity(), { wrapper: QueryTestProvider })
 
     // primeiro render, antes de qualquer fetch resolver: role null MAS
     // carregando — é o que separa "ainda não sei" de "sem papel".
@@ -100,7 +104,7 @@ describe('useShellIdentity', () => {
     vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem()])
     vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
 
-    const { result } = renderHook(() => useShellIdentity())
+    const { result } = renderHook(() => useShellIdentity(), { wrapper: QueryTestProvider })
 
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.role).toBeNull()
@@ -111,7 +115,7 @@ describe('useShellIdentity', () => {
     vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem({ role: null })])
     vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
 
-    const { result } = renderHook(() => useShellIdentity())
+    const { result } = renderHook(() => useShellIdentity(), { wrapper: QueryTestProvider })
 
     await waitFor(() => expect(result.current.userLabel).toBe('Maria Lima'))
     expect(result.current.userLabel).not.toContain('·')

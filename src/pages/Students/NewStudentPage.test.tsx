@@ -1,4 +1,5 @@
-import { render, screen, waitFor } from '@testing-library/react'
+import { screen, waitFor } from '@testing-library/react'
+import { renderWithQuery } from '../../test/renderWithQuery'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
@@ -15,7 +16,7 @@ function mockPermission(allowed: boolean) {
 }
 
 function renderPage(unitId = 'unit-1') {
-  return render(
+  return renderWithQuery(
     <MemoryRouter initialEntries={[`/units/${unitId}/students/new`]}>
       <Routes>
         <Route path="/units/:unitId/students/new" element={<NewStudentPage />} />
