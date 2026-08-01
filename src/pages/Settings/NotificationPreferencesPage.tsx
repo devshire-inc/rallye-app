@@ -9,6 +9,7 @@ import {
   type EventPref,
 } from '../../lib/api/notificationPreferences'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './NotificationPreferencesPage.css'
 
 interface EventCatalogEntry {
@@ -198,7 +199,7 @@ export default function NotificationPreferencesPage() {
         <div className="spacer" />
       </div>
 
-      {state.status === 'loading' && <p role="status">Carregando preferências…</p>}
+      {state.status === 'loading' && <PageLoading label="Carregando preferências" variant="section" />}
 
       {state.status === 'error' && (
         <div className="pf6-error">

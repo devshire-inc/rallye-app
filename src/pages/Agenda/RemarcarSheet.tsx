@@ -8,6 +8,7 @@ import {
   type RescheduleCredit,
   type RescheduleStatus,
 } from '../../lib/api/reschedule'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './RemarcarSheet.css'
 
 export interface RemarcarResult {
@@ -225,7 +226,7 @@ export function RemarcarSheet({ unitId, studentId, onRescheduled, onRequestWaitl
     <div className="remarcar-sheet">
       <h2 className="sec-head-title">Remarcar</h2>
 
-      {state.status === 'loading' ? <p role="status">Carregando…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando" variant="section" rows={1} /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar os créditos de reagendamento agora.</p>
       ) : null}

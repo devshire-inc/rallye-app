@@ -7,6 +7,7 @@ import { listClassHistory, type ClassHistoryItem } from '../../lib/api/classHist
 import { sportCssVar } from '../../lib/sports'
 import { formatDays, teacherDisplay } from '../Turmas/turmasShared'
 import { AddToClassSheet } from './AddToClassSheet'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 
 type LoadState =
   { status: 'loading' } | { status: 'error' } | { status: 'ready'; items: ClassHistoryItem[] }
@@ -99,7 +100,7 @@ export function ClassHistorySection({ unitId, studentId }: ClassHistorySectionPr
 
   return (
     <div className="ptab-panel">
-      {state.status === 'loading' ? <p role="status">Carregando turmas…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando turmas" variant="list" rows={3} /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar o histórico de turmas.</p>
       ) : null}

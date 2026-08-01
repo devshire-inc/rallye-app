@@ -15,6 +15,7 @@ import {
 import { bookingTitle } from './agendaShared'
 import '../../components/AuthLayout/AuthLayout.css'
 import './Agenda.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './CheckinPage.css'
 
 /**
@@ -221,7 +222,7 @@ export default function CheckinPage() {
               </div>
             ) : null}
 
-            {loadState.status === 'loading' ? <p role="status">Carregando alunos…</p> : null}
+            {loadState.status === 'loading' ? <PageLoading label="Carregando alunos" variant="list" /> : null}
             {loadState.status === 'error' ? (
               <p role="alert">Não foi possível carregar a lista de alunos desta aula.</p>
             ) : null}

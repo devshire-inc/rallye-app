@@ -16,6 +16,7 @@ import {
   type PlanVariant,
 } from '../../lib/api/plans'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './PlanoFormPage.css'
 
 /** Rótulo/desconto default de cada recorrência (PL2 doc, tabela "Planos e
@@ -210,7 +211,7 @@ export default function PlanoFormPage() {
   if (loadState === 'loading') {
     return (
       <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <p role="status">Carregando plano…</p>
+        <PageLoading label="Carregando plano" />
       </AppShell>
     )
   }

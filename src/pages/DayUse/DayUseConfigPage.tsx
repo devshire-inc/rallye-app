@@ -14,6 +14,7 @@ import {
 } from '../../lib/api/dayUse'
 import { sportCssVar, sportLabel } from '../../lib/sports'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './DayUseConfigPage.css'
 
 type LoadState =
@@ -142,7 +143,7 @@ export default function DayUseConfigPage() {
             {SEPARATE_SCREEN_TOAST_TEXT}
           </div>
 
-          {state.status === 'loading' ? <p role="status">Carregando quadras…</p> : null}
+          {state.status === 'loading' ? <PageLoading label="Carregando quadras" variant="list" /> : null}
           {state.status === 'error' ? (
             <p role="alert">Não foi possível carregar a configuração de Day Use desta arena.</p>
           ) : null}

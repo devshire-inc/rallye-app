@@ -14,6 +14,7 @@ import { formatBRL } from '../../lib/money'
 import { sportLabel } from '../../lib/sports'
 import '../../components/AuthLayout/AuthLayout.css'
 import './DayUseDetailPage.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './DayUseConfirmPage.css'
 
 type LoadState =
@@ -136,7 +137,7 @@ export default function DayUseConfirmPage() {
       </div>
 
       <div className="dash-body">
-        {state.status === 'loading' ? <p role="status">Carregando resumo…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando resumo" variant="section" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar o resumo desta reserva.</p>
         ) : null}

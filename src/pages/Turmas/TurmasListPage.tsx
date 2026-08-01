@@ -10,6 +10,7 @@ import { listClasses, type RallyeClass } from '../../lib/api/classes'
 import { SPORTS, sportCssVar } from '../../lib/sports'
 import { formatDaysAndStart, occupancyOf } from './turmasShared'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TurmasListPage.css'
 
 type LoadState =
@@ -142,7 +143,7 @@ export default function TurmasListPage() {
       </div>
 
       <div className="dash-body">
-        {state.status === 'loading' ? <p role="status">Carregando turmas…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando turmas" variant="list" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar as turmas desta arena.</p>
         ) : null}

@@ -3,6 +3,7 @@ import { listClasses, type RallyeClass } from '../../lib/api/classes'
 import { createEnrollment } from '../../lib/api/enrollments'
 import { sportCssVar, sportLabel } from '../../lib/sports'
 import { formatDaysAndStart } from '../Turmas/turmasShared'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 
 type LoadState =
   { status: 'loading' } | { status: 'error' } | { status: 'ready'; classes: RallyeClass[] }
@@ -89,7 +90,7 @@ export function AddToClassSheet({
         </button>
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando turmas…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando turmas" variant="list" rows={3} /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar as turmas desta arena.</p>
       ) : null}

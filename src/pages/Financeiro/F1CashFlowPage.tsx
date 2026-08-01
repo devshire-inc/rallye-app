@@ -17,6 +17,7 @@ import {
 } from '../../lib/cashFlowAggregate'
 import { formatBRL } from '../../lib/money'
 import './Financeiro.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import '../../components/AuthLayout/AuthLayout.css'
 
 /** Valor do `<select>` que representa a visão consolidada de rede
@@ -316,7 +317,7 @@ export default function F1CashFlowPage() {
           </IconButton>
         </div>
 
-        {state.status === 'loading' ? <p role="status">Carregando…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando" variant="section" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar o fluxo de caixa.</p>
         ) : null}

@@ -21,6 +21,7 @@ import { sportCssVar, sportLabel } from '../../lib/sports'
 import { RemunerationSheet } from './RemunerationSheet'
 import { formatRemunerationSummary } from './teachersShared'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TeacherProfilePage.css'
 
 type LoadState =
@@ -134,7 +135,7 @@ export default function TeacherProfilePage() {
         ) : null}
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando professor…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando professor" variant="section" /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar este professor.</p>
       ) : null}
@@ -271,7 +272,7 @@ function TurmasTab({ unitId, teacherId }: { unitId: string | undefined; teacherI
     }
   }, [unitId, teacherId])
 
-  if (state.status === 'loading') return <p role="status">Carregando turmas…</p>
+  if (state.status === 'loading') return <PageLoading label="Carregando turmas" variant="list" rows={3} />
   if (state.status === 'error') return <p role="alert">Não foi possível carregar as turmas.</p>
   if (state.classes.length === 0) return <p className="hint">Nenhuma turma vinculada.</p>
 
@@ -328,7 +329,7 @@ function HorariosTab({ teacherId }: { teacherId: string }) {
     }
   }, [teacherId])
 
-  if (state.status === 'loading') return <p role="status">Carregando horários…</p>
+  if (state.status === 'loading') return <PageLoading label="Carregando horários" variant="list" rows={3} />
   if (state.status === 'error')
     return <p role="alert">Não foi possível carregar a disponibilidade.</p>
 
@@ -390,7 +391,7 @@ function ComissaoTab({
     }
   }, [teacherId])
 
-  if (state.status === 'loading') return <p role="status">Carregando comissão…</p>
+  if (state.status === 'loading') return <PageLoading label="Carregando comissão" variant="section" rows={1} />
   if (state.status === 'error') return <p role="alert">Não foi possível carregar a comissão.</p>
 
   const { earnings } = state

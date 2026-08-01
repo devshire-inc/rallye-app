@@ -9,6 +9,7 @@ import { listMembers, type Member } from '../../lib/api/members'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { RolePickerSheet } from './RolePickerSheet'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './MembersPage.css'
 
 type LoadState =
@@ -136,7 +137,7 @@ export default function MembersPage() {
       </div>
 
       <div className="dash-body">
-        {state.status === 'loading' ? <p role="status">Carregando membros…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando membros" variant="list" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar os membros desta arena.</p>
         ) : null}

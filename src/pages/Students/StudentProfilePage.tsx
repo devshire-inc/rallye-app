@@ -9,6 +9,7 @@ import { getStudent, type Student, type StudentStatus } from '../../lib/api/stud
 import { ClassHistorySection } from './ClassHistorySection'
 import { SkillLevelsSection } from './SkillLevelsSection'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './StudentProfilePage.css'
 
 type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; student: Student }
@@ -150,7 +151,7 @@ export default function StudentProfilePage() {
         <div className="spacer" />
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando aluno…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando aluno" variant="section" /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar os dados deste aluno.</p>
       ) : null}

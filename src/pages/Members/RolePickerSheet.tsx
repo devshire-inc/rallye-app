@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { listRoles, type Role } from '../../lib/api/roles'
 import { patchMemberRole, type Member } from '../../lib/api/members'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './MembersPage.css'
 
 export interface RolePickerSheetProps {
@@ -77,7 +78,7 @@ export function RolePickerSheet({ unitId, member, onSuccess, onCancel }: RolePic
         <div className="mt">Papel atual: {member.role?.name ?? 'Nenhum'}</div>
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando papéis…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando papéis" variant="list" rows={3} /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar os papéis desta arena.</p>
       ) : null}

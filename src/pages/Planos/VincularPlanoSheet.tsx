@@ -16,6 +16,7 @@ import {
   type SubscriptionDetail,
   type SubscriptionInvoice,
 } from '../../lib/api/subscriptions'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './VincularPlanoSheet.css'
 
 export interface VincularPlanoSheetProps {
@@ -447,7 +448,7 @@ export function VincularPlanoSheet({ unitId, onClose, onLinked }: VincularPlanoS
               onChange={(e) => setStudentQuery(e.target.value)}
               aria-label="Buscar aluno"
             />
-            {searchState.status === 'loading' ? <p role="status">Carregando alunos…</p> : null}
+            {searchState.status === 'loading' ? <PageLoading label="Carregando alunos" variant="list" rows={3} /> : null}
             {searchState.status === 'error' ? (
               <p role="alert">Não foi possível buscar alunos agora.</p>
             ) : null}
@@ -486,7 +487,7 @@ export function VincularPlanoSheet({ unitId, onClose, onLinked }: VincularPlanoS
 
       <label className="field">
         <span>Plano</span>
-        {plansState.status === 'loading' ? <p role="status">Carregando planos…</p> : null}
+        {plansState.status === 'loading' ? <PageLoading label="Carregando planos" variant="field" /> : null}
         {plansState.status === 'error' ? (
           <p role="alert">Não foi possível carregar os planos desta arena.</p>
         ) : null}
@@ -505,7 +506,7 @@ export function VincularPlanoSheet({ unitId, onClose, onLinked }: VincularPlanoS
       {planId ? (
         <div className="field">
           <span>Recorrência</span>
-          {variantsState.status === 'loading' ? <p role="status">Carregando variantes…</p> : null}
+          {variantsState.status === 'loading' ? <PageLoading label="Carregando variantes" variant="field" /> : null}
           {variantsState.status === 'error' ? (
             <p role="alert">Não foi possível carregar as variantes deste plano.</p>
           ) : null}

@@ -28,7 +28,9 @@ describe('WaitlistSheet', () => {
   it('shows a loading state before the status resolves', () => {
     vi.spyOn(waitlistApi, 'getWaitlistStatus').mockReturnValue(new Promise(() => {}))
     renderSheet()
-    expect(screen.getByText('Carregando…')).toBeInTheDocument()
+    // O AlertCard "Carregando…" virou <PageLoading>, que anuncia o
+    // carregamento pela região aria-live do SkeletonGroup.
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando fila de espera')
   })
 
   it('shows occupancy, queue size and the estimated position before joining', async () => {

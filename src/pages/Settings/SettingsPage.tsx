@@ -10,6 +10,7 @@ import {
   type NotificationChannel,
 } from '../../lib/api/notificationPreferences'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './SettingsPage.css'
 
 type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; channels: ChannelPref[] }
@@ -106,7 +107,7 @@ export default function SettingsPage() {
         <div className="spacer" />
       </div>
 
-      {state.status === 'loading' && <p role="status">Carregando configurações…</p>}
+      {state.status === 'loading' && <PageLoading label="Carregando configurações" variant="section" />}
 
       {state.status === 'error' && (
         <div className="pf5-error">

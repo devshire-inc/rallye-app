@@ -13,6 +13,7 @@ import {
 import { registrationCountdownLabel } from '../../lib/tournamentCountdown'
 import { sportCssVar, sportLabel } from '../../lib/sports'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TournamentsListPage.css'
 
 type LoadState =
@@ -157,7 +158,7 @@ export default function TournamentsListPage() {
       </div>
 
       <div className="dash-body">
-        {!isCurrent ? <p role="status">Carregando torneios…</p> : null}
+        {!isCurrent ? <PageLoading label="Carregando torneios" variant="list" /> : null}
         {isCurrent && state.status === 'error' ? (
           <p role="alert">Não foi possível carregar os torneios.</p>
         ) : null}

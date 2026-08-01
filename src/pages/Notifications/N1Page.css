@@ -87,33 +87,10 @@
   background: var(--interactive-primary);
 }
 
-/* ---------- Loading skeleton ---------- */
-.n1-skeleton-row {
-  height: 64px;
-  border-radius: var(--radius-lg);
-  margin-bottom: 8px;
-  background: linear-gradient(
-    100deg,
-    var(--surface-card) 30%,
-    color-mix(in srgb, var(--sand-200) 55%, var(--surface-card)) 50%,
-    var(--surface-card) 70%
-  );
-  background-size: 200% 100%;
-  animation: n1-skeleton-shimmer 1.4s ease-in-out infinite;
-}
-@keyframes n1-skeleton-shimmer {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .n1-skeleton-row {
-    animation: none;
-  }
-}
+/* Loading: o skeleton artesanal desta página (linhas de 64px com shimmer
+   próprio) foi substituído por <PageLoading variant="list">, do DS — mesma
+   forma de conteúdo, mas com o shimmer, os tokens e o anúncio único do
+   SkeletonGroup compartilhados com o resto do app. */
 
 /* ---------- Error state ---------- */
 .n1-error {

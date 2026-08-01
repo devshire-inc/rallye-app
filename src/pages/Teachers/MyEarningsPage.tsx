@@ -9,6 +9,7 @@ import { EarningsSummary } from './EarningsSummary'
 import '../../components/AuthLayout/AuthLayout.css'
 import '../Students/NewStudentPage.css'
 import './TeacherProfilePage.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TeacherEarningsPage.css'
 
 type LoadState =
@@ -71,7 +72,7 @@ export default function MyEarningsPage() {
         <div className="spacer" />
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando ganhos…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando ganhos" variant="section" /> : null}
       {state.status === 'error' ? <p role="alert">Não foi possível carregar seus ganhos.</p> : null}
 
       {state.status === 'ready' ? (

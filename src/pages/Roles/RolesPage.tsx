@@ -9,6 +9,7 @@ import { permissionSummary } from './moduleCatalog'
 import { RoleFormSheet } from './RoleFormSheet'
 import RoleAuditPanel from '../RoleAudit/RoleAuditPanel'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './RolesPage.css'
 
 type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; roles: Role[] }
@@ -139,7 +140,7 @@ export default function RolesPage() {
         {tab === 'papeis' ? (
           <div className="ptab-panel">
             {state.status === 'loading' ? (
-              <p role="status">Carregando papéis…</p>
+              <PageLoading label="Carregando papéis" variant="list" />
             ) : state.status === 'error' ? (
               <p role="alert">Não foi possível carregar os papéis desta arena.</p>
             ) : (

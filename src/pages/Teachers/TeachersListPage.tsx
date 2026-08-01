@@ -10,6 +10,7 @@ import { listTeachers, type TeacherListItem } from '../../lib/api/teachers'
 import { sportCssVar } from '../../lib/sports'
 import { formatRemunerationSummary } from './teachersShared'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TeachersListPage.css'
 
 type LoadState =
@@ -108,7 +109,7 @@ export default function TeachersListPage() {
       </div>
 
       <div className="dash-body">
-        {state.status === 'loading' ? <p role="status">Carregando professores…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando professores" variant="list" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar os professores desta arena.</p>
         ) : null}

@@ -14,6 +14,7 @@ import { sportLabel } from '../../lib/sports'
 import { ClassSettingsSheet } from './ClassSettingsSheet'
 import { formatDaysAndRange, levelLabel, occupancyOf } from './turmasShared'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TurmaDetailPage.css'
 
 type LoadState =
@@ -153,7 +154,7 @@ export default function TurmaDetailPage() {
         ) : null}
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando turma…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando turma" variant="section" /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar esta turma.</p>
       ) : null}
@@ -344,7 +345,7 @@ function WaitlistTab({ classId }: { classId: string }) {
     }
   }, [classId])
 
-  if (state.status === 'loading') return <p role="status">Carregando fila de espera…</p>
+  if (state.status === 'loading') return <PageLoading label="Carregando fila de espera" variant="list" rows={3} />
   if (state.status === 'error') {
     return <p role="alert">Não foi possível carregar a fila de espera desta turma.</p>
   }
@@ -400,7 +401,7 @@ function ProximasTab({
     }
   }, [unitId, classId])
 
-  if (state.status === 'loading') return <p role="status">Carregando próximas aulas…</p>
+  if (state.status === 'loading') return <PageLoading label="Carregando próximas aulas" variant="list" rows={3} />
   if (state.status === 'error') {
     return <p role="alert">Não foi possível carregar as próximas aulas.</p>
   }

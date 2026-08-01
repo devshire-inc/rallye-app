@@ -20,6 +20,7 @@ import { RemarcarSheet, type RemarcarResult } from './RemarcarSheet'
 import { WaitlistSheet, type WaitlistJoinedResult } from './WaitlistSheet'
 import '../../components/AuthLayout/AuthLayout.css'
 import './Agenda.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './AG3StudentAgendaPage.css'
 
 type Tab = 'prox' | 'hist'
@@ -472,7 +473,7 @@ export default function AG3StudentAgendaPage() {
       </BottomSheet>
 
       <BottomSheet open={offerState.status !== 'idle'} onClose={closeOfferSheet} label="Vaga disponível">
-        {offerState.status === 'loading' ? <AlertCard tone="info">Carregando oferta…</AlertCard> : null}
+        {offerState.status === 'loading' ? <PageLoading label="Carregando oferta" variant="section" rows={1} /> : null}
         {offerState.status === 'error' ? (
           <div role="alert">
             <AlertCard tone="danger" showIcon>

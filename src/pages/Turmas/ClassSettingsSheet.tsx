@@ -3,6 +3,7 @@ import { Input } from '../../components/ui/Input/Input'
 import { Select } from '../../components/ui/Select/Select'
 import { listCourts, type Court } from '../../lib/api/courts'
 import { deactivateClass, patchClass, type RallyeClass } from '../../lib/api/classes'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 
 type View = 'menu' | 'editar-dados' | 'trocar-quadra' | 'alterar-horario' | 'desativar'
 
@@ -186,7 +187,7 @@ export function ClassSettingsSheet({
       <div className="settings-sheet">
         <h2 className="sec-head-title">Trocar quadra</h2>
         {courts === null ? (
-          <p role="status">Carregando quadras…</p>
+          <PageLoading label="Carregando quadras" variant="field" />
         ) : (
           <Select
             label="Quadra"

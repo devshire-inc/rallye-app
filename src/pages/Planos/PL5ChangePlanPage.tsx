@@ -13,6 +13,7 @@ import { changePlan, getSubscription, type SubscriptionDetail } from '../../lib/
 import { formatBRL } from '../../lib/money'
 import { totalPeriodDays } from '../../lib/subscriptionPeriod'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './PL5ChangePlanPage.css'
 
 /** Mesmo vocabulário PT-BR de `billing_cycle` já duplicado em
@@ -264,7 +265,7 @@ export default function PL5ChangePlanPage() {
       </div>
 
       <div className="dash-body">
-        {state.status === 'loading' ? <p role="status">Carregando planos…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando planos" variant="list" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar sua assinatura.</p>
         ) : null}

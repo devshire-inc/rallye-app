@@ -8,6 +8,7 @@ import { listInvoices, type InvoiceListItem, type InvoiceStatus } from '../../li
 import { STATUS_LABEL } from '../../lib/invoiceStatus'
 import { formatBRL } from '../../lib/money'
 import './Financeiro.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import '../../components/AuthLayout/AuthLayout.css'
 
 type LoadState =
@@ -172,7 +173,7 @@ export default function F2InvoiceListPage() {
           aria-label="Filtrar por mês"
         />
 
-        {state.status === 'loading' ? <p role="status">Carregando faturas…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando faturas" variant="list" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar as faturas desta arena.</p>
         ) : null}

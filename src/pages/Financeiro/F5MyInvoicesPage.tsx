@@ -12,6 +12,7 @@ import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listInvoices, type InvoiceListItem, type InvoiceStatus } from '../../lib/api/invoices'
 import { daysUntilDue } from '../../lib/invoiceStatus'
 import { formatBRL } from '../../lib/money'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './Financeiro.css'
 
 type LoadState =
@@ -138,7 +139,7 @@ export default function F5MyInvoicesPage() {
           ariaLabel="Filtrar faturas"
         />
 
-        {state.status === 'loading' ? <p role="status">Carregando faturas…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando faturas" variant="list" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar suas faturas.</p>
         ) : null}

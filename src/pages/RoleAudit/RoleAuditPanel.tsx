@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { formatRelativeTimestamp } from '../../lib/formatRelativeTimestamp'
 import { listRoleAuditLog, type RoleAuditEntry } from '../../lib/api/roleAudit'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 
 const PAGE_SIZE = 20
 
@@ -123,7 +124,7 @@ export default function RoleAuditPanel({ unitId }: { unitId: string | undefined 
         <span>Prioridade MVP — rastreabilidade em caso de disputa sobre quem autorizou o quê.</span>
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando histórico…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando histórico" variant="list" /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar o histórico desta arena.</p>
       ) : null}

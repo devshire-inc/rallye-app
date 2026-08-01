@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { addBookingParticipant, type Participant } from '../../lib/api/bookings'
 import { listMembers, type Member } from '../../lib/api/members'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './AddStudentSheet.css'
 
 export interface AddStudentSheetProps {
@@ -146,7 +147,7 @@ export function AddStudentSheet({ unitId, bookingId, onAdded, onCancel }: AddStu
         />
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando alunos…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando alunos" variant="list" rows={3} /> : null}
       {state.status === 'error' ? <p role="alert">Não foi possível buscar alunos agora.</p> : null}
 
       {state.status === 'ready' ? (

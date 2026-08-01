@@ -17,6 +17,7 @@ import {
 import { formatBRL } from '../../lib/money'
 import { getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TO4RegisterPage.css'
 
 type LoadState =
@@ -172,7 +173,7 @@ export default function TO4RegisterPage() {
   if (state.status === 'loading') {
     return (
       <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <p className="to4-loading">Carregando torneio...</p>
+        <PageLoading label="Carregando torneio" />
       </AppShell>
     )
   }

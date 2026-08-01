@@ -9,6 +9,7 @@ import {
   type DelinquencyBlockLevel,
 } from '../../lib/api/unitSettings'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './ArenaSettingsPage.css'
 
 type LoadState =
@@ -149,7 +150,7 @@ export default function ArenaSettingsPage() {
 
       <div className="dash-body">
         {!canRead ? null : state.status === 'loading' ? (
-          <p role="status">Carregando configurações…</p>
+          <PageLoading label="Carregando configurações" variant="section" />
         ) : state.status === 'error' ? (
           <p role="alert">Não foi possível carregar as configurações desta arena.</p>
         ) : (

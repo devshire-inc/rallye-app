@@ -15,6 +15,7 @@ import {
 import { formatBRL } from '../../lib/money'
 import { sportLabel } from '../../lib/sports'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './DayUseBookingsPage.css'
 
 type LoadState =
@@ -198,7 +199,7 @@ export default function DayUseBookingsPage() {
             }}
           />
 
-          {state.status === 'loading' ? <p role="status">Carregando reservas…</p> : null}
+          {state.status === 'loading' ? <PageLoading label="Carregando reservas" variant="list" /> : null}
           {state.status === 'error' ? (
             <p role="alert">Não foi possível carregar as reservas de Day Use desta arena.</p>
           ) : null}

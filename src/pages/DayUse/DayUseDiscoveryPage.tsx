@@ -7,6 +7,7 @@ import { discoverDayUse, todayIsoDate, type ArenaSummary } from '../../lib/api/d
 import { formatBRL } from '../../lib/money'
 import { SPORTS, sportCssVar, sportLabel } from '../../lib/sports'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './DayUseDiscoveryPage.css'
 
 type LoadState =
@@ -140,7 +141,7 @@ export default function DayUseDiscoveryPage() {
           ))}
         </div>
 
-        {state.status === 'loading' ? <p role="status">Carregando arenas…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando arenas" variant="list" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar as arenas com Day Use.</p>
         ) : null}

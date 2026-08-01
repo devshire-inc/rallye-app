@@ -8,6 +8,7 @@ import {
   type SkillTier,
 } from '../../lib/api/skillLevels'
 import { sportCssVar, sportLabel } from '../../lib/sports'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 
 type LoadState =
   { status: 'loading' } | { status: 'error' } | { status: 'ready'; skillLevels: SkillLevel[] }
@@ -101,7 +102,7 @@ export function SkillLevelsSection({ studentId }: SkillLevelsSectionProps) {
         <h2>Nível por esporte</h2>
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando níveis…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando níveis" variant="list" rows={3} /> : null}
       {state.status === 'error' ? (
         <p role="alert">Não foi possível carregar os níveis deste aluno.</p>
       ) : null}

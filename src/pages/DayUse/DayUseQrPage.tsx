@@ -9,6 +9,7 @@ import { formatBRL } from '../../lib/money'
 import { formatDateBR } from '../../lib/subscriptionPeriod'
 import { sportLabel } from '../../lib/sports'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './DayUseQrPage.css'
 
 type LoadState =
@@ -108,7 +109,7 @@ export default function DayUseQrPage() {
       </div>
 
       <div className="dash-body du4-body">
-        {state.status === 'loading' ? <p role="status">Carregando reserva…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando reserva" variant="section" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar esta reserva.</p>
         ) : null}

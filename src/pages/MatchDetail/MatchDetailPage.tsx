@@ -9,6 +9,7 @@ import { useTournamentLive } from '../../hooks/useTournamentLive'
 import { getMatch, type MatchDetailResponse, type MatchSet } from '../../lib/api/tournamentBrackets'
 import { RegisterResultSheet } from './RegisterResultSheet'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './MatchDetailPage.css'
 
 type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; match: MatchDetailResponse }
@@ -118,7 +119,7 @@ export default function MatchDetailPage() {
 
       <div className="dash-body" style={{ maxWidth: 560 }}>
         {state.status === 'loading' ? (
-          <p role="status">Carregando partida…</p>
+          <PageLoading label="Carregando partida" variant="section" />
         ) : state.status === 'error' ? (
           <p role="alert">Não foi possível carregar a partida.</p>
         ) : match && live ? (

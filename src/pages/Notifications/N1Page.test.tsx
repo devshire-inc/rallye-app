@@ -52,7 +52,10 @@ describe('N1Page — loading', () => {
 
     renderPage()
 
-    expect(screen.getByRole('status', { name: /carregando notificações/i })).toBeInTheDocument()
+    // <PageLoading variant="list"> anuncia via a região aria-live do
+    // SkeletonGroup, cujo texto é o conteúdo (role="status" não aceita
+    // nome-por-conteúdo, então o antigo `name:` do getByRole não se aplica).
+    expect(screen.getByRole('status')).toHaveTextContent(/carregando notificações/i)
   })
 })
 

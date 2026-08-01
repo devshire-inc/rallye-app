@@ -15,6 +15,7 @@ import {
 } from '../../lib/api/tournamentWithdrawal'
 import { formatBRL } from '../../lib/money'
 import { sportLabel } from '../../lib/sports'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TournamentViewPage.css'
 
 type LoadState =
@@ -218,7 +219,7 @@ export function TournamentViewPage() {
         <p role="status">Notificações ativadas para este torneio.</p>
       ) : null}
 
-      {state.status === 'loading' ? <p role="status">Carregando torneio…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando torneio" variant="section" /> : null}
       {state.status === 'not-found' ? <p role="alert">Torneio não encontrado.</p> : null}
       {state.status === 'unavailable' ? (
         <p role="alert">Não foi possível carregar os dados deste torneio agora.</p>

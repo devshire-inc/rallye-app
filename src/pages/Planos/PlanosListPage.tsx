@@ -11,6 +11,7 @@ import { listPlans, type PlanSummary } from '../../lib/api/plans'
 import { sportCssVar, sportLabel } from '../../lib/sports'
 import { VincularPlanoSheet } from './VincularPlanoSheet'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './PlanosListPage.css'
 
 type LoadState =
@@ -109,7 +110,7 @@ export default function PlanosListPage() {
       </div>
 
       <div className="dash-body">
-        {state.status === 'loading' ? <p role="status">Carregando planos…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando planos" variant="list" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar os planos desta arena.</p>
         ) : null}

@@ -19,6 +19,7 @@ import {
 import { STATUS_LABEL } from '../../lib/invoiceStatus'
 import { formatBRL } from '../../lib/money'
 import './Financeiro.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import '../../components/AuthLayout/AuthLayout.css'
 
 type LoadState =
@@ -208,7 +209,7 @@ export default function F3InvoiceDetailPage() {
         <div className="spacer" />
       </div>
 
-      {state.status === 'loading' ? <p role="status">Carregando fatura…</p> : null}
+      {state.status === 'loading' ? <PageLoading label="Carregando fatura" variant="section" /> : null}
       {state.status === 'error' ? <p role="alert">Não foi possível carregar esta fatura.</p> : null}
 
       {state.status === 'ready' ? (

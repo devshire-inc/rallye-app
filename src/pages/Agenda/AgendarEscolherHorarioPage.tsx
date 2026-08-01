@@ -15,6 +15,7 @@ import {
   type AgendarDateOption,
   type AgendarSelection,
 } from './agendarMockData'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './AgendarFlow.css'
 
 function occurrenceKey(o: ClassOccurrence): string {
@@ -174,7 +175,7 @@ export default function AgendarEscolherHorarioPage() {
               {error}
             </AlertCard>
           ) : loading ? (
-            <p className="agendar-hint">Carregando horários…</p>
+            <PageLoading label="Carregando horários" variant="section" />
           ) : occurrences.length === 0 ? (
             <p className="agendar-hint">Nenhum horário disponível para esse esporte/dia.</p>
           ) : (

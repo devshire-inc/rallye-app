@@ -4,6 +4,7 @@ import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
 import { Card } from '../../components/ui/Card/Card'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './WaitlistSheet.css'
 
 export interface WaitlistJoinedResult {
@@ -171,9 +172,7 @@ export function WaitlistSheet({ classId, studentId, classSchedule, onJoined, onC
       <p className="ssub">Essa turma está cheia — mas você pode entrar na fila.</p>
 
       {state.status === 'loading' ? (
-        <div role="status">
-          <AlertCard tone="info">Carregando…</AlertCard>
-        </div>
+        <PageLoading label="Carregando fila de espera" variant="section" rows={1} />
       ) : null}
       {state.status === 'error' ? (
         <div role="alert">

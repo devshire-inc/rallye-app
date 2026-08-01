@@ -12,6 +12,7 @@ import { formatRelativeTimestamp } from '../../lib/formatRelativeTimestamp'
 import { groupNotificationsByRecency } from '../../lib/groupNotifications'
 import { resolveNotificationRoute } from '../../lib/notificationRouting'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './N1Page.css'
 
 const PAGE_SIZE = 20
@@ -173,12 +174,7 @@ export default function N1Page() {
       </div>
 
       {state.status === 'loading' && (
-        <div className="n1-skeleton-list" role="status" aria-label="Carregando notificações">
-          <div className="n1-skeleton-row" />
-          <div className="n1-skeleton-row" />
-          <div className="n1-skeleton-row" />
-          <div className="n1-skeleton-row" />
-        </div>
+        <PageLoading label="Carregando notificações" variant="list" />
       )}
 
       {state.status === 'error' && (

@@ -19,6 +19,7 @@ import { sportLabel, SPORTS } from '../../lib/sports'
 import { REPORT_CATALOG } from './reportCatalog'
 import { isNetworkScope, networkScopeQuery } from './reportScope'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './ReportsPage.css'
 
 type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; report: Report }
@@ -222,7 +223,7 @@ export default function ReportDetailPage() {
           ) : null}
         </div>
 
-        {state.status === 'loading' ? <p role="status">Carregando relatório…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando relatório" variant="section" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar este relatório.</p>
         ) : null}

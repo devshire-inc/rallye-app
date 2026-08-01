@@ -1,0 +1,65 @@
+/* Rallye Design System — PageLoading (Figma node 187:7216)
+   Pilha genérica de blocos de skeleton que ocupa o corpo da página enquanto
+   ela carrega, mantendo o chrome (header, bottom nav) visível. Os blocos
+   herdam .skeleton__shape (fundo surface/sunken + shimmer) de Skeleton.css,
+   importado junto com o <SkeletonGroup> que envolve esta pilha. */
+
+.page-loading {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+/* O Figma desenha as alturas em px crus e os raios em 6/20/12 — as alturas
+   são a forma do conteúdo (não mapeiam à escala de espaçamento) e ficam
+   literais; os raios são mapeados para a escala do DS (sm/pill/md), que é a
+   fonte da verdade para raio. */
+
+/* Título da tela (187:7280) — 180x28. */
+.page-loading__title {
+  width: 180px;
+  max-width: 100%;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+/* Faixa de filtro/segmented (187:7281) — 40px de altura, raio pill. */
+.page-loading__filter {
+  width: 100%;
+  height: 40px;
+  border-radius: var(--radius-pill);
+  flex-shrink: 0;
+}
+
+/* Bloco de destaque (187:7282) — 64px, o card largo no topo do conteúdo. */
+.page-loading__banner {
+  width: 100%;
+  height: 64px;
+  border-radius: var(--radius-md);
+  flex-shrink: 0;
+}
+
+/* Grade de 2 blocos por linha (187:7283/187:7286) — 80px cada. */
+.page-loading__row {
+  display: flex;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.page-loading__tile {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 80px;
+  border-radius: var(--radius-md);
+}
+
+/* Variant=list — composição sugerida pela doc do Figma (node 240:91, "QUANDO
+   USAR"): TableRow repetido para uma tabela. A largura fixa de 480px do
+   Skeleton isolado vira largura cheia aqui, porque a lista ocupa a coluna
+   inteira da página. */
+.page-loading--list .skeleton--tableRow {
+  width: 100%;
+}

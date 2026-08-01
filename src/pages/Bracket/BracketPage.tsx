@@ -11,6 +11,7 @@ import {
   type TournamentBracketInfo,
 } from '../../lib/api/tournamentBrackets'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './BracketPage.css'
 
 type TournamentLoadState =
@@ -282,11 +283,11 @@ export default function BracketPage() {
 
       <div className="dash-body">
         {tournamentState.status === 'loading' ? (
-          <p role="status">Carregando chaves…</p>
+          <PageLoading label="Carregando chaves" variant="section" />
         ) : tournamentState.status === 'error' ? (
           <p role="alert">Não foi possível carregar o torneio.</p>
         ) : matchesState.status === 'loading' ? (
-          <p role="status">Carregando partidas…</p>
+          <PageLoading label="Carregando partidas" variant="section" />
         ) : matchesState.status === 'error' ? (
           <p role="alert">Não foi possível carregar as partidas desta categoria.</p>
         ) : matches.length === 0 ? (

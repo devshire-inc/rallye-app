@@ -5,6 +5,7 @@ import { Toast } from '../components/Toast'
 import { AuthDivider } from '../components/ui/AuthDivider/AuthDivider'
 import { Button } from '../components/ui/Button/Button'
 import { Input } from '../components/ui/Input/Input'
+import { PageLoading } from '../components/ui/PageLoading/PageLoading'
 import { PasswordInput } from '../components/ui/PasswordInput/PasswordInput'
 import { SocialAuthButton } from '../components/ui/SocialAuthButton/SocialAuthButton'
 import { useToast } from '../hooks/useToast'
@@ -111,81 +112,89 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
     startOAuthLogin(provider, apiBaseUrl)
   }
 
-  if (checkingSession) {
-    return (
-      <main aria-busy="true">
-        <p>Carregando…</p>
-      </main>
-    )
-  }
+  // Enquanto a sessão existente é checada, o AuthLayout inteiro continua na
+  // tela (marca, hero, painel do formulário) e só o miolo vira skeleton —
+  // antes esta tela descartava a shell e renderizava "Carregando…" solto no
+  // canto superior esquerdo (Figma node 187:7216).
+  const formPanel = (
+    <>
+      <form onSubmit={handleSubmit} className="stack">
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          label="E-mail"
+          autoComplete="email"
+          required
+          placeholder="voce@email.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+
+        <div>
+          <PasswordInput
+            id="password"
+            name="password"
+            label="Senha"
+            autoComplete="current-password"
+            required
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
+            <Link to="/esqueci-senha" className="link-inline">
+              Esqueci minha senha
+            </Link>
+          </div>
+        </div>
+
+        {error && (
+          <p role="alert" className="field-error">
+            {error}
+          </p>
+        )}
+
+        <Button type="submit" size="lg" fullWidth disabled={submitting}>
+          {submitting ? 'Entrando…' : 'Entrar'}
+        </Button>
+      </form>
+
+      <AuthDivider label="ou" />
+
+      <SocialAuthButton
+        style="outline"
+        logo="google"
+        label="Continuar com Google"
+        onClick={() => handleSocialLogin('google')}
+      />
+
+      <div className="footer-link">
+        Novo por aqui? <Link to="/cadastro">Criar conta</Link>
+      </div>
+    </>
+  )
 
   return (
-    <main>
+    <main aria-busy={checkingSession || undefined}>
       <AuthLayout
         hero
         heroTitle="Bora pra quadra!"
         heroSubtitle="Suas aulas e reservas te esperando."
         title="Entrar"
         hint={
-          <>
-            5 tentativas erradas bloqueiam por 15 min · login social vincula conta existente com o
-            mesmo e-mail.
-          </>
+          checkingSession ? undefined : (
+            <>
+              5 tentativas erradas bloqueiam por 15 min · login social vincula conta existente com
+              o mesmo e-mail.
+            </>
+          )
         }
       >
-        <form onSubmit={handleSubmit} className="stack">
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            label="E-mail"
-            autoComplete="email"
-            required
-            placeholder="voce@email.com"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-
-          <div>
-            <PasswordInput
-              id="password"
-              name="password"
-              label="Senha"
-              autoComplete="current-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-            <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
-              <Link to="/esqueci-senha" className="link-inline">
-                Esqueci minha senha
-              </Link>
-            </div>
-          </div>
-
-          {error && (
-            <p role="alert" className="field-error">
-              {error}
-            </p>
-          )}
-
-          <Button type="submit" size="lg" fullWidth disabled={submitting}>
-            {submitting ? 'Entrando…' : 'Entrar'}
-          </Button>
-        </form>
-
-        <AuthDivider label="ou" />
-
-        <SocialAuthButton
-          style="outline"
-          logo="google"
-          label="Continuar com Google"
-          onClick={() => handleSocialLogin('google')}
-        />
-
-        <div className="footer-link">
-          Novo por aqui? <Link to="/cadastro">Criar conta</Link>
-        </div>
+        {checkingSession ? (
+          <PageLoading label="Carregando" variant="section" rows={1} />
+        ) : (
+          formPanel
+        )}
       </AuthLayout>
 
       <Toast message={message} onDismiss={dismiss} />

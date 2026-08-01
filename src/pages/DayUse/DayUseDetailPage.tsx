@@ -8,6 +8,7 @@ import { getDayUseDetail, type DayUseDetail } from '../../lib/api/dayUseFlow'
 import { formatBRL } from '../../lib/money'
 import { sportCssVar, sportLabel } from '../../lib/sports'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './DayUseDetailPage.css'
 
 type LoadState =
@@ -101,7 +102,7 @@ export default function DayUseDetailPage() {
       </div>
 
       <div className="dash-body">
-        {state.status === 'loading' ? <p role="status">Carregando arena…</p> : null}
+        {state.status === 'loading' ? <PageLoading label="Carregando arena" variant="section" /> : null}
         {state.status === 'error' ? (
           <p role="alert">Não foi possível carregar os detalhes desta arena.</p>
         ) : null}

@@ -5,6 +5,7 @@ import { getMe } from '../../lib/api/me'
 import { getRankings, type RankingEntry, type RankingScope } from '../../lib/api/rankings'
 import { getActiveUnitId } from '../../lib/tenantContext'
 import '../../components/AuthLayout/AuthLayout.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './RankingsPage.css'
 
 type LoadState =
@@ -168,7 +169,7 @@ export default function RankingsPage() {
 
       <div className="dash-body" style={{ maxWidth: 560 }}>
         {state.status === 'loading' ? (
-          <p role="status">Carregando ranking…</p>
+          <PageLoading label="Carregando ranking" variant="list" />
         ) : state.status === 'error' ? (
           <p role="alert">Não foi possível carregar o ranking.</p>
         ) : (

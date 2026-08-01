@@ -26,6 +26,7 @@ import { SPORTS } from '../../lib/sports'
 import '../../components/AuthLayout/AuthLayout.css'
 import '../Units/NewUnitPage.css'
 import '../Students/NewStudentPage.css'
+import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TeacherFormPage.css'
 
 const MODEL_OPTIONS: { value: RemunerationModel; label: string; unitLabel: string }[] = [
@@ -295,7 +296,7 @@ export default function TeacherFormPage() {
   if (isEdit && loadState.status === 'loading') {
     return (
       <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <p role="status">Carregando professor…</p>
+        <PageLoading label="Carregando professor" />
       </AppShell>
     )
   }
