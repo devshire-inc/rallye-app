@@ -80,6 +80,16 @@
   color: var(--text-body);
 }
 
+/* O `:focus-visible` global (src/index.css) aplica --focus-ring em QUALQUER
+   elemento focável. Aqui o anel já é desenhado pelo wrapper acima
+   (.input__field:focus-within), que é quem tem o border-radius do controle.
+   Sem esta regra o <input> interno ganha um segundo anel — e como ele tem
+   border-radius 0, aparece como um retângulo laranja dentro do campo
+   arredondado. Mesma correção existe em Select.css. */
+.input__control:focus-visible {
+  box-shadow: none;
+}
+
 .input__control::placeholder {
   color: var(--text-muted);
 }

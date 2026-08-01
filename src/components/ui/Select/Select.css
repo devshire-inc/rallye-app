@@ -52,6 +52,13 @@
   white-space: nowrap;
 }
 
+/* Ver comentário equivalente em Input.css: o `:focus-visible` global
+   (src/index.css) aplicaria um segundo anel de foco, quadrado, dentro do
+   campo arredondado — o anel correto já vem de .select__field:focus-within. */
+.select__control:focus-visible {
+  box-shadow: none;
+}
+
 .select__control:disabled {
   cursor: not-allowed;
 }
