@@ -70,16 +70,39 @@
   flex-shrink: 0;
 }
 
-/* Troca de variante da marca por tema. As duas vão ao DOM (ver AuthLayout.tsx);
-   aqui só uma fica visível. Padrão = tema claro, onde os selos são claros
-   (--surface-card branco / --surface-page sand) e pedem a marca escura. */
-.auth-shell__mark--on-dark {
+/* Troca de variante da marca. As duas vão ao DOM (ver AuthLayout.tsx) e o CSS
+   mostra uma só.
+   REGRA: a marca contrasta com o fundo do PRÓPRIO selo, não com o tema. Isso
+   importa porque os dois selos vivem em painéis opostos — o badge está no Brand
+   Panel (--surface-inverse) e o selo compacto no Form Panel (--surface-page),
+   que são sempre o inverso um do outro. Uma regra única por [data-theme]
+   acertaria um e erraria o outro.
+   Nomenclatura: `--on-light` é a marca ESCURA (para usar sobre fundo claro) e
+   `--on-dark` é a marca CLARA (sobre fundo escuro). */
+.auth-shell__mark {
   display: none;
 }
-[data-theme='dark'] .auth-shell__mark--on-light {
+
+/* Badge do hero: fundo --surface-card → claro no tema claro, escuro no escuro. */
+.auth-shell__badge .auth-shell__mark--on-light {
+  display: block;
+}
+[data-theme='dark'] .auth-shell__badge .auth-shell__mark--on-light {
   display: none;
 }
-[data-theme='dark'] .auth-shell__mark--on-dark {
+[data-theme='dark'] .auth-shell__badge .auth-shell__mark--on-dark {
+  display: block;
+}
+
+/* Selo compacto: fundo --surface-inverse → escuro no tema claro, claro no
+   escuro. Exatamente o oposto do badge acima, então a marca também inverte. */
+.auth-shell__compact-mark .auth-shell__mark--on-dark {
+  display: block;
+}
+[data-theme='dark'] .auth-shell__compact-mark .auth-shell__mark--on-dark {
+  display: none;
+}
+[data-theme='dark'] .auth-shell__compact-mark .auth-shell__mark--on-light {
   display: block;
 }
 /* BEAC-1835: segurar o logo (de qualquer tela) abre a S1 — só recebe pointer
@@ -134,11 +157,11 @@
   width: 32px;
   height: 32px;
   border-radius: var(--radius-sm);
-  border: 1.5px solid var(--border-default);
-  /* Acompanha o Form Panel (mesmo token), então o selo lê como um contorno
-     discreto — que é a intenção do design. A marca troca de variante por tema
-     via .auth-shell__mark*, senão sumiria no escuro. */
-  background: var(--surface-page);
+  /* --surface-inverse é o oposto do Form Panel (--surface-page) onde este selo
+     fica, então ele contrasta nos dois temas. Sem borda: com fundo sólido
+     contrastante ela só somaria ruído (antes o fundo era igual ao do painel e a
+     borda era o que dava a forma). */
+  background: var(--surface-inverse);
   display: flex;
   align-items: center;
   justify-content: center;
