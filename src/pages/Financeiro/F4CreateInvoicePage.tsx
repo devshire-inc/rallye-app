@@ -165,7 +165,7 @@ export default function F4CreateInvoicePage() {
             }}
           />
           {students.length > 0 && !selectedStudent && studentQuery.trim() !== '' ? (
-            <div className="card" style={{ marginTop: 6 }}>
+            <div className="fin-card" style={{ marginTop: 6 }}>
               {students.map((m) => (
                 <button
                   key={m.membershipId}

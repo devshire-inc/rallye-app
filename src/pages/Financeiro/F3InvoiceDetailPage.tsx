@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
+import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { Card } from '../../components/ui/Card/Card'
+import { Icon } from '../../components/ui/Icon/Icon'
 import { Input } from '../../components/ui/Input/Input'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
@@ -88,6 +92,44 @@ const STATUS_BADGE_TONE: Record<InvoiceDetail['status'], BadgeProps['tone']> = {
  * abaixo — subtítulo com dados da fatura, tabs Total/Parcial, campo de valor
  * só em Parcial, toast explicando a regra (cópia exata do protótipo) e botão
  * de confirmação danger. Chama POST /invoices/{id}/refund (BEAC-1951).
+ *
+ * Reskin design system (Figma "12 · Detalhe da Fatura", node 159:1744 mobile
+ * / 186:2189 desktop): `Card` (bloco de dados + histórico), `Badge` (status),
+ * `Button` (todas as ações), `AlertCard` (erro de carregamento) e
+ * `PageLoading`. LAYOUT ÚNICO, sem tabela: ao contrário de F5 (Minhas
+ * Faturas), os DOIS frames desta tela mostram a mesma coluna de ~640px com
+ * um card de linhas rótulo/valor — o desktop só troca o "‹ Voltar" mobile
+ * pelo breadcrumb "Minhas faturas › Detalhe" e alarga a coluna. Então nada de
+ * `dash-body--wide` nem de `ui/TableRow` aqui: o padrão "cards no mobile,
+ * `<table>` no desktop" não se aplica a esta tela.
+ *
+ * A troca voltar/breadcrumb é 100% CSS em BREAKPOINT_SHELL_DESKTOP_MIN
+ * (860px, o ponto em que a sidebar aparece — mesmo mecanismo e mesmo
+ * breakpoint de TrocarArenaPage, que resolve exatamente este par), com os
+ * dois no DOM e sem `matchMedia`.
+ *
+ * MAPEAMENTO (o Figma desenha o caso Aluno de uma fatura pendente; esta tela
+ * também serve Admin e todos os status):
+ * - h1 = `description` ("Mensalidade Mar/2026" no frame), não mais o literal
+ *   "Fatura"; a linha "Descrição" saiu do card por já ser o título.
+ * - linhas do card: Aluno / Vencimento / Emitida / Método — o frame mostra
+ *   "Plano", que aqui não existe como campo próprio (o plano ESTÁ na
+ *   descrição, que virou o título), então a primeira linha é "Aluno", o dado
+ *   equivalente que a API devolve. "Método sugerido" (rótulo do frame, fatura
+ *   pendente) vira "Método" quando a fatura já foi paga — aí o campo é o
+ *   método efetivamente usado, não uma sugestão.
+ * - "Total" destacado após um divisor, exatamente como no frame.
+ * - o botão do frame ("Pagar agora com PIX") é o [PAGAR AGORA] que já
+ *   existia: abre o `payment_link` que o backend devolve. NÃO há gateway de
+ *   pagamento no app (decisão de produto) — nada foi integrado; o rótulo só
+ *   ganhou o método quando a fatura traz um.
+ * - o texto de rodapé do frame ("Pagamentos são processados de forma
+ *   segura…") é reproduzido sob o CTA, só na visão Aluno.
+ *
+ * Blocos que o Figma NÃO desenha e continuam aqui (lógica de negócio
+ * preservada, apenas retokenizada): link de pagamento + [COPIAR], histórico
+ * de eventos e as ações de Admin (registrar pagamento manual, cancelar,
+ * estornar).
  */
 export default function F3InvoiceDetailPage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -200,70 +242,161 @@ export default function F3InvoiceDetailPage() {
     )
   }
 
+  /* CTA [PAGAR AGORA] da visão Aluno (node 163:5473/186:4961): só existe se o
+   * backend devolveu um `payment_link` E a fatura ainda é pagável — as mesmas
+   * três exclusões de status de antes, agora num único lugar. */
+  const payableLink =
+    state.status === 'ready' &&
+    state.invoice.paymentLink &&
+    state.invoice.status !== 'paga' &&
+    state.invoice.status !== 'cancelada' &&
+    state.invoice.status !== 'estornada'
+      ? state.invoice.paymentLink
+      : null
+
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <div className="pg-head">
-        <button type="button" className="back" onClick={() => navigate(-1)}>
+      {/* Voltar (mobile, node 163:5454) e breadcrumb (desktop, node 186:4939)
+          convivem no DOM; quem escolhe é a @media de `.f3-nav-*` em
+          Financeiro.css, no mesmo breakpoint da sidebar do shell. */}
+      <div className="pg-head f3-head">
+        <button type="button" className="back f3-nav-back" onClick={() => navigate(-1)}>
           ‹ Voltar
         </button>
+        <nav className="f3-nav-crumbs" aria-label="Trilha de navegação">
+          <button type="button" className="f3-nav-crumbs__link" onClick={() => navigate(-1)}>
+            {/* O frame é da visão Aluno ("Minhas faturas"); na visão Admin a
+                origem é F2 (a lista da arena), então o rótulo acompanha. Os
+                dois voltam pela mesma navegação relativa: F3 é alcançável
+                tanto por F2 quanto por F5 e nenhuma das duas tem rota fixa
+                daqui (F5 depende do `unitId` que esta rota não recebe). */}
+            {canManage ? 'Faturas' : 'Minhas faturas'}
+          </button>
+          <Icon name="chevron-right" size={12} />
+          <span className="f3-nav-crumbs__current">Detalhe</span>
+        </nav>
         <div className="spacer" />
       </div>
 
       {state.status === 'loading' ? <PageLoading label="Carregando fatura" variant="section" /> : null}
-      {state.status === 'error' ? <p role="alert">Não foi possível carregar esta fatura.</p> : null}
+      {state.status === 'error' ? (
+        <div className="dash-body f3-error" role="alert">
+          <AlertCard tone="danger" showIcon>
+            Não foi possível carregar esta fatura.
+          </AlertCard>
+        </div>
+      ) : null}
 
       {state.status === 'ready' ? (
-        <div className="dash-body">
-          <div>
-            <h1>Fatura</h1>
+        <div className="dash-body f3-detail">
+          <header className="f3-header">
+            <h1 className="f3-header__title">{state.invoice.description}</h1>
             <Badge tone={STATUS_BADGE_TONE[state.invoice.status]}>
               {STATUS_LABEL[state.invoice.status]}
             </Badge>
-          </div>
+          </header>
 
-          <div className="card">
-            <div className="kv">
-              <span className="k">Aluno</span>
-              <span className="v">{state.invoice.studentName}</span>
+          <Card>
+            <dl className="f3-rows">
+              <div className="f3-row">
+                <dt className="f3-row__label">Aluno</dt>
+                <dd className="f3-row__value">{state.invoice.studentName}</dd>
+              </div>
+              <div className="f3-row">
+                <dt className="f3-row__label">Vencimento</dt>
+                <dd className="f3-row__value">{formatDate(state.invoice.dueDate)}</dd>
+              </div>
+              <div className="f3-row">
+                <dt className="f3-row__label">Emitida</dt>
+                <dd className="f3-row__value">{formatDate(state.invoice.createdAt)}</dd>
+              </div>
+              <div className="f3-row">
+                {/* "sugerido" só enquanto a fatura não foi paga — depois o
+                    campo é o método realmente usado (ver JSDoc). */}
+                <dt className="f3-row__label">
+                  {state.invoice.status === 'paga' ? 'Método' : 'Método sugerido'}
+                </dt>
+                <dd className="f3-row__value">{state.invoice.paymentMethod ?? '—'}</dd>
+              </div>
+              <div className="f3-rows__divider" role="presentation" />
+              <div className="f3-row f3-row--total">
+                <dt className="f3-row__label">Total</dt>
+                <dd className="f3-row__value">{formatBRL(state.invoice.amount)}</dd>
+              </div>
+            </dl>
+          </Card>
+
+          {canManage ? (
+            <div className="actions-row">
+              {state.invoice.status !== 'paga' &&
+              state.invoice.status !== 'cancelada' &&
+              state.invoice.status !== 'estornada' ? (
+                <Button variant="primary" size="md" onClick={() => setShowPaymentSheet(true)}>
+                  Registrar pagamento manual
+                </Button>
+              ) : null}
+              {state.invoice.status === 'gerada' ||
+              state.invoice.status === 'enviada' ||
+              state.invoice.status === 'atrasada' ? (
+                <Button
+                  variant="secondary"
+                  size="md"
+                  disabled={submitting}
+                  onClick={handleCancel}
+                >
+                  Cancelar fatura
+                </Button>
+              ) : null}
+              {state.invoice.status === 'paga' ? (
+                <Button variant="danger" size="md" onClick={openRefundSheet}>
+                  Estornar
+                </Button>
+              ) : null}
             </div>
-            <div className="kv">
-              <span className="k">Descrição</span>
-              <span className="v">{state.invoice.description}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Valor</span>
-              <span className="v">{formatBRL(state.invoice.amount)}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Vencimento</span>
-              <span className="v">{formatDate(state.invoice.dueDate)}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Emitida</span>
-              <span className="v">{formatDate(state.invoice.createdAt)}</span>
-            </div>
-            <div className="kv">
-              <span className="k">Método</span>
-              <span className="v">{state.invoice.paymentMethod ?? '—'}</span>
-            </div>
-          </div>
+          ) : payableLink ? (
+            <>
+              {/* Âncora (e não `ui/Button`) porque o destino é uma URL externa
+                  do provedor: precisa de href real — abrir em nova aba, copiar
+                  o endereço, ver pra onde vai antes de clicar. As classes do
+                  `Button` são puramente visuais (`.button` em Button.css não
+                  depende do elemento `<button>`), então o CTA fica idêntico ao
+                  do DS; `.f3-cta` só tira o sublinhado do link. Não há gateway
+                  de pagamento no app — isto apenas abre o link do backend. */}
+              <a
+                className="button button--primary button--lg button--full-width f3-cta"
+                href={payableLink}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span className="button__label">
+                  {state.invoice.paymentMethod
+                    ? `Pagar agora com ${state.invoice.paymentMethod.toUpperCase()}`
+                    : 'Pagar agora'}
+                </span>
+              </a>
+              <p className="f3-cta-note">
+                Pagamentos são processados de forma segura. Após o pagamento, sua fatura é
+                atualizada automaticamente.
+              </p>
+            </>
+          ) : null}
 
           {state.invoice.paymentLink ? (
             <div className="pay-link-box">
-              <span>🔗</span>
+              <Icon name="link" size={16} />
               <code>{state.invoice.paymentLink}</code>
-              <button
-                type="button"
-                className="btn btn-secondary btn-sm"
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={() => copyLink(state.invoice.paymentLink!)}
               >
                 {copyLabel}
-              </button>
+              </Button>
             </div>
           ) : null}
 
-          <div className="card">
-            <h2>Histórico</h2>
+          <Card>
+            <h2 className="f3-section-title">Histórico</h2>
             <div className="timeline">
               {state.invoice.events.length === 0 ? (
                 <p className="hint">Sem eventos registrados ainda.</p>
@@ -276,54 +409,7 @@ export default function F3InvoiceDetailPage() {
                 ))
               )}
             </div>
-          </div>
-
-          <div className="actions-row">
-            {canManage ? (
-              <>
-                {state.invoice.status !== 'paga' &&
-                state.invoice.status !== 'cancelada' &&
-                state.invoice.status !== 'estornada' ? (
-                  <button
-                    type="button"
-                    className="btn btn-primary btn-md"
-                    onClick={() => setShowPaymentSheet(true)}
-                  >
-                    Registrar pagamento manual
-                  </button>
-                ) : null}
-                {state.invoice.status === 'gerada' ||
-                state.invoice.status === 'enviada' ||
-                state.invoice.status === 'atrasada' ? (
-                  <button
-                    type="button"
-                    className="btn btn-secondary btn-md"
-                    disabled={submitting}
-                    onClick={handleCancel}
-                  >
-                    Cancelar fatura
-                  </button>
-                ) : null}
-                {state.invoice.status === 'paga' ? (
-                  <button type="button" className="btn btn-danger btn-md" onClick={openRefundSheet}>
-                    Estornar
-                  </button>
-                ) : null}
-              </>
-            ) : state.invoice.paymentLink &&
-              state.invoice.status !== 'paga' &&
-              state.invoice.status !== 'cancelada' &&
-              state.invoice.status !== 'estornada' ? (
-              <a
-                className="btn btn-primary btn-md btn-full"
-                href={state.invoice.paymentLink}
-                target="_blank"
-                rel="noreferrer"
-              >
-                PAGAR AGORA
-              </a>
-            ) : null}
-          </div>
+          </Card>
         </div>
       ) : null}
 
@@ -342,14 +428,15 @@ export default function F3InvoiceDetailPage() {
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
           />
-          <button
-            type="button"
-            className="btn btn-primary btn-full"
+          <Button
+            variant="primary"
+            size="md"
+            fullWidth
             disabled={paymentMethod.trim() === '' || submitting}
             onClick={handleManualPayment}
           >
             Confirmar pagamento
-          </button>
+          </Button>
         </div>
       </BottomSheet>
 
@@ -405,9 +492,10 @@ export default function F3InvoiceDetailPage() {
                 : 'Estorno total cancela a fatura por completo.'}
             </div>
 
-            <button
-              type="button"
-              className="btn btn-danger btn-md btn-full"
+            <Button
+              variant="danger"
+              size="md"
+              fullWidth
               disabled={
                 submitting ||
                 (refundType === 'parcial' && !(Number(refundAmount.replace(',', '.')) > 0))
@@ -415,15 +503,12 @@ export default function F3InvoiceDetailPage() {
               onClick={handleRefund}
             >
               Confirmar estorno
-            </button>
+            </Button>
           </div>
         ) : null}
       </BottomSheet>
 
       <Toast message={message} variant={variant} onDismiss={dismiss} />
-      <Link className="hint" to="/perfil">
-        Voltar ao início
-      </Link>
     </AppShell>
   )
 }

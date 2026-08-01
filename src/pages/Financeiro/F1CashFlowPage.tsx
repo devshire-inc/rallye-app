@@ -324,7 +324,7 @@ export default function F1CashFlowPage() {
 
         {state.status === 'ready' ? (
           <>
-            <div className="card balance-card">
+            <div className="fin-card balance-card">
               <span className="lbl">Receita</span>
               <span className="val success">{formatBRL(summary.receita)}</span>
               <span className="lbl">Despesas</span>
@@ -335,7 +335,7 @@ export default function F1CashFlowPage() {
               </div>
             </div>
 
-            <div className="card">
+            <div className="fin-card">
               <h2>Últimos 3 meses</h2>
               <div style={{ display: 'flex', gap: 12, alignItems: 'flex-end', height: 90 }}>
                 {state.history.map((h) => (
@@ -355,7 +355,7 @@ export default function F1CashFlowPage() {
               </div>
             </div>
 
-            <div className="card">
+            <div className="fin-card">
               <h2>Recebimentos</h2>
               <div className="recv-row">
                 <span>Recebido</span>
@@ -386,7 +386,7 @@ export default function F1CashFlowPage() {
               </div>
             </div>
 
-            <div className="card">
+            <div className="fin-card">
               <h2>Receita por Categoria</h2>
               {breakdown.length === 0 ? (
                 <p className="hint">Nenhum registro financeiro neste mês.</p>
@@ -408,7 +408,7 @@ export default function F1CashFlowPage() {
               )}
             </div>
 
-            <div className="card">
+            <div className="fin-card">
               <h2>Despesas por Categoria</h2>
               <p className="hint">
                 Lançamento de despesas está fora do escopo desta versão — nenhuma tela de lançamento

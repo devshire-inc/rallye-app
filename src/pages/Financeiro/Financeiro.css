@@ -14,7 +14,7 @@
    --border-default/--text-heading/--interactive-primary/--sand-200/
    --state-info/etc.) — MESMOS valores visuais, só sem indireção.
    Seletores/classes preservados intactos (não removidos nem renomeados):
-   F4CreateInvoicePage.tsx (fora desta task) ainda consome `.card`/`.badge`/
+   F4CreateInvoicePage.tsx (fora desta task) ainda consome `.fin-card`/`.badge`/
    `.b-*`/`.tabs2`/`.pills` crus direto desta folha. `.searchbar`/
    `.unit-filter select`/`.month-nav button` foram simplificados porque só
    F1/F2 os usavam e passaram a usar ui/Input, ui/Select e ui/IconButton
@@ -108,14 +108,23 @@
   font-size: 12px;
 }
 
-/* Cards genéricos */
-.card {
+/* Cards genéricos legados de F1/F4 (F3 e F5 já usam `ui/Card`).
+
+   RENOMEADO de `.card` para `.fin-card` no reskin de F3 (BEAC): `ui/Card`
+   também emite `class="card"`, e as duas folhas entram no mesmo bundle com a
+   mesma especificidade (0,1,0) — a ordem decide, e ela não é garantida. Com o
+   nome antigo, todo `ui/Card` renderizado numa tela que importa esta folha
+   herdava a borda e o `padding` fixo daqui (o DS usa `--card-padding` +
+   `--shadow-card`, sem borda). Os consumidores restantes (F1CashFlowPage,
+   F4CreateInvoicePage) foram atualizados junto; nenhuma regra mudou de valor.
+   Migrar F1/F4 para `ui/Card` é trabalho de outra task. */
+.fin-card {
   background: var(--surface-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   padding: var(--space-4);
 }
-.card h2 {
+.fin-card h2 {
   font-size: 13px;
   text-transform: uppercase;
   letter-spacing: 0.03em;
@@ -655,4 +664,170 @@
   padding-left: 0;
   padding-right: 0;
   justify-content: flex-start;
+}
+
+/* ---------------------------------------------------------------------------
+   F3 — Detalhe da Fatura (Figma 159:1744 mobile / 186:2189 desktop).
+
+   Layout ÚNICO nos dois frames (uma coluna com o card de dados) — nada de
+   troca cards/tabela aqui, ao contrário de F5. A única diferença entre os
+   frames é a navegação do topo: "‹ Voltar" no mobile, breadcrumb no desktop.
+   -------------------------------------------------------------------------- */
+
+/* Troca voltar/breadcrumb — os dois estão no DOM e quem escolhe é esta
+   @media, sem matchMedia (mesmo mecanismo de TrocarArenaPage.css).
+   breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica do 860 —
+   é o ponto em que a sidebar do shell aparece e o topo vira o do desktop. */
+.f3-nav-crumbs {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.f3-nav-crumbs__link {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.f3-nav-crumbs__link:hover {
+  color: var(--text-brand);
+}
+.f3-nav-crumbs__current {
+  color: var(--text-heading);
+}
+
+/* "‹ Voltar" do frame mobile (node 163:5454) é laranja, não cinza — sobrepõe
+   o `.pg-head .back` genérico só nesta tela.
+
+   Seletor duplo (`.pg-head.f3-head`, 0,3,0) de propósito, mesmo motivo do
+   `.dash-body.dash-body--wide` em utilities.css: ~20 CSS de página declaram
+   `.pg-head .back { display: flex }` no mesmo bundle, com a MESMA
+   especificidade de `.f3-head .f3-nav-back` — aí quem ganha é a ordem de
+   import, e o `display: none` do desktop era simplesmente ignorado (o botão
+   Voltar aparecia junto do breadcrumb). Com 0,3,0 esta folha vence sempre. */
+.pg-head.f3-head .f3-nav-back {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-brand);
+  font: var(--type-small);
+}
+
+@media (min-width: 860px) {
+  .f3-nav-crumbs {
+    display: flex;
+  }
+  .pg-head.f3-head .f3-nav-back {
+    display: none;
+  }
+}
+
+/* Coluna de 640px do frame desktop (node 186:4943/186:4947). `.dash-body`
+   entrega 560 no mobile-first; aqui a coluna acompanha o Figma a partir do
+   ponto em que a sidebar existe. */
+@media (min-width: 860px) {
+  .dash-body.f3-detail {
+    max-width: 640px;
+  }
+}
+
+/* `ui/AlertCard` carrega `width: 340px` do Figma (node 102:6); numa coluna de
+   375 − 2×24 de padding isso transborda pela direita. Mesmo override já feito
+   por AG5BookingDetailPage.css — a largura fixa é do frame, não do
+   componente, e soltá-la é responsabilidade de quem o coloca em coluna. */
+.f3-error .alert-card {
+  width: 100%;
+}
+
+.f3-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+}
+.f3-header__title {
+  margin: 0;
+  font: var(--type-title);
+  color: var(--text-heading);
+}
+@media (min-width: 860px) {
+  /* 28px no frame desktop (node 186:4944) contra 24 do mobile. */
+  .f3-header__title {
+    font-size: 28px;
+  }
+}
+
+/* Card de dados (node 163:5459/186:4947): linhas rótulo à esquerda / valor em
+   negrito à direita, divisor, e o Total em destaque. <dl> — daí o reset de
+   margem dos <dd>. */
+.f3-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin: 0;
+}
+.f3-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.f3-row__label {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.f3-row__value {
+  margin: 0;
+  font: var(--type-body);
+  font-weight: 700;
+  color: var(--text-heading);
+  text-align: right;
+}
+.f3-rows__divider {
+  height: 1px;
+  background: var(--border-default);
+}
+.f3-row--total .f3-row__label {
+  font: var(--type-subtitle);
+  color: var(--text-heading);
+}
+.f3-row--total .f3-row__value {
+  font: var(--type-heading);
+  font-size: 22px;
+  color: var(--text-heading);
+}
+
+/* CTA do Aluno: âncora com as classes visuais do `ui/Button` (ver comentário
+   no TSX) — só falta desligar o sublinhado que o <a> traz. */
+.f3-cta {
+  text-decoration: none;
+}
+
+/* Rodapé sob o CTA (node 163:5475/186:4964). Centralizado só no desktop,
+   como no frame. */
+.f3-cta-note {
+  margin: 0;
+  font: var(--type-small);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+@media (min-width: 860px) {
+  .f3-cta-note {
+    text-align: center;
+  }
+}
+
+/* "Histórico" — seção que o Figma não desenha; herda o rótulo em caixa alta
+   que o `.fin-card h2` legado dava antes da migração pro `ui/Card`. */
+.f3-section-title {
+  margin: 0 0 var(--space-3);
+  font: var(--type-overline);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
 }
