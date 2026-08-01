@@ -69,8 +69,41 @@ describe('useShellIdentity', () => {
       // dá tempo pro load() assíncrono rodar; sem asserção específica além
       // de não lançar — o `renderHook` já falharia o teste se a promise
       // rejeitada escapasse como unhandled rejection.
-      expect(result.current).toEqual({ orgLabel: '', userLabel: '', role: null })
+      expect(result.current).toEqual({
+        orgLabel: '',
+        userLabel: '',
+        role: null,
+        // erro é um desfecho: sai de "carregando", senão quem despacha por
+        // papel (DashboardPage) ficaria num skeleton eterno.
+        loading: false,
+      })
     })
+  })
+
+  it('starts loading and resolves to loading=false on success', async () => {
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'user-5', fullName: 'Bruno Dias' })
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem({ role: 'Aluno' })])
+    vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
+
+    const { result } = renderHook(() => useShellIdentity())
+
+    // primeiro render, antes de qualquer fetch resolver: role null MAS
+    // carregando — é o que separa "ainda não sei" de "sem papel".
+    expect(result.current).toEqual({ orgLabel: '', userLabel: '', role: null, loading: true })
+
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.role).toBe('Aluno')
+  })
+
+  it('resolves to loading=false when getMe answers !ok', async () => {
+    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: false, status: 401, error: 'unauthorized' })
+    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([membershipItem()])
+    vi.spyOn(tenantContext, 'getActiveUnitId').mockReturnValue('unit-1')
+
+    const { result } = renderHook(() => useShellIdentity())
+
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.role).toBeNull()
   })
 
   it('omits the " · {role}" suffix entirely when role is null', async () => {

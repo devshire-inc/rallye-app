@@ -13,9 +13,21 @@ export interface ShellIdentity {
    * rótulo colapsado usado em userLabel. É o que BEAC-2058 (roteamento de
    * nav por papel) precisa pra decidir entre AG1/AG3/AG4 etc. */
   role: string | null
+  /** `true` enquanto GET /me + GET /me/memberships estão em voo; `false` em
+   * QUALQUER caminho terminal — sucesso, resposta `!ok` ou erro de rede.
+   * Existe porque `role: null` sozinho é ambíguo: significa tanto "ainda não
+   * sei" quanto "este usuário realmente não tem papel nesta unit". Quem
+   * DESPACHA por papel (renderiza tela/rota diferente por role) precisa
+   * distinguir os dois; quem só EXIBE `orgLabel`/`userLabel` pode continuar
+   * ignorando este campo — a string vazia já é o estado neutro correto. */
+  loading: boolean
 }
 
-const EMPTY_IDENTITY: ShellIdentity = { orgLabel: '', userLabel: '', role: null }
+const EMPTY_IDENTITY = { orgLabel: '', userLabel: '', role: null } as const
+
+/** Estado inicial e também o de erro: sem dados, mas já resolvido. */
+const RESOLVED_EMPTY: ShellIdentity = { ...EMPTY_IDENTITY, loading: false }
+const LOADING_IDENTITY: ShellIdentity = { ...EMPTY_IDENTITY, loading: true }
 
 /**
  * Roles admin-tier do seed de sistema (migrations/000016_seed_system_roles)
@@ -46,13 +58,14 @@ function userLabelFor(fullName: string, role: string | null): string {
  * (`orgLabel="Arena Areia Dourada"`, `userLabel="Rafael Andrade · Admin"`)
  * presentes em ~48 páginas hoje.
  *
- * Antes do primeiro fetch resolver (ou em erro de rede) devolve
- * EMPTY_IDENTITY — mesma postura "sem estado liberado por omissão" adotada
- * em usePermission, sem inventar um skeleton novo: não fazia parte do
- * escopo desta task.
+ * Antes do primeiro fetch resolver (ou em erro de rede) devolve os campos
+ * vazios — mesma postura "sem estado liberado por omissão" adotada em
+ * usePermission. O que separa os dois casos é `loading`: `true` só enquanto
+ * os fetches estão em voo, `false` assim que qualquer desfecho chega
+ * (inclusive erro — erro NÃO fica preso em "carregando pra sempre").
  */
 export function useShellIdentity(): ShellIdentity {
-  const [identity, setIdentity] = useState<ShellIdentity>(EMPTY_IDENTITY)
+  const [identity, setIdentity] = useState<ShellIdentity>(LOADING_IDENTITY)
 
   useEffect(() => {
     let cancelled = false
@@ -62,7 +75,13 @@ export function useShellIdentity(): ShellIdentity {
         getMe().catch(() => ({ ok: false as const, status: 0, error: 'network_error' })),
         listMyMemberships().catch(() => []),
       ])
-      if (cancelled || !meResult.ok) return
+      if (cancelled) return
+      if (!meResult.ok) {
+        // Best-effort como antes (identidade vazia), mas resolvido: quem
+        // despacha por papel precisa sair do estado de carregamento.
+        setIdentity(RESOLVED_EMPTY)
+        return
+      }
 
       const activeUnitId = getActiveUnitId()
       const activeMembership =
@@ -72,6 +91,7 @@ export function useShellIdentity(): ShellIdentity {
         orgLabel: activeMembership?.unit.name ?? '',
         userLabel: userLabelFor(meResult.fullName, activeMembership?.role ?? null),
         role: activeMembership?.role ?? null,
+        loading: false,
       })
     }
 

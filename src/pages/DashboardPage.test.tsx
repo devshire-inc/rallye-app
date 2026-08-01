@@ -35,11 +35,12 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
-function mockRole(role: string | null) {
+function mockRole(role: string | null, loading = false) {
   vi.spyOn(useShellIdentityModule, 'useShellIdentity').mockReturnValue({
     orgLabel: '',
     userLabel: '',
     role,
+    loading,
   })
 }
 
@@ -55,7 +56,18 @@ function renderAt(path: string) {
 }
 
 describe('DashboardPage', () => {
-  it('renders the unchanged generic markup for GENERIC (role=null)', () => {
+  it('renders a loading state — never the generic dashboard — while the identity is in flight', () => {
+    mockRole(null, true)
+    renderAt('/units/unit-1/dashboard')
+
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando seu painel')
+    // o bug: com role ainda null, TODO usuário via o genérico por um instante
+    expect(screen.queryByRole('heading', { name: 'Dashboard' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /sair/i })).not.toBeInTheDocument()
+    expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
+  })
+
+  it('renders the unchanged generic markup for GENERIC (role=null, resolved)', () => {
     mockRole(null)
     renderAt('/units/unit-1/dashboard')
 

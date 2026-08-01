@@ -159,7 +159,7 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
   const [unreadCount, setUnreadCount] = useState(0)
   const [gestaoOpen, setGestaoOpen] = useState(false)
 
-  const { role } = useShellIdentity()
+  const { role, loading: identityLoading } = useShellIdentity()
   const unitId = getActiveUnitId()
   const tenantId = getActiveTenantId()
   const canAgenda = usePermission('agenda', 'read')
@@ -192,7 +192,12 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
       key: 'agenda',
       label: 'Agenda',
       path: unitId ? agendaPathFor(unitId, role) : '',
-      visible: canAgenda && unitId !== null,
+      // Enquanto a identidade não resolve, `role` é null e `agendaPathFor`
+      // mandaria um Aluno/Professor pra Agenda genérica — rota errada. Mesma
+      // postura fail-closed de `usePermission` (que também esconde itens
+      // antes do primeiro fetch): o item só aparece quando o destino é o
+      // definitivo.
+      visible: canAgenda && unitId !== null && !identityLoading,
     },
     {
       key: 'torneios',

@@ -1,5 +1,7 @@
 import { useParams } from 'react-router-dom'
+import { AppShell } from '../components/AppShell/AppShell'
 import LogoutButton from '../components/LogoutButton'
+import { PageLoading } from '../components/ui/PageLoading/PageLoading'
 import { useShellIdentity } from '../hooks/useShellIdentity'
 import { resolveDashboardVariant } from '../lib/dashboardTarget'
 import D1Dashboard from './D1Dashboard'
@@ -17,7 +19,9 @@ import './DashboardPage.css'
  * renderizar a partir do `role` bruto de `useShellIdentity`. Todas as 5
  * variantes estão implementadas (D1 Aluno, D2 Professor, D3 Admin, D3F
  * Funcionário/custom role, OW1 Tenant Owner — BEAC-1736/1737/2051); só
- * `GENERIC` (role === null, sem papel atribuído ainda) continua no markup
+ * `GENERIC` (role === null DEPOIS de `loading` resolver — autenticado e sem
+ * papel atribuído nesta unit; enquanto carrega quem manda é
+ * `DashboardLoading`) continua no markup
  * ORIGINAL desta página (`GenericDashboard`, D3 parcial de BEAC-1893:
  * `<h1>Dashboard</h1>` + `PendingApprovalsCard` condicional a `unitId` +
  * `LogoutButton`), preservando o comportamento pré-dispatcher para esse
@@ -43,9 +47,35 @@ function GenericDashboard({ unitId }: { unitId: string | undefined }) {
   )
 }
 
+/**
+ * Estado de carregamento do dispatcher — casca IGUAL à das 5 variantes reais
+ * (AppShell + `<main className="dashboard-page">`), não à do `GenericDashboard`
+ * (que é `<main>` sem shell): todo usuário COM papel cai numa das cinco, então
+ * é essa a casca que sobrevive à transição. O chrome (sidebar/bottom nav/sino)
+ * já aparece aqui e continua depois, sem troca de layout no meio do caminho.
+ * `orgLabel`/`userLabel` chegam vazios enquanto carrega — é o mesmo estado
+ * neutro que as variantes exibem no primeiro frame delas.
+ */
+function DashboardLoading({ orgLabel, userLabel }: { orgLabel: string; userLabel: string }) {
+  return (
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+      <main className="dashboard-page">
+        <PageLoading label="Carregando seu painel" variant="page" />
+      </main>
+    </AppShell>
+  )
+}
+
 export default function DashboardPage() {
   const { unitId } = useParams<{ unitId?: string }>()
-  const { role } = useShellIdentity()
+  const { role, loading, orgLabel, userLabel } = useShellIdentity()
+
+  // Sem isto, `role` ainda null durante os fetches cai em GENERIC e TODO
+  // usuário vê o dashboard genérico por um instante antes da variante real
+  // (o "flash da tela errada"). `GenericDashboard` volta a significar só o
+  // que deveria: autenticado, resolvido, e sem papel nesta unit.
+  if (loading) return <DashboardLoading orgLabel={orgLabel} userLabel={userLabel} />
+
   const variant = resolveDashboardVariant(role)
 
   switch (variant) {

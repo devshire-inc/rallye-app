@@ -31,7 +31,7 @@ beforeEach(() => {
   // manualmente, já que eles não exercitam nav real.
   vi.mocked(getActiveUnitId).mockReturnValue(null)
   vi.mocked(getActiveTenantId).mockReturnValue(null)
-  vi.mocked(useShellIdentity).mockReturnValue({ orgLabel: '', userLabel: '', role: null })
+  vi.mocked(useShellIdentity).mockReturnValue({ orgLabel: '', userLabel: '', role: null, loading: false })
   vi.mocked(usePermission).mockReturnValue(false)
 })
 
@@ -214,7 +214,7 @@ describe('AppShell — navegação real dos itens de topo (BEAC-2086)', () => {
       [null, '/units/unit-1/agenda'],
     ] as const)('navega pra rota correta do role %s', async (role, expectedPath) => {
       vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
-      vi.mocked(useShellIdentity).mockReturnValue({ orgLabel: '', userLabel: '', role })
+      vi.mocked(useShellIdentity).mockReturnValue({ orgLabel: '', userLabel: '', role, loading: false })
       vi.mocked(usePermission).mockImplementation((module) => module === 'agenda')
       const user = userEvent.setup()
       const { container } = renderShellAt('/perfil')
