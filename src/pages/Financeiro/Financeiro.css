@@ -802,12 +802,6 @@
   color: var(--text-heading);
 }
 
-/* CTA do Aluno: âncora com as classes visuais do `ui/Button` (ver comentário
-   no TSX) — só falta desligar o sublinhado que o <a> traz. */
-.f3-cta {
-  text-decoration: none;
-}
-
 /* Rodapé sob o CTA (node 163:5475/186:4964). Centralizado só no desktop,
    como no frame. */
 .f3-cta-note {
@@ -988,5 +982,212 @@
   }
   .blk-contact .button {
     color: var(--text-brand);
+  }
+}
+
+/* --------------------------------------------------------------------------
+   13 — Pagamento PIX (Figma 164:4669 mobile / 186:2208 desktop / 187:7119 erro).
+
+   Layout ÚNICO nos três frames: uma coluna centralizada (480px no desktop),
+   sem tabela. Como em F3, a única diferença entre mobile e desktop é o topo —
+   "‹ Voltar" vs. breadcrumb —, resolvido pela @media de 860 lá embaixo.
+
+   Todas as classes daqui são prefixadas `pix-`: o bundle de CSS é único e
+   nomes genéricos (.card, .chip, .qr, .code) já colidiram entre folhas de
+   página neste projeto. Nenhum `pix-*` existia em nenhum outro CSS.
+   -------------------------------------------------------------------------- */
+
+.dash-body.pix-body {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 18px;
+}
+
+/* Troca voltar/breadcrumb — mesmo mecanismo (e mesmos motivos de
+   especificidade) documentados em `.pg-head.f3-head .f3-nav-back` acima:
+   ~20 CSS de página declaram `.pg-head .back` com a mesma especificidade, e
+   um seletor 0,3,0 é o que garante que o `display: none` do desktop vença
+   independente da ordem de import. */
+.pix-nav-crumbs {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font: var(--type-label);
+  color: var(--text-muted);
+}
+.pix-nav-crumbs__link {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.pix-nav-crumbs__link:hover {
+  color: var(--text-brand);
+}
+.pix-nav-crumbs__current {
+  color: var(--text-heading);
+}
+.pg-head.pix-head .pix-nav-back {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-brand);
+  font: var(--type-small);
+}
+
+/* Cabeçalho centralizado (nodes 164:4705 / 186:4966). */
+.pix-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-1);
+  text-align: center;
+}
+.pix-header__title {
+  margin: 0;
+  font: var(--type-title);
+  color: var(--text-heading);
+}
+.pix-header__subtitle {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* Slot do QR (nodes 164:4708 / 186:4969). O frame desenha um QR Code; aqui
+   ele é ocupado por um bloco explicativo, porque o `qr_code` que a API
+   devolve é uma string mock impagável — ver o JSDoc de PixPaymentPage.tsx.
+   O card em si (fundo, borda, raio, padding) é o do frame. */
+.pix-qr-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  align-self: center;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 260px;
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-xl);
+  background: var(--surface-card);
+  text-align: center;
+}
+.pix-qr-slot__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+}
+.pix-qr-slot__text {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* Caixa "copia e cola" (nodes 164:4768 / 186:4971). */
+.pix-code {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  box-sizing: border-box;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+.pix-code__value {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Linha "Aguardando confirmação do pagamento…" (nodes 164:4773 / 186:4977). */
+.pix-waiting {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* Bloco terminal — erro (frame 13b, node 187:7204), expirado e confirmado. */
+.pix-outcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  align-self: center;
+  width: 100%;
+  max-width: 320px;
+  text-align: center;
+}
+.pix-outcome__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 88px;
+  height: 88px;
+  border-radius: var(--radius-pill);
+}
+.pix-outcome--danger .pix-outcome__icon {
+  background: var(--state-danger-soft);
+  color: var(--state-danger-text);
+}
+.pix-outcome--success .pix-outcome__icon {
+  background: var(--state-success-soft);
+  color: var(--state-success-text);
+}
+.pix-outcome__title {
+  margin: 0;
+  font: var(--type-heading);
+  color: var(--text-heading);
+}
+.pix-outcome__text {
+  margin: 0;
+  font: var(--type-body);
+  color: var(--text-muted);
+}
+
+/* `ui/AlertCard` carrega `width: 340px` do Figma (node 102:6) e transborda numa
+   coluna de 375 − padding. Mesmo override já feito por `.f3-error .alert-card`
+   acima: a largura fixa é do frame, não do componente. */
+.pix-body .alert-card {
+  box-sizing: border-box;
+  width: 100%;
+}
+
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) é a fonte canônica —
+   é onde a sidebar do shell aparece e o frame passa a ser o desktop
+   (node 186:2208, coluna de 480px). */
+@media (min-width: 860px) {
+  .pix-nav-crumbs {
+    display: flex;
+  }
+  .pg-head.pix-head .pix-nav-back {
+    display: none;
+  }
+  .dash-body.pix-body {
+    max-width: 480px;
+    gap: 20px;
+  }
+  .pix-header__subtitle {
+    font-size: 15px;
   }
 }

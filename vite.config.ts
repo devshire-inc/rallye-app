@@ -25,7 +25,7 @@ const dirname = typeof __dirname !== 'undefined' ? __dirname : path.dirname(file
 // prefixo de topo novo.
 const API_ROUTE_PREFIXES = [
   'auth', 'me', 'units', 'tenants', 'bookings', 'classes', 'courts', 'students',
-  'teachers', 'teacher-block-requests', 'invoices', 'invites', 'plans',
+  'teachers', 'teacher-block-requests', 'invoices', 'invites', 'payments', 'plans',
   'subscriptions', 'rankings', 'reschedule-credits', 'waitlist', 'day-use',
   'day-use-bookings', 'tournaments', 'tournament-categories',
   'tournament-matches', 'tournament-registrations',

@@ -120,9 +120,15 @@ const STATUS_BADGE_TONE: Record<InvoiceDetail['status'], BadgeProps['tone']> = {
  *   método efetivamente usado, não uma sugestão.
  * - "Total" destacado após um divisor, exatamente como no frame.
  * - o botão do frame ("Pagar agora com PIX") é o [PAGAR AGORA] que já
- *   existia: abre o `payment_link` que o backend devolve. NÃO há gateway de
- *   pagamento no app (decisão de produto) — nada foi integrado; o rótulo só
- *   ganhou o método quando a fatura traz um.
+ *   existia. ATUALIZADO na tela 13 (Pagamento PIX): em vez de abrir o
+ *   `payment_link` numa aba, ele navega para /invoices/{id}/pix, onde a
+ *   cobrança é emitida (POST /invoices/{id}/payments/pix) e acompanhada. NÃO
+ *   há gateway de pagamento integrado (a cobrança do backend é `mock` e o
+ *   código é impagável de propósito) — ver PixPaymentPage.tsx.
+ * - o `payment_link` continua exibido na caixa "copiar link" abaixo, para as
+ *   duas visões: é um dado real que o admin pode ter cadastrado apontando
+ *   para outro meio (boleto, checkout externo). O que ele deixou de ser é o
+ *   CTA principal do aluno.
  * - o texto de rodapé do frame ("Pagamentos são processados de forma
  *   segura…") é reproduzido sob o CTA, só na visão Aluno.
  *
@@ -242,17 +248,20 @@ export default function F3InvoiceDetailPage() {
     )
   }
 
-  /* CTA [PAGAR AGORA] da visão Aluno (node 163:5473/186:4961): só existe se o
-   * backend devolveu um `payment_link` E a fatura ainda é pagável — as mesmas
-   * três exclusões de status de antes, agora num único lugar. */
-  const payableLink =
+  /* CTA [PAGAR AGORA] da visão Aluno (node 163:5473/186:4961): as mesmas três
+   * exclusões de status de sempre — pagar só faz sentido enquanto a fatura
+   * está em aberto.
+   *
+   * MUDOU (tela 13 · Pagamento PIX): não depende mais de `payment_link`. Antes
+   * o CTA só aparecia se o admin tivesse cadastrado um link, porque abrir esse
+   * link era tudo o que ele sabia fazer. Agora ele emite uma cobrança PIX de
+   * verdade (POST /invoices/{id}/payments/pix), que existe para qualquer
+   * fatura pagável — então o gate virou só o status. */
+  const isPayable =
     state.status === 'ready' &&
-    state.invoice.paymentLink &&
     state.invoice.status !== 'paga' &&
     state.invoice.status !== 'cancelada' &&
     state.invoice.status !== 'estornada'
-      ? state.invoice.paymentLink
-      : null
 
   return (
     <AppShell orgLabel={orgLabel} userLabel={userLabel}>
@@ -353,27 +362,23 @@ export default function F3InvoiceDetailPage() {
                 </Button>
               ) : null}
             </div>
-          ) : payableLink ? (
+          ) : isPayable ? (
             <>
-              {/* Âncora (e não `ui/Button`) porque o destino é uma URL externa
-                  do provedor: precisa de href real — abrir em nova aba, copiar
-                  o endereço, ver pra onde vai antes de clicar. As classes do
-                  `Button` são puramente visuais (`.button` em Button.css não
-                  depende do elemento `<button>`), então o CTA fica idêntico ao
-                  do DS; `.f3-cta` só tira o sublinhado do link. Não há gateway
-                  de pagamento no app — isto apenas abre o link do backend. */}
-              <a
-                className="button button--primary button--lg button--full-width f3-cta"
-                href={payableLink}
-                target="_blank"
-                rel="noreferrer"
+              {/* `ui/Button` (e não mais uma âncora externa): o destino agora é
+                  uma rota interna, /invoices/{id}/pix, onde a cobrança é
+                  emitida e acompanhada. A âncora anterior existia porque o
+                  destino era a URL do provedor no `payment_link` — esse link
+                  não sumiu, continua na caixa "copiar link" abaixo, só deixou
+                  de ser o CTA principal do aluno. Continua não havendo gateway
+                  de pagamento integrado; ver PixPaymentPage.tsx. */}
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                onClick={() => navigate(`/invoices/${state.invoice.id}/pix`)}
               >
-                <span className="button__label">
-                  {state.invoice.paymentMethod
-                    ? `Pagar agora com ${state.invoice.paymentMethod.toUpperCase()}`
-                    : 'Pagar agora'}
-                </span>
-              </a>
+                Pagar agora com PIX
+              </Button>
               <p className="f3-cta-note">
                 Pagamentos são processados de forma segura. Após o pagamento, sua fatura é
                 atualizada automaticamente.

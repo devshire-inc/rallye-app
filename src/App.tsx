@@ -34,6 +34,7 @@ import F2InvoiceListPage from './pages/Financeiro/F2InvoiceListPage'
 import F3InvoiceDetailPage from './pages/Financeiro/F3InvoiceDetailPage'
 import F4CreateInvoicePage from './pages/Financeiro/F4CreateInvoicePage'
 import F5MyInvoicesPage from './pages/Financeiro/F5MyInvoicesPage'
+import PixPaymentPage from './pages/Financeiro/PixPaymentPage'
 import { ForgotPassword } from './pages/ForgotPassword'
 import LoginPage from './pages/LoginPage'
 import MembersPage from './pages/Members/MembersPage'
@@ -359,6 +360,13 @@ function AppRoutes() {
       <Route path="/units/:unitId/invoices/new" element={<F4CreateInvoicePage />} />
       <Route path="/units/:unitId/my-invoices" element={<F5MyInvoicesPage />} />
       <Route path="/invoices/:invoiceId" element={<F3InvoiceDetailPage />} />
+      {/* 13 — Pagamento PIX (Aluno), Figma 164:4669/186:2208 (+ erro 187:7119).
+          Filha de /invoices/:invoiceId e NÃO unit-scoped pelo mesmo motivo que
+          F3: POST /invoices/{id}/payments/pix e GET /payments/{id} resolvem a
+          unit da SESSÃO do chamador, não do path. Alcançada pelo CTA "Pagar
+          agora" da visão Aluno em F3 — ver o JSDoc de PixPaymentPage.tsx para
+          por que esse CTA deixou de abrir o `payment_link`. */}
+      <Route path="/invoices/:invoiceId/pix" element={<PixPaymentPage />} />
       {/* 15 — Bloqueado por Inadimplência (Aluno), Figma 165:4803/186:2246.
           Unit-scoped como F5 (a tela lê GET /units/{id}/invoices?status=
           atrasada). Alcançada quando um fluxo self-service recebe o 403

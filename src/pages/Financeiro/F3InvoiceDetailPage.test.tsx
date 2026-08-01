@@ -192,3 +192,73 @@ describe('F3InvoiceDetailPage — sheet de estorno (#sheet-estorno, cópia do pr
     expect(screen.getByRole('button', { name: 'Confirmar estorno' })).toBeInTheDocument()
   })
 })
+
+describe('F3InvoiceDetailPage — CTA do Aluno para a tela 13 (Pagamento PIX)', () => {
+  /* A rota real de destino é /invoices/:invoiceId/pix (App.tsx). Aqui ela é
+     montada com um elemento sentinela para o teste afirmar a NAVEGAÇÃO em si,
+     sem arrastar PixPaymentPage (e os fetches dela) para dentro deste arquivo. */
+  function renderWithPixRoute() {
+    return renderWithQuery(
+      <MemoryRouter initialEntries={['/invoices/inv-1']}>
+        <Routes>
+          <Route path="/invoices/:invoiceId" element={<F3InvoiceDetailPage />} />
+          <Route path="/invoices/:invoiceId/pix" element={<p>tela de pagamento PIX</p>} />
+        </Routes>
+      </MemoryRouter>,
+    )
+  }
+
+  it('navega para a tela de PIX em vez de abrir o payment_link numa aba', async () => {
+    mockCanManage(false)
+    vi.spyOn(invoicesApi, 'getInvoice').mockResolvedValue(
+      detailOk(invoiceDetail({ status: 'enviada', paidAt: null, paymentLink: null })),
+    )
+
+    renderWithPixRoute()
+    fireEvent.click(await screen.findByRole('button', { name: 'Pagar agora com PIX' }))
+
+    expect(await screen.findByText('tela de pagamento PIX')).toBeInTheDocument()
+  })
+
+  it('mostra o CTA mesmo sem payment_link — a cobrança PIX não depende dele', async () => {
+    mockCanManage(false)
+    vi.spyOn(invoicesApi, 'getInvoice').mockResolvedValue(
+      detailOk(invoiceDetail({ status: 'gerada', paidAt: null, paymentLink: null })),
+    )
+
+    renderPage()
+
+    expect(
+      await screen.findByRole('button', { name: 'Pagar agora com PIX' }),
+    ).toBeInTheDocument()
+  })
+
+  it('esconde o CTA quando a fatura não é mais pagável', async () => {
+    mockCanManage(false)
+    vi.spyOn(invoicesApi, 'getInvoice').mockResolvedValue(
+      detailOk(invoiceDetail({ status: 'paga', paymentLink: 'https://pagar.exemplo/inv-1' })),
+    )
+
+    renderPage()
+    await screen.findByText('Mensalidade julho')
+
+    expect(screen.queryByRole('button', { name: 'Pagar agora com PIX' })).not.toBeInTheDocument()
+  })
+
+  it('mantém o payment_link exibido na caixa de copiar — ele não sumiu, só deixou de ser o CTA', async () => {
+    mockCanManage(false)
+    vi.spyOn(invoicesApi, 'getInvoice').mockResolvedValue(
+      detailOk(
+        invoiceDetail({
+          status: 'enviada',
+          paidAt: null,
+          paymentLink: 'https://pagar.exemplo/inv-1',
+        }),
+      ),
+    )
+
+    renderPage()
+
+    expect(await screen.findByText('https://pagar.exemplo/inv-1')).toBeInTheDocument()
+  })
+})
