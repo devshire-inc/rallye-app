@@ -48,37 +48,25 @@ function GenericDashboard({ unitId }: { unitId: string | undefined }) {
 }
 
 /**
- * Estado de carregamento do dispatcher — casca IGUAL à das 5 variantes reais
- * (AppShell + `<main className="dashboard-page">`), não à do `GenericDashboard`
- * (que é `<main>` sem shell): todo usuário COM papel cai numa das cinco, então
- * é essa a casca que sobrevive à transição. O chrome (sidebar/bottom nav/sino)
- * já aparece aqui e continua depois, sem troca de layout no meio do caminho.
- * `orgLabel`/`userLabel` chegam vazios enquanto carrega — é o mesmo estado
- * neutro que as variantes exibem no primeiro frame delas.
+ * Estado de carregamento do dispatcher — só o MIOLO, sem casca: quem
+ * renderiza o `AppShell` é o `DashboardPage` abaixo, uma única vez, tanto
+ * durante o carregamento quanto depois. `<main className="dashboard-page">`
+ * espelha o que as 5 variantes reais renderizam dentro da casca, então a
+ * transição loading -> variante troca só o conteúdo.
  */
-function DashboardLoading({ orgLabel, userLabel }: { orgLabel: string; userLabel: string }) {
+function DashboardLoading() {
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <main className="dashboard-page">
-        <PageLoading label="Carregando seu painel" variant="page" />
-      </main>
-    </AppShell>
+    <main className="dashboard-page">
+      <PageLoading label="Carregando seu painel" variant="page" />
+    </main>
   )
 }
 
-export default function DashboardPage() {
-  const { unitId } = useParams<{ unitId?: string }>()
-  const { role, loading, orgLabel, userLabel } = useShellIdentity()
-
-  // Sem isto, `role` ainda null durante os fetches cai em GENERIC e TODO
-  // usuário vê o dashboard genérico por um instante antes da variante real
-  // (o "flash da tela errada"). `GenericDashboard` volta a significar só o
-  // que deveria: autenticado, resolvido, e sem papel nesta unit.
-  if (loading) return <DashboardLoading orgLabel={orgLabel} userLabel={userLabel} />
-
-  const variant = resolveDashboardVariant(role)
-
-  switch (variant) {
+/** Miolo da variante resolvida — só o conteúdo, sempre dentro do `AppShell`
+ * que `DashboardPage` monta. `GENERIC` é o único caso tratado FORA daqui
+ * (ver comentário no `DashboardPage`). */
+function DashboardVariant({ role }: { role: string | null }) {
+  switch (resolveDashboardVariant(role)) {
     case 'D1':
       return <D1Dashboard />
     case 'D3F':
@@ -90,6 +78,35 @@ export default function DashboardPage() {
     case 'OW1':
       return <OW1Dashboard />
     case 'GENERIC':
-      return <GenericDashboard unitId={unitId} />
+      return null
   }
+}
+
+export default function DashboardPage() {
+  const { unitId } = useParams<{ unitId?: string }>()
+  const { role, loading, orgLabel, userLabel } = useShellIdentity()
+
+  // `loading` importa porque, sem ele, `role` ainda null durante os fetches
+  // cai em GENERIC e TODO usuário vê o dashboard genérico por um instante
+  // antes da variante real (o "flash da tela errada"). `GenericDashboard`
+  // significa só o que deveria: autenticado, resolvido, e sem papel nesta
+  // unit — e continua sendo o ÚNICO caso sem casca (markup pré-dispatcher
+  // preservado, ver comentário de pacote acima).
+  if (!loading && resolveDashboardVariant(role) === 'GENERIC') {
+    return <GenericDashboard unitId={unitId} />
+  }
+
+  // O `AppShell` é montado AQUI, uma vez só, e é o MESMO elemento na mesma
+  // posição da árvore antes e depois de `loading` resolver — é isso que faz
+  // o React reconciliar em vez de desmontar/remontar a casca. Antes, o
+  // loading renderizava o próprio `<AppShell>` e cada variante renderizava o
+  // dela: como os elementos ficavam em posições diferentes da árvore
+  // (`<AppShell>` direto × `<D1Dashboard><AppShell>`), a transição
+  // desmontava a casca inteira — a nav piscava e todo efeito de montagem do
+  // shell (o `GET /me/notifications/unread-count` do sino) rodava de novo.
+  return (
+    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+      {loading ? <DashboardLoading /> : <DashboardVariant role={role} />}
+    </AppShell>
+  )
 }

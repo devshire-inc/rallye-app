@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
-import { AppShell } from '../components/AppShell/AppShell'
 import { StatCard } from '../components/ui/StatCard/StatCard'
-import { useShellIdentity } from '../hooks/useShellIdentity'
 import { formatBRL } from '../lib/money'
 import { getNetworkReport } from '../lib/api/reports'
 import { getActiveTenantId } from '../lib/tenantContext'
@@ -19,9 +17,12 @@ import './DashboardPage.css'
  * listagem de units é introduzida (isso é escopo de OW2/UnitsPage, fora
  * desta story). `period` omitido — mesmo motivo de D3Dashboard: o backend
  * já assume o mês corrente quando ausente.
+ *
+ * Devolve só o MIOLO: a casca (`AppShell`) é montada uma única vez pelo
+ * dispatcher `DashboardPage`, que a mantém viva do carregamento até a
+ * variante resolvida — ver o comentário lá para o porquê.
  */
 export default function OW1Dashboard() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const tenantId = getActiveTenantId()
   const [revenue, setRevenue] = useState<number | null>(null)
   const [delinquency, setDelinquency] = useState<number | null>(null)
@@ -43,17 +44,15 @@ export default function OW1Dashboard() {
   }, [tenantId])
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <main className="dashboard-page">
-        <h1>Dashboard</h1>
+    <main className="dashboard-page">
+      <h1>Dashboard</h1>
 
-        <div className="dash-body">
-          <section data-testid="dashboard-kpis" className="stat4">
-            <StatCard label="Receita do mês (rede)" value={revenue !== null ? formatBRL(revenue) : '—'} />
-            <StatCard label="Inadimplência (rede)" value={delinquency !== null ? formatBRL(delinquency) : '—'} />
-          </section>
-        </div>
-      </main>
-    </AppShell>
+      <div className="dash-body">
+        <section data-testid="dashboard-kpis" className="stat4">
+          <StatCard label="Receita do mês (rede)" value={revenue !== null ? formatBRL(revenue) : '—'} />
+          <StatCard label="Inadimplência (rede)" value={delinquency !== null ? formatBRL(delinquency) : '—'} />
+        </section>
+      </div>
+    </main>
   )
 }

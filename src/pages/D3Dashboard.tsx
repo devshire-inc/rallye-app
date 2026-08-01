@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AppShell } from '../components/AppShell/AppShell'
 import { Card } from '../components/ui/Card/Card'
 import { StatCard } from '../components/ui/StatCard/StatCard'
-import { useShellIdentity } from '../hooks/useShellIdentity'
 import { formatBRL } from '../lib/money'
 import { getBookingsGrid, type Booking } from '../lib/api/bookings'
 import { listPendingApprovals } from '../lib/api/pendingApprovals'
@@ -26,9 +24,12 @@ import './DashboardPage.css'
  * alimenta tanto o KPI "Aulas hoje" quanto a lista de agenda resumida (AC:
  * nenhuma chamada duplicada). `unitId` via `getActiveUnitId()` — mesmo
  * padrão de auto-resolução de D2Dashboard/D3FDashboard.
+ *
+ * Devolve só o MIOLO: a casca (`AppShell`) é montada uma única vez pelo
+ * dispatcher `DashboardPage`, que a mantém viva do carregamento até a
+ * variante resolvida — ver o comentário lá para o porquê.
  */
 export default function D3Dashboard() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const unitId = getActiveUnitId()
   const [revenue, setRevenue] = useState<number | null>(null)
   const [delinquency, setDelinquency] = useState<number | null>(null)
@@ -64,46 +65,44 @@ export default function D3Dashboard() {
   )
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <main className="dashboard-page">
-        <h1>Dashboard</h1>
+    <main className="dashboard-page">
+      <h1>Dashboard</h1>
 
-        <div className="dash-body">
-          <section data-testid="dashboard-kpis" className="stat4">
-            <StatCard label="Receita do mês" value={revenue !== null ? formatBRL(revenue) : '—'} />
-            <StatCard label="Inadimplência" value={delinquency !== null ? formatBRL(delinquency) : '—'} />
-            <StatCard label="Aulas hoje" value={String(sortedBookings.length)} />
-            <StatCard label="Pendências" value={pendingCount !== null ? String(pendingCount) : '—'} />
+      <div className="dash-body">
+        <section data-testid="dashboard-kpis" className="stat4">
+          <StatCard label="Receita do mês" value={revenue !== null ? formatBRL(revenue) : '—'} />
+          <StatCard label="Inadimplência" value={delinquency !== null ? formatBRL(delinquency) : '—'} />
+          <StatCard label="Aulas hoje" value={String(sortedBookings.length)} />
+          <StatCard label="Pendências" value={pendingCount !== null ? String(pendingCount) : '—'} />
+        </section>
+
+        {unitId ? (
+          <section data-testid="dashboard-quick-actions">
+            <Link className="btn btn-ghost" to={`/units/${unitId}/agenda`}>
+              Agenda
+            </Link>
+            <Link className="btn btn-ghost" to={`/units/${unitId}/reports`}>
+              Relatórios
+            </Link>
+            <Link className="btn btn-ghost" to={`/units/${unitId}/members`}>
+              Membros
+            </Link>
           </section>
+        ) : null}
 
-          {unitId ? (
-            <section data-testid="dashboard-quick-actions">
-              <Link className="btn btn-ghost" to={`/units/${unitId}/agenda`}>
-                Agenda
-              </Link>
-              <Link className="btn btn-ghost" to={`/units/${unitId}/reports`}>
-                Relatórios
-              </Link>
-              <Link className="btn btn-ghost" to={`/units/${unitId}/members`}>
-                Membros
-              </Link>
-            </section>
-          ) : null}
+        <section data-testid="dashboard-agenda">
+          <Card>
+            {sortedBookings.length === 0 ? <p className="hint">Nenhuma aula hoje.</p> : null}
+            <ul>
+              {sortedBookings.map((b) => (
+                <li key={b.id}>{b.className ?? 'Aula particular'}</li>
+              ))}
+            </ul>
+          </Card>
+        </section>
 
-          <section data-testid="dashboard-agenda">
-            <Card>
-              {sortedBookings.length === 0 ? <p className="hint">Nenhuma aula hoje.</p> : null}
-              <ul>
-                {sortedBookings.map((b) => (
-                  <li key={b.id}>{b.className ?? 'Aula particular'}</li>
-                ))}
-              </ul>
-            </Card>
-          </section>
-
-          {unitId ? <PendingApprovalsCard unitId={unitId} /> : null}
-        </div>
-      </main>
-    </AppShell>
+        {unitId ? <PendingApprovalsCard unitId={unitId} /> : null}
+      </div>
+    </main>
   )
 }

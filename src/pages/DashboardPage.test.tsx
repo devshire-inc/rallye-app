@@ -1,8 +1,10 @@
-import { screen } from '@testing-library/react'
+import { act, screen, waitFor } from '@testing-library/react'
+import { useReducer } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { renderWithPermissions } from '../test/renderWithPermissions'
 import * as useShellIdentityModule from '../hooks/useShellIdentity'
+import * as notificationsApi from '../lib/api/notifications'
 import DashboardPage from './DashboardPage'
 
 vi.mock('./PendingApprovalsCard', () => ({
@@ -130,5 +132,60 @@ describe('DashboardPage', () => {
 
     expect(screen.getByTestId('ow1-dashboard')).toBeInTheDocument()
     expect(screen.queryByTestId('pending-approvals-card')).not.toBeInTheDocument()
+  })
+})
+
+/**
+ * Regressão do remount da casca: o loading renderizava o próprio `<AppShell>`
+ * e cada variante renderizava o dela, em posições DIFERENTES da árvore
+ * (`<AppShell>` × `<D1Dashboard><AppShell>`) — o React desmontava e remontava
+ * a shell inteira na transição, a nav piscava e todo efeito de montagem dela
+ * (o `GET /me/notifications/unread-count` do sino) rodava de novo.
+ *
+ * A sonda é o próprio nó DOM do sino: se ele for o MESMO objeto antes e
+ * depois de `loading` resolver, a casca sobreviveu à transição.
+ */
+describe('DashboardPage — a casca sobrevive à transição loading -> variante', () => {
+  let identity: useShellIdentityModule.ShellIdentity = {
+    orgLabel: '',
+    userLabel: '',
+    role: null,
+    loading: true,
+  }
+  let resolveIdentity: () => void = () => {}
+
+  /** Re-renderiza `DashboardPage` sob os MESMOS providers (nada acima dele é
+   * recriado), que é a única forma de exercitar a transição sem forçar um
+   * remount pelo próprio harness de teste. */
+  function IdentityHarness() {
+    const [, forceRender] = useReducer((n: number) => n + 1, 0)
+    resolveIdentity = forceRender
+    return <DashboardPage />
+  }
+
+  it('mantém o AppShell montado e busca o unread-count uma única vez', async () => {
+    const unreadCount = vi
+      .spyOn(notificationsApi, 'getUnreadNotificationCount')
+      .mockResolvedValue({ ok: true, unreadCount: 0 })
+    identity = { orgLabel: '', userLabel: '', role: null, loading: true }
+    vi.spyOn(useShellIdentityModule, 'useShellIdentity').mockImplementation(() => identity)
+
+    renderWithPermissions(
+      <MemoryRouter initialEntries={['/units/unit-1/dashboard']}>
+        <Routes>
+          <Route path="/units/:unitId/dashboard" element={<IdentityHarness />} />
+        </Routes>
+      </MemoryRouter>,
+    )
+
+    const bellWhileLoading = await screen.findByRole('button', { name: /notificações/i })
+    expect(screen.getByRole('status')).toHaveTextContent('Carregando seu painel')
+
+    identity = { orgLabel: 'Arena', userLabel: 'Ana · Aluno', role: 'Aluno', loading: false }
+    act(() => resolveIdentity())
+
+    expect(screen.getByTestId('d1-dashboard')).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: /notificações/i })).toBe(bellWhileLoading)
+    await waitFor(() => expect(unreadCount).toHaveBeenCalledTimes(1))
   })
 })

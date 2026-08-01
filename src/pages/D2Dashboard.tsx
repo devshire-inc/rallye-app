@@ -1,8 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AppShell } from '../components/AppShell/AppShell'
 import { Card } from '../components/ui/Card/Card'
-import { useShellIdentity } from '../hooks/useShellIdentity'
 import { isWithinCheckinWindow } from '../lib/agenda/checkinWindow'
 import { dayWindow } from './Agenda/agendaShared'
 import { getBookingsGrid, type Booking, type GetBookingsGridSuccess } from '../lib/api/bookings'
@@ -21,12 +19,15 @@ import './DashboardPage.css'
  * `getActiveUnitId()` (mesmo padrão de auto-resolução de D3FDashboard) — a
  * rota de destino resolve o professor de novo via `GET /me`, então o unitId
  * do path é só cosmético (consistência de URL), não escopo de dado.
+ *
+ * Devolve só o MIOLO: a casca (`AppShell`) é montada uma única vez pelo
+ * dispatcher `DashboardPage`, que a mantém viva do carregamento até a
+ * variante resolvida — ver o comentário lá para o porquê.
  */
 export default function D2Dashboard() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const unitId = getActiveUnitId()
-  // Compartilha o `GET /me` do useShellIdentity acima em vez de disparar um
-  // segundo fetch só pelo id — ver hooks/useMe.ts.
+  // Mesma entrada de cache de `GET /me` que a casca já lê — nenhum fetch
+  // adicional, ver hooks/useMe.ts.
   const { me } = useMe()
   const teacherId = me?.id ?? null
   const [bookings, setBookings] = useState<Booking[]>([])
@@ -62,38 +63,36 @@ export default function D2Dashboard() {
   }, [sortedBookings])
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <main className="dashboard-page">
-        <h1>Dashboard</h1>
+    <main className="dashboard-page">
+      <h1>Dashboard</h1>
 
-        <div className="dash-body">
-          <section data-testid="dashboard-agenda">
-            <Card>
-              {sortedBookings.length === 0 ? <p className="hint">Nenhuma aula hoje.</p> : null}
-              <ul>
-                {sortedBookings.map((b) => (
-                  <li key={b.id}>
-                    <span>{b.className ?? 'Aula particular'}</span> · <span>{b.unitName}</span>
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          </section>
+      <div className="dash-body">
+        <section data-testid="dashboard-agenda">
+          <Card>
+            {sortedBookings.length === 0 ? <p className="hint">Nenhuma aula hoje.</p> : null}
+            <ul>
+              {sortedBookings.map((b) => (
+                <li key={b.id}>
+                  <span>{b.className ?? 'Aula particular'}</span> · <span>{b.unitName}</span>
+                </li>
+              ))}
+            </ul>
+          </Card>
+        </section>
 
-          <section data-testid="dashboard-checkin-pending">
-            <Card>
-              <span className="stat-card__label">Check-ins pendentes</span>
-              <span className="stat-card__value">{pendingCheckins.length}</span>
-            </Card>
-          </section>
+        <section data-testid="dashboard-checkin-pending">
+          <Card>
+            <span className="stat-card__label">Check-ins pendentes</span>
+            <span className="stat-card__value">{pendingCheckins.length}</span>
+          </Card>
+        </section>
 
-          {unitId ? (
-            <Link className="btn btn-primary" to={`/units/${unitId}/me/earnings`}>
-              Meus Ganhos
-            </Link>
-          ) : null}
-        </div>
-      </main>
-    </AppShell>
+        {unitId ? (
+          <Link className="btn btn-primary" to={`/units/${unitId}/me/earnings`}>
+            Meus Ganhos
+          </Link>
+        ) : null}
+      </div>
+    </main>
   )
 }

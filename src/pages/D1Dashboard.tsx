@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AppShell } from '../components/AppShell/AppShell'
 import { Badge } from '../components/ui/Badge/Badge'
 import { Medal, type MedalTier } from '../components/ui/Medal/Medal'
 import { TierChip, type TierChipTier } from '../components/ui/TierChip/TierChip'
@@ -73,9 +72,15 @@ function nextTierLabel(tier: SkillTier): string | null {
  * continuam reais. "Esporte principal" assume a primeira linha de
  * skill-levels (API não expõe um sport "principal"). "Loja" não tem rota no
  * app ainda, renderizada desabilitada.
+ *
+ * Devolve só o MIOLO: a casca (`AppShell`) é montada uma única vez pelo
+ * dispatcher `DashboardPage`, que a mantém viva do carregamento até a
+ * variante resolvida — ver o comentário lá para o porquê. `useShellIdentity`
+ * continua aqui só pelo `orgLabel` do eyebrow do cabeçalho (mesma entrada de
+ * cache que a casca já lê, zero requisição extra).
  */
 export default function D1Dashboard() {
-  const { orgLabel, userLabel } = useShellIdentity()
+  const { orgLabel } = useShellIdentity()
   // Mesma entrada de cache de `GET /me` que o `useShellIdentity` acima já
   // lê: antes esta tela disparava um SEGUNDO `GET /me` num useEffect só
   // para extrair o id (o hook de shell só expõe o `userLabel` combinado).
@@ -128,121 +133,119 @@ export default function D1Dashboard() {
   const mainSport = skillLevels[0] ? sportLabel(skillLevels[0].sport) : '—'
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <main className="dashboard-page d1-dashboard">
-        <header className="d1-dashboard__header">
-          {orgLabel ? <p className="d1-dashboard__eyebrow">{orgLabel.toUpperCase()}</p> : null}
-          <h1 className="d1-dashboard__title">Suas próximas aulas</h1>
-          <p className="d1-dashboard__subtitle">{subtitle}</p>
-        </header>
+    <main className="dashboard-page d1-dashboard">
+      <header className="d1-dashboard__header">
+        {orgLabel ? <p className="d1-dashboard__eyebrow">{orgLabel.toUpperCase()}</p> : null}
+        <h1 className="d1-dashboard__title">Suas próximas aulas</h1>
+        <p className="d1-dashboard__subtitle">{subtitle}</p>
+      </header>
 
-        <section className="d1-dashboard__stats" aria-label="Estatísticas do aluno">
-          <StatCard label="Aulas hoje" value={String(bookings.length)} />
-          <StatCard label="Esporte principal" value={mainSport} />
-        </section>
+      <section className="d1-dashboard__stats" aria-label="Estatísticas do aluno">
+        <StatCard label="Aulas hoje" value={String(bookings.length)} />
+        <StatCard label="Esporte principal" value={mainSport} />
+      </section>
 
-        <section className="d1-dashboard__tiers" data-testid="dashboard-skill-levels">
-          {skillLevels.map((sl) => {
-            const next = nextTierLabel(sl.tier)
-            return (
-              <div className="tier-card" key={sl.sport}>
-                <div className="tier-card__row-top">
-                  <span className="tier-card__eyebrow">SEU NÍVEL</span>
-                  <SportTag sport={sl.sport} />
-                </div>
-                <div className="tier-card__row-tier">
-                  <TierChip tier={TIER_CHIP_TIER[sl.tier]} sportCssVar={sportCssVar(sl.sport)} />
-                  <div className="tier-card__tier-text">
-                    <span className="tier-card__tier-name">Nível {tierLabel(sl.tier)}</span>
-                    <span className="tier-card__tier-detail">{sportLabel(sl.sport)}</span>
-                  </div>
-                </div>
-                {next ? (
-                  <LevelProgress
-                    criterion="Continue evoluindo para o próximo nível"
-                    percent={50}
-                    currentLevel={tierLabel(sl.tier)}
-                    nextLevel={next}
-                  />
-                ) : (
-                  <p className="tier-card__max">Nível máximo já alcançado neste esporte.</p>
-                )}
+      <section className="d1-dashboard__tiers" data-testid="dashboard-skill-levels">
+        {skillLevels.map((sl) => {
+          const next = nextTierLabel(sl.tier)
+          return (
+            <div className="tier-card" key={sl.sport}>
+              <div className="tier-card__row-top">
+                <span className="tier-card__eyebrow">SEU NÍVEL</span>
+                <SportTag sport={sl.sport} />
               </div>
-            )
-          })}
-        </section>
-
-        <section className="d1-dashboard__engagement" data-testid="dashboard-medal">
-          {xp ? (
-            <div className="engagement-card">
-              <Medal tier={MEDAL_TIER[xp.medal]} size="md" />
-              <div className="engagement-card__text">
-                <span className="engagement-card__label">Engajamento</span>
-                <span className="engagement-card__medal">{xp.medal}</span>
-                <span className="engagement-card__xp">{xp.total_xp} XP</span>
+              <div className="tier-card__row-tier">
+                <TierChip tier={TIER_CHIP_TIER[sl.tier]} sportCssVar={sportCssVar(sl.sport)} />
+                <div className="tier-card__tier-text">
+                  <span className="tier-card__tier-name">Nível {tierLabel(sl.tier)}</span>
+                  <span className="tier-card__tier-detail">{sportLabel(sl.sport)}</span>
+                </div>
               </div>
+              {next ? (
+                <LevelProgress
+                  criterion="Continue evoluindo para o próximo nível"
+                  percent={50}
+                  currentLevel={tierLabel(sl.tier)}
+                  nextLevel={next}
+                />
+              ) : (
+                <p className="tier-card__max">Nível máximo já alcançado neste esporte.</p>
+              )}
             </div>
-          ) : null}
-        </section>
+          )
+        })}
+      </section>
 
-        <nav className="d1-dashboard__quick-actions" aria-label="Atalhos">
-          {activeUnitId ? (
-            <Link className="quick-action" to={`/units/${activeUnitId}/agenda/minha`}>
-              <span className="quick-action__icon">+</span>
-              <span className="quick-action__label">Agendar</span>
-            </Link>
-          ) : null}
-          {activeUnitId ? (
-            <Link className="quick-action" to={`/units/${activeUnitId}/my-invoices`}>
-              <span className="quick-action__icon">R$</span>
-              <span className="quick-action__label">Faturas</span>
-            </Link>
-          ) : null}
-          {activeUnitId ? (
-            <Link className="quick-action" to={`/units/${activeUnitId}/tournaments`}>
-              <span className="quick-action__icon">T</span>
-              <span className="quick-action__label">Torneios</span>
-            </Link>
-          ) : null}
-          <span className="quick-action quick-action--disabled" aria-disabled="true">
-            <span className="quick-action__icon">L</span>
-            <span className="quick-action__label">Loja</span>
-          </span>
-        </nav>
-
-        <section className="d1-dashboard__agenda" data-testid="dashboard-agenda">
-          <div className="d1-dashboard__agenda-header">
-            <h2 className="d1-dashboard__agenda-title">Próximas</h2>
-            {activeUnitId ? (
-              <Link className="d1-dashboard__agenda-link" to={`/units/${activeUnitId}/agenda/minha`}>
-                Ver tudo →
-              </Link>
-            ) : null}
+      <section className="d1-dashboard__engagement" data-testid="dashboard-medal">
+        {xp ? (
+          <div className="engagement-card">
+            <Medal tier={MEDAL_TIER[xp.medal]} size="md" />
+            <div className="engagement-card__text">
+              <span className="engagement-card__label">Engajamento</span>
+              <span className="engagement-card__medal">{xp.medal}</span>
+              <span className="engagement-card__xp">{xp.total_xp} XP</span>
+            </div>
           </div>
-          {arenaGroups.map((group) => (
-            <div key={group.unitId} className="agenda-group">
-              <h3 className="agenda-group__title">{group.unitName}</h3>
-              <ul className="agenda-group__list">
-                {group.items.map((booking) => (
-                  <li key={booking.id} className="agenda-row">
-                    <span className="agenda-row__bar" aria-hidden="true" />
-                    <div className="agenda-row__content">
-                      <div className="agenda-row__title-line">
-                        <span className="agenda-row__time">{formatTime(booking.startAt)}</span>
-                        <span className="agenda-row__title">{booking.className ?? 'Aula particular'}</span>
-                      </div>
-                      {booking.teacherName ? (
-                        <span className="agenda-row__meta">Prof. {booking.teacherName}</span>
-                      ) : null}
+        ) : null}
+      </section>
+
+      <nav className="d1-dashboard__quick-actions" aria-label="Atalhos">
+        {activeUnitId ? (
+          <Link className="quick-action" to={`/units/${activeUnitId}/agenda/minha`}>
+            <span className="quick-action__icon">+</span>
+            <span className="quick-action__label">Agendar</span>
+          </Link>
+        ) : null}
+        {activeUnitId ? (
+          <Link className="quick-action" to={`/units/${activeUnitId}/my-invoices`}>
+            <span className="quick-action__icon">R$</span>
+            <span className="quick-action__label">Faturas</span>
+          </Link>
+        ) : null}
+        {activeUnitId ? (
+          <Link className="quick-action" to={`/units/${activeUnitId}/tournaments`}>
+            <span className="quick-action__icon">T</span>
+            <span className="quick-action__label">Torneios</span>
+          </Link>
+        ) : null}
+        <span className="quick-action quick-action--disabled" aria-disabled="true">
+          <span className="quick-action__icon">L</span>
+          <span className="quick-action__label">Loja</span>
+        </span>
+      </nav>
+
+      <section className="d1-dashboard__agenda" data-testid="dashboard-agenda">
+        <div className="d1-dashboard__agenda-header">
+          <h2 className="d1-dashboard__agenda-title">Próximas</h2>
+          {activeUnitId ? (
+            <Link className="d1-dashboard__agenda-link" to={`/units/${activeUnitId}/agenda/minha`}>
+              Ver tudo →
+            </Link>
+          ) : null}
+        </div>
+        {arenaGroups.map((group) => (
+          <div key={group.unitId} className="agenda-group">
+            <h3 className="agenda-group__title">{group.unitName}</h3>
+            <ul className="agenda-group__list">
+              {group.items.map((booking) => (
+                <li key={booking.id} className="agenda-row">
+                  <span className="agenda-row__bar" aria-hidden="true" />
+                  <div className="agenda-row__content">
+                    <div className="agenda-row__title-line">
+                      <span className="agenda-row__time">{formatTime(booking.startAt)}</span>
+                      <span className="agenda-row__title">{booking.className ?? 'Aula particular'}</span>
                     </div>
-                    <Badge tone="success">Confirmada</Badge>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </section>
-      </main>
-    </AppShell>
+                    {booking.teacherName ? (
+                      <span className="agenda-row__meta">Prof. {booking.teacherName}</span>
+                    ) : null}
+                  </div>
+                  <Badge tone="success">Confirmada</Badge>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))}
+      </section>
+    </main>
   )
 }

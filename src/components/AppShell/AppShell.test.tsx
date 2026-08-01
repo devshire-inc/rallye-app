@@ -7,6 +7,7 @@ import { usePermission } from '../../hooks/usePermission'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import * as notificationsApi from '../../lib/api/notifications'
 import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
+import { QueryTestProvider } from '../../test/queryTestClient'
 import { AppShell } from './AppShell'
 
 vi.mock('../../hooks/usePermission')
@@ -17,10 +18,10 @@ vi.mock('../../lib/tenantContext', async (importOriginal) => {
 })
 
 beforeEach(() => {
-  // Toda instância de AppShell busca o badge de não lidas ao montar
-  // (BEAC-2021) — mockado por padrão pra não vazar `fetch` real nos testes
-  // deste arquivo que não testam o badge em si (mesmo raciocínio de
-  // S1Page.test.tsx/fetchMePermissions).
+  // O badge de não lidas (BEAC-2021) é uma query compartilhada
+  // (../../lib/query/notifications.ts) — mockado por padrão pra não vazar
+  // `fetch` real nos testes deste arquivo que não testam o badge em si
+  // (mesmo raciocínio de S1Page.test.tsx/fetchMePermissions).
   vi.spyOn(notificationsApi, 'getUnreadNotificationCount').mockResolvedValue({
     ok: true,
     unreadCount: 0,
@@ -39,22 +40,29 @@ afterEach(() => {
   vi.restoreAllMocks()
 })
 
+// `QueryTestProvider` é obrigatório desde que o badge virou query
+// compartilhada: sem um QueryClient em contexto o render lança "No
+// QueryClient set" (mesma exigência já documentada em ../../test/
+// queryTestClient.tsx para useShellIdentity/useMe — aqui o hook de
+// identidade é mockado, mas o do badge não).
 function renderShell() {
   return render(
-    <MemoryRouter initialEntries={['/perfil']}>
-      <Routes>
-        <Route
-          path="/perfil"
-          element={
-            <AppShell orgLabel="Rede Areia Dourada" userLabel="Dono">
-              conteúdo
-            </AppShell>
-          }
-        />
-        <Route path="/s1" element={<div>S1 placeholder</div>} />
-        <Route path="/notificacoes" element={<div>N1 placeholder</div>} />
-      </Routes>
-    </MemoryRouter>,
+    <QueryTestProvider>
+      <MemoryRouter initialEntries={['/perfil']}>
+        <Routes>
+          <Route
+            path="/perfil"
+            element={
+              <AppShell orgLabel="Rede Areia Dourada" userLabel="Dono">
+                conteúdo
+              </AppShell>
+            }
+          />
+          <Route path="/s1" element={<div>S1 placeholder</div>} />
+          <Route path="/notificacoes" element={<div>N1 placeholder</div>} />
+        </Routes>
+      </MemoryRouter>
+    </QueryTestProvider>,
   )
 }
 
@@ -112,6 +120,45 @@ describe('AppShell topbar bell + unread badge (BEAC-2021)', () => {
     expect(document.querySelector('.shell-bell-badge')).not.toBeInTheDocument()
   })
 
+  it('caps the badge at "99+" above 99', async () => {
+    vi.spyOn(notificationsApi, 'getUnreadNotificationCount').mockResolvedValue({
+      ok: true,
+      unreadCount: 128,
+    })
+
+    renderShell()
+
+    expect(await screen.findByText('99+')).toBeInTheDocument()
+  })
+
+  it('exibe 99 (sem "+") exatamente no limite', async () => {
+    vi.spyOn(notificationsApi, 'getUnreadNotificationCount').mockResolvedValue({
+      ok: true,
+      unreadCount: 99,
+    })
+
+    renderShell()
+
+    expect(await screen.findByText('99')).toBeInTheDocument()
+  })
+
+  // Contrato best-effort preservado na migração para o TanStack Query: a
+  // query LANÇA em resposta `!ok` (ver ../../lib/query/notifications.ts), e o
+  // hook traduz qualquer desfecho não-sucesso em 0 — badge some, nada trava.
+  it('falha da API não quebra a shell: badge simplesmente não aparece', async () => {
+    vi.spyOn(notificationsApi, 'getUnreadNotificationCount').mockResolvedValue({
+      ok: false,
+      status: 401,
+      error: 'unauthorized',
+    })
+
+    renderShell()
+
+    await screen.findByRole('button', { name: /notificações/i })
+    await waitFor(() => expect(document.querySelector('.shell-bell-badge')).not.toBeInTheDocument())
+    expect(screen.getByText('conteúdo')).toBeInTheDocument()
+  })
+
   it('CSS: topbar applies safe-area-inset-top (BEAC-2056)', () => {
     const css = readFileSync('src/components/AppShell/AppShell.css', 'utf8')
     expect(css).toMatch(/env\(safe-area-inset-top/)
@@ -133,18 +180,20 @@ function LocationProbe() {
 // pós-clique.
 function renderShellAt(initialPath: string) {
   return render(
-    <MemoryRouter initialEntries={[initialPath]}>
-      <Routes>
-        <Route
-          path="*"
-          element={
-            <AppShell orgLabel="Org" userLabel="User">
-              <LocationProbe />
-            </AppShell>
-          }
-        />
-      </Routes>
-    </MemoryRouter>,
+    <QueryTestProvider>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <Routes>
+          <Route
+            path="*"
+            element={
+              <AppShell orgLabel="Org" userLabel="User">
+                <LocationProbe />
+              </AppShell>
+            }
+          />
+        </Routes>
+      </MemoryRouter>
+    </QueryTestProvider>,
   )
 }
 

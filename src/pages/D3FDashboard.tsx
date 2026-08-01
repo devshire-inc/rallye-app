@@ -1,8 +1,6 @@
 import { Link } from 'react-router-dom'
-import { AppShell } from '../components/AppShell/AppShell'
 import { Card } from '../components/ui/Card/Card'
 import { usePermission } from '../hooks/usePermission'
-import { useShellIdentity } from '../hooks/useShellIdentity'
 import { visibleD3FSections } from '../lib/d3fSections'
 import { getActiveUnitId } from '../lib/tenantContext'
 import { PendingApprovalsCard } from './PendingApprovalsCard'
@@ -20,9 +18,12 @@ import './DashboardPage.css'
  * resolvido via `getActiveUnitId()` (não props/useParams) — mesmo padrão de
  * auto-resolução de `D1Dashboard`/`ProfilePage`, consistente com a
  * interface "sem props obrigatórias" da task.
+ *
+ * Devolve só o MIOLO: a casca (`AppShell`) é montada uma única vez pelo
+ * dispatcher `DashboardPage`, que a mantém viva do carregamento até a
+ * variante resolvida — ver o comentário lá para o porquê.
  */
 export default function D3FDashboard() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const unitId = getActiveUnitId()
 
   const access = {
@@ -37,22 +38,20 @@ export default function D3FDashboard() {
   const sections = unitId ? visibleD3FSections(access, unitId) : []
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      <main className="dashboard-page">
-        <h1>Dashboard</h1>
+    <main className="dashboard-page">
+      <h1>Dashboard</h1>
 
-        <div className="dash-body">
-          {sections.map((section) => (
-            <section key={section.module} data-testid={`dashboard-section-${section.module}`}>
-              <Card>
-                <Link to={section.path}>{section.label}</Link>
-              </Card>
-            </section>
-          ))}
+      <div className="dash-body">
+        {sections.map((section) => (
+          <section key={section.module} data-testid={`dashboard-section-${section.module}`}>
+            <Card>
+              <Link to={section.path}>{section.label}</Link>
+            </Card>
+          </section>
+        ))}
 
-          {unitId ? <PendingApprovalsCard unitId={unitId} /> : null}
-        </div>
-      </main>
-    </AppShell>
+        {unitId ? <PendingApprovalsCard unitId={unitId} /> : null}
+      </div>
+    </main>
   )
 }

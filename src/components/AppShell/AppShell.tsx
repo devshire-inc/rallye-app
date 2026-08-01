@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { BottomSheet } from '../BottomSheet/BottomSheet'
 import { BottomNav, type BottomNavItem } from '../ui/BottomNav/BottomNav'
@@ -9,7 +9,7 @@ import { Sidebar, type SidebarNavItem, type SidebarSection } from '../ui/Sidebar
 import { useLongPress } from '../../hooks/useLongPress'
 import { usePermission } from '../../hooks/usePermission'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
-import { getUnreadNotificationCount } from '../../lib/api/notifications'
+import { useUnreadNotificationCount } from '../../hooks/useUnreadNotificationCount'
 import { N1_PATH, S1_PATH, TROCAR_ARENA_PATH } from '../../lib/redirectTarget'
 import { getActiveTenantId, getActiveUnitId } from '../../lib/tenantContext'
 import './AppShell.css'
@@ -144,9 +144,10 @@ function gestaoSubItemsFor(
  * alternam por largura, ver AppShell.css), como `IconButton` ghost +
  * `Icon name="bell"` (reskin desta task — DS ainda não tem um composto
  * ícone+badge pronto, ver `.shell-bell-badge` em AppShell.css) + badge de
- * contagem alinhados à direita. O badge busca GET /me/notifications/
- * unread-count ao montar; falha é best-effort (badge só não aparece, sem
- * travar a tela).
+ * contagem alinhados à direita. O badge lê GET /me/notifications/
+ * unread-count pela query compartilhada (../../hooks/
+ * useUnreadNotificationCount.ts); falha é best-effort (badge só não aparece,
+ * sem travar a tela) — o hook devolve 0 em qualquer desfecho não-sucesso.
  */
 export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
   const navigate = useNavigate()
@@ -156,7 +157,7 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
   // a sidebar (e este logo) só aparece em telas >=860px (ver AppShell.css) —
   // gap conhecido de cobertura mobile, não resolvido por esta task.
   const longPress = useLongPress(() => navigate(S1_PATH))
-  const [unreadCount, setUnreadCount] = useState(0)
+  const unreadCount = useUnreadNotificationCount()
   const [gestaoOpen, setGestaoOpen] = useState(false)
 
   const { role, loading: identityLoading } = useShellIdentity()
@@ -166,20 +167,6 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
   const canTorneios = usePermission('torneios', 'read')
   const canRelatorios = usePermission('relatorios', 'read')
   const canConfig = usePermission('config', 'read')
-
-  useEffect(() => {
-    let cancelled = false
-    getUnreadNotificationCount()
-      .then((result) => {
-        if (!cancelled && result.ok) setUnreadCount(result.unreadCount)
-      })
-      .catch(() => {
-        // best-effort — ver comentário de pacote acima.
-      })
-    return () => {
-      cancelled = true
-    }
-  }, [])
 
   const navItems: NavItem[] = [
     {
