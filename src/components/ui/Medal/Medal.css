@@ -19,6 +19,18 @@
   line-height: 1;
 }
 
+/* Variante de posição (prop `place`): 🥇/🥈/🥉 do pódio. Ao contrário do eixo
+   de tier, aqui NÃO há círculo — o glifo é o desenho, e o componente se
+   comporta como texto inline para herdar tamanho, peso e linha de quem o
+   contém (é assim que os frames de Rankings desenham a coluna de posição).
+   Por isso a variante zera tudo que o `.medal` base traz de caixa. */
+.medal--place {
+  display: inline;
+  border: 0;
+  border-radius: 0;
+  background: none;
+}
+
 .medal--sm {
   width: 32px;
   height: 32px;

@@ -61,6 +61,39 @@ describe('Medal', () => {
     expect(letterBlock).not.toMatch(new RegExp(`var\\(--gamification-${tier}\\)`))
   })
 
+  // Eixo de POSIÇÃO (prop `place`) — o que faltava para Rankings consumir o
+  // componente. O eixo de tier acima continua intacto (D1Dashboard).
+  it.each([
+    [1, '🥇'],
+    [2, '🥈'],
+    [3, '🥉'],
+  ] as const)('place=%s draws %s and announces the ordinal, not a tier name', (place, glyph) => {
+    render(<Medal place={place} />)
+    const medal = screen.getByRole('img', { name: `${place}º lugar` })
+    expect(medal).toHaveTextContent(glyph)
+    expect(medal.className).toContain('medal--place')
+  })
+
+  it('the place variant carries no tier class, so it never picks up the circle', () => {
+    render(<Medal place={1} />)
+    const medal = screen.getByRole('img', { name: '1º lugar' })
+    expect(medal.className).not.toMatch(/medal--(bronze|prata|ouro|platina|diamante|sm|md|lg)\b/)
+    expect(medal.querySelector('.medal__letter')).not.toBeInTheDocument()
+  })
+
+  it('accepts a className on the place variant too', () => {
+    render(<Medal place={2} className="x-custom" />)
+    expect(screen.getByRole('img', { name: '2º lugar' }).className).toContain('x-custom')
+  })
+
+  it('CSS: the place variant resets the circle so it flows as inline text', () => {
+    const css = readFileSync('src/components/ui/Medal/Medal.css', 'utf8')
+    const block = /\.medal--place\s*\{([^}]*)\}/.exec(css)?.[1] ?? ''
+    expect(block).toMatch(/display:\s*inline\b/)
+    expect(block).toMatch(/border:\s*0/)
+    expect(block).toMatch(/background:\s*none/)
+  })
+
   it('CSS: no hex color literals (tokens only)', () => {
     const css = readFileSync('src/components/ui/Medal/Medal.css', 'utf8')
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)

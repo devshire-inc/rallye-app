@@ -38,3 +38,25 @@
 .bracket-round-header--final .bracket-round-header__name {
   color: var(--text-brand-strong);
 }
+
+/* `fluid`: os 240px acima são a medida da coluna do protótipo, não uma
+   dimensão do componente. Quem compõe a chave em colunas de outra largura
+   (BracketPage usa 320px no desktop) solta a largura por aqui. */
+.bracket-round-header--fluid {
+  width: 100%;
+}
+
+/* Variante `plain` (variant="plain"): o cabeçalho de rodada dos frames de
+   Torneios · Chave — Overline em text/muted, sem caixa e sem largura própria,
+   então o heading É o componente inteiro. */
+.bracket-round-header__name--plain {
+  color: var(--text-muted);
+}
+
+/* A contagem, quando existe, é sufixo do heading e não uma segunda caixa:
+   herda a tipografia do Overline em vez do Body/Small da pílula. */
+.bracket-round-header__name--plain .bracket-round-header__count {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}

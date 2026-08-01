@@ -122,3 +122,96 @@
   line-height: 1.3;
   color: var(--text-heading);
 }
+
+/* ---------------------------------------------------------------------------
+   Variantes de composição — ver o comentário de pacote em MatchCard.tsx.
+   Nada aqui muda o símbolo do Figma: todas as regras abaixo dependem de uma
+   classe de modificador que só existe quando a prop correspondente é passada.
+   -------------------------------------------------------------------------- */
+
+/* `fluid`: os 240px acima são a largura da coluna do protótipo, não uma
+   dimensão do componente (o card das telas é cheio no mobile e 320px no
+   desktop). */
+.match-card--fluid {
+  width: 100%;
+}
+
+/* `onClick`: o card inteiro vira o alvo de clique. Reset de <button> — a
+   borda, o fundo e o raio continuam vindo do `.match-card` acima. */
+.match-card--interactive {
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* `density="compact"`: o card das telas de chave. Os três custom properties
+   são o ponto de ajuste por breakpoint de quem compõe a chave — a página
+   redefine `--match-card-*` num ancestral em vez de selecionar as classes
+   internas daqui. */
+.match-card--compact {
+  gap: var(--space-1);
+  padding: var(--match-card-compact-padding, var(--space-2) var(--space-3));
+  border-radius: var(--match-card-compact-radius, var(--radius-sm));
+}
+
+.match-card--compact .match-card__name {
+  font: var(--type-small);
+  font-size: var(--match-card-text-size, 13px);
+  color: var(--text-body);
+}
+
+.match-card--compact .match-card__score {
+  font-size: var(--match-card-text-size, 13px);
+  font-weight: 800;
+  /* `normal` (e não o 1.3 do símbolo): na densidade compacta a linha do
+     placar não pode ser mais alta que a do nome, senão cada confronto cresce
+     e o ritmo vertical da coluna da chave muda. Medido no browser. */
+  line-height: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Contorno de estado do frame de chave: 1,5px em state/danger no ao vivo e em
+   border/strong no agendado; o encerrado fica com a borda neutra do card. */
+.match-card--compact.match-card--live {
+  border-width: 1.5px;
+  border-color: var(--state-danger);
+}
+
+.match-card--compact.match-card--scheduled {
+  border-width: 1.5px;
+  border-color: var(--border-strong);
+}
+
+/* Depois das regras de estado de propósito: o hover vence o contorno de
+   estado, como no card das telas. */
+.match-card--interactive:hover {
+  border-color: var(--border-strong);
+}
+
+/* `statusPlacement="footer"`: o status ganha uma linha própria abaixo dos
+   participantes. Sem o `letter-spacing` do header — quem o declara é
+   `.match-card__header`, e aqui o status está fora dele. A cor continua vindo
+   das classes de tom (0,1,0), que esta regra não sobrescreve. */
+.match-card--status-footer .match-card__status {
+  font: var(--type-overline);
+}
+
+/* Glifos do frame de chave por `::before`: o texto do DOM continua limpo. */
+.match-card--compact .match-card__status--finished::before {
+  content: '✓ ';
+}
+
+.match-card--compact .match-card__status--live::before {
+  content: '🔴 ';
+}
+
+.match-card--compact .match-card__status--muted::before {
+  content: '⏳ ';
+}
+
+/* `winnerStyle="emphasis"`: vencedor só por peso e cor de marca, sem a barra
+   nem o ✓ do símbolo. */
+.match-card--emphasis .match-card__participant--win .match-card__name {
+  color: var(--text-brand-strong);
+  font-weight: 800;
+}

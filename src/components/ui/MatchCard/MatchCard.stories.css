@@ -9,3 +9,12 @@
   flex-wrap: wrap;
   gap: var(--space-4);
 }
+
+/* Coluna estreita para as variantes elásticas: `fluid` ocupa a largura de
+   quem contém o card, então a story precisa dar uma medida a ele. */
+.match-card-story-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 320px;
+}

@@ -217,16 +217,9 @@
   gap: var(--space-3);
 }
 
-/* Overline em text/muted (177:2367 / 188:3632). A caixa alta é CSS: o texto
-   do DOM continua "Quartas"/"Semifinal"/"Final", o que roteiros de teste e
-   leitores de tela leem melhor. */
-.brk-round__label {
-  margin: 0;
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
-  color: var(--text-muted);
-  text-transform: uppercase;
-}
+/* O cabeçalho de rodada é `ui/BracketRoundHeader` na variante `plain`
+   (Overline em text/muted, caixa alta por CSS — o texto do DOM continua
+   "Quartas"/"Semifinal"/"Final"). Não há regra local para ele. */
 
 .brk-round__list {
   display: flex;
@@ -234,85 +227,10 @@
   gap: var(--space-3);
 }
 
-/* Card de confronto (177:2368 mobile / 188:3633 desktop). Local, e não
-   `ui/MatchCard` — ver a justificativa longa em BracketPage.tsx. */
-.brk-match {
-  display: flex;
-  flex-direction: column;
-  gap: var(--space-1);
-  width: 100%;
-  padding: var(--space-2) var(--space-3);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  background: var(--surface-card);
-  font-family: var(--font-body);
-  text-align: left;
-  cursor: pointer;
-}
-.brk-match:hover {
-  border-color: var(--border-strong);
-}
-
-/* Estados ao vivo/próximo recebem contorno de 1.5px no frame mobile
-   (177:2383 danger, 177:2406 muted); o encerrado fica com a borda neutra. */
-.brk-match--live {
-  border-width: 1.5px;
-  border-color: var(--state-danger);
-}
-.brk-match--next {
-  border-width: 1.5px;
-  border-color: var(--border-strong);
-}
-
-.brk-match__row {
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-}
-.brk-match__duo {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  font: var(--type-small);
-  color: var(--text-body);
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-.brk-match__score {
-  flex-shrink: 0;
-  font-family: var(--font-body);
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text-heading);
-  font-variant-numeric: tabular-nums;
-}
-
-/* Vencedor: só peso e cor de marca, como nos frames — sem barra nem check. */
-.brk-match__row--win .brk-match__duo {
-  color: var(--text-brand-strong);
-  font-weight: 800;
-}
-
-.brk-match__status {
-  font: var(--type-overline);
-  color: var(--text-muted);
-}
-/* Os glifos do frame vêm daqui, não do DOM (texto limpo para leitor de tela). */
-.brk-match__status--done::before {
-  content: '✓ ';
-}
-.brk-match__status--live::before {
-  content: '🔴 ';
-}
-.brk-match__status--next::before {
-  content: '⏳ ';
-}
-.brk-match__status--done {
-  color: var(--state-success-text);
-}
-.brk-match__status--live {
-  color: var(--state-danger-text);
-}
+/* O card de confronto (177:2368 mobile / 188:3633 desktop) é `ui/MatchCard`
+   nas variantes de composição desta tela — não há mais um `.brk-match` local.
+   Todo o desenho (contorno de estado, glifos ✓/🔴/⏳, vencedor por peso/cor,
+   linha de status) mora no componente; ver MatchCard.css/MatchCard.tsx. */
 
 .brk-stats {
   margin: 0;
@@ -355,17 +273,15 @@
     gap: var(--space-10);
   }
 
+  /* O ajuste do card no desktop passa pelos custom properties que
+     `ui/MatchCard` expõe na densidade `compact` — a página define os valores
+     num ancestral em vez de selecionar as classes internas do componente (que
+     é justamente o tipo de acoplamento que já causou colisão de CSS nesta
+     leva). */
   .brk-round {
     flex: 0 0 320px;
-  }
-
-  .brk-match {
-    padding: var(--space-2) var(--space-3) 10px;
-    border-radius: 12px;
-  }
-
-  .brk-match__duo,
-  .brk-match__score {
-    font-size: 14px;
+    --match-card-compact-padding: var(--space-2) var(--space-3) 10px;
+    --match-card-compact-radius: 12px;
+    --match-card-text-size: 14px;
   }
 }

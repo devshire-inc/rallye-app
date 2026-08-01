@@ -73,18 +73,6 @@
   flex-direction: column;
 }
 
-.rnk-sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  margin: -1px;
-  padding: 0;
-  overflow: hidden;
-  border: 0;
-  clip-path: inset(50%);
-  white-space: nowrap;
-}
-
 /* 0,2,0 de propósito: `.pg-head h1 { font-size: 18px }` de outras folhas do
    bundle vale para qualquer h1 (ver a mesma nota em BracketPage.css). */
 .rnk-page .rnk-title {
@@ -165,7 +153,9 @@
   padding: var(--space-3) var(--space-4);
 }
 
-/* Coluna de posição: medalha nas 3 primeiras, número depois (175:2399/2426). */
+/* Coluna de posição: `ui/Medal` na variante `place` nas 3 primeiras, número
+   depois (175:2399/2426). A variante de posição é inline e sem caixa, então
+   herda daqui o tamanho e o peso — nenhuma regra local para ela. */
 .rnk-row__place {
   flex-shrink: 0;
   width: 30px;

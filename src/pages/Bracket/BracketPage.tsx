@@ -2,7 +2,9 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
+import { BracketRoundHeader } from '../../components/ui/BracketRoundHeader/BracketRoundHeader'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
+import { MatchCard } from '../../components/ui/MatchCard/MatchCard'
 import { Icon } from '../../components/ui/Icon/Icon'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useTournamentLive } from '../../hooks/useTournamentLive'
@@ -69,15 +71,30 @@ interface BracketMatchCardProps {
   onOpen: (matchId: string) => void
 }
 
+/** Estado do card na chave -> estado do `ui/MatchCard`. "next" é o agendado do
+ * componente; "done" cobre também o walkover, que aqui não vira `state="wo"`
+ * de propósito: essa variante do componente apaga o placar e cola "(W.O.)" nos
+ * dois nomes, e o frame desta tela desenha o encerrado sempre igual. */
+const MATCH_CARD_STATE = {
+  done: 'finished',
+  live: 'live',
+  next: 'scheduled',
+} as const
+
 /**
  * Confronto da chave (Figma 177:2368/177:2383 mobile, 188:3633 desktop):
- * duas linhas nome+placar e, quando não está encerrado, uma linha de status.
- * O vencedor é marcado só por peso/cor do texto — o frame não desenha barra
- * nem check.
+ * duas linhas nome+placar e uma linha de status abaixo.
  *
- * O card inteiro é o alvo de clique (`<button>`): o frame mobile desenha o
- * confronto ao vivo como um bloco clicável para o Detalhe da Partida, e essa
- * navegação já era o comportamento desta tela antes do reskin.
+ * É o `ui/MatchCard` do design system nas variantes de composição que esta
+ * tela pediu (ver o comentário de pacote lá): `fluid` + `density="compact"`
+ * (largura elástica e o respiro do frame), `statusPlacement="footer"` +
+ * `statusLabel` (status livre numa linha própria), `divider={false}` e
+ * `winnerStyle="emphasis"` (vencedor só por peso/cor, sem barra nem check).
+ *
+ * O card inteiro é o alvo de clique: `onClick` faz o componente virar um
+ * `<button>` e leva o `aria-label` de frase montada para o próprio botão —
+ * era exatamente o que impedia o uso antes (um `role="group"` aninhado num
+ * `<button>` externo perderia a frase no nome acessível).
  */
 function BracketMatchCard({ match, onOpen }: BracketMatchCardProps) {
   const state = matchState(match)
@@ -103,23 +120,36 @@ function BracketMatchCard({ match, onOpen }: BracketMatchCardProps) {
   const winner1 = Boolean(match.winnerRegistrationId && match.winnerRegistrationId === match.registration1Id)
   const winner2 = Boolean(match.winnerRegistrationId && match.winnerRegistrationId === match.registration2Id)
 
+  const cardState = MATCH_CARD_STATE[state]
+
   return (
-    <button
-      type="button"
-      className={`brk-match brk-match--${state}`}
-      data-testid={`match-card-${match.id}`}
+    <MatchCard
+      state={cardState}
+      format="dupla"
+      fluid
+      density="compact"
+      divider={false}
+      winnerStyle="emphasis"
+      statusPlacement="footer"
+      statusLabel={statusText}
+      // No agendado o mesmo texto também alimenta a frase do `aria-label`
+      // ("... agendado para 14:00 · Quadra #ab").
+      scheduledLabel={cardState === 'scheduled' ? statusText : undefined}
       onClick={() => onOpen(match.id)}
-    >
-      <span className={`brk-match__row${winner1 ? ' brk-match__row--win' : ''}`}>
-        <span className="brk-match__duo">{duoLabel(match.registration1Name)}</span>
-        <span className="brk-match__score">{match.sets[0]?.registration1Score ?? '—'}</span>
-      </span>
-      <span className={`brk-match__row${winner2 ? ' brk-match__row--win' : ''}`}>
-        <span className="brk-match__duo">{duoLabel(match.registration2Name)}</span>
-        <span className="brk-match__score">{match.sets[0]?.registration2Score ?? '—'}</span>
-      </span>
-      <span className={`brk-match__status brk-match__status--${state}`}>{statusText}</span>
-    </button>
+      data-testid={`match-card-${match.id}`}
+      participants={[
+        {
+          name: duoLabel(match.registration1Name),
+          sets: [match.sets[0]?.registration1Score ?? '—'],
+          winner: winner1,
+        },
+        {
+          name: duoLabel(match.registration2Name),
+          sets: [match.sets[0]?.registration2Score ?? '—'],
+          winner: winner2,
+        },
+      ]}
+    />
   )
 }
 
@@ -137,7 +167,10 @@ function BracketRound({
 }) {
   return (
     <section className="brk-round" aria-label={label}>
-      <h2 className="brk-round__label">{label}</h2>
+      {/* `ui/BracketRoundHeader` na variante `plain`: o cabeçalho dos frames é
+          texto puro (Overline em text/muted), sem a pílula de 240px do
+          símbolo. */}
+      <BracketRoundHeader round={label} variant="plain" headingLevel={2} />
       <div className="brk-round__list">
         {matches.map((m) => (
           <BracketMatchCard match={m} onOpen={onOpen} key={m.id} />
@@ -230,35 +263,34 @@ function BracketTableView({
  * nunca no `<body>`: com 5+ rodadas as colunas passam da largura útil, e o
  * padrão do projeto é a página nunca ter overflow horizontal.
  *
- * ### `ui/BracketConnector` e `ui/BracketRoundHeader` — avaliados e NÃO usados
+ * ### Componentes do DS — o que esta tela consome
  *
- * Os dois existem no DS sem consumidor e foram desenhados para esta tela,
- * mas nenhum dos três frames (mobile, desktop, mobile Dark) os desenha:
+ * `ui/MatchCard` e `ui/BracketRoundHeader` foram desenhados para esta tela,
+ * mas na primeira passada nenhum encaixou e a tela subiu com markup próprio
+ * (`.brk-match`, `.brk-round__label`). Os dois foram adaptados desde então e
+ * agora são consumidos aqui — as diferenças viraram props aditivas, e o
+ * resultado visual é o mesmo dos frames:
  *
- * - `BracketConnector`: não há UMA linha de conector em nenhum dos frames —
- *   as rodadas são colunas de flex separadas só por gap. Além disso a
- *   geometria dele é fixa em 40x108px ("não redimensione", exceção
- *   documentada no próprio Figma), calibrada para cards de 240x108
- *   empilhados num ritmo vertical fixo; aqui os cards têm 320px de largura,
- *   altura variável (a linha de status só existe fora do estado encerrado)
- *   e a quantidade de jogos por rodada vem do backend. Encaixar exigiria
- *   uma variante elástica que o componente não tem.
- * - `BracketRoundHeader`: o cabeçalho dos frames é texto puro (Overline em
- *   text/muted). O componente entrega uma pílula em surface/sunken de
- *   `width: 240px` fixa, com contagem de jogos e um tratamento especial de
- *   "Final" em surface/brand-soft — três coisas que nenhum frame desenha, e
- *   uma largura que briga com a coluna de 320px do desktop.
+ * - `MatchCard`: `fluid` (largura elástica, no lugar dos 240px do símbolo),
+ *   `density="compact"`, `statusPlacement="footer"` + `statusLabel` (o status
+ *   dos frames é uma linha abaixo dos participantes, com texto livre do tipo
+ *   "Ao vivo · Quadra #7"), `divider={false}`, `winnerStyle="emphasis"` e
+ *   `onClick`. Esta última é a mudança que mais importava: o card inteiro é o
+ *   botão que abre o Detalhe da Partida, e o componente agora vira o próprio
+ *   `<button>` levando junto o `aria-label` de frase montada — antes ele era
+ *   um `role="group"` não interativo, e aninhá-lo num `<button>` externo
+ *   perderia a frase no nome acessível.
+ * - `BracketRoundHeader`: `variant="plain"`, o cabeçalho de texto puro
+ *   (Overline em text/muted) que os frames desenham, em vez da pílula de
+ *   240px fixos com contagem de jogos.
  *
- * - `ui/MatchCard` idem: `width: 240px` fixo, header próprio com
- *   seed/categoria/status, seed por participante, até 3 placares de set por
- *   linha e marcação de vencedor por barra+check. O card destes frames tem
- *   largura fluida (cheia no mobile, 320 no desktop), UM placar por lado e
- *   marca o vencedor só por peso/cor. E, decisivo: `MatchCard` é
- *   `role="group"` não-interativo, sem `onClick`/`href` — aqui o card
- *   inteiro é o botão que abre o Detalhe da Partida, e aninhar um grupo com
- *   `aria-live` dentro de um `<button>` engoliria o `aria-label` de frase
- *   montada dele no nome acessível do botão. Ver o mesmo card local,
- *   `.brk-match`, em BracketPage.css.
+ * ### `ui/BracketConnector` — avaliado de novo e NÃO usado
+ *
+ * Não há UMA linha de conector em nenhum dos três frames: as rodadas são
+ * colunas de flex separadas só por gap. Diferente dos outros dois, aqui não
+ * existe adaptação possível que preserve o desenho — qualquer conector, fixo
+ * ou derivado de posição, ACRESCENTARIA traço a uma tela que não tem nenhum.
+ * O impedimento é o desenho, não a API do componente.
  *
  * ### Gap consciente
  *

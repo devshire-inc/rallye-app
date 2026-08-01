@@ -4,6 +4,7 @@ import { Badge } from '../../components/ui/Badge/Badge'
 import { Card } from '../../components/ui/Card/Card'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { Icon } from '../../components/ui/Icon/Icon'
+import { Medal, type MedalPlace } from '../../components/ui/Medal/Medal'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useMe } from '../../hooks/useMe'
 import { getRankings, type RankingEntry, type RankingScope } from '../../lib/api/rankings'
@@ -19,10 +20,12 @@ type LoadState =
 
 const TOP_LIST_SIZE = 50
 
-/** Medalha das três primeiras posições (Figma 175:2399/175:2408/175:2417).
- * Decorativa: quem carrega a posição para leitor de tela é o `sr-only`
- * "1º lugar" ao lado, porque "🥇" sozinho é lido de forma inconsistente. */
-const PLACE_MEDAL: Record<number, string> = { 1: '🥇', 2: '🥈', 3: '🥉' }
+/** Medalha das três primeiras posições (Figma 175:2399/175:2408/175:2417) —
+ * `ui/Medal` na variante de posição, que desenha o glifo e já anuncia
+ * "1º lugar" (o emoji sozinho é lido de forma inconsistente). */
+function medalPlace(position: number): MedalPlace | null {
+  return position === 1 || position === 2 || position === 3 ? position : null
+}
 
 const SCOPE_TABS: { key: RankingScope; label: string }[] = [
   { key: 'arena', label: 'Arena' },
@@ -73,16 +76,13 @@ const SCOPE_TABS: { key: RankingScope; label: string }[] = [
  *
  * ### Componentes de gamificação — avaliados, só um encaixa
  *
- * - `ui/Medal`: NÃO usado, apesar de ser o candidato óbvio. O componente
- *   desenha um círculo com a ABREVIAÇÃO do tier ("B"/"P"/"O"/"Pt"/"D") e a
- *   sua documentação (Medal.tsx) define o eixo dele explicitamente como
- *   frequência/constância — "a medalha reconhece constância, não desempenho"
- *   — expondo `aria-label="Medalha Ouro"`. Aqui o que a coluna comunica é
- *   POSIÇÃO ("1º lugar"), e não existe prop para trocar a letra nem o rótulo:
- *   uma bolinha com "O" ao lado do nome do primeiro colocado não diz nada. O
- *   frame usa 🥇🥈🥉, que é o que esta tela renderiza (decorativo, com o
- *   ordinal em `sr-only`). Uma variante `Medal` com `place`/sem letra
- *   resolveria — é o gap concreto a levar para o DS.
+ * - `ui/Medal`: usado, na variante de POSIÇÃO (`place={1|2|3}`). O componente
+ *   só tinha o eixo de tier — círculo com a abreviação ("B"/"P"/"O") e
+ *   `aria-label="Medalha Ouro"`, que a própria documentação dele define como
+ *   frequência/constância, não desempenho. Uma bolinha com "O" ao lado do
+ *   primeiro colocado não diria nada aqui. A variante `place` desenha o
+ *   glifo do frame (🥇🥈🥉) e anuncia "1º lugar", que é o que esta coluna
+ *   comunica; o eixo de tier segue intacto para o `D1Dashboard`.
  * - `ui/TierChip` e `ui/LevelProgress`: nenhum dos frames mostra nível
  *   competitivo nem barra de progresso, e `GET /rankings` também não devolve
  *   tier — não há dado nem lugar para eles nesta tela.
@@ -141,23 +141,14 @@ export default function RankingsPage() {
 
   function rankingRow(entry: RankingEntry, position: number) {
     const isMe = entry.studentId === myId
-    const medal = PLACE_MEDAL[position]
+    const place = medalPlace(position)
     return (
       <li
         className={`rnk-row${isMe ? ' rnk-row--me' : ''}`}
         key={entry.studentId}
         data-testid={`ranking-row-${entry.studentId}`}
       >
-        <span className="rnk-row__place">
-          {medal ? (
-            <>
-              <span aria-hidden="true">{medal}</span>
-              <span className="rnk-sr-only">{position}º lugar</span>
-            </>
-          ) : (
-            position
-          )}
-        </span>
+        <span className="rnk-row__place">{place ? <Medal place={place} /> : position}</span>
         <span className="rnk-row__name">
           <span className="rnk-row__label">{entry.name}</span>
           {isMe ? <Badge tone="brand">👤 Você</Badge> : null}

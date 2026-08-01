@@ -89,17 +89,24 @@ function setsWonBy(match: MatchDetailResponse): { one: number; two: number } {
  * ATIVAS diferentes mostrando o mesmo card — é decoração do protótipo, não um
  * controle. Renderizá-las criaria dois destinos inertes.
  *
- * ### `ui/MatchCard` — avaliado e NÃO usado
+ * ### `ui/MatchCard` — reavaliado depois da adaptação, e ainda NÃO usado
  *
- * O componente do DS foi desenhado com esta tela em mente, mas modela o card
- * COMPACTO da chave: `width: 240px` fixo, header próprio de
- * seed/categoria/status, nome em `--type-body` e placar de 15px por set. O
- * hero destes frames é o oposto — bloco de 640px, nome de 18px e placar de
- * 26px em `--font-display`, com o badge de estado e a quadra abaixo, não
- * dentro de um header. E a grade de sets do frame é uma `<table>` com
+ * O componente ganhou as variantes de composição que faltavam (`fluid`,
+ * `density="compact"`, `statusPlacement`, `divider`, `winnerStyle`,
+ * `onClick`) e passou a ser consumido pela tela de Chave — mas nenhuma delas
+ * é sobre esta tela. `MatchCard` modela o card COMPACTO do confronto; o hero
+ * destes frames é o oposto: bloco de 640px, nome de 18px e placar de 26px em
+ * `--font-display`, com `ui/Badge` de estado e a linha de quadra ABAIXO dos
+ * participantes (nenhum dos dois cabe nas props do componente, que não tem
+ * slot de conteúdo). E a grade de sets do frame é uma `<table>` com
  * cabeçalhos S1/S2/S3, enquanto o `MatchCard` põe os sets soltos na linha do
- * participante, sem cabeçalho. Não há prop que aproxime os dois; forçar
- * exigiria reescrever o componente do DS a partir desta tela.
+ * participante.
+ *
+ * Ou seja: o que separa os dois não é mais falta de elasticidade, é a
+ * anatomia. Encaixá-lo aqui exigiria uma terceira densidade + um slot de
+ * rodapé usados por um único consumidor, e — pela regra desta refatoração —
+ * qualquer aproximação mexeria no visual já validado. Fica documentado em vez
+ * de forçado.
  */
 export default function MatchDetailPage() {
   const { orgLabel, userLabel } = useShellIdentity()

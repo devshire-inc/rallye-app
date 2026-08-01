@@ -12,6 +12,7 @@ const meta = {
   argTypes: {
     tier: { control: 'select', options: TIERS },
     size: { control: 'select', options: SIZES },
+    place: { control: 'select', options: [1, 2, 3] },
   },
   args: {
     tier: 'ouro',
@@ -37,5 +38,17 @@ export const AllTiersAndSizes: Story = {
         </div>
       ))}
     </div>
+  ),
+}
+
+/** Eixo de POSIÇÃO (`place`): as medalhas do pódio, com o nome acessível
+ * "1º lugar" — é o que a coluna de classificação de Rankings comunica, e não
+ * o "Medalha Ouro" do eixo de tier. Deliberadamente um glifo inline: herda a
+ * tipografia da linha que a contém, sem o círculo. */
+export const Places: StoryObj = {
+  render: () => (
+    <p className="medal-story-places">
+      <Medal place={1} /> <Medal place={2} /> <Medal place={3} />
+    </p>
   ),
 }

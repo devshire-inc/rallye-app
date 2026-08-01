@@ -73,9 +73,12 @@ describe('RankingsPage — list', () => {
     const first = await screen.findByTestId('ranking-row-stu-1')
     expect(within(first).getByText('Bia Santos')).toBeInTheDocument()
     expect(within(first).getByText('850 pts')).toBeInTheDocument()
-    // A medalha é decorativa; quem carrega a posição é o texto sr-only.
-    expect(within(first).getByText('1º lugar')).toBeInTheDocument()
-    expect(within(screen.getByTestId('ranking-row-stu-3')).getByText('3º lugar')).toBeInTheDocument()
+    // `ui/Medal` na variante de posição: o glifo é o desenho e o nome
+    // acessível é o ordinal (o emoji sozinho é lido de forma inconsistente).
+    expect(within(first).getByRole('img', { name: '1º lugar' })).toBeInTheDocument()
+    expect(
+      within(screen.getByTestId('ranking-row-stu-3')).getByRole('img', { name: '3º lugar' }),
+    ).toBeInTheDocument()
 
     const row = screen.getByTestId('ranking-row-stu-4')
     expect(within(row).getByText('4')).toBeInTheDocument()

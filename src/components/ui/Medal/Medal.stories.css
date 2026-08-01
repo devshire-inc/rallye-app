@@ -9,3 +9,12 @@
   align-items: center;
   gap: var(--space-3);
 }
+
+/* A variante de posição é texto: a story mostra que ela acompanha o tamanho
+   e o peso de quem a contém. */
+.medal-story-places {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  font-weight: 700;
+}

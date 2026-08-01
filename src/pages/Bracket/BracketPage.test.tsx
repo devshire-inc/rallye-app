@@ -215,16 +215,45 @@ describe('BracketPage — single elimination bracket', () => {
     expect(screen.getByText('Final')).toBeInTheDocument()
 
     const winnerCard = screen.getByTestId('match-card-match-qf1')
-    const winnerRow = within(winnerCard).getByText('Marina / Carla').closest('.brk-match__row')
-    expect(winnerRow).toHaveClass('brk-match__row--win')
+    const winnerRow = within(winnerCard).getByText('Marina / Carla').closest('.match-card__participant')
+    expect(winnerRow).toHaveClass('match-card__participant--win')
     expect(within(winnerCard).getByText(/finalizado/i)).toBeInTheDocument()
 
     expect(screen.getAllByText('A definir')).toHaveLength(4)
     for (const label of screen.getAllByText('A definir')) {
-      expect(label.closest('.brk-match__row')).not.toHaveClass('brk-match__row--win')
+      expect(label.closest('.match-card__participant')).not.toHaveClass('match-card__participant--win')
     }
 
     expect(screen.getByText(/2 duplas · 3 jogos · 1 finalizados/i)).toBeInTheDocument()
+  })
+
+  // O card é um `ui/MatchCard` interativo: o nome acessível do BOTÃO é a
+  // frase montada pelo componente, e não a sopa de nomes e números soltos que
+  // um <button> montaria a partir do conteúdo.
+  it('names the match card button with the assembled sentence', async () => {
+    vi.spyOn(tournamentBracketsApi, 'getTournamentBracketInfo').mockResolvedValue({
+      ok: true,
+      tournament: tournamentInfo(),
+    })
+    vi.spyOn(tournamentBracketsApi, 'listCategoryMatches').mockResolvedValue({
+      ok: true,
+      categoryId: 'cat-femb',
+      matches: [
+        match({
+          id: 'match-qf1',
+          status: 'completed',
+          winnerRegistrationId: 'reg-1',
+          sets: [{ setNumber: 1, registration1Score: 6, registration2Score: 4 }],
+        }),
+      ],
+    })
+
+    renderPage()
+
+    expect(await screen.findByRole('button', { name: 'Marina / Carla venceram por 6-4' })).toHaveAttribute(
+      'data-testid',
+      'match-card-match-qf1',
+    )
   })
 
   it('navigates to the match detail route when a match card is tapped', async () => {

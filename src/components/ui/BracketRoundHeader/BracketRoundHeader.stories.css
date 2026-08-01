@@ -3,3 +3,17 @@
   flex-wrap: wrap;
   gap: var(--space-4);
 }
+
+.bracket-round-header-story-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* `fluid` só é visível dentro de uma coluna com largura própria. */
+.bracket-round-header-story-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 320px;
+}
