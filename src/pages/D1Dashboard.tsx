@@ -70,8 +70,9 @@ function nextTierLabel(tier: SkillTier): string | null {
  * a % de progresso do LevelProgress não existe no backend (skill-levels só
  * devolve o tier atual) — placeholder documentado, currentLevel/nextLevel
  * continuam reais. "Esporte principal" assume a primeira linha de
- * skill-levels (API não expõe um sport "principal"). "Loja" não tem rota no
- * app ainda, renderizada desabilitada.
+ * skill-levels (API não expõe um sport "principal"). "Loja" já não é mais um
+ * gap: o atalho aponta para /units/{id}/store (telas 22/23/24), deixando de
+ * ser renderizado desabilitado.
  *
  * Devolve só o MIOLO: a casca (`AppShell`) é montada uma única vez pelo
  * dispatcher `DashboardPage`, que a mantém viva do carregamento até a
@@ -208,10 +209,12 @@ export default function D1Dashboard() {
             <span className="quick-action__label">Torneios</span>
           </Link>
         ) : null}
-        <span className="quick-action quick-action--disabled" aria-disabled="true">
-          <span className="quick-action__icon">L</span>
-          <span className="quick-action__label">Loja</span>
-        </span>
+        {activeUnitId ? (
+          <Link className="quick-action" to={`/units/${activeUnitId}/store`}>
+            <span className="quick-action__icon">L</span>
+            <span className="quick-action__label">Loja</span>
+          </Link>
+        ) : null}
       </nav>
 
       <section className="d1-dashboard__agenda" data-testid="dashboard-agenda">

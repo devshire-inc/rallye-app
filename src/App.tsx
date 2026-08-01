@@ -47,6 +47,9 @@ import PL5ChangePlanPage from './pages/Planos/PL5ChangePlanPage'
 import PlanoFormPage from './pages/Planos/PlanoFormPage'
 import PlanosListPage from './pages/Planos/PlanosListPage'
 import ProfilePage from './pages/Profile/ProfilePage'
+import StoreCartPage from './pages/Loja/StoreCartPage'
+import StoreCatalogPage from './pages/Loja/StoreCatalogPage'
+import StoreProductPage from './pages/Loja/StoreProductPage'
 import RankingsPage from './pages/Rankings/RankingsPage'
 import ReportDetailPage from './pages/Reports/ReportDetailPage'
 import ReportsHubPage from './pages/Reports/ReportsHubPage'
@@ -414,6 +417,22 @@ function AppRoutes() {
           torneios via GET /rankings (Épico 4, BEAC-1855), não pertence a
           um torneio específico. */}
       <Route path="/rankings" element={<RankingsPage />} />
+      {/* Loja da Arena — telas 22/22b (catálogo), 23 (detalhe) e 24
+          (carrinho). A assimetria de escopo entre elas é a do backend, não
+          uma inconsistência: o CATÁLOGO é unit-scoped porque é a arena do
+          path que posiciona a RLS (e o detalhe carrega :unitId pelo mesmo
+          motivo — não há como resolver a arena a partir do id do produto),
+          enquanto o CARRINHO é objeto do usuário e atravessa arenas
+          (`GET /me/store/cart` devolve os itens de TODAS as arenas,
+          agrupados). Uma rota de carrinho com :unitId prometeria um recorte
+          por arena que o backend não tem. Ver src/pages/Loja/routes.ts.
+
+          Checkout (telas 25/26/27) NÃO tem rota: `POST /me/store/orders`
+          existe no backend, mas as telas são a próxima leva — ver o comentário
+          de pacote de StoreCartPage.tsx. */}
+      <Route path="/units/:unitId/store" element={<StoreCatalogPage />} />
+      <Route path="/units/:unitId/store/products/:productId" element={<StoreProductPage />} />
+      <Route path="/store/cart" element={<StoreCartPage />} />
       {/* N1 — Centro de Notificações (BEAC-2021, story BEAC-1723). Rota de
           nível superior (não unit-scoped, mesmo padrão de /perfil): o sino no
           topbar de AppShell.tsx alcança daqui de qualquer tela, e GET

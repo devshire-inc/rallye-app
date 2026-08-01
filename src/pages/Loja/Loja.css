@@ -1,0 +1,571 @@
+/* Loja da Arena — telas 22 (catálogo, node 177:5611 / 189:2608), 22b (vazio,
+   node 187:6976), 23 (detalhe, node 177:5708 / 189:2627) e 24 (carrinho,
+   node 177:5931 / 189:2646).
+
+   PREFIXO `.shop-*` EM TUDO QUE É NOVO. O bundle CSS é único e nomes
+   genéricos já colidiram seis vezes nesta leva (`.card`, `.menu-list`,
+   `.chip`, `.pg-head .back`, `.f3-cta` e uma em Rankings). Antes de criar
+   qualquer classe aqui, o nome foi conferido contra o resto de src/ — nenhum
+   `.shop-` existia.
+
+   `.pg-head`/`.dash-body`/`.back` FICAM sem prefixo: são o cromo de página
+   que ~20 CSS de página já declaram com o MESMO valor. `.back` em especial é
+   reaproveitado de propósito (o "‹ Loja"/"‹ Voltar" dos frames é exatamente o
+   link de voltar padrão do app); onde esta tela precisa divergir, ela o faz
+   por uma classe adicional `.shop-back` — nunca redeclarando `.pg-head .back`,
+   que foi a colisão real registrada em Financeiro.css. */
+
+.pg-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 var(--space-6) var(--space-3);
+  flex-wrap: wrap;
+}
+.pg-head h1 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 22px;
+  margin: 0;
+}
+.pg-head .spacer {
+  flex: 1;
+}
+
+.dash-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+.shop-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------------
+   Cabeçalho — "🛒 (3)"
+   -------------------------------------------------------------------------- */
+
+.shop-cart-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  /* 44px de alvo de toque: nos frames é só um texto de 13/14px, pequeno
+     demais para um destino de navegação em mobile. */
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  color: var(--text-brand);
+  font: var(--type-label);
+  text-decoration: none;
+}
+
+.shop-cart-link:hover,
+.shop-cart-link:focus-visible {
+  text-decoration: underline;
+}
+
+.shop-cart-link__count {
+  font-weight: 800;
+}
+
+/* `.back` já vem do cromo compartilhado; aqui só o alvo de toque, pelo mesmo
+   motivo do link do carrinho. */
+.shop-back {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ---------------------------------------------------------------------------
+   22 · Catálogo — filtros e grade
+   -------------------------------------------------------------------------- */
+
+.shop-filters {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* Faixa de chips rolável na horizontal: o frame mostra 4 categorias numa
+   linha de 375px, e o catálogo real tem 5 — sem rolagem elas quebrariam em
+   duas linhas e empurrariam a grade para baixo da dobra. */
+.shop-chip-row {
+  display: flex;
+  gap: var(--space-2);
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: none;
+}
+
+.shop-chip-row::-webkit-scrollbar {
+  display: none;
+}
+
+.shop-chip-row > * {
+  flex-shrink: 0;
+}
+
+/* Duas colunas já no mobile (o frame 177:5671 põe dois cards de 171px lado a
+   lado em 375px).
+
+   `auto-fill` com `minmax(160px, …)`, e NÃO `repeat(2, minmax(0, 1fr))`:
+   `ProductCard` declara `min-width: 160px` no próprio CSS (regra do DS,
+   node 44:33, "testado sem corte em 160/171/180px"). Uma trilha de grid mais
+   estreita que isso não encolhe o card — ele estoura a célula. Foi o que o QA
+   visual pegou: em 375px a trilha dava 141px e a segunda coluna vazava 19px
+   para fora do grid. Com `auto-fill`/`minmax(160px, …)` a própria régua do
+   componente decide quantas colunas cabem, e em tela estreita demais o grid
+   cai para uma coluna em vez de transbordar.
+
+   O `margin-inline` negativo devolve ao grid os 24px de `.dash-body` de cada
+   lado (343px úteis em 375px), que é o que faz caber 2×160 + 8 de gap — e
+   aproxima do frame, onde a página tem `--page-pad-app: 20px` e os cards
+   quase encostam na borda. Só o grid faz esse sangramento: busca e chips
+   continuam alinhados ao resto do app. O card fica em ~167px, contra os 171px
+   do frame. */
+.shop-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-2);
+  align-content: start;
+  margin-inline: calc(-1 * var(--space-6));
+}
+
+/* O ProductCard limita a si mesmo em 240px (regra do DS, node 44:33) — dentro
+   da célula do grid ele fica alinhado à esquerda, e não centralizado. */
+.shop-grid > * {
+  justify-self: stretch;
+}
+
+.shop-empty {
+  display: flex;
+  justify-content: center;
+}
+
+.shop-empty__glyph {
+  font-size: 36px;
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   23 · Detalhe do produto
+   -------------------------------------------------------------------------- */
+
+.shop-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.shop-detail__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 220px;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+}
+
+.shop-detail__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shop-detail__media-placeholder {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.shop-detail__info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 0;
+}
+
+.shop-detail__arena {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.shop-detail__name {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: var(--text-heading);
+}
+
+.shop-detail__badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.shop-detail__prices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--space-2);
+}
+
+.shop-detail__price {
+  font: 800 20px/1.2 var(--font-body);
+  color: var(--text-brand);
+}
+
+.shop-detail__old-price {
+  font: 400 13px/1.2 var(--font-body);
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+.shop-detail__discount {
+  align-self: flex-start;
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  color: var(--text-brand);
+  font: var(--type-label);
+}
+
+.shop-detail__dimension {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.shop-detail__dimension-label {
+  margin: 0;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+.shop-detail__stock {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.shop-detail__description {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.shop-detail__description h2 {
+  margin: 0;
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.shop-detail__description p {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   24 · Carrinho
+   -------------------------------------------------------------------------- */
+
+.shop-cart-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--text-heading);
+}
+
+.shop-cart-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.shop-cart-group__title {
+  margin: 0;
+  font: var(--type-label);
+  font-weight: 800;
+  color: var(--text-heading);
+}
+
+/* Emoji decorativo do frame — em `::before` e não no DOM, para não entrar no
+   nome acessível do heading (mesmo tratamento de `.trn-group__title`). */
+.shop-cart-group__title::before {
+  content: '🏟️ ';
+}
+
+.shop-cart-item {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr);
+  gap: var(--space-1) 10px;
+  padding: 14px;
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+}
+
+.shop-cart-item--unavailable {
+  opacity: 0.72;
+}
+
+.shop-cart-item__media {
+  width: 44px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+}
+
+.shop-cart-item__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.shop-cart-item__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.shop-cart-item__name {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.shop-cart-item__variant {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.shop-cart-item__price {
+  font: 800 13px/1.2 var(--font-body);
+  color: var(--text-brand);
+}
+
+.shop-cart-item__unavailable {
+  font: var(--type-small);
+  color: var(--state-danger-text);
+}
+
+/* Segunda linha do card, sob a miniatura e o texto — é onde o frame põe
+   "− 1 + 🗑️ Remover". */
+.shop-cart-item__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.shop-qty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-pill);
+  background: var(--surface-card);
+  color: var(--text-heading);
+  font: 800 14px/1 var(--font-body);
+  cursor: pointer;
+}
+
+.shop-qty:hover:not(:disabled),
+.shop-qty:focus-visible:not(:disabled) {
+  border-color: var(--border-strong);
+}
+
+.shop-qty:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.shop-qty__value {
+  min-width: 20px;
+  text-align: center;
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.shop-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--text-muted);
+  font: var(--type-small);
+  cursor: pointer;
+}
+
+.shop-remove:hover:not(:disabled),
+.shop-remove:focus-visible:not(:disabled) {
+  color: var(--state-danger-text);
+}
+
+.shop-remove:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.shop-cart-warning {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--state-warning-text);
+}
+
+.shop-cart-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+}
+
+.shop-cart-summary__row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  font: var(--type-label);
+  font-weight: 400;
+  color: var(--text-heading);
+}
+
+.shop-cart-summary__row .shop-cart-summary__value {
+  font-weight: 700;
+}
+
+.shop-cart-summary__row--total {
+  font-size: 16px;
+  font-weight: 800;
+}
+
+.shop-cart-summary__row--total .shop-cart-summary__value {
+  font-weight: 800;
+  color: var(--text-brand);
+}
+
+.shop-cart-summary__divider {
+  height: 1px;
+  background: var(--border-default);
+}
+
+.shop-cart-note {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+  text-align: center;
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop — grid de cards (22) e duas colunas (23)
+
+   breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) — o ponto em que a
+   sidebar do AppShell aparece e a coluna de conteúdo ganha largura. NÃO é
+   BREAKPOINT_TABLE_MIN: aquele existe para o padrão "cards -> <table>", e
+   NENHUM dos três frames desktop desta feature tem tabela (22 é uma linha de
+   4 cards, 23 é imagem + coluna, 24 é a mesma lista de cards mais larga).
+   -------------------------------------------------------------------------- */
+@media (min-width: 860px) {
+  /* Seletor duplo (0,2,0) de propósito: `max-width: 560px` é declarado em
+     ~20 `.dash-body` do bundle, todos com especificidade de uma classe. Mesma
+     razão documentada em `.dash-body--wide` (src/styles/utilities.css), que
+     NÃO serve aqui porque é gatilhado por `:has(table)`. O gatilho equivalente
+     desta tela é o grid de cards — assim os estados vazio/erro continuam na
+     coluna estreita, como em TournamentsListPage. */
+  .dash-body.shop-body:has(.shop-grid),
+  .dash-body.shop-body:has(.shop-detail),
+  .dash-body.shop-body:has(.shop-cart-group) {
+    max-width: none;
+  }
+
+  /* No desktop a coluna já é larga: o sangramento do mobile não é mais
+     necessário e desalinharia o grid da busca/chips. */
+  .shop-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: var(--space-6);
+    margin-inline: 0;
+  }
+
+  /* Frame 189:2627: imagem quadrada de 480px + coluna de informações de
+     552px ao lado. `minmax(0, …)` nas duas para o conteúdo poder encolher. */
+  .shop-detail {
+    grid-template-columns: minmax(0, 480px) minmax(0, 552px);
+    gap: 48px;
+  }
+
+  .shop-detail__media {
+    height: 480px;
+    border-radius: 20px;
+  }
+
+  .shop-detail__name {
+    font-size: 30px;
+  }
+
+  .shop-detail__price {
+    font-size: 26px;
+  }
+
+  .shop-detail__old-price {
+    font-size: 16px;
+  }
+
+  /* Frame 189:2646: a linha do carrinho vira uma faixa larga com os
+     controles à direita, na mesma altura do texto — não mais empilhados. */
+  .shop-cart-item {
+    grid-template-columns: 56px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: var(--space-4);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .shop-cart-item__media {
+    width: 56px;
+    height: 56px;
+  }
+
+  .shop-cart-item__actions {
+    grid-column: auto;
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+  }
+
+  .shop-cart-group,
+  .shop-cart-summary,
+  .shop-cart-warning,
+  .shop-cart-note {
+    max-width: 640px;
+  }
+
+  .dash-body.shop-body:has(.shop-cart-group) > .button {
+    max-width: 640px;
+  }
+}

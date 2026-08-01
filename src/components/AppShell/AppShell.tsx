@@ -54,6 +54,10 @@ const NAV_ICON_BY_KEY: Record<string, string> = {
   inicio: 'home',
   agenda: 'calendar',
   torneios: 'trophy',
+  // 'bag' já existia no ICON_PATHS do BottomNav (era o ícone do item "Loja"
+  // dos DEFAULT_ITEMS, nunca usado de verdade); foi replicado no ICON_PATHS
+  // do Sidebar por esta task, mesmo motivo de 'trophy'/'bar-chart' antes.
+  loja: 'bag',
   relatorios: 'bar-chart',
   perfil: 'user',
 }
@@ -129,8 +133,9 @@ function gestaoSubItemsFor(
  * cada item é gated por `usePermission` (ver ../../hooks/usePermission.ts,
  * contrato "esconder sempre, nunca desabilitar") e aponta pra uma rota real
  * de src/App.tsx — substitui os itens antes inertes/desabilitados. "Loja"
- * foi removida inteiramente (decisão travada de BEAC-2048, nenhuma rota
- * existe). O item ativo é calculado via prefix-match do path atual
+ * ficou fora por BEAC-2048 enquanto nenhuma rota existia; voltou quando as
+ * telas 22/23/24 e `/units/:unitId/store` passaram a existir (ver o
+ * comentário no próprio item, abaixo). O item ativo é calculado via prefix-match do path atual
  * (useLocation); `Sidebar` e `BottomNav` recebem cada um seu próprio
  * `active` (label) equivalente — ambos sempre renderizam no DOM,
  * alternando-se só por CSS (ver AppShell.css), então recebem o mesmo item
@@ -165,6 +170,7 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
   const tenantId = getActiveTenantId()
   const canAgenda = usePermission('agenda', 'read')
   const canTorneios = usePermission('torneios', 'read')
+  const canLoja = usePermission('loja', 'read')
   const canRelatorios = usePermission('relatorios', 'read')
   const canConfig = usePermission('config', 'read')
 
@@ -191,6 +197,23 @@ export function AppShell({ orgLabel, userLabel, children }: AppShellProps) {
       label: 'Torneios',
       path: unitId ? `/units/${unitId}/tournaments` : '',
       visible: canTorneios && unitId !== null,
+    },
+    {
+      key: 'loja',
+      label: 'Loja',
+      path: unitId ? `/units/${unitId}/store` : '',
+      // Habilitada nesta task, revertendo a decisão de BEAC-2048 ("Loja foi
+      // removida inteiramente, nenhuma rota existe") — a condição que a
+      // sustentava deixou de valer: /units/:unitId/store agora existe e o
+      // fluxo catálogo -> detalhe -> carrinho é navegável de ponta a ponta,
+      // com backend real. O CHECKOUT (telas 25/26/27) ainda não existe, mas
+      // isso é o fim do fluxo, não a entrada dele: a Loja não é mais um item
+      // que leva a lugar nenhum, que era o motivo de estar fora.
+      //
+      // Gate: `loja:read`. O seed (000016) dá loja read+write ao Aluno, então
+      // este item aparece pra ele — que é exatamente o público das três
+      // telas ("Aluno" é o canvas de todos os frames desta feature).
+      visible: canLoja && unitId !== null,
     },
     {
       key: 'relatorios',

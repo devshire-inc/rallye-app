@@ -236,11 +236,39 @@ describe('AppShell — navegação real dos itens de topo (BEAC-2086)', () => {
     expect(itemsWithLabel(container, 'Perfil')).toHaveLength(2)
   })
 
-  it('"Loja" nunca aparece, mesmo com toda permissão concedida e unit ativa', () => {
-    vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
-    vi.mocked(usePermission).mockReturnValue(true)
-    const { container } = renderShellAt('/perfil')
-    expect(itemsWithLabel(container, 'Loja')).toHaveLength(0)
+  // A asserção anterior era "Loja NUNCA aparece" (BEAC-2048, enquanto
+  // nenhuma rota existia). As telas 22/23/24 e /units/:unitId/store agora
+  // existem, então o item voltou — com o mesmo gate dos demais.
+  describe('Loja', () => {
+    it('aparece com loja:read e unit ativa, nos dois breakpoints', () => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      vi.mocked(usePermission).mockImplementation((module) => module === 'loja')
+      const { container } = renderShellAt('/perfil')
+      expect(itemsWithLabel(container, 'Loja')).toHaveLength(2)
+    })
+
+    it('fica oculta sem loja:read mesmo com unit ativa', () => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      const { container } = renderShellAt('/perfil')
+      expect(itemsWithLabel(container, 'Loja')).toHaveLength(0)
+    })
+
+    it('fica oculta sem unit ativa mesmo com loja:read', () => {
+      vi.mocked(usePermission).mockImplementation((module) => module === 'loja')
+      const { container } = renderShellAt('/perfil')
+      expect(itemsWithLabel(container, 'Loja')).toHaveLength(0)
+    })
+
+    it('navega para o catálogo da unit ativa', async () => {
+      vi.mocked(getActiveUnitId).mockReturnValue('unit-1')
+      vi.mocked(usePermission).mockImplementation((module) => module === 'loja')
+      const user = userEvent.setup()
+      const { container } = renderShellAt('/perfil')
+
+      await user.click(itemsWithLabel(container, 'Loja')[0])
+
+      expect(await screen.findByTestId('probe-path')).toHaveTextContent('/units/unit-1/store')
+    })
   })
 
   describe('Agenda', () => {
