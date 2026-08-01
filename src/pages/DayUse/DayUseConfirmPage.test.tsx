@@ -45,6 +45,7 @@ function renderPage(
       <Routes>
         <Route path="/day-use/:unitId/confirm" element={<DayUseConfirmPage />} />
         <Route path="/day-use-bookings/:bookingId" element={<div>QR placeholder</div>} />
+        <Route path="/units/:unitId/blocked" element={<div>Bloqueado placeholder</div>} />
       </Routes>
     </MemoryRouter>,
   )
@@ -178,5 +179,28 @@ describe('DayUseConfirmPage — ready state', () => {
     expect(
       await screen.findByText('Não foi possível confirmar a reserva. Tente novamente.'),
     ).toBeInTheDocument()
+  })
+
+  /* 403 `delinquency_blocked` não é "tente de novo": o que resolve é pagar a
+     fatura, então a tela 15 (BlockedByDelinquencyPage) toma o lugar do erro
+     genérico. Query por regex no CTA para não depender do espaço que o
+     `Intl` usa dentro de "R$ 60,00". */
+  it('navigates to the delinquency-blocked screen when the booking is refused with 403 delinquency_blocked', async () => {
+    const user = userEvent.setup()
+    vi.spyOn(dayUseFlowApi, 'getDayUseDetail').mockResolvedValue({ ok: true, detail: detail() })
+    vi.spyOn(dayUseFlowApi, 'bookDayUse').mockResolvedValue({
+      ok: false,
+      status: 403,
+      error: 'delinquency_blocked',
+    })
+
+    renderPage()
+
+    await user.click(await screen.findByRole('button', { name: /CONFIRMAR E PAGAR/ }))
+
+    expect(await screen.findByText('Bloqueado placeholder')).toBeInTheDocument()
+    expect(
+      screen.queryByText('Não foi possível confirmar a reserva. Tente novamente.'),
+    ).not.toBeInTheDocument()
   })
 })

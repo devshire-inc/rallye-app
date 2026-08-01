@@ -28,6 +28,7 @@ import DayUseConfirmPage from './pages/DayUse/DayUseConfirmPage'
 import DayUseDetailPage from './pages/DayUse/DayUseDetailPage'
 import DayUseDiscoveryPage from './pages/DayUse/DayUseDiscoveryPage'
 import DayUseQrPage from './pages/DayUse/DayUseQrPage'
+import BlockedByDelinquencyPage from './pages/Financeiro/BlockedByDelinquencyPage'
 import F1CashFlowPage from './pages/Financeiro/F1CashFlowPage'
 import F2InvoiceListPage from './pages/Financeiro/F2InvoiceListPage'
 import F3InvoiceDetailPage from './pages/Financeiro/F3InvoiceDetailPage'
@@ -358,6 +359,12 @@ function AppRoutes() {
       <Route path="/units/:unitId/invoices/new" element={<F4CreateInvoicePage />} />
       <Route path="/units/:unitId/my-invoices" element={<F5MyInvoicesPage />} />
       <Route path="/invoices/:invoiceId" element={<F3InvoiceDetailPage />} />
+      {/* 15 — Bloqueado por Inadimplência (Aluno), Figma 165:4803/186:2246.
+          Unit-scoped como F5 (a tela lê GET /units/{id}/invoices?status=
+          atrasada). Alcançada quando um fluxo self-service recebe o 403
+          `delinquency_blocked` do backend — hoje só DU3
+          (DayUseConfirmPage.tsx), ver o comentário de pacote da página. */}
+      <Route path="/units/:unitId/blocked" element={<BlockedByDelinquencyPage />} />
       {/* TO1 — Lista de Torneios (BEAC-1984, story BEAC-1716), destravada
           pela BEAC-2013 (GET /units/{id}/tournaments?scope=..., o endpoint
           de listagem que não existia quando TO2/TO3 foram construídas — ver

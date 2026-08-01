@@ -1,13 +1,28 @@
 /* PL4 — Minha Assinatura (Aluno) (BEAC-1937). Self-contained (não assume que
    outra página já carregou o CSS equivalente) — mesmo padrão de
-   PlanosListPage.css/PlanoFormPage.css neste mesmo pacote. Tokens e valores
-   (.kv, .actions-row, .ag-list/.inv-row, .empty-state) copiados 1:1 dos
-   MESMOS valores já usados em pages/Financeiro/Financeiro.css e
-   pages/Agenda/AG5BookingDetailPage.css — duplicação mínima intencional, não
-   uma variação nova. Botão "Voltar", card da assinatura e badges migrados
-   pros componentes ui/IconButton, ui/Card e ui/Badge; ações
-   (Trocar/Cancelar/Entendi) migradas pro ui/Button (BEAC-2113, restyle
-   Claude Design). */
+   PlanosListPage.css/PlanoFormPage.css neste mesmo pacote.
+
+   Reskin design system (Figma "14 · Minha Assinatura", node 165:1781 mobile /
+   186:2227 desktop): superfície/borda/sombra do card vêm do `ui/Card`; badge
+   de status do `ui/Badge`; ações do `ui/Button`; erro do `ui/AlertCard`;
+   "sem assinatura" do `ui/EmptyState`.
+
+   NOMES DE CLASSE — tudo que é específico desta tela ganhou o prefixo `pl4-`.
+   O bundle é único e a especificidade de uma classe empata, então os nomes
+   genéricos que este arquivo declarava antes eram colisões esperando
+   acontecer (o mesmo problema já resolvido em Financeiro.css com `.card` ->
+   `.fin-card` e `.toast` -> `.refund-rule-toast`):
+   - `.empty-state` colidia com o `ui/EmptyState` do DS (mesma classe, mesma
+     especificidade) — sumiu junto com o `<p>` que a usava, agora é o
+     componente do DS;
+   - `.kv`/`.inv-row`/`.ag-list`/`.actions-row`/`.hint`/`.sec-head-title`
+     eram cópias 1:1 das mesmas classes de pages/Financeiro/Financeiro.css e
+     pages/Agenda/AG5BookingDetailPage.css. Viraram `.pl4-row`/
+     `.pl4-history__row`/`.pl4-history`/`.pl4-actions`/`.pl4-hint`/
+     `.pl4-section-title`, sem nenhum consumidor cruzado.
+   `.pg-head`/`.dash-body` continuam genéricas de propósito: são o layout de
+   página replicado por ~20 folhas com os MESMOS valores (mudar só aqui é que
+   quebraria). */
 
 .pg-head {
   display: flex;
@@ -15,12 +30,6 @@
   gap: 10px;
   padding: 0 var(--space-6) var(--space-3);
   flex-wrap: wrap;
-}
-.pg-head h1 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 22px;
-  margin: 0;
 }
 
 .dash-body {
@@ -30,132 +39,265 @@
   padding: 0 var(--space-6) var(--space-6);
 }
 
-.sec-head-title {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 16px;
+/* Topo: "‹ Voltar" acima do título (node 165:1815/165:1816), empilhados —
+   por isso a coluna sobrepondo o `.pg-head` genérico (que é uma linha). */
+.pg-head.pl4-head {
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.pl4-nav-back {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text-brand);
+  font: var(--type-small);
+}
+
+.pl4-title {
   margin: 0;
+  font: var(--type-title);
+  color: var(--text-heading);
 }
 
-.hint {
-  font-size: 11px;
-  color: var(--text-muted);
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) é a fonte canônica —
+   é onde a sidebar do shell aparece e passa a ser a navegação de volta, e
+   onde a coluna do frame desktop (640px, node 186:4981) vale. */
+@media (min-width: 860px) {
+  .pl4-nav-back {
+    display: none;
+  }
+  /* 28px no frame desktop (node 186:4980) contra 26 do mobile. */
+  .pl4-title {
+    font-size: 28px;
+  }
+  .dash-body.pl4-body {
+    max-width: 640px;
+  }
 }
 
-.empty-state {
-  text-align: center;
-  padding: var(--space-8) var(--space-4);
-  color: var(--text-muted);
-  font-size: 13px;
+/* `ui/AlertCard` carrega `width: 340px` do Figma (node 102:6), que transborda
+   numa coluna de 375 − 2×24 de padding. Mesmo override de F3/AG5 — a largura
+   fixa é do frame, não do componente. */
+.pl4-alert .alert-card {
+  width: 100%;
 }
 
-/* Card da assinatura (surface/borda/radius/sombra vêm do ui/Card) */
-.sub-card {
+/* Card do plano (node 165:1817 / 186:4981) */
+.pl4-plan {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: var(--space-3);
 }
-.sub-card-head {
+.pl4-plan__name {
+  margin: 0;
+  font: var(--type-subtitle);
+  color: var(--text-heading);
+}
+@media (min-width: 860px) {
+  /* 19px no frame desktop (node 186:4982) contra 16 do mobile. */
+  .pl4-plan__name {
+    font: var(--type-heading);
+    font-family: var(--font-body);
+  }
+}
+
+/* Linhas rótulo/valor — sem divisores, como nos dois frames (o layout antigo
+   `.kv` desenhava um `border-bottom` que o Figma não tem). <dl>, daí o reset
+   de margem dos <dd>. */
+.pl4-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+}
+.pl4-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 10px;
+  gap: var(--space-2);
 }
-.sub-card-head h3 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 16px;
-  margin: 0;
-}
-
-/* Linhas chave/valor (Recorrência, Período, Renova em, Renovação automática) */
-.kv {
-  display: flex;
-  justify-content: space-between;
-  gap: 10px;
-  font-size: 13px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border-default);
-}
-.kv:last-of-type {
-  border-bottom: none;
-}
-.kv .k {
+.pl4-row__label {
+  font: var(--type-small);
   color: var(--text-muted);
 }
-.kv .v {
-  font-weight: 600;
+.pl4-row__value {
+  margin: 0;
+  font: var(--type-small);
+  font-weight: 700;
+  color: var(--text-heading);
   text-align: right;
 }
+/* "Renova em" fica em tom de atenção quando o período está acabando
+   (isExpiringSoon, lib/subscriptionPeriod.ts) — era um `style` inline. */
+.pl4-row__value--warning {
+  color: var(--state-warning);
+}
+@media (min-width: 860px) {
+  .pl4-row__label,
+  .pl4-row__value {
+    font-size: 15px;
+  }
+}
 
-/* Barra de progresso do período */
-.period-progress {
+/* Barra de progresso do período (node 165:1838 / 186:5003) */
+.pl4-progress {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  margin-top: 4px;
+  margin-top: 2px;
 }
-.period-progress-track {
-  height: 8px;
+.pl4-progress__track {
+  height: 6px;
   border-radius: var(--radius-pill);
-  background: var(--sand-200);
+  background: var(--surface-sunken);
   overflow: hidden;
 }
-.period-progress-fill {
+/* `--pl4-progress` é a % do período, entregue pelo TSX (ver
+   SubscriptionCard). 0% é o fallback caso a variável não chegue. */
+.pl4-progress__fill {
+  width: var(--pl4-progress, 0%);
   height: 100%;
   border-radius: var(--radius-pill);
-  background: var(--state-info);
+  background: var(--interactive-primary);
 }
-.period-progress-label {
-  font-size: 11px;
+.pl4-progress__label {
+  font: var(--type-overline);
+  font-weight: 400;
+  letter-spacing: normal;
   color: var(--text-muted);
-  text-align: right;
 }
 
-/* Ações — Trocar plano / Cancelar assinatura */
-.actions-row {
+/* Ações — "Trocar plano" (secundário) e "Cancelar assinatura" (link
+   vermelho, node 165:1844 / 186:5010). */
+.pl4-actions {
   display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+.pl4-actions__cancel .button {
+  color: var(--state-danger);
+}
+@media (min-width: 860px) {
+  /* 300px no frame desktop (node 186:5006); o link de cancelar fica alinhado
+     à esquerda, sem o padding lateral do botão. */
+  .pl4-actions {
+    align-items: flex-start;
+  }
+  .pl4-actions__change {
+    width: 300px;
+  }
+  .pl4-actions__cancel .button {
+    padding-left: 0;
+    padding-right: 0;
+    justify-content: flex-start;
+  }
 }
 
-/* Lista de faturas (Pagamentos) */
-.ag-list {
+/* "HISTÓRICO DE PAGAMENTOS" (node 165:1845 / 186:5011) — caixa alta pelo CSS
+   (o texto no TSX fica legível pra leitores de tela). */
+.pl4-section-title {
+  margin: 0;
+  font: var(--type-overline);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--text-muted);
+}
+
+/* Lista de pagamentos. Mobile (node 165:1846): três cards soltos. Desktop
+   (node 186:5012): UM card com as linhas divididas. Mesmo DOM nos dois — a
+   troca é só de CSS, como o resto desta tela. */
+.pl4-history {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
-.inv-row {
+.pl4-history__row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  background: var(--surface-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  cursor: pointer;
+  justify-content: space-between;
+  gap: var(--space-3);
   width: 100%;
-  text-align: left;
+  border: none;
+  background: var(--surface-card);
+  border-radius: 14px;
+  padding: 12px 16px;
   font: inherit;
   color: inherit;
-  transition: border-color var(--dur-fast);
+  text-align: left;
+  cursor: pointer;
+  box-shadow: var(--shadow-card);
 }
-.inv-row:hover {
-  border-color: var(--interactive-primary);
+.pl4-history__label {
+  font: var(--type-small);
+  font-weight: 700;
+  color: var(--text-heading);
 }
-.inv-row .iw {
-  flex: 1;
-  min-width: 0;
-}
-.inv-row .iw .nm {
-  font-size: 13.5px;
-  font-weight: 600;
-}
-.inv-row .iw .desc {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-.inv-row .tail {
+.pl4-history__status {
   flex: none;
+  font: var(--type-small);
+  font-size: 12px;
+  font-weight: 700;
+}
+.pl4-history__status--success {
+  color: var(--state-success);
+}
+.pl4-history__status--warning {
+  color: var(--state-warning);
+}
+.pl4-history__status--danger {
+  color: var(--state-danger);
+}
+.pl4-history__status--muted {
+  color: var(--text-muted);
+}
+
+@media (min-width: 860px) {
+  .pl4-history {
+    gap: 0;
+    background: var(--surface-card);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+  .pl4-history__row {
+    background: none;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border-default);
+  }
+  .pl4-history__row:last-child {
+    border-bottom: none;
+  }
+  .pl4-history__label {
+    font-size: 15px;
+    font-weight: 600;
+  }
+  .pl4-history__status {
+    font-size: 13px;
+  }
+}
+
+.pl4-hint {
+  margin: 0;
+  font: var(--type-small);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pl4-foot-note {
+  margin: 0;
+  font: var(--type-small);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.pl4-sheet-title {
+  margin: 0;
+  font: var(--type-subtitle);
+  font-family: var(--font-display);
+  color: var(--text-heading);
 }

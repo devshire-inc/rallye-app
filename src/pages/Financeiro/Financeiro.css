@@ -831,3 +831,162 @@
   letter-spacing: 0.03em;
   color: var(--text-muted);
 }
+
+/* ---------------------------------------------------------------------------
+   15 — Bloqueado por Inadimplência (Aluno) (Figma 165:4803 mobile /
+   186:2246 desktop) — ver BlockedByDelinquencyPage.tsx.
+
+   Mora nesta folha (e não numa própria) porque a tela é do grupo Financeiro
+   do protótipo e navega direto pra F3/F5: mesmo critério do comentário de
+   pacote no topo deste arquivo. Prefixo `blk-` em tudo — o bundle é único e
+   a especificidade de uma classe empata, então nome genérico aqui vira
+   colisão silenciosa (ver `.card` -> `.fin-card` e `.toast` ->
+   `.refund-rule-toast` acima).
+
+   Coluna única centrada nos DOIS frames; nada de troca cards/tabela.
+   breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) é a fonte canônica do
+   860 — é onde a sidebar aparece e o frame passa a ser o desktop.
+   -------------------------------------------------------------------------- */
+
+.blk-body {
+  align-items: stretch;
+}
+
+.blk-alert .alert-card {
+  width: 100%;
+}
+
+.blk-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  /* pt=96 no frame mobile (node 165:4807), contando a partir do topo da área
+     de conteúdo; `.dash-body` já entrega o respiro lateral. */
+  margin-top: 56px;
+}
+
+/* "!" dentro do círculo (node 165:4837) */
+.blk-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-pill);
+  background: var(--state-danger-soft);
+  color: var(--state-danger);
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 36px;
+  line-height: 1;
+}
+
+.blk-title {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  text-align: center;
+}
+.blk-title__heading {
+  margin: 0;
+  font: var(--type-title);
+  color: var(--text-heading);
+}
+.blk-title__text {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* Card da dívida (node 165:4842 / 186:5028) */
+.blk-debt {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: var(--surface-sunken);
+  text-align: center;
+}
+.blk-debt__title {
+  font: var(--type-small);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+.blk-debt__amount {
+  font: var(--type-small);
+  font-size: 12px;
+  color: var(--state-danger);
+}
+
+/* "Falar com a arena" — cinza no frame mobile (node 165:4848), laranja no
+   desktop (node 186:5034). */
+.blk-contact {
+  width: 100%;
+}
+.blk-contact .button {
+  color: var(--text-muted);
+}
+
+/* Atalho que os frames não desenham: só aparece quando existe mais de uma
+   fatura em atraso, caso em que o CTA principal (que abre a mais antiga)
+   não conta a história toda. */
+.blk-all-link {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: var(--type-small);
+  font-size: 12px;
+  color: var(--text-muted);
+  text-decoration: underline;
+}
+
+.blk-sheet {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.blk-sheet-text {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+@media (min-width: 860px) {
+  /* Coluna de 520px do frame desktop (node 186:5022), centrada na área de
+     conteúdo do shell. */
+  .dash-body.blk-body {
+    max-width: 520px;
+    margin-inline: auto;
+  }
+  .blk-panel {
+    gap: var(--space-5);
+    margin-top: 100px;
+  }
+  .blk-title__heading {
+    font-size: 26px;
+  }
+  .blk-title__text {
+    font-size: 15px;
+  }
+  .blk-debt {
+    border-radius: 14px;
+  }
+  .blk-debt__title {
+    font-size: 15px;
+  }
+  .blk-debt__amount {
+    font-size: 14px;
+  }
+  .blk-contact .button {
+    color: var(--text-brand);
+  }
+}

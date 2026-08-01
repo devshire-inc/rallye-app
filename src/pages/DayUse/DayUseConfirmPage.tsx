@@ -56,6 +56,15 @@ type BookState =
  * POST /units/{id}/day-use-bookings diretamente. Nenhum cronômetro é
  * renderizado.
  *
+ * ## Bloqueio por inadimplência — 403 tem tela própria
+ *
+ * dayuse.BookHandler chama middleware.CheckDelinquencyBlock antes de gravar
+ * (Day Use é "novo agendamento" como qualquer outro), então este é o único
+ * fluxo self-service de aluno deste app que pode receber o 403
+ * `delinquency_blocked`. Nesse caso a navegação vai pra tela 15
+ * (`/units/:unitId/blocked`, BlockedByDelinquencyPage) em vez do erro
+ * genérico — ver handleConfirm abaixo.
+ *
  * ## "Ops! Última vaga foi preenchida" — corrida real, não hipotética
  *
  * O backend (BookHandler, BEAC-1958) faz a checagem definitiva de vaga
@@ -113,6 +122,18 @@ export default function DayUseConfirmPage() {
         if (!result.ok) {
           if ('slotTaken' in result && result.slotTaken) {
             setBookState({ status: 'slot-taken' })
+            return
+          }
+          /* 403 `delinquency_blocked` (middleware.CheckDelinquencyBlock, ver
+             rallye-api/api/middleware/delinquency_check.go): a reserva foi
+             recusada porque o aluno tem fatura em atraso e a arena bloqueia
+             novos agendamentos. Não é um erro genérico "tente de novo" — o
+             que resolve é pagar a fatura, então a navegação vai pra tela 15
+             (BlockedByDelinquencyPage), que explica o motivo e leva pra
+             fatura. `replace` porque voltar pra esta confirmação sem
+             regularizar só produziria o mesmo 403. */
+          if ('error' in result && result.error === 'delinquency_blocked') {
+            navigate(`/units/${unitId}/blocked`, { replace: true })
             return
           }
           setBookState({ status: 'error' })

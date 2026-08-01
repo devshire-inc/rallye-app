@@ -101,9 +101,8 @@ describe('PL4MySubscriptionPage — empty state (no active subscription)', () =>
 
     renderPage()
 
-    expect(
-      await screen.findByText('Nenhum plano ativo. Fale com a recepção para contratar.'),
-    ).toBeInTheDocument()
+    expect(await screen.findByText('Nenhum plano ativo')).toBeInTheDocument()
+    expect(screen.getByText('Fale com a recepção para contratar.')).toBeInTheDocument()
   })
 })
 
@@ -118,9 +117,12 @@ describe('PL4MySubscriptionPage — active subscription card', () => {
     renderPage()
 
     await screen.findByText('3x/semana Beach Tennis')
-    expect(screen.getByText('Ativa')).toBeInTheDocument()
-    expect(screen.getByText('Trimestral · R$ 315,00/mês')).toBeInTheDocument()
-    expect(screen.getByText('01/01/2026 - 31/03/2026')).toBeInTheDocument()
+    expect(screen.getByText('✓ Ativa')).toBeInTheDocument()
+    // "Recorrência" e "Valor" são duas linhas separadas no Figma (node
+    // 165:1819/165:1822), não mais uma linha "Trimestral · R$ 315,00/mês".
+    expect(screen.getByText('Trimestral')).toBeInTheDocument()
+    expect(screen.getByText('R$ 315,00/mês')).toBeInTheDocument()
+    expect(screen.getByText('01/01/2026 – 31/03/2026')).toBeInTheDocument()
     expect(screen.getByText('20 dias')).toBeInTheDocument()
     expect(screen.getByText('Sim')).toBeInTheDocument()
     // 90 dias totais (01/01 a 31/03/26 inclusive), 20 restantes -> 78%.
@@ -153,9 +155,9 @@ describe('PL4MySubscriptionPage — active subscription card', () => {
 
     renderPage()
 
-    await screen.findByText('Mensalidade Mar/26')
+    await screen.findByText(/Mensalidade Mar\/26/)
     expect(screen.getByText(/R\$ 300,00/)).toBeInTheDocument()
-    expect(screen.getByText('Paga')).toBeInTheDocument()
+    expect(screen.getByText('✓ Paga')).toBeInTheDocument()
   })
 
   it('does not issue a second invoice-listing call — uses the subscription response invoices array', async () => {
@@ -166,7 +168,7 @@ describe('PL4MySubscriptionPage — active subscription card', () => {
 
     renderPage()
 
-    await screen.findByText('Mensalidade Mar/26')
+    await screen.findByText(/Mensalidade Mar\/26/)
     expect(getSubscriptionSpy).toHaveBeenCalledTimes(1)
     expect(getSubscriptionSpy).toHaveBeenCalledWith('student-1')
   })
@@ -213,9 +215,9 @@ describe('PL4MySubscriptionPage — actions', () => {
     })
 
     renderPage()
-    await screen.findByText('Mensalidade Mar/26')
+    await screen.findByText(/Mensalidade Mar\/26/)
 
-    await userEvent.click(screen.getByText('Mensalidade Mar/26'))
+    await userEvent.click(screen.getByText(/Mensalidade Mar\/26/))
 
     expect(await screen.findByText('F3 placeholder')).toBeInTheDocument()
   })
