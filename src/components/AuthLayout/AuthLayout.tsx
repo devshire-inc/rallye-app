@@ -81,10 +81,26 @@ export function AuthLayout({
     <div className={`auth-shell${hero ? ' auth-shell--hero' : ''}`}>
       <div className="auth-shell__brand">
         <div className="auth-shell__badge auth-shell__badge--pressable" aria-hidden="true" {...longPress}>
-          {/* 38 e não 28: o SVG do mark tem padding embutido (glifo ocupa ~18
-              de um viewBox 24), então o size nominal rende ~77% em glifo
-              visível — a 28 ele ficava pequeno demais dentro do badge de 60. */}
-          <BrandLogo name="rallye-mark" variant="dark" size={38} />
+          {/* As DUAS variantes vão ao DOM e o CSS mostra uma por tema (ver
+              .auth-shell__mark* em AuthLayout.css). O `variant` do BrandLogo é
+              uma prop fixa e o hook useTheme lança fora do ThemeProvider — o
+              que quebraria quem renderiza o AuthLayout isolado (testes). Fazer
+              por CSS também evita flash na primeira pintura.
+              38 e não 28: o SVG tem padding embutido (glifo ocupa ~18 de um
+              viewBox 24), então o size nominal rende ~77% em glifo visível — a
+              28 ficava pequeno demais dentro do badge de 60. */}
+          <BrandLogo
+            name="rallye-mark"
+            variant="dark"
+            size={38}
+            className="auth-shell__mark auth-shell__mark--on-light"
+          />
+          <BrandLogo
+            name="rallye-mark"
+            variant="light"
+            size={38}
+            className="auth-shell__mark auth-shell__mark--on-dark"
+          />
         </div>
         {heroTitle && <p className="auth-shell__brand-title">{heroTitle}</p>}
         {heroSubtitle && <p className="auth-shell__brand-subtitle">{heroSubtitle}</p>}
@@ -108,7 +124,18 @@ export function AuthLayout({
                   aria-hidden="true"
                   {...longPress}
                 >
-                  <BrandLogo name="rallye-mark" variant="dark" size={18} />
+                  <BrandLogo
+                    name="rallye-mark"
+                    variant="dark"
+                    size={18}
+                    className="auth-shell__mark auth-shell__mark--on-light"
+                  />
+                  <BrandLogo
+                    name="rallye-mark"
+                    variant="light"
+                    size={18}
+                    className="auth-shell__mark auth-shell__mark--on-dark"
+                  />
                 </div>
               )}
             </div>

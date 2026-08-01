@@ -54,15 +54,33 @@
 /* Selo da marca (badge quadrado com o rallye-mark dentro) — 60px no hero
    (mobile e desktop), reaproveitado do BrandLogo já reconstruído a partir do
    design system em vez de um "R" digitado à mão. */
+/* O Brand Panel usa --surface-inverse, que INVERTE com o tema (navy no claro,
+   sand no escuro). O badge precisa contrastar com ele nos dois temas, então usa
+   --surface-card, que inverte na direção oposta (branco no claro, navy no
+   escuro). Fixar uma cor aqui faria o badge sumir dentro do painel em um dos
+   temas. A marca acompanha via .auth-shell__mark* abaixo. */
 .auth-shell__badge {
   width: 60px;
   height: 60px;
   border-radius: var(--radius-lg);
-  background: var(--sand-100);
+  background: var(--surface-card);
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+/* Troca de variante da marca por tema. As duas vão ao DOM (ver AuthLayout.tsx);
+   aqui só uma fica visível. Padrão = tema claro, onde os selos são claros
+   (--surface-card branco / --surface-page sand) e pedem a marca escura. */
+.auth-shell__mark--on-dark {
+  display: none;
+}
+[data-theme='dark'] .auth-shell__mark--on-light {
+  display: none;
+}
+[data-theme='dark'] .auth-shell__mark--on-dark {
+  display: block;
 }
 /* BEAC-1835: segurar o logo (de qualquer tela) abre a S1 — só recebe pointer
    events onde o gesto está habilitado. Um toque/clique curto não faz nada
@@ -117,10 +135,10 @@
   height: 32px;
   border-radius: var(--radius-sm);
   border: 1.5px solid var(--border-default);
-  /* Primitivo, não --surface-page: mesma razão do .auth-shell__badge acima —
-     o `rallye-mark` é sempre a variante dark, então o fundo do selo precisa
-     ficar claro nos dois temas, senão a marca some no escuro. */
-  background: var(--sand-50);
+  /* Acompanha o Form Panel (mesmo token), então o selo lê como um contorno
+     discreto — que é a intenção do design. A marca troca de variante por tema
+     via .auth-shell__mark*, senão sumiria no escuro. */
+  background: var(--surface-page);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -165,14 +183,8 @@
     font: var(--type-body-lg);
     max-width: 400px;
   }
-  .auth-shell__badge {
-    /* Primitivo --white de propósito, não o semântico --surface-card: este é o
-       fundo de um lockup de marca, e o `rallye-mark` é sempre a variante dark
-       (BrandLogo não troca de variante por tema, por design). Com
-       --surface-card o badge virava navy no tema escuro e a marca escura
-       sumia dentro dele. Mesma razão do --sand-100 fixo no mobile. */
-    background: var(--white);
-  }
+  /* Sem override de fundo aqui: --surface-card (definido no bloco base) já
+     resolve os dois temas em ambos os breakpoints. */
   .auth-shell__panel {
     justify-content: center;
   }
