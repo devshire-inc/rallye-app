@@ -204,7 +204,7 @@ describe('TournamentsListPage — "Criar" button', () => {
     mockList({ mine: [] })
 
     renderPage()
-    await screen.findByText('Nenhum torneio encontrado.')
+    await screen.findByText('Nenhum torneio no momento')
 
     await userEvent.click(screen.getByRole('button', { name: 'Criar' }))
 
@@ -217,7 +217,7 @@ describe('TournamentsListPage — "Criar" button', () => {
 
     renderPage()
 
-    await screen.findByText('Nenhum torneio encontrado.')
+    await screen.findByText('Nenhum torneio no momento')
     expect(screen.queryByRole('button', { name: 'Criar' })).not.toBeInTheDocument()
   })
 })

@@ -170,7 +170,9 @@ describe('TO4RegisterPage — parceiro', () => {
 
     fireEvent.click(await screen.findByRole('button', { name: /Carla Trindade/ }))
 
-    expect(screen.getByText('Você / Carla Trindade')).toBeInTheDocument()
+    // Reskin (Figma 175:2335): o resumo virou uma linha corrida por item
+    // ("Dupla: …") em vez de rótulo e valor em colunas opostas.
+    expect(screen.getByText('Dupla: Você / Carla Trindade')).toBeInTheDocument()
 
     fireEvent.click(screen.getByRole('button', { name: /Inscrever/ }))
 

@@ -3,6 +3,11 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
+import { EventStatusBadge } from '../../components/ui/EventStatusBadge/EventStatusBadge'
+import { SportTag } from '../../components/ui/SportTag/SportTag'
+import { Tabs } from '../../components/ui/Tabs/Tabs'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
@@ -11,8 +16,6 @@ import {
   type TournamentListScope,
 } from '../../lib/api/tournaments'
 import { registrationCountdownLabel } from '../../lib/tournamentCountdown'
-import { sportCssVar, sportLabel } from '../../lib/sports'
-import '../../components/AuthLayout/AuthLayout.css'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TournamentsListPage.css'
 
@@ -26,6 +29,8 @@ const TABS: { scope: TournamentListScope; label: string }[] = [
   { scope: 'abertos', label: 'Abertos' },
   { scope: 'encerrados', label: 'Encerrados' },
 ]
+
+const TAB_LABELS = TABS.map((tab) => tab.label)
 
 const TYPE_LABEL: Record<string, string> = {
   fechado: 'fechado',
@@ -67,7 +72,46 @@ function formatDateRange(startIso: string, endIso: string): string {
  * `TournamentListItem` (BEAC-2013) não devolve unit/arena nem contagem de
  * categorias/duplas inscritas — o card mostra esporte/tipo/data, nunca um
  * número inventado (mesmo princípio de "gap conhecido, nunca escondido" já
- * documentado em TurmasListPage.tsx pra ocupação de turma).
+ * documentado em TurmasListPage.tsx pra ocupação de turma). Isso é um gap
+ * visível contra o Figma, que desenha "Arena Beira-Mar · 15–16 abr" e
+ * "6 categorias · 48 duplas" no card: das quatro informações, só a data
+ * existe no contrato.
+ *
+ * ## Reskin design system (Figma "16 · Torneios — Lista", node 174:2231
+ * mobile / 187:6710 desktop / 187:7052 vazio)
+ *
+ * - `Tabs` substitui o `.tabs2` local (Meus/Abertos/Encerrados) — o frame
+ *   mobile desenha exatamente o sublinhado deslizante do componente.
+ * - `SportTag` é o pill de esporte no topo do card. O frame pinta o pill em
+ *   sand/neutro, mas o DS sistematizou "pill de esporte" com a cor fixa do
+ *   esporte (node 27:45) e é ela que carrega, sistematizada, a mesma
+ *   informação que a `.strip` colorida do card antigo carregava — a
+ *   divergência de cor contra o frame é deliberada, a favor do DS.
+ * - `EventStatusBadge status="encerrado"` é o pill "Encerrado" que o frame
+ *   desktop mostra no card de torneio encerrado. Os outros quatro status do
+ *   componente (convite/inscrito/abertas/lotado) não têm origem no contrato
+ *   de listagem: `TournamentListItem` não diz se o chamador está inscrito
+ *   nem quantas vagas restam, e "abertas" já é o próprio agrupamento.
+ * - `EmptyState` cobre o frame 16b (🏆 "Nenhum torneio no momento").
+ * - `EventCard` (DS, node 129:2) foi avaliado e DESCARTADO: ele modela o
+ *   feed de eventos da agenda (eyebrow TORNEIO/EXPERIMENTAL/SOCIAL para
+ *   desambiguar tipos numa lista mista — redundante numa tela só de
+ *   torneios) e não tem slot para as linhas que este card precisa
+ *   (countdown "encerra em 5 dias", "🏆 campeão (categoria)"), nem estado
+ *   para rascunho ou ao vivo. Encaixá-lo exigiria estender o componente do
+ *   DS para uma tela só; o card local (`.trn-card`) compõe SportTag +
+ *   Badge/EventStatusBadge sem duplicar nenhum deles.
+ *
+ * ## Desktop: grid de cards, não tabela
+ *
+ * O frame desktop (187:6710) troca a coluna única por um grid de cards de
+ * 344px — não por uma `<table>`, então esta tela NÃO adota o padrão
+ * `TableRow`/`TableHeaderCell` de F5. Um único layout no DOM: as seções
+ * viram `display: contents` a partir de BREAKPOINT_SHELL_DESKTOP_MIN e os
+ * cards passam a fluir todos no mesmo grid, na mesma ordem (ao vivo ->
+ * abertas -> encerrados) em que o frame os desenha. Os títulos de seção
+ * ficam só para leitor de tela nesse ponto: o frame não os mostra, mas
+ * apagá-los do DOM tiraria o agrupamento de quem navega por headings.
  */
 export default function TournamentsListPage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -112,6 +156,13 @@ export default function TournamentsListPage() {
   const open = tournaments.filter((t) => t.status === 'rascunho' || t.status === 'publicado')
   const closed = tournaments.filter((t) => t.status === 'encerrado')
 
+  const activeTabLabel = TABS.find((tab) => tab.scope === scope)?.label ?? TAB_LABELS[0]
+
+  function handleTabChange(label: string) {
+    const next = TABS.find((tab) => tab.label === label)
+    if (next) setScope(next.scope)
+  }
+
   function goToTournament(t: TournamentListItem) {
     // Achado na review de BEAC-1984: TO3 (/tournaments/:id) assume um
     // torneio real/publicado (link público, taxa, tabs de inscrição) — pra
@@ -132,90 +183,95 @@ export default function TournamentsListPage() {
       <div className="pg-head">
         <h1>Torneios</h1>
         <div className="spacer" />
-        <div className="tabs2" role="tablist" aria-label="Filtrar torneios">
-          {TABS.map((tab) => (
-            <button
-              key={tab.scope}
-              type="button"
-              role="tab"
-              aria-selected={scope === tab.scope}
-              className={scope === tab.scope ? 'active' : ''}
-              onClick={() => setScope(tab.scope)}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
         {canCreate ? (
-          <button
-            type="button"
-            className="btn btn-primary btn-sm"
+          <Button
+            variant="primary"
+            size="sm"
             onClick={() => unitId && navigate(`/units/${unitId}/tournaments/new`)}
           >
             Criar
-          </button>
+          </Button>
         ) : null}
       </div>
 
-      <div className="dash-body">
+      {/* `trn-body` (e não o utilitário global `.dash-body--wide`): aquele é
+          gatilhado por `:has(table)` e esta tela não tem tabela nenhuma —
+          ver src/styles/utilities.css. O grid de cards do frame desktop
+          precisa do mesmo tipo de soltura, com outro gatilho. */}
+      <div className="dash-body trn-body">
+        <Tabs
+          tabs={TAB_LABELS}
+          value={activeTabLabel}
+          onChange={handleTabChange}
+          ariaLabel="Filtrar torneios"
+        />
+
         {!isCurrent ? <PageLoading label="Carregando torneios" variant="list" /> : null}
         {isCurrent && state.status === 'error' ? (
           <p role="alert">Não foi possível carregar os torneios.</p>
         ) : null}
 
         {isCurrent && state.status === 'ready' ? (
-          <>
-            {live.length > 0 ? (
-              <Section title="Ao vivo" variant="live">
-                {live.map((t) => (
-                  <TournamentCard key={t.id} tournament={t} onClick={() => goToTournament(t)} />
-                ))}
-              </Section>
-            ) : null}
+          tournaments.length === 0 ? (
+            <div className="trn-empty">
+              <EmptyState
+                icon={<span className="trn-empty__glyph">🏆</span>}
+                title="Nenhum torneio no momento"
+                description="Volte em breve — novos torneios aparecem aqui assim que abrirem."
+              />
+            </div>
+          ) : (
+            <div className="trn-groups">
+              {live.length > 0 ? (
+                <Section title="Ao vivo" variant="live">
+                  {live.map((t) => (
+                    <TournamentCard key={t.id} tournament={t} onClick={() => goToTournament(t)} />
+                  ))}
+                </Section>
+              ) : null}
 
-            {open.length > 0 ? (
-              <Section title="Inscrições abertas" variant="teal">
-                {open.map((t) => (
-                  <TournamentCard key={t.id} tournament={t} onClick={() => goToTournament(t)} />
-                ))}
-              </Section>
-            ) : null}
+              {open.length > 0 ? (
+                <Section title="Inscrições abertas" variant="open">
+                  {open.map((t) => (
+                    <TournamentCard key={t.id} tournament={t} onClick={() => goToTournament(t)} />
+                  ))}
+                </Section>
+              ) : null}
 
-            {closed.length > 0 ? (
-              <Section title="Encerrados" variant="muted">
-                {closed.map((t) => (
-                  <TournamentCard key={t.id} tournament={t} onClick={() => goToTournament(t)} />
-                ))}
-              </Section>
-            ) : null}
-
-            {tournaments.length === 0 ? <p className="hint">Nenhum torneio encontrado.</p> : null}
-          </>
+              {closed.length > 0 ? (
+                <Section title="Encerrados" variant="closed">
+                  {closed.map((t) => (
+                    <TournamentCard key={t.id} tournament={t} onClick={() => goToTournament(t)} />
+                  ))}
+                </Section>
+              ) : null}
+            </div>
+          )
         ) : null}
       </div>
     </AppShell>
   )
 }
 
+/** Agrupamento por status. O emoji que o frame mobile põe antes do rótulo
+ * ("🔴 AO VIVO", "📋 INSCRIÇÕES ABERTAS", "✅ ENCERRADOS RECENTES") vem por
+ * `::before` no CSS, e não como nó de texto: é puramente decorativo e, no
+ * DOM, só atrapalharia o nome acessível do heading. A caixa alta também é
+ * CSS (`text-transform`), então o texto real continua "Ao vivo". */
 function Section({
   title,
   variant,
   children,
 }: {
   title: string
-  variant: 'live' | 'teal' | 'muted'
+  variant: 'live' | 'open' | 'closed'
   children: ReactNode
 }) {
   return (
-    <div>
-      <div className="sec-head">
-        <h2 className={variant}>
-          {variant === 'live' ? <span className="live-dot" /> : null}
-          {title}
-        </h2>
-      </div>
-      <div className="to-list">{children}</div>
-    </div>
+    <section className={`trn-group trn-group--${variant}`}>
+      <h2 className="trn-group__title">{title}</h2>
+      {children}
+    </section>
   )
 }
 
@@ -229,42 +285,44 @@ function TournamentCard({
   const countdown = registrationCountdownLabel(tournament.registrationClosesAt)
   const isDraft = tournament.status === 'rascunho'
   const isLive = tournament.status === 'em_andamento'
+  const isClosed = tournament.status === 'encerrado'
   const champions = tournament.champions ?? []
 
   return (
     <button
       type="button"
-      className={`to-card${isLive ? ' is-live' : ''}`}
+      className={`trn-card${isLive ? ' trn-card--live' : ''}`}
       onClick={onClick}
       data-testid={`tournament-card-${tournament.id}`}
     >
-      <span className="strip" style={{ background: `var(${sportCssVar(tournament.sport)})` }} />
-      <span className="tm">
-        <h3>
-          {tournament.name}
-          {isDraft ? <Badge tone="neutral">Rascunho</Badge> : null}
-        </h3>
-        <span className="mt">
-          {[
-            sportLabel(tournament.sport),
-            TYPE_LABEL[tournament.type] ?? tournament.type,
-            formatDateRange(tournament.startDate, tournament.endDate),
-          ]
-            .filter(Boolean)
-            .join(' · ')}
+      <span className="trn-card__head">
+        <SportTag sport={tournament.sport} />
+        {isDraft ? <Badge tone="neutral">Rascunho</Badge> : null}
+      </span>
+      <span className="trn-card__title">{tournament.name}</span>
+      <span className="trn-card__meta">
+        {TYPE_LABEL[tournament.type] ?? tournament.type} ·{' '}
+        {formatDateRange(tournament.startDate, tournament.endDate)}
+      </span>
+      {champions.map((c) => (
+        <span className="trn-card__champion" key={c.categoryName}>
+          🏆 {c.championName} ({c.categoryName})
         </span>
-      </span>
-      <span className="tail">
-        {champions.length > 0
-          ? champions.map((c) => (
-              <span key={c.categoryName}>
-                🏆 {c.championName} ({c.categoryName})
-              </span>
-            ))
-          : countdown
-            ? <span>{countdown}</span>
-            : null}
-      </span>
+      ))}
+      {countdown && !isClosed ? <span className="trn-card__countdown">{countdown}</span> : null}
+      {/* "3 jogos ao vivo" do frame precisaria de uma contagem de partidas
+          em andamento que a listagem não devolve — o pill fica só com o
+          estado, sem número inventado. */}
+      {isLive ? (
+        <span className="trn-card__status">
+          <Badge tone="danger">🔴 Ao vivo</Badge>
+        </span>
+      ) : null}
+      {isClosed ? (
+        <span className="trn-card__status">
+          <EventStatusBadge status="encerrado" />
+        </span>
+      ) : null}
     </button>
   )
 }

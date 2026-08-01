@@ -1,7 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useParams, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
 import { TemporarySessionBanner } from '../../components/TemporarySessionBanner/TemporarySessionBanner'
 import { Badge } from '../../components/ui/Badge/Badge'
+import { Button } from '../../components/ui/Button/Button'
+import { EventStatusBadge } from '../../components/ui/EventStatusBadge/EventStatusBadge'
+import { SportTag } from '../../components/ui/SportTag/SportTag'
+import { Tabs } from '../../components/ui/Tabs/Tabs'
 import { WithdrawSheet } from '../../components/WithdrawSheet/WithdrawSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { listCourts } from '../../lib/api/courts'
@@ -14,7 +18,6 @@ import {
   type TournamentRegistration,
 } from '../../lib/api/tournamentWithdrawal'
 import { formatBRL } from '../../lib/money'
-import { sportLabel } from '../../lib/sports'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import './TournamentViewPage.css'
 
@@ -39,6 +42,15 @@ const TYPE_LABEL: Record<string, string> = {
 }
 
 const MONTH = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez']
+
+const TAB_LABELS: Record<Tab, string> = {
+  info: 'Info',
+  inscritos: 'Inscritos',
+  chaves: 'Chaves',
+  ranking: 'Ranking',
+}
+
+const TAB_ORDER: Tab[] = ['info', 'inscritos', 'chaves', 'ranking']
 
 function formatDateRange(startIso: string, endIso: string): string {
   const [, sm, sd] = startIso.slice(0, 10).split('-').map(Number)
@@ -96,9 +108,40 @@ function bracketGenerated(status: TournamentDetail['status']): boolean {
  * nesta tela — não é um detalhe do stub anterior que podia ser descartado ao
  * reescrever TO3, é uma integração de outra story que dependia deste
  * comportamento.
+ *
+ * ## Reskin design system (Figma "17 · Torneios — Detalhe", node 174:2319
+ * mobile / 187:6729 desktop)
+ *
+ * - `Tabs` substitui o `.ptabs` local (Info/Inscritos/Chaves/Ranking).
+ * - `SportTag` é o marcador do esporte na primeira linha de metadados — o
+ *   "🟠" que o frame desenha antes de "Beach Tennis" é exatamente o dot
+ *   colorido desse componente.
+ * - `EventStatusBadge` cobre os dois status que o frame nomeia no cabeçalho
+ *   ("Inscrições abertas" / "Encerrado"). `em_andamento` continua com o
+ *   `Badge tone="danger"` + `.live-dot`: "AO VIVO" não é um dos 5 status do
+ *   componente (convite/inscrito/abertas/lotado/encerrado) e forçá-lo em
+ *   `encerrado` seria mentira semântica.
+ * - `Button` (ghost/sm) no "Desistiu" da aba Inscritos, no lugar do
+ *   `.btn.btn-ghost` local.
+ * - `EventCard`/`Card`/`ListRow` do DS foram avaliados e DESCARTADOS aqui:
+ *   `EventCard` é o card de uma LISTA de eventos (esta tela é o detalhe de
+ *   um só); `Card` renderiza `<button>` quando interativo e `<div>` sem
+ *   semântica de seção quando não — os blocos "Categorias"/"Regulamento" do
+ *   frame são seções com heading próprio, então `.tv-card` usa `<h2>` de
+ *   verdade; e `ListRow` (mesmo motivo já registrado em telas anteriores
+ *   desta leva) modela linha de menu com chevron/ação à direita, não a
+ *   linha "• Categoria (x/y)" com marcador do frame.
+ *
+ * ## Desktop: mesma coluna, mais larga — sem tabela
+ *
+ * O frame desktop (187:6729) é o MESMO layout do mobile numa coluna de
+ * 780px, com tipografia maior; não há `<table>` em lugar nenhum, então esta
+ * tela segue o padrão de F3InvoiceDetailPage (layout único, só o "‹ Voltar"
+ * some no desktop) e NÃO o de F5 (dois layouts + TableRow).
  */
 export function TournamentViewPage() {
   const { tournamentId } = useParams<{ tournamentId: string }>()
+  const navigate = useNavigate()
   const [searchParams] = useSearchParams()
   const notificationsEnabled = searchParams.get('notifications') === '1'
   const canManage = usePermission('torneios', 'write')
@@ -228,6 +271,16 @@ export function TournamentViewPage() {
       {tournament ? (
         <>
           <div className="pg-head">
+            {/* "‹ Voltar" existe só no frame mobile (174:2358); o desktop
+                (187:6729) não desenha nenhum retorno — some por CSS em
+                BREAKPOINT_SHELL_DESKTOP_MIN, onde a sidebar já dá a
+                navegação. `navigate(-1)` e não uma rota fixa: esta tela é
+                unit-agnóstica e alcançável por TO1, por link público e pelo
+                fluxo de visitante (VisitorVerifyPage), que têm origens
+                diferentes. */}
+            <button type="button" className="tv-back" onClick={() => navigate(-1)}>
+              ‹ Voltar
+            </button>
             <span className="spacer" />
             <button
               type="button"
@@ -237,6 +290,15 @@ export function TournamentViewPage() {
             >
               🔗
             </button>
+          </div>
+
+          {/* Faixa do topo (174:2359 / 187:6950): bloco em surface/sunken com
+              o troféu e o nome. Puramente decorativa — o nome de verdade é o
+              `<h1>` logo abaixo, então o troféu é aria-hidden e o texto,
+              redundante para leitor de tela, sai do fluxo acessível. */}
+          <div className="tv-banner" aria-hidden="true">
+            <span className="tv-banner__glyph">🏆</span>
+            <span className="tv-banner__name">{tournament.name}</span>
           </div>
 
           <div className="prof-head">
@@ -249,60 +311,49 @@ export function TournamentViewPage() {
                     AO VIVO
                   </Badge>
                 ) : null}
+                {tournament.status === 'publicado' ? <EventStatusBadge status="abertas" /> : null}
+                {tournament.status === 'encerrado' ? <EventStatusBadge status="encerrado" /> : null}
               </h1>
-              <div className="mt">
-                {[
-                  sportLabel(tournament.sport),
-                  TYPE_LABEL[tournament.type] ?? tournament.type,
-                  formatDateRange(tournament.startDate, tournament.endDate),
-                  courtsSegment,
-                  `taxa ${formatBRL(tournament.entryFee)}/dupla`,
-                ]
-                  .filter(Boolean)
-                  .join(' · ')}
-              </div>
+              {/* Bloco de metadados do frame: uma linha por informação, cada
+                  uma com o seu marcador. Os emojis vêm de `::before` no CSS
+                  (decorativos, fora do nome acessível de cada item) exceto o
+                  do esporte, que é o dot colorido do `SportTag` do DS — o
+                  "🟠" do frame é literalmente essa bolinha de esporte.
+                  A linha "🏟️ Arena Beira-Mar" do Figma NÃO é renderizada:
+                  `TournamentDetail` (tournamentWithdrawal.ts) só devolve
+                  `unitId`, e esta tela é lida por visitante sem sessão — não
+                  há leitura de unit disponível aqui pra resolver o nome da
+                  arena, e inventá-lo estaria fora de questão. */}
+              <ul className="tv-meta">
+                <li className="tv-meta__item tv-meta__item--sport">
+                  <SportTag sport={tournament.sport} />
+                  <span>{TYPE_LABEL[tournament.type] ?? tournament.type}</span>
+                </li>
+                <li className="tv-meta__item tv-meta__item--dates">
+                  {formatDateRange(tournament.startDate, tournament.endDate)}
+                </li>
+                {courtsSegment ? (
+                  <li className="tv-meta__item tv-meta__item--courts">{courtsSegment}</li>
+                ) : null}
+                <li className="tv-meta__item tv-meta__item--fee">
+                  {formatBRL(tournament.entryFee)} / dupla
+                </li>
+              </ul>
             </div>
           </div>
 
           {shareLabel === 'Link copiado!' ? <p role="status">{shareLabel}</p> : null}
 
-          <div className="ptabs" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'info'}
-              className={tab === 'info' ? 'active' : ''}
-              onClick={() => setTab('info')}
-            >
-              Info
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'inscritos'}
-              className={tab === 'inscritos' ? 'active' : ''}
-              onClick={() => setTab('inscritos')}
-            >
-              Inscritos
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'chaves'}
-              className={tab === 'chaves' ? 'active' : ''}
-              onClick={() => setTab('chaves')}
-            >
-              Chaves
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'ranking'}
-              className={tab === 'ranking' ? 'active' : ''}
-              onClick={() => setTab('ranking')}
-            >
-              Ranking
-            </button>
+          <div className="tv-tabs">
+            <Tabs
+              tabs={TAB_ORDER.map((key) => TAB_LABELS[key])}
+              value={TAB_LABELS[tab]}
+              onChange={(label) => {
+                const next = TAB_ORDER.find((key) => TAB_LABELS[key] === label)
+                if (next) setTab(next)
+              }}
+              ariaLabel="Seções do torneio"
+            />
           </div>
 
           <div className="dash-body">
@@ -358,39 +409,56 @@ function InfoTab({
 }) {
   return (
     <div className="ptab-panel">
-      <div className="stack">
-        {tournament.categories.map((category) => {
-          const registrations = registrationsByCategory[category.id]
-          if (registrations === undefined || registrations === 'unavailable') {
+      {/* Frame 174:2381 / 187:6964: as categorias deixam de ser cards soltos e
+          passam a ser uma lista com marcador dentro de UM card "Categorias".
+          O chip "Sugerida p/ você" do Figma não é renderizado: a sugestão de
+          categoria vem de GET /tournaments/{id}/suggested-category
+          (tournamentEnrollment.ts, BEAC-1990), que é uma leitura autenticada
+          do próprio jogador — esta tela é lida também por visitante sem
+          sessão, e a sugestão já aparece em TO4, onde ela muda a escolha. */}
+      <div className="tv-card">
+        <h2 className="tv-card__title">Categorias</h2>
+        <ul className="tv-cats">
+          {tournament.categories.map((category) => {
+            const registrations = registrationsByCategory[category.id]
+            if (registrations === undefined || registrations === 'unavailable') {
+              return (
+                <li className="tv-cats__row" key={category.id}>
+                  <span className="tv-cats__name">{category.name}</span>
+                  <span className="tv-cats__value">—/{category.maxParticipants}</span>
+                </li>
+              )
+            }
+            const confirmed = registrations.filter((r) => r.status === 'confirmed').length
+            const remaining = category.maxParticipants - confirmed
+            const occupancy =
+              remaining <= 0 ? 'lotada' : `${remaining} vaga${remaining === 1 ? '' : 's'}`
             return (
-              <div className="cat-row" key={category.id}>
-                <span className="cn">{category.name}</span>
-                <span className="cv">—/{category.maxParticipants}</span>
-              </div>
+              <li className="tv-cats__row" key={category.id}>
+                <span className="tv-cats__name">{category.name}</span>
+                <span className="tv-cats__value">
+                  {confirmed}/{category.maxParticipants} · {occupancy}
+                </span>
+              </li>
             )
-          }
-          const confirmed = registrations.filter((r) => r.status === 'confirmed').length
-          const remaining = category.maxParticipants - confirmed
-          const occupancy = remaining <= 0 ? 'lotada' : `${remaining} vaga${remaining === 1 ? '' : 's'}`
-          return (
-            <div className="cat-row" key={category.id}>
-              <span className="cn">{category.name}</span>
-              <span className="cv">
-                {confirmed}/{category.maxParticipants} · {occupancy}
-              </span>
-            </div>
-          )
-        })}
+          })}
+        </ul>
       </div>
 
-      <div className="card">
-        <b className="sec-head-title">Regulamento</b>
-        <p className="hint">{tournament.rules ?? 'Regulamento não informado.'}</p>
+      <div className="tv-card">
+        <h2 className="tv-card__title">Regulamento</h2>
+        <p className="tv-card__text">{tournament.rules ?? 'Regulamento não informado.'}</p>
       </div>
 
-      <Link className="btn btn-primary btn-md" to={`/tournaments/${tournamentId}/register`}>
+      {/* `ui/Button` renderiza sempre um `<button>`; o destino aqui é uma
+          rota, e trocar o `<Link>` por um botão com `navigate()` tiraria o
+          menu de contexto/abrir-em-nova-aba de um link legítimo. Fica o
+          `<Link>` estilizado com a mesma anatomia do Button Primary/Large do
+          Figma (289:6194) — mesmo precedente já usado na aba Chaves. */}
+      <Link className="tv-cta" to={`/tournaments/${tournamentId}/register`}>
         Inscrever-se
       </Link>
+      <p className="tv-footnote">Já inscrito? Acompanhe pela aba Chaves.</p>
     </div>
   )
 }
@@ -417,7 +485,7 @@ function InscritosTab({
           return (
             <div key={category.id}>
               <div className="dgroup">{category.name}</div>
-              <p className="hint" role="status">
+              <p className="tv-card__text" role="status">
                 Dados de inscritos indisponíveis agora.
               </p>
             </div>
@@ -436,13 +504,9 @@ function InscritosTab({
                     {reg.status === 'confirmed' ? 'Confirmada' : 'Pagamento pendente'}
                   </Badge>
                   {canManage && reg.status === 'confirmed' ? (
-                    <button
-                      type="button"
-                      className="btn btn-ghost btn-sm"
-                      onClick={() => onWithdraw(reg)}
-                    >
+                    <Button variant="ghost" size="sm" onClick={() => onWithdraw(reg)}>
                       Desistiu
-                    </button>
+                    </Button>
                   ) : null}
                 </div>
               ))}
@@ -458,7 +522,7 @@ function ChavesTab({ tournamentId, status }: { tournamentId: string; status: Tou
   if (!bracketGenerated(status)) {
     return (
       <div className="ptab-panel">
-        <p className="hint" role="status">
+        <p className="tv-card__text" role="status">
           Chaveamento ainda não foi gerado.
         </p>
       </div>
@@ -466,7 +530,7 @@ function ChavesTab({ tournamentId, status }: { tournamentId: string; status: Tou
   }
   return (
     <div className="ptab-panel">
-      <Link className="btn btn-primary btn-md" to={`/tournaments/${tournamentId}/bracket`}>
+      <Link className="tv-cta" to={`/tournaments/${tournamentId}/bracket`}>
         Ver chaves
       </Link>
     </div>

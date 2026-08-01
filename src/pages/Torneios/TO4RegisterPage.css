@@ -1,9 +1,16 @@
-/* TO4 — Inscrição em torneio (BEAC-1717/BEAC-1990). Self-contained: redefine
- * as classes genéricas que esta página usa (.pg-head/.dash-body/.card/
- * .inv-row) em vez de depender de outra página já ter carregado o CSS
- * equivalente — mesmo padrão de Financeiro.css/DayUseConfigPage.css. Valores
- * copiados do protótipo real (Artifact "Rallye", `#scr-to4`). Tokens
- * migrados pra Claude Design (BEAC-2055).
+/* TO4 — Inscrição em torneio (BEAC-1717/BEAC-1990), reskin do design system a
+ * partir do Figma "18 · Torneios — Inscrição" (node 175:2269 mobile /
+ * 187:6748 desktop).
+ *
+ * Self-contained: redefine as classes genéricas de cromo que esta página usa
+ * (`.pg-head`/`.dash-body`) em vez de depender de outra página já ter
+ * carregado o CSS equivalente — mesmo padrão de Financeiro.css. Tudo que é
+ * novo leva prefixo `.to4-*`: o bundle é único e nomes genéricos como
+ * `.card`, `.chip` e `.pg-head .back` já colidiram entre telas nesta leva.
+ * `.card`/`.inv-row` saíram daqui justamente por isso (o card de resultados
+ * virou `.to4-partner-results`, a linha virou `.to4-partner-result`), e
+ * `.field`/`.control` vinham de AuthLayout.css, cujo import esta tela não faz
+ * mais desde que o CTA passou a usar `ui/Button`.
  */
 
 .pg-head {
@@ -16,24 +23,24 @@
 .pg-head h1 {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: 18px;
+  font-size: 24px;
   margin: 0;
-}
-.pg-head .back {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  color: var(--text-muted);
-  font-size: 13px;
-  font-weight: 600;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: inherit;
-  padding: 0;
 }
 .pg-head .spacer {
   flex: 1;
+}
+
+/* "‹ Voltar" do frame mobile (175:2309): fica ANTES do `<h1>` no DOM, como no
+   frame, e some no desktop. */
+.to4-back {
+  border: none;
+  background: none;
+  padding: 0;
+  font: var(--type-small);
+  color: var(--text-brand-strong);
+  cursor: pointer;
+  flex-basis: 100%;
+  text-align: left;
 }
 
 .dash-body {
@@ -47,67 +54,223 @@
 .to4-loading {
   padding: var(--space-6);
   color: var(--text-muted);
-  font-size: 13px;
+  font: var(--type-small);
 }
 
-.card {
-  background: var(--surface-card);
+/* Contexto do torneio — 🏆 nome / 💰 taxa (175:2311). Emojis decorativos em
+   `::before`, fora do DOM: entrariam no texto de cada linha sem acrescentar
+   informação (e sujariam qualquer busca pelo nome do torneio). */
+.to4-context {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.to4-context__name {
+  margin: 0;
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+.to4-context__name::before {
+  content: '🏆 ';
+}
+.to4-context__fee {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+.to4-context__fee::before {
+  content: '💰 ';
+}
+
+/* Campo-cartão (175:2314 / 188:2402): rótulo overline em cima, controle sem
+   borda própria embaixo, tudo dentro de um card de surface/card. */
+.to4-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-3) var(--space-4);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+
+/* Dentro do card "ou cadastre manualmente" os campos não repetem o cartão. */
+.to4-field--plain {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
+.to4-field__label {
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+/* O "*" de obrigatório é decorativo: mantê-lo fora do DOM preserva o rótulo
+   acessível exato ("Categoria", não "Categoria *"). */
+.to4-field__label::after {
+  content: ' *';
+}
+.to4-field--plain .to4-field__label::after {
+  content: '';
+}
+
+.to4-field__control {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.to4-select,
+.to4-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  padding: 0;
+  font: 600 15px/1.4 var(--font-body);
+  color: var(--text-heading);
+}
+.to4-select:focus-visible,
+.to4-input:focus-visible {
+  outline: 2px solid var(--interactive-primary);
+  outline-offset: 4px;
+}
+.to4-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.to4-hint {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
 }
 
 .to4-partner-results {
-  padding: 4px;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 4px;
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
 }
 
-.inv-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: none;
-  border: none;
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
-  cursor: pointer;
-  width: 100%;
-  text-align: left;
-  font: inherit;
-  color: inherit;
-  transition: background-color var(--dur-fast);
-}
-.inv-row:hover {
-  background: var(--surface-page);
-}
-.inv-row .iw {
-  flex: 1;
-  min-width: 0;
-}
-.inv-row .iw .nm {
-  font-size: 13.5px;
-  font-weight: 600;
-}
-.inv-row .iw .desc {
-  font-size: 11.5px;
-  color: var(--text-muted);
-  margin-top: 2px;
-}
-
-.to4-summary {
-  padding: 14px 16px;
-  font-size: 13px;
+.to4-partner-result {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 2px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--dur-fast) var(--ease-standard);
 }
-.to4-summary-row {
+.to4-partner-result:hover,
+.to4-partner-result:focus-visible {
+  background: var(--surface-page);
+}
+.to4-partner-result__name {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+.to4-partner-result__email {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* "ou cadastre manualmente" (175:2327): o mesmo card nos dois estados — o
+   teaser (com o link que revela o formulário) e o formulário em si. */
+.to4-manual,
+.to4-manual-teaser {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
 }
-.to4-summary-total {
-  border-top: 1px solid var(--border-default);
-  padding-top: 8px;
-  font-weight: 700;
+.to4-manual__title,
+.to4-manual-teaser__title {
+  margin: 0;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  color: var(--text-muted);
+}
+
+/* Resumo (175:2332): fundo sand, com a taxa em destaque. */
+.to4-summary {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+}
+.to4-summary__title {
+  margin: 0;
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+.to4-summary__row {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-heading);
+}
+.to4-summary__row--total {
+  font: var(--type-subtitle);
+  color: var(--text-brand-strong);
+}
+
+.to4-footnote {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop — mesma coluna, mais larga (frame 187:6748)
+
+   Nenhuma tabela e nenhum bloco reordenado: só a coluna passa de 520 para
+   640px, a tipografia sobe e o "‹ Voltar" some (a sidebar do AppShell já é a
+   navegação). Mesmo padrão de F3InvoiceDetailPage.css.
+
+   breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) é a fonte canônica.
+   -------------------------------------------------------------------------- */
+@media (min-width: 860px) {
+  .to4-back {
+    display: none;
+  }
+
+  /* Seletor duplo (0,2,0) de propósito: o `max-width` de `.dash-body` é
+     declarado em ~20 CSS de página, todos com especificidade de uma classe.
+     Mesma nota de src/styles/utilities.css. */
+  .dash-body.to4-body {
+    max-width: 640px;
+  }
+
+  .to4-context__name {
+    font: var(--type-subtitle);
+  }
+
+  .to4-context__fee,
+  .to4-summary__row,
+  .to4-hint,
+  .to4-footnote {
+    font: var(--type-body);
+  }
+
+  .to4-summary__title {
+    font: var(--type-subtitle);
+  }
+
+  .to4-select,
+  .to4-input {
+    font: 600 16px/1.4 var(--font-body);
+  }
 }

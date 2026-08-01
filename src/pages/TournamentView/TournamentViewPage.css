@@ -44,6 +44,166 @@
   font-size: 15px;
 }
 
+/* ---------------------------------------------------------------------------
+   Reskin design system — Figma "17 · Torneios — Detalhe" (node 174:2319
+   mobile / 187:6729 desktop). Tudo que é novo leva prefixo `.tv-*`: o bundle
+   CSS é único e nomes genéricos (`.card`, `.chip`, `.pg-head .back`) já
+   colidiram entre telas nesta leva.
+
+   As classes genéricas antigas deste arquivo (`.card`, `.hint`, `.stack`,
+   `.btn*`, `.cat-row`) FICAM declaradas: ao contrário de `.to-card`/
+   `.to-list` em TournamentsListPage.css, elas são usadas por dezenas de
+   outras telas que dependem de alguma declaração no bundle — remover daqui
+   seria mexer em telas fora do escopo desta task. `.ptabs` idem (4 outras
+   páginas usam), embora esta tela tenha passado a usar `ui/Tabs`.
+   -------------------------------------------------------------------------- */
+
+/* "‹ Voltar" — só no frame mobile (174:2358). Nome próprio (`.tv-back`) e
+   não `.pg-head .back`, que já colidiu entre páginas nesta leva. */
+.tv-back {
+  border: none;
+  background: none;
+  padding: 0;
+  font: var(--type-small);
+  color: var(--text-brand-strong);
+  cursor: pointer;
+}
+
+/* Faixa do topo (174:2359 / 187:6950): surface/sunken, 90px, troféu + nome. */
+.tv-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 90px;
+  margin: 0 var(--space-6) var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-sunken);
+}
+.tv-banner__glyph {
+  font-size: 20px;
+  line-height: 1;
+}
+.tv-banner__name {
+  font: var(--type-subtitle);
+  color: var(--text-heading);
+}
+
+.tv-meta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding: var(--space-4) var(--space-5);
+  list-style: none;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  font: var(--type-small);
+  color: var(--text-heading);
+}
+
+.tv-meta__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Marcadores do frame — decorativos, por isso em `::before` e não no DOM:
+   entrariam no nome acessível de cada item sem acrescentar informação. A
+   linha do esporte não tem `::before`: o seu marcador é o dot colorido do
+   `SportTag`, componente de verdade do DS. */
+.tv-meta__item--dates::before {
+  content: '📅';
+}
+.tv-meta__item--courts::before {
+  content: '🏐';
+}
+.tv-meta__item--fee::before {
+  content: '💰';
+}
+
+.tv-tabs {
+  padding: 0 var(--space-6);
+  margin-bottom: var(--space-4);
+}
+
+.tv-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+}
+
+.tv-card__title {
+  margin: 0;
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+
+.tv-card__text {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.tv-cats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tv-cats__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font: var(--type-small);
+  color: var(--text-heading);
+}
+
+/* Marcador "•" do frame (174:2384) — decorativo, fora do DOM. */
+.tv-cats__name::before {
+  content: '• ';
+}
+
+.tv-cats__value {
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* CTA do frame (174:2393 / Button Primary/Large 289:6194) aplicado a um
+   `<Link>` — ver comentário no InfoTab sobre por que não é `ui/Button`. */
+.tv-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--control-h-lg, 54px);
+  padding: 0 28px;
+  border-radius: var(--radius-pill);
+  background: var(--interactive-primary);
+  color: var(--text-on-brand);
+  font: var(--type-subtitle);
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease-standard);
+}
+.tv-cta:hover,
+.tv-cta:focus-visible {
+  background: var(--interactive-primary-hover);
+}
+
+.tv-footnote {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
 .prof-head {
   display: flex;
   gap: 14px;
@@ -217,4 +377,69 @@
   border: 1.5px solid var(--border-default);
   color: var(--text-heading);
   font-family: var(--font-body);
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop — mesma coluna, mais larga (frame 187:6729)
+
+   O frame desktop é o MESMO layout do mobile: nenhuma tabela, nenhum bloco
+   reordenado. Só três coisas mudam — a coluna vai de 560 para 780px, a
+   tipografia do título/cards sobe, e o "‹ Voltar" some (a sidebar do
+   AppShell já é a navegação). Mesmo padrão de F3InvoiceDetailPage.css.
+
+   breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) é a fonte canônica —
+   é onde o AppShell troca bottom-nav por sidebar.
+   -------------------------------------------------------------------------- */
+@media (min-width: 860px) {
+  .tournament-view-page .tv-back {
+    display: none;
+  }
+
+  /* Seletor com o escopo da página (0,2,0) de propósito: `max-width: 560px`
+     é declarado em ~20 `.dash-body` do bundle, todos com especificidade de
+     uma classe. Ver a mesma nota em src/styles/utilities.css. */
+  /* `.pg-head` entra na conta pra que o botão de compartilhar (alinhado à
+     direita por `.spacer`) pare na borda da coluna de conteúdo, e não a
+     1440px do viewport. */
+  .tournament-view-page .pg-head,
+  .tournament-view-page .dash-body,
+  .tournament-view-page .tv-banner,
+  .tournament-view-page .prof-head,
+  .tournament-view-page .tv-tabs {
+    max-width: 828px;
+  }
+
+  .tournament-view-page .tv-banner {
+    min-height: 90px;
+    padding: var(--space-6);
+  }
+
+  .tournament-view-page .tv-banner__name {
+    font: var(--type-title);
+  }
+
+  .tournament-view-page .ph-main h1 {
+    font-size: 30px;
+  }
+
+  .tournament-view-page .tv-meta {
+    font: var(--type-body);
+  }
+
+  .tournament-view-page .tv-card {
+    padding: var(--space-5);
+  }
+
+  .tournament-view-page .tv-card__title {
+    font: var(--type-subtitle);
+  }
+
+  .tournament-view-page .tv-card__text,
+  .tournament-view-page .tv-cats__row {
+    font: var(--type-body);
+  }
+
+  .tournament-view-page .tv-cta {
+    width: 100%;
+  }
 }

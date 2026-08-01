@@ -154,9 +154,13 @@ describe('TournamentViewPage — header', () => {
 
     expect(await screen.findByRole('heading', { name: /Copa Areia Dourada/ })).toBeInTheDocument()
     expect(screen.getByText('AO VIVO')).toBeInTheDocument()
-    expect(
-      await screen.findByText(/Beach tennis · aberto · 12–14 jul · Q1 e Q2 · taxa/),
-    ).toBeInTheDocument()
+    // Reskin (Figma 174:2362): o bloco de metadados virou uma linha por
+    // informação, em vez de uma única linha com " · " entre tudo.
+    expect(screen.getByText('Beach tennis')).toBeInTheDocument()
+    expect(screen.getByText('aberto')).toBeInTheDocument()
+    expect(screen.getByText('12–14 jul')).toBeInTheDocument()
+    expect(await screen.findByText('Q1 e Q2')).toBeInTheDocument()
+    expect(screen.getByText('R$ 80,00 / dupla')).toBeInTheDocument()
   })
 
   it('omits the AO VIVO badge when the tournament is not em_andamento', async () => {

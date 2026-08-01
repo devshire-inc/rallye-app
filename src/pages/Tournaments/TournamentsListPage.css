@@ -1,11 +1,19 @@
-/* TO1 — Lista de Torneios (BEAC-1984). Classes traduzidas do protótipo real
-   (`scr-to1`, ver comentário de pacote em TournamentsListPage.tsx) —
-   `.tabs2`/`.to-card`/`.sec-head`, self-contained (não assume que outra
-   página já carregou o CSS equivalente), mesmo padrão de
-   TurmasListPage.css/TournamentViewPage.css. Tokens migrados pra Claude
-   Design (BEAC-2055) — `.btn`/`.btn-primary` removidos daqui: já vêm de
-   AuthLayout.css (importado por TournamentsListPage.tsx), redefini-los aqui
-   era puro código morto duplicado. */
+/* TO1 — Lista de Torneios (BEAC-1984), reskin do design system a partir do
+   Figma "16 · Torneios — Lista" (node 174:2231 mobile / 187:6710 desktop /
+   187:7052 vazio).
+
+   As classes antigas traduzidas do protótipo (`.tabs2`, `.to-card`,
+   `.to-list`, `.sec-head`, `.live-dot`, `.hint`) saíram daqui: `.tabs2` foi
+   substituída por `ui/Tabs` e o card por `.trn-card` (SportTag + Badge do
+   DS). `.tabs2`/`.sec-head`/`.live-dot` continuam declaradas em outros CSS
+   de página que de fato as usam (DayUseConfigPage.css, TeacherProfilePage.css,
+   TournamentViewPage.css), então o que se removeu aqui era duplicata morta —
+   mesma limpeza já feita com `.btn`/`.btn-primary` neste arquivo.
+
+   `.pg-head`/`.dash-body` FICAM: são o cromo de página que esta tela
+   desenha, replicado (com o mesmo valor) por ~20 CSS de página. Prefixo
+   `.trn-*` em tudo que é novo — o bundle é único e nomes genéricos como
+   `.card`/`.chip` já colidiram entre telas nesta leva. */
 
 .pg-head {
   display: flex;
@@ -31,124 +39,178 @@
   padding: 0 var(--space-6) var(--space-6);
 }
 
-.tabs2 {
+/* ---------------------------------------------------------------------------
+   Grupos por status
+   -------------------------------------------------------------------------- */
+
+.trn-groups {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--space-5);
+  align-content: start;
+}
+
+.trn-group {
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.trn-group__title {
+  margin: 0;
+  font: var(--type-overline);
+  letter-spacing: var(--tracking-overline);
+  text-transform: uppercase;
+}
+
+/* Emoji decorativo do frame mobile — em `::before` e não no DOM, pra não
+   entrar no nome acessível do heading. */
+.trn-group__title::before {
+  content: var(--trn-group-glyph, '');
+  margin-right: var(--space-1);
+}
+
+.trn-group--live .trn-group__title {
+  --trn-group-glyph: '🔴 ';
+  color: var(--state-danger-text);
+}
+.trn-group--open .trn-group__title {
+  --trn-group-glyph: '📋 ';
+  color: var(--state-warning-text);
+}
+.trn-group--closed .trn-group__title {
+  --trn-group-glyph: '✅ ';
+  color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Card de torneio
+   -------------------------------------------------------------------------- */
+
+.trn-card {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  width: 100%;
+  padding: var(--space-4);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+  font-family: var(--font-body);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard);
+}
+
+.trn-card:hover,
+.trn-card:focus-visible {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow-raised);
+}
+
+/* Frame 174:2283: o card ao vivo é o único com borda colorida (1.5px). */
+.trn-card--live {
+  border-width: 1.5px;
+  border-color: var(--state-danger);
+}
+.trn-card--live:hover,
+.trn-card--live:focus-visible {
+  border-color: var(--state-danger-text);
+}
+
+.trn-card__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
-.tabs2 button {
-  padding: 7px 15px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border-default);
-  background: var(--surface-card);
-  color: var(--text-muted);
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
-}
-.tabs2 button.active {
-  background: var(--sand-200);
-  border-color: var(--sand-200);
+
+.trn-card__title {
+  font: var(--type-heading);
   color: var(--text-heading);
 }
 
-.sec-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 10px;
-}
-.sec-head h2 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 14px;
-  margin: 0;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.sec-head h2.live {
-  color: var(--state-danger);
-}
-.sec-head h2.teal {
-  color: var(--interactive-primary);
-}
-.sec-head h2.muted {
+.trn-card__meta {
+  font: var(--type-small);
   color: var(--text-muted);
 }
 
-.live-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--state-danger);
-  display: inline-block;
+.trn-card__champion {
+  font: var(--type-label);
+  color: var(--state-success-text);
 }
 
-.to-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+.trn-card__countdown {
+  font: var(--type-label);
+  color: var(--state-warning-text);
 }
 
-.to-card {
-  display: flex;
-  gap: 12px;
-  background: var(--surface-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  padding: 14px 16px;
-  cursor: pointer;
-  align-items: center;
-  width: 100%;
-  text-align: left;
-  font-family: var(--font-body);
-}
-.to-card:hover {
-  border-color: var(--interactive-primary);
-}
-.to-card.is-live {
-  border-color: var(--state-danger);
-}
-.to-card .strip {
-  width: 4px;
-  align-self: stretch;
-  border-radius: 999px;
-  flex: none;
-}
-.to-card .tm {
-  flex: 1;
-  min-width: 0;
-}
-.to-card h3 {
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 15px;
-  margin: 0 0 2px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.to-card .mt {
-  font-size: 11.5px;
-  color: var(--text-muted);
-}
-.to-card .tail {
-  text-align: right;
-  flex: none;
-  font-size: 11px;
-  color: var(--text-muted);
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 4px;
+.trn-card__status {
+  display: inline-flex;
 }
 
-.hint {
-  font-size: 12.5px;
-  color: var(--text-muted);
-  margin: 6px 0 0;
+/* ---------------------------------------------------------------------------
+   Estado vazio (frame 16b, node 187:7052)
+   -------------------------------------------------------------------------- */
+
+.trn-empty {
+  display: flex;
+  justify-content: center;
+}
+
+.trn-empty__glyph {
+  font-size: 36px;
+  line-height: 1;
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop — grid de cards (frame 187:6710)
+
+   O frame desktop não tem tabela: os quatro cards fluem num grid de 344px,
+   sem os títulos de seção do mobile. `display: contents` dissolve o wrapper
+   de cada seção para que TODOS os cards sejam itens do mesmo grid,
+   preservando a ordem ao vivo -> abertas -> encerrados. O `<h2>` continua no
+   DOM, só que fora da tela: o frame não o mostra, mas remover o heading
+   tiraria o agrupamento de quem navega a página por headings.
+
+   breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) — é o ponto em que a
+   sidebar do AppShell aparece e a coluna de conteúdo passa a ter largura pra
+   duas colunas de card. NÃO é BREAKPOINT_TABLE_MIN: aquele existe pro
+   padrão "cards -> tabela", que esta tela não adota.
+   -------------------------------------------------------------------------- */
+@media (min-width: 860px) {
+  /* Seletor duplo de propósito (0,2,0): `max-width: 560px` é declarado em
+     ~20 `.dash-body` espalhados pelo bundle, todos com especificidade de uma
+     classe só. Mesma razão documentada em `.dash-body--wide`
+     (src/styles/utilities.css) — que NÃO serve aqui porque é gatilhada por
+     `:has(table)`. O gatilho equivalente desta tela é o grid de cards, então
+     os empty states continuam na coluna estreita. */
+  .dash-body.trn-body:has(.trn-groups) {
+    max-width: none;
+  }
+
+  .trn-groups {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: var(--space-6);
+  }
+
+  .trn-group {
+    display: contents;
+  }
+
+  .trn-group__title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
 }
