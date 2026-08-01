@@ -41,15 +41,30 @@ const meta = {
   tags: ['autodocs'],
   argTypes: {
     hover: { control: 'boolean' },
-    selected: { control: 'boolean' },
+    /* `undefined` = linha não selecionável (tabela estática) e nenhum
+       `aria-selected` no `<tr>`; `false`/`true` = linha selecionável. Por
+       isso o controle é radio com as três opções, e não um booleano — o
+       default do componente é justamente a ausência do atributo. */
+    selected: {
+      control: 'radio',
+      options: [undefined, false, true],
+      labels: { undefined: 'undefined (não selecionável)', false: 'false', true: 'true' },
+    },
   },
   args: {
     hover: false,
-    selected: false,
   },
   decorators: [
-    (Story) => (
-      <table className="table-row-story__table">
+    (Story, context) => (
+      /* `role="grid"` só quando a linha é selecionável: `aria-selected` não
+         é válido em `role="row"` de tabela estática. Espelha a regra que o
+         consumidor real precisa seguir. */
+      <table
+        className="table-row-story__table"
+        role={
+          context.args.selected !== undefined || context.parameters.selectable ? 'grid' : undefined
+        }
+      >
         <tbody>
           <Story />
         </tbody>
@@ -79,9 +94,16 @@ export const Playground: Story = {
 
 /** State=Default|Hover|Selected — espelha o frame "Table Row" (node 202:369)
  * do Figma. Selected carrega os dois sinais exigidos pelo doc de a11y: a
- * barra esquerda visível e aria-selected (inspecionável na aba Accessibility
- * do Storybook), nunca só o fundo. */
+ * barra esquerda visível e `aria-selected="true"` (inspecionável na aba
+ * Accessibility do Storybook), nunca só o fundo.
+ *
+ * As duas primeiras linhas NÃO emitem `aria-selected` — o atributo só sai
+ * quando `selected` é passado, porque em tabela estática (`role="row"` fora
+ * de grid/treegrid) ele é inválido. Como esta story mostra uma linha
+ * selecionada, a `<table>` do decorator assume `role="grid"`
+ * (`parameters.selectable`), que é o que o consumidor real precisa fazer. */
 export const States: Story = {
+  parameters: { selectable: true },
   render: () => (
     <>
       <TableRow>

@@ -48,7 +48,9 @@ function formatDate(iso: string): string {
  * Layout duplo (BEAC — paridade com o Figma desktop): o frame Desktop
  * (186:2170) troca os cards por uma tabela (DESCRIÇÃO/VALOR/DATA/STATUS +
  * coluna de ação), então esta tela renderiza os DOIS layouts e alterna por
- * CSS em `BREAKPOINT_SHELL_DESKTOP_MIN` (860px, src/lib/breakpoints.ts) —
+ * CSS em `BREAKPOINT_TABLE_MIN` (1220px, src/lib/breakpoints.ts — NÃO o
+ * breakpoint do shell: a 860 a sidebar já existe mas a coluna de conteúdo
+ * ainda não comporta as 5 colunas, e a tabela nasceria rolando) —
  * mesmo mecanismo já usado por TrocarArenaPage (back button mobile vs
  * breadcrumb desktop) e pelo próprio AppShell (bottom-nav vs sidebar), em
  * vez de `matchMedia` em JS: sem flash de layout na primeira pintura e sem
@@ -121,12 +123,14 @@ export default function F5MyInvoicesPage() {
         <h1>Minhas Faturas</h1>
       </div>
 
-      {/* `invoices-body`: a partir de 860px esta tela solta o
-          `max-width: 560px` que `.dash-body` carrega globalmente (regra
-          mobile-first replicada por várias páginas), senão a tabela do
-          desktop caberia em ~512px num viewport de 1440 — metade da
-          largura do frame 186:2170. Ver Financeiro.css. */}
-      <div className="dash-body invoices-body">
+      {/* `dash-body--wide` (utilitário global, src/styles/utilities.css):
+          solta o `max-width: 560px` que `.dash-body` carrega globalmente
+          (regra mobile-first replicada por ~20 CSS de página), senão a
+          tabela do desktop caberia em ~512px num viewport de 1440 — metade
+          da largura do frame 186:2170. O utilitário só solta onde há
+          `<table>` no DOM, então os empty states continuam centrados na
+          coluna estreita. */}
+      <div className="dash-body dash-body--wide">
         <Tabs
           tabs={['Abertas', 'Pagas']}
           value={tab === 'abertas' ? 'Abertas' : 'Pagas'}
@@ -304,7 +308,7 @@ const INVOICE_TABLE_BADGE_LABEL: Record<InvoiceStatus, string> = {
 
 /**
  * Tabela de faturas do desktop (Figma node 186:3918 "Tabela · Faturas"),
- * escondida abaixo de `BREAKPOINT_SHELL_DESKTOP_MIN` — ver `.invoice-table`
+ * escondida abaixo de `BREAKPOINT_TABLE_MIN` — ver `.invoice-table`
  * em Financeiro.css. Montada aqui com `TableHeaderCell` + `TableRow` do DS
  * (primeiro uso real dos dois): o Rallye DS não expõe um `<Table>` fechado,
  * a tabela é composta na tela (Table / Documentation, node 239:382), então

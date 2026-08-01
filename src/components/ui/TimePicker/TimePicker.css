@@ -18,7 +18,8 @@
 }
 
 /* "Contagem de colunas é responsiva, não é variante" (node 74:2) — 4 no
-   desktop, 3 no mobile, quando o caller não fixa `columns` explicitamente. */
+   desktop, 3 no mobile, quando o caller não fixa `columns` explicitamente.
+   breakpoints.ts: BREAKPOINT_TABLET_MIN é a fonte canônica deste valor */
 @media (max-width: 640px) {
   .time-picker__grid {
     grid-template-columns: repeat(3, 1fr);

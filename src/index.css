@@ -1,4 +1,8 @@
 @import './styles/tokens/index.css';
+/* Utilitários globais de layout (ver o arquivo pra regra de admissão). Vem
+   depois dos tokens porque os consome, e antes de qualquer CSS de página
+   porque esses são importados pelos componentes. */
+@import './styles/utilities.css';
 
 :root {
   color-scheme: light;

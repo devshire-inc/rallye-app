@@ -1,0 +1,43 @@
+/* Utilitários globais de layout — carregados por src/index.css (logo após os
+   tokens), portanto disponíveis em qualquer página sem import próprio.
+
+   Regra de admissão deste arquivo: só entra aqui o que (a) resolve um
+   problema que TODA tela de um mesmo padrão vai ter e (b) não pertence a
+   nenhum componente do DS. Estilo de componente continua morando no
+   componente; estilo de uma tela só continua no CSS daquela tela. */
+
+/* ---------------------------------------------------------------------------
+   `.dash-body--wide` — solta a coluna estreita onde a tela renderiza tabela.
+
+   Contexto: `.dash-body` carrega `max-width: 560px` como regra global
+   mobile-first — declarada, com o mesmo valor, em ~20 CSS de página
+   (SettingsPage.css, MembersPage.css, UnitsPage.css, …), todos no bundle.
+   Serve pros layouts de card, mas espreme qualquer tabela desktop (a de F5
+   nascia com 512px num viewport de 1440, contra os ~1040 do Figma).
+
+   QUANDO USAR: em toda tela que adote o padrão "cards no mobile, tabela no
+   desktop". Basta acrescentar a classe ao `.dash-body` da página —
+   `<div className="dash-body dash-body--wide">` — e nada mais; não é preciso
+   repetir o hack por página.
+
+   COMO SE COMPORTA:
+   - `:has(table)` restringe a soltura aos estados que de fato têm tabela.
+     Nos empty states (sem `<table>` no DOM) a coluna continua com 560px, que
+     é onde o bloco do `ui/EmptyState` (320px fixos) fica centrado — sem isso
+     ele ficaria encostado à esquerda de uma coluna de 1220px.
+   - A soltura vale só a partir de BREAKPOINT_TABLE_MIN, o mesmo ponto em que
+     o padrão troca cards por tabela. Abaixo dele a tabela está `display:
+     none` mas continua no DOM (a troca é 100% CSS, ver Financeiro.css), e
+     `:has()` casaria mesmo assim — o gate por `@media` é o que impede o
+     mobile de perder a coluna estreita.
+   - Seletor duplo (`.dash-body.dash-body--wide`) de propósito: as ~20
+     declarações de `.dash-body` têm a mesma especificidade de uma classe, e
+     a ordem em que os CSS de página entram no bundle não é garantida. Com
+     0,2,0 o utilitário vence sempre, venha de onde vier o `max-width`.
+   -------------------------------------------------------------------------- */
+/* breakpoints.ts: BREAKPOINT_TABLE_MIN é a fonte canônica deste valor */
+@media (min-width: 1220px) {
+  .dash-body.dash-body--wide:has(table) {
+    max-width: none;
+  }
+}

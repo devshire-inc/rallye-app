@@ -514,19 +514,30 @@
    Esta é a primeira tela do app com um layout desktop estruturalmente
    diferente do mobile, então vale o contrato: os DOIS layouts ficam no DOM
    e a troca é só de CSS no breakpoint — nada de `matchMedia` em JS. Abaixo
-   de 860px vale o card (`.invoice-card`, frame mobile 159:1702, inalterado);
-   a partir de 860px o card some e entra a tabela. `display: contents` no
-   wrapper dos cards mantém `.group-header`/`.ag-list` como filhos diretos
-   do `.dash-body` (flex column com gap), ou seja: espaçamento mobile
-   idêntico ao de antes deste wrapper existir.
+   de BREAKPOINT_TABLE_MIN vale o card (`.invoice-card`, frame mobile
+   159:1702, inalterado); a partir dele o card some e entra a tabela.
+   `display: contents` no wrapper dos cards mantém `.group-header`/`.ag-list`
+   como filhos diretos do `.dash-body` (flex column com gap), ou seja:
+   espaçamento mobile idêntico ao de antes deste wrapper existir.
+
+   O breakpoint de troca NÃO é o do shell (860, sidebar vs bottom-nav): a
+   860 a sidebar já existe mas a coluna de conteúdo tem só 460px, e a tabela
+   nasceria rolando na horizontal com a coluna de ação fora da viewport. A
+   troca usa BREAKPOINT_TABLE_MIN (1220 = 820px de tabela + 400px de cromo
+   do shell) — a conta e a medição estão em src/lib/breakpoints.ts. O
+   AppShell continua trocando sidebar/bottom-nav em 860, independente disto.
+
+   A soltura do `max-width: 560px` de `.dash-body` NÃO mora mais aqui: virou
+   o utilitário compartilhado `.dash-body--wide` (src/styles/utilities.css),
+   que toda tela deste padrão consome.
 
    As células são compostas aqui com ui/TableHeaderCell + ui/TableRow (que
    já trazem altura, padding lateral, fundo, borda do header e os estados
    default/hover/selected) — este arquivo só cuida do container da tabela,
    das larguras de coluna e da tipografia por coluna. */
 
-/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
-@media (max-width: 859px) {
+/* breakpoints.ts: BREAKPOINT_TABLE_MIN é a fonte canônica deste valor */
+@media (max-width: 1219px) {
   .invoice-table {
     display: none;
   }
@@ -536,39 +547,21 @@
   display: contents;
 }
 
-/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
-@media (min-width: 860px) {
+/* breakpoints.ts: BREAKPOINT_TABLE_MIN é a fonte canônica deste valor */
+@media (min-width: 1220px) {
   .invoices-cards {
     display: none;
   }
 }
 
-/* `.dash-body` carrega `max-width: 560px` como regra global (mobile-first,
-   replicada por várias páginas). Serve pros cards, mas engessava a tabela
-   em ~512px num viewport de 1440 — o frame 186:2170 mostra a tabela
-   ocupando toda a coluna de conteúdo (~1040px). Só esta tela solta a
-   trava, e só a partir do breakpoint desktop; abaixo dele o mobile
-   continua com a mesma largura de sempre.
-
-   `:has(.invoice-table)` (mesmo recurso já usado por AuthLayout.css/
-   Switch.css/Select.css) restringe a soltura aos estados que realmente
-   têm tabela: nos empty states (`EmptyState`, bloco fixo de 320px) a
-   coluna continua com os 560px de sempre, senão o bloco ficaria encostado
-   à esquerda de uma coluna de 1040px. */
-/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
-@media (min-width: 860px) {
-  .dash-body.invoices-body:has(.invoice-table) {
-    max-width: none;
-  }
-}
-
 .invoice-table {
   width: 100%;
-  /* `auto` (e não `hidden`): entre 860px e ~1100px a coluna de conteúdo
-     ainda é estreita demais pras 5 colunas, e com `table-layout: fixed` o
-     texto transbordava a célula e colidia com a vizinha (DATA por cima de
-     STATUS). Com `min-width` na tabela, o excedente vira rolagem
-     horizontal dentro do card em vez de sobreposição. */
+  /* `auto` (e não `hidden`): rede de segurança pra tabela nunca sobrepor
+     texto de uma célula na vizinha (com `table-layout: fixed` e
+     `overflow: hidden` no container era o que acontecia). Com o
+     `min-width` abaixo, qualquer aperto vira rolagem dentro do card. Com
+     BREAKPOINT_TABLE_MIN a tabela já nasce cabendo, então na prática esta
+     rolagem não aparece — ela só existe pra janelas/zoom fora do previsto. */
   overflow-x: auto;
   background: var(--surface-card);
   border: 1px solid var(--border-default);
@@ -577,7 +570,17 @@
 
 .invoice-table__table {
   width: 100%;
-  min-width: 720px;
+  /* 818px é a largura medida em que a última coluna que NÃO trunca por
+     design para de transbordar a célula: DATA (`white-space: nowrap`,
+     "venceu 10/07/2026") a 16% precisa de ~131px, e só os tem a partir daí
+     (em 808 ainda sobram 3px). DESCRIÇÃO é a única que trunca de propósito
+     (ellipsis), então não entra na conta.
+
+     818 + 2 (as bordas de 1px do `.invoice-table`) = 820 de container, e
+     820 + 400 de cromo do shell = BREAKPOINT_TABLE_MIN (1220). Os três
+     números são a mesma medida vista de lugares diferentes — se um mudar,
+     mudam todos. */
+  min-width: 818px;
   border-collapse: collapse;
   table-layout: fixed;
 }

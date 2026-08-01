@@ -35,11 +35,28 @@ describe('TableRow', () => {
     expect(screen.getByText('Coluna C')).toBeInTheDocument()
   })
 
-  it('defaults to aria-selected="false" and the default-state class', () => {
+  it('omits aria-selected entirely when the row is not selectable (default)', () => {
+    // `aria-selected` não é suportado em `role="row"` fora de grid/treegrid:
+    // emitir "false" em toda linha de toda tabela estática é ARIA inválido.
     render(
       <table>
         <tbody>
           <TableRow>
+            <td>Linha</td>
+          </TableRow>
+        </tbody>
+      </table>,
+    )
+    const row = screen.getByText('Linha').closest('tr')!
+    expect(row).not.toHaveAttribute('aria-selected')
+    expect(row.className).toContain('table-row--default')
+  })
+
+  it('emits aria-selected="false" when the row is selectable but not selected', () => {
+    render(
+      <table role="grid">
+        <tbody>
+          <TableRow selected={false}>
             <td>Linha</td>
           </TableRow>
         </tbody>
@@ -65,7 +82,7 @@ describe('TableRow', () => {
 
   it('applies aria-selected="true" and the selected-state class when selected is true', () => {
     render(
-      <table>
+      <table role="grid">
         <tbody>
           <TableRow selected>
             <td>Linha</td>
@@ -96,7 +113,9 @@ describe('TableRow', () => {
   it('CSS: selected state carries both the soft background AND the 3px left accent bar (never bg-only)', () => {
     const css = readFileSync('src/components/ui/TableRow/TableRow.css', 'utf8')
     expect(css).toMatch(/\.table-row--selected\s*{[^}]*background:\s*var\(--surface-brand-soft\);/)
-    expect(css).toMatch(/\.table-row--selected\s*{[^}]*border-left-color:\s*var\(--interactive-primary\);/)
+    expect(css).toMatch(
+      /\.table-row--selected\s*{[^}]*border-left-color:\s*var\(--interactive-primary\);/,
+    )
     expect(css).toMatch(/border-left:\s*3px solid transparent/)
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
