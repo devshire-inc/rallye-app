@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
 import { AppShell } from '../../components/AppShell/AppShell'
 import { Chip } from '../../components/ui/Chip/Chip'
@@ -20,7 +20,7 @@ import { formatBRL } from '../../lib/money'
 import { storeCatalogQueryOptions, storeFailureOf } from '../../lib/query/store'
 import { SPORTS, sportCssVar } from '../../lib/sports'
 import { CartLink } from './CartLink'
-import { storeProductPath } from './routes'
+import { storeProductPath, STORE_ORDERS_PATH } from './routes'
 import './Loja.css'
 
 /** Os cinco esportes que o backend aceita em `?sport=`. `outro` existe no
@@ -117,6 +117,13 @@ export default function StoreCatalogPage() {
       <div className="pg-head shop-head">
         <h1>Loja</h1>
         <div className="spacer" />
+        {/* Entrada para a tela 27. O frame 22 não a desenha (o protótipo não
+            liga 27 a nenhuma tela), mas "Meus Pedidos" precisa de um caminho
+            que não seja fechar um pedido novo — e o item "Loja" da nav aparece
+            ativo no frame 27 desktop, ou seja, ela vive dentro desta seção. */}
+        <Link className="shop-head-link" to={STORE_ORDERS_PATH}>
+          Meus pedidos
+        </Link>
         <CartLink />
       </div>
 

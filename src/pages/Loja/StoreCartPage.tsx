@@ -12,7 +12,7 @@ import { getActiveUnitId } from '../../lib/tenantContext'
 import type { CartGroup, CartItem } from '../../lib/api/store'
 import { formatBRL } from '../../lib/money'
 import { cartQueryOptions } from '../../lib/query/store'
-import { storeCatalogPath } from './routes'
+import { storeCatalogPath, storeCheckoutPath } from './routes'
 import './Loja.css'
 
 /** Teto do backend por linha de carrinho (`ON CONFLICT DO UPDATE`, faixa
@@ -60,15 +60,17 @@ const MAX_QUANTITY = 99
  * indisponível — esconder o item deixaria o usuário sem entender por que o
  * fechamento está bloqueado, e ele precisa poder removê-la.
  *
- * ## Fora de escopo desta leva (checkout — telas 25/26/27)
+ * ## "FINALIZAR COMPRA" — um botão por arena, não um por carrinho
  *
- * `POST /me/store/orders` existe no backend, mas as telas de confirmação,
- * pagamento e "meus pedidos" não. "FINALIZAR COMPRA" fica visível e
- * desabilitado, com o motivo escrito ao lado: renderizar um botão que leva a
- * lugar nenhum seria pior, e removê-lo esconderia que o fluxo continua. Não é
- * um gate de permissão (onde a regra do projeto é "esconder, nunca
- * desabilitar") — é uma funcionalidade que ainda não existe, e dizê-lo é a
- * informação honesta.
+ * O checkout (tela 25) existe, e fecha UMA arena por vez. Com um grupo só, o
+ * botão do rodapé do frame vale como está e leva a
+ * `/store/checkout/{unitId}`. Com mais de um, um único botão de rodapé teria
+ * de escolher a arena sozinho — então o CTA desce para dentro de cada grupo,
+ * nomeando arena e subtotal, e o rodapé fica só com a explicação. O aviso de
+ * arenas diferentes que já estava aqui é exatamente o que torna isso legível.
+ *
+ * Em qualquer dos dois casos o botão respeita o `checkoutable` do GRUPO: com
+ * um item indisponível o backend recusaria o fechamento, e a tela para antes.
  */
 export default function StoreCartPage() {
   const { orgLabel, userLabel } = useShellIdentity()
@@ -121,6 +123,8 @@ export default function StoreCartPage() {
                 key={group.unitId}
                 group={group}
                 disabled={pending}
+                showCheckout={cart.unitCount > 1}
+                onCheckout={() => navigate(storeCheckoutPath(group.unitId))}
                 onQuantity={(itemId, quantity) =>
                   runMutation(() => setQuantity({ itemId, quantity }))
                 }
@@ -146,18 +150,27 @@ export default function StoreCartPage() {
               </div>
             </div>
 
-            <Button
-              variant="primary"
-              size="lg"
-              fullWidth
-              disabled
-              title="O fechamento do pedido ainda não está disponível."
-            >
-              FINALIZAR COMPRA
-            </Button>
-            <p className="shop-cart-note">
-              O fechamento do pedido chega em breve — seus itens continuam salvos aqui.
-            </p>
+            {/* Um checkout fecha UMA arena (`POST /me/store/orders` recebe
+                `{unit_id}`). Com uma arena só, o botão do frame vale como
+                está; com mais de uma, um único "FINALIZAR COMPRA" teria de
+                escolher a arena por conta própria — então o CTA desce para
+                dentro de cada grupo, nomeando arena e subtotal, e o rodapé
+                fica só com a explicação. */}
+            {cart.unitCount === 1 ? (
+              <Button
+                variant="primary"
+                size="lg"
+                fullWidth
+                disabled={!cart.groups[0]?.checkoutable}
+                onClick={() => navigate(storeCheckoutPath(cart.groups[0]!.unitId))}
+              >
+                FINALIZAR COMPRA
+              </Button>
+            ) : (
+              <p className="shop-cart-note">
+                Cada arena tem seu próprio fechamento — use o botão dentro do grupo da arena.
+              </p>
+            )}
           </>
         ) : null}
       </div>
@@ -170,11 +183,15 @@ export default function StoreCartPage() {
 function CartGroupSection({
   group,
   disabled,
+  showCheckout,
+  onCheckout,
   onQuantity,
   onRemove,
 }: {
   group: CartGroup
   disabled: boolean
+  showCheckout: boolean
+  onCheckout: () => void
   onQuantity: (itemId: string, quantity: number) => void
   onRemove: (itemId: string) => void
 }) {
@@ -193,6 +210,18 @@ function CartGroupSection({
           onRemove={onRemove}
         />
       ))}
+      {showCheckout ? (
+        <Button
+          variant="primary"
+          size="md"
+          fullWidth
+          disabled={disabled || !group.checkoutable}
+          onClick={onCheckout}
+        >
+          FINALIZAR COMPRA — {formatBRL(group.subtotal)}
+          <span className="shop-sr-only">, {group.unitName}</span>
+        </Button>
+      ) : null}
     </section>
   )
 }

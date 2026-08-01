@@ -24,12 +24,15 @@
 import { queryOptions, type QueryClient } from '@tanstack/react-query'
 import {
   getCart,
+  getStoreOrder,
   getStoreProduct,
+  listStoreOrders,
   listStoreProducts,
   type ApiFailure,
   type Cart,
   type CartResult,
   type StoreCatalogFilters,
+  type StoreOrder,
   type StoreProduct,
 } from '../api/store'
 
@@ -56,6 +59,13 @@ export const storeKeys = {
   product: (unitId: string, productId: string) =>
     ['store', 'catalog', unitId, 'product', productId] as const,
   cart: ['store', 'cart'] as const,
+  /** Terceiro ramo irmão. Pedido é dado do usuário como o carrinho, mas com
+   * ciclo de vida oposto: o carrinho muda a toda hora e o pedido é imutável
+   * depois de criado (só o STATUS anda, e por fora — pela fatura e pelo
+   * balcão da arena). Por isso as duas chaves não se invalidam mutuamente,
+   * exceto no checkout, que é justamente o instante em que um vira o outro. */
+  orders: ['store', 'orders'] as const,
+  order: (orderId: string) => ['store', 'orders', orderId] as const,
 }
 
 /** Falha de uma leitura da Loja transportada como exceção. Mesmo motivo de
@@ -167,4 +177,66 @@ export function cartQueryOptions() {
 export function applyCartResult(queryClient: QueryClient, result: CartResult): CartResult {
   if (result.ok) queryClient.setQueryData(storeKeys.cart, result.cart)
   return result
+}
+
+/**
+ * `GET /me/store/orders` — a lista da tela 27, atravessando arenas.
+ *
+ * `staleTime: 0` e não os 5 min do default global: o pedido em si é imutável,
+ * mas o STATUS que a tela mostra é derivado e muda por dois caminhos que
+ * acontecem FORA desta aba — a fatura sendo paga e o balcão da arena movendo
+ * o fulfillment. Uma janela de cache aqui mostraria "aguardando pagamento"
+ * para um pedido já pago, que é exatamente a pergunta que traz o usuário à
+ * tela.
+ */
+export function storeOrdersQueryOptions() {
+  return queryOptions<StoreOrder[]>({
+    queryKey: storeKeys.orders,
+    queryFn: async () => {
+      const result = await listStoreOrders()
+      if (!result.ok) throw new StoreRequestError('GET /me/store/orders', result)
+      return result.orders
+    },
+    staleTime: 0,
+    retry: false,
+  })
+}
+
+/** `GET /me/store/orders/{id}` — o pedido da tela 26. Mesmo `staleTime: 0`
+ * pelo mesmo motivo: é para cá que o usuário volta depois de pagar o PIX, e
+ * o status precisa estar fresco nesse retorno. */
+export function storeOrderQueryOptions(orderId: string) {
+  return queryOptions<StoreOrder>({
+    queryKey: storeKeys.order(orderId),
+    queryFn: async () => {
+      const result = await getStoreOrder(orderId)
+      if (!result.ok) throw new StoreRequestError('GET /me/store/orders/{id}', result)
+      return result.order
+    },
+    staleTime: 0,
+    retry: false,
+  })
+}
+
+/**
+ * Reconcilia o cache depois de um checkout bem-sucedido.
+ *
+ * Aqui é `invalidateQueries` e NÃO `setQueryData` — o oposto do que as
+ * mutações de carrinho fazem, e de propósito: `POST /me/store/orders` devolve
+ * o PEDIDO, não o carrinho novo. O servidor esvaziou o grupo daquela arena (e
+ * só ele), então o carrinho em cache está desatualizado e ninguém tem o valor
+ * correto para semeá-lo — inclusive o contador "🛒 (3)" do cabeçalho, que
+ * continuaria contando linhas que não existem mais.
+ *
+ * A lista de pedidos é invalidada pelo mesmo motivo, e o pedido recém-criado é
+ * semeado direto: a tela 26 abre com ele sem esperar um GET.
+ */
+export function applyCheckoutResult(queryClient: QueryClient, order: StoreOrder): void {
+  queryClient.setQueryData(storeKeys.order(order.id), order)
+  // `orders` é prefixo de `order(id)`, então esta invalidação também marca o
+  // pedido semeado acima como stale — o que é correto: o `staleTime: 0` da
+  // tela 26 já iria refetchá-lo, e o dado semeado serve para a primeira
+  // pintura não ser um spinner.
+  void queryClient.invalidateQueries({ queryKey: storeKeys.orders })
+  void queryClient.invalidateQueries({ queryKey: storeKeys.cart })
 }

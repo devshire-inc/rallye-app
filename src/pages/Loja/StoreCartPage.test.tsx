@@ -9,6 +9,12 @@ import StoreCartPage from './StoreCartPage'
 
 vi.mock('../../hooks/usePermission', () => ({ usePermission: () => false }))
 
+const navigate = vi.fn()
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom')
+  return { ...actual, useNavigate: () => navigate }
+})
+
 afterEach(() => {
   vi.restoreAllMocks()
 })
@@ -93,6 +99,7 @@ function singleArenaCart(items: CartItem[]): Cart {
 }
 
 function renderPage() {
+  navigate.mockReset()
   return renderWithQuery(
     <MemoryRouter initialEntries={['/store/cart']}>
       <Routes>
@@ -234,13 +241,42 @@ describe('StoreCartPage — carrinho cross-arena', () => {
     expect(screen.getAllByText(/R\$\s*536,00/)).toHaveLength(2)
   })
 
-  it('"FINALIZAR COMPRA" fica desabilitado com o motivo escrito — checkout é a próxima leva', async () => {
+  it('com uma arena só, o botão do rodapé leva ao checkout daquela arena', async () => {
     vi.spyOn(storeApi, 'getCart').mockResolvedValue({ ok: true, cart: singleArenaCart([item()]) })
+    const user = userEvent.setup()
+
+    renderPage()
+    await user.click(await screen.findByRole('button', { name: 'FINALIZAR COMPRA' }))
+
+    expect(navigate).toHaveBeenCalledWith('/store/checkout/unit-1')
+  })
+
+  it('com mais de uma arena, o CTA desce para cada grupo — um checkout fecha UMA arena', async () => {
+    vi.spyOn(storeApi, 'getCart').mockResolvedValue({ ok: true, cart: twoArenaCart() })
+    const user = userEvent.setup()
+
+    renderPage()
+
+    // Nenhum botão de rodapé ambíguo: só os dois por arena, com o subtotal.
+    expect(screen.queryByRole('button', { name: 'FINALIZAR COMPRA' })).not.toBeInTheDocument()
+    expect(
+      await screen.findByText(/Cada arena tem seu próprio fechamento/),
+    ).toBeInTheDocument()
+
+    await user.click(
+      screen.getByRole('button', { name: /FINALIZAR COMPRA — R\$\s*89,00, Beach Master Barra/ }),
+    )
+    expect(navigate).toHaveBeenCalledWith('/store/checkout/unit-2')
+  })
+
+  it('não deixa fechar um grupo com item indisponível', async () => {
+    const cart = singleArenaCart([item({ available: false })])
+    cart.groups[0].checkoutable = false
+    vi.spyOn(storeApi, 'getCart').mockResolvedValue({ ok: true, cart })
 
     renderPage()
 
     expect(await screen.findByRole('button', { name: 'FINALIZAR COMPRA' })).toBeDisabled()
-    expect(screen.getByText(/O fechamento do pedido chega em breve/)).toBeInTheDocument()
   })
 
   it('mostra o estado vazio quando não há item nenhum', async () => {

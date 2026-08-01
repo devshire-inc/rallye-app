@@ -76,6 +76,22 @@
   font-weight: 800;
 }
 
+/* "Meus pedidos" ao lado do carrinho — mesmo alvo de toque de 44px. */
+.shop-head-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 var(--space-2);
+  color: var(--text-brand);
+  font: var(--type-small);
+  text-decoration: none;
+}
+
+.shop-head-link:hover,
+.shop-head-link:focus-visible {
+  text-decoration: underline;
+}
+
 /* `.back` já vem do cromo compartilhado; aqui só o alvo de toque, pelo mesmo
    motivo do link do carrinho. */
 .shop-back {
@@ -485,6 +501,420 @@
 }
 
 /* ---------------------------------------------------------------------------
+   25 · Checkout (Finalizar Compra)
+   -------------------------------------------------------------------------- */
+
+.shop-checkout-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+}
+
+.shop-checkout-card__title {
+  margin: 0;
+  font: var(--type-label);
+  font-weight: 800;
+  color: var(--text-heading);
+}
+
+.shop-checkout-card__arena {
+  margin: 0;
+  font: var(--type-small);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+/* Título de seção solto do frame ("Retirada"), fora de qualquer card. */
+.shop-checkout-section {
+  margin: 0;
+  font: var(--type-label);
+  font-weight: 800;
+  color: var(--text-heading);
+}
+
+.shop-checkout-lines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.shop-checkout-line {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font: var(--type-small);
+}
+
+.shop-checkout-line__name {
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.shop-checkout-line__value {
+  color: var(--text-heading);
+  white-space: nowrap;
+}
+
+.shop-checkout-divider {
+  height: 1px;
+  background: var(--border-default);
+}
+
+.shop-checkout-subtotal {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+  font: var(--type-label);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.shop-checkout-pickup {
+  gap: 2px;
+}
+
+.shop-checkout-pickup__name {
+  font: var(--type-small);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.shop-checkout-pickup__line {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* Frame 177:6081: o bloco de pagamento é o único card em fundo quente
+   (#f8edda), destacando o total do resto do resumo. `--surface-brand-soft`
+   é o token equivalente já usado por outros destaques do app. */
+.shop-checkout-payment {
+  background: var(--surface-brand-soft);
+  box-shadow: none;
+}
+
+.shop-checkout-payment__method {
+  margin: 0;
+  font: var(--type-small);
+  font-weight: 600;
+  color: var(--text-brand);
+}
+
+.shop-checkout-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin: 0;
+  font: 800 16px/1.2 var(--font-body);
+  color: var(--text-heading);
+}
+
+.shop-checkout-total__value {
+  color: var(--text-brand);
+}
+
+.shop-checkout-note,
+.shop-checkout-blocked {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.shop-checkout-blocked {
+  color: var(--state-warning-text);
+}
+
+/* ---------------------------------------------------------------------------
+   26 · Confirmação de Pedido
+
+   O badge concêntrico é o mesmo de `.unit-success*` (NewUnitPage.css, "Arena
+   Criada"/"Sucesso"), replicado aqui com prefixo próprio em vez de importado:
+   aquele arquivo é o CSS de uma página inteira, e importá-lo por três regras
+   traria `.two-col`, `.chip-group` e o resto junto no bundle desta tela.
+   -------------------------------------------------------------------------- */
+
+.shop-success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4);
+  width: 100%;
+  max-width: 480px;
+  margin-inline: auto;
+  text-align: center;
+}
+
+.shop-success__badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 92px;
+  height: 92px;
+  border-radius: var(--radius-pill);
+  background: var(--state-success-soft);
+}
+
+.shop-success__badge-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  border-radius: var(--radius-pill);
+  background: var(--state-success);
+}
+
+/* `.icon` declara `color: var(--text-heading)` no PRÓPRIO elemento (regra do
+   DS, Icon.css), então o `color` do pai não é herdado — sem esta classe o
+   check nasce azul-escuro sobre o verde, que o QA visual pegou. Seletor duplo
+   (0,2,0) para vencer `.icon` (0,1,0) independentemente da ordem em que os
+   dois CSS entrem no bundle — é a mesma armadilha que `.unit-success__icon`
+   resolve com uma classe só, e ali só funciona por sorte de ordem. */
+.icon.shop-success__icon {
+  color: var(--text-on-brand);
+}
+
+.shop-success__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 22px;
+  color: var(--text-heading);
+}
+
+.shop-success__number {
+  margin: 0;
+  font: var(--type-small);
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.shop-success__card,
+.shop-success__pickup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  width: 100%;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+}
+
+.shop-success__arena {
+  margin: 0;
+  font: var(--type-small);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.shop-success__items {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.shop-success__total {
+  margin: 0;
+  font: 800 14px/1.2 var(--font-body);
+  color: var(--text-brand);
+}
+
+/* Frame 177:6181: o bloco de retirada é o card quente desta tela. */
+.shop-success__pickup {
+  background: var(--surface-brand-soft);
+  box-shadow: none;
+}
+
+.shop-success__pickup-title {
+  margin: 0;
+  font: var(--type-small);
+  font-weight: 800;
+  color: var(--text-heading);
+}
+
+.shop-success__pickup-line {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.shop-success__actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   27 · Meus Pedidos — cards (mobile) e tabela (desktop)
+
+   Mesmo mecanismo de F5MyInvoicesPage: os dois layouts no DOM, a troca por
+   `@media` em BREAKPOINT_TABLE_MIN (1220, ver src/lib/breakpoints.ts) e
+   `display: contents` no container dos cards, para eles continuarem sendo
+   filhos diretos do flex de `.dash-body` (e herdarem o `gap` da coluna) em vez
+   de virarem uma caixa dentro da caixa.
+   -------------------------------------------------------------------------- */
+
+.shop-orders-cards {
+  display: contents;
+}
+
+/* breakpoints.ts: BREAKPOINT_TABLE_MIN é a fonte canônica deste valor */
+@media (min-width: 1220px) {
+  .shop-orders-cards {
+    display: none;
+  }
+}
+
+/* breakpoints.ts: BREAKPOINT_TABLE_MIN é a fonte canônica deste valor */
+@media (max-width: 1219px) {
+  .shop-orders-table {
+    display: none;
+  }
+}
+
+.shop-order-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: var(--space-4);
+  border: 1.5px solid transparent;
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
+  box-shadow: var(--shadow-card);
+  text-align: left;
+  cursor: pointer;
+}
+
+/* Frame 177:6232 — só o pedido PRONTO ganha a borda verde. */
+.shop-order-card--ready {
+  border-color: var(--state-success);
+}
+
+.shop-order-card:hover,
+.shop-order-card:focus-visible {
+  border-color: var(--border-strong);
+}
+
+.shop-order-card--ready:hover,
+.shop-order-card--ready:focus-visible {
+  border-color: var(--state-success);
+}
+
+.shop-order-card__heading {
+  font: var(--type-small);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+
+.shop-order-card__arena {
+  font: var(--type-label);
+  font-weight: 600;
+  color: var(--text-heading);
+}
+
+.shop-order-card__meta {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.shop-orders-table {
+  width: 100%;
+  /* `auto` como rede de segurança (mesma justificativa de `.invoice-table`):
+     com o min-width abaixo, qualquer aperto vira rolagem DENTRO do card, e
+     nunca uma célula por cima da vizinha. */
+  overflow-x: auto;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+
+.shop-orders-table__table {
+  width: 100%;
+  /* Mesmo 818 de `.invoice-table__table`, e pela mesma conta: 818 + 2 de
+     borda = 820 de container, e 820 + 400 de cromo do shell (sidebar 288 +
+     `.shell-main` 2×32 + `.dash-body` 2×24) = BREAKPOINT_TABLE_MIN (1220).
+     Aqui a coluna que trava é STATUS, não DATA: o badge "Aguardando
+     pagamento" não quebra linha, e a 22% de 818 ele tem 180px. */
+  min-width: 818px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.shop-orders-table__col--order {
+  width: 20%;
+}
+.shop-orders-table__col--arena {
+  width: 22%;
+}
+.shop-orders-table__col--items {
+  width: 10%;
+}
+.shop-orders-table__col--amount {
+  width: 12%;
+}
+.shop-orders-table__col--status {
+  width: 22%;
+}
+.shop-orders-table__col--action {
+  width: 14%;
+}
+
+.shop-orders-table__order {
+  font: var(--type-body);
+  font-weight: 700;
+  color: var(--text-heading);
+  white-space: nowrap;
+}
+
+/* ARENA é a única coluna que trunca por design — nome de arena é livre. */
+.shop-orders-table__arena {
+  font: var(--type-body);
+  color: var(--text-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shop-orders-table__items {
+  font: var(--type-small);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.shop-orders-table__amount {
+  font: var(--type-body);
+  color: var(--text-heading);
+  white-space: nowrap;
+}
+
+/* O padding lateral do botão é anulado para o texto alinhar com a borda da
+   célula, sem perder a área de clique vertical (idem `.invoice-table__action`). */
+.shop-orders-table__action .button {
+  padding-left: 0;
+  padding-right: 0;
+  justify-content: flex-start;
+}
+
+/* ---------------------------------------------------------------------------
    Desktop — grid de cards (22) e duas colunas (23)
 
    breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) — o ponto em que a
@@ -502,8 +932,24 @@
      coluna estreita, como em TournamentsListPage. */
   .dash-body.shop-body:has(.shop-grid),
   .dash-body.shop-body:has(.shop-detail),
-  .dash-body.shop-body:has(.shop-cart-group) {
+  .dash-body.shop-body:has(.shop-cart-group),
+  .dash-body.shop-body:has(.shop-checkout-card),
+  /* A 26 solta a coluna para o bloco de 480px poder se CENTRAR na área de
+     conteúdo inteira, como no frame 189:2684 — dentro da coluna de 560px ele
+     ficaria centrado só nela, ou seja, encostado à esquerda da tela. */
+  .dash-body.shop-body:has(.shop-success) {
     max-width: none;
+  }
+
+  /* Frame 189:2665: a coluna do checkout tem 640px, o mesmo valor já usado
+     pelo carrinho logo abaixo. */
+  .shop-checkout-card,
+  .shop-checkout-section,
+  .shop-checkout-note,
+  .shop-checkout-blocked,
+  .dash-body.shop-body:has(.shop-checkout-card) > .alert-card,
+  .dash-body.shop-body:has(.shop-checkout-card) > .button {
+    max-width: 640px;
   }
 
   /* No desktop a coluna já é larga: o sangramento do mobile não é mais

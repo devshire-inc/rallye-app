@@ -49,6 +49,9 @@ import PlanosListPage from './pages/Planos/PlanosListPage'
 import ProfilePage from './pages/Profile/ProfilePage'
 import StoreCartPage from './pages/Loja/StoreCartPage'
 import StoreCatalogPage from './pages/Loja/StoreCatalogPage'
+import StoreCheckoutPage from './pages/Loja/StoreCheckoutPage'
+import StoreOrderConfirmationPage from './pages/Loja/StoreOrderConfirmationPage'
+import StoreOrdersPage from './pages/Loja/StoreOrdersPage'
 import StoreProductPage from './pages/Loja/StoreProductPage'
 import RankingsPage from './pages/Rankings/RankingsPage'
 import ReportDetailPage from './pages/Reports/ReportDetailPage'
@@ -427,12 +430,18 @@ function AppRoutes() {
           agrupados). Uma rota de carrinho com :unitId prometeria um recorte
           por arena que o backend não tem. Ver src/pages/Loja/routes.ts.
 
-          Checkout (telas 25/26/27) NÃO tem rota: `POST /me/store/orders`
-          existe no backend, mas as telas são a próxima leva — ver o comentário
-          de pacote de StoreCartPage.tsx. */}
+          O CHECKOUT (25) leva :unitId porque `POST /me/store/orders` fecha o
+          grupo de UMA arena e devolve o resto do carrinho intacto — a arena é
+          o argumento da operação, não o contexto. Já PEDIDOS (26/27) não
+          levam arena nenhuma: `GET /me/store/orders` atravessa arenas, como o
+          carrinho. As três moram sob /store/… e não sob /units/:id/store/…
+          porque o recurso é `/me/…`. */}
       <Route path="/units/:unitId/store" element={<StoreCatalogPage />} />
       <Route path="/units/:unitId/store/products/:productId" element={<StoreProductPage />} />
       <Route path="/store/cart" element={<StoreCartPage />} />
+      <Route path="/store/checkout/:unitId" element={<StoreCheckoutPage />} />
+      <Route path="/store/orders" element={<StoreOrdersPage />} />
+      <Route path="/store/orders/:orderId" element={<StoreOrderConfirmationPage />} />
       {/* N1 — Centro de Notificações (BEAC-2021, story BEAC-1723). Rota de
           nível superior (não unit-scoped, mesmo padrão de /perfil): o sino no
           topbar de AppShell.tsx alcança daqui de qualquer tela, e GET

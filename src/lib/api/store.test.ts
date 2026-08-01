@@ -10,8 +10,11 @@ vi.mock('../httpClient', () => ({
 
 import {
   addCartItem,
+  createStoreOrder,
   getCart,
+  getStoreOrder,
   getStoreProduct,
+  listStoreOrders,
   listStoreProducts,
   removeCartItem,
   updateCartItemQuantity,
@@ -344,5 +347,188 @@ describe('carrinho', () => {
     await removeCartItem('item/1')
 
     expect(apiFetchMock).toHaveBeenCalledWith('/me/store/cart/items/item%2F1', { method: 'DELETE' })
+  })
+})
+
+function orderWire(overrides: Record<string, unknown> = {}) {
+  return {
+    id: 'order-1',
+    order_number: 42,
+    number_label: '#0042',
+    unit_id: 'unit-1',
+    unit_name: 'Arena Beira-Mar',
+    student_id: 'student-1',
+    status: 'aguardando_pagamento',
+    fulfillment_status: 'preparando',
+    invoice_id: 'invoice-1',
+    invoice_status: 'gerada',
+    total: 447,
+    item_count: 2,
+    items: [
+      {
+        id: 'oi-1',
+        variant_id: 'var-1',
+        product_name: 'Raquete Shark Pro',
+        variant_label: 'Preto · 340g',
+        unit_price: 389,
+        quantity: 1,
+        line_total: 389,
+      },
+      {
+        id: 'oi-2',
+        variant_id: 'var-2',
+        product_name: 'Overgrip Pack x3',
+        variant_label: '',
+        unit_price: 29,
+        quantity: 2,
+        line_total: 58,
+      },
+    ],
+    pickup: {
+      unit_name: 'Arena Beira-Mar',
+      address: 'Av. Beira-Mar, 1200',
+      city: 'Recife',
+      state: 'PE',
+    },
+    created_at: '2026-03-24T12:00:00Z',
+    ready_at: null,
+    delivered_at: null,
+    cancelled_at: null,
+    ...overrides,
+  }
+}
+
+describe('createStoreOrder — POST /me/store/orders', () => {
+  beforeEach(() => {
+    apiFetchMock.mockReset()
+  })
+
+  it('manda SÓ a arena no corpo — nunca itens, quantidades ou total', async () => {
+    /* Itens e valores vêm do banco: mandar a lista abriria porta para
+       preço/quantidade forjados, e mandar o total tornaria o servidor
+       verificador de uma conta que ele mesmo faz. */
+    apiFetchMock.mockResolvedValue(jsonResponse(201, orderWire()))
+
+    await createStoreOrder('unit-1')
+
+    const [path, init] = apiFetchMock.mock.calls[0]
+    expect(path).toBe('/me/store/orders')
+    expect(init.method).toBe('POST')
+    expect(JSON.parse(init.body)).toEqual({ unit_id: 'unit-1' })
+  })
+
+  it('converte o pedido criado, com número já formatado e a fatura do pagamento', async () => {
+    apiFetchMock.mockResolvedValue(jsonResponse(201, orderWire()))
+
+    const result = await createStoreOrder('unit-1')
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.order.numberLabel).toBe('#0042')
+    // É por esta fatura que o pedido é pago — a Loja não emite cobrança.
+    expect(result.order.invoiceId).toBe('invoice-1')
+    expect(result.order.status).toBe('aguardando_pagamento')
+    expect(result.order.items).toHaveLength(2)
+    expect(result.order.items[1].variantLabel).toBe('')
+    expect(result.order.pickup).toEqual({
+      unitName: 'Arena Beira-Mar',
+      address: 'Av. Beira-Mar, 1200',
+      city: 'Recife',
+      state: 'PE',
+    })
+  })
+
+  it('carrega as linhas do 409 insufficient_stock — pedido e disponível por produto', async () => {
+    apiFetchMock.mockResolvedValue(
+      jsonResponse(409, {
+        error: 'insufficient_stock',
+        message: 'estoque insuficiente',
+        items: [
+          { variant_id: 'var-1', product_name: 'Raquete Shark Pro', requested: 5, available: 2 },
+        ],
+      }),
+    )
+
+    const result = await createStoreOrder('unit-1')
+
+    expect(result.ok).toBe(false)
+    if (result.ok) return
+    expect(result.error).toBe('insufficient_stock')
+    expect(result.stockIssues).toEqual([
+      { variantId: 'var-1', productName: 'Raquete Shark Pro', requested: 5, available: 2 },
+    ])
+  })
+
+  it('409 empty_cart chega como falha, com stockIssues vazio', async () => {
+    apiFetchMock.mockResolvedValue(jsonResponse(409, { error: 'empty_cart' }))
+
+    const result = await createStoreOrder('unit-1')
+
+    expect(result).toMatchObject({ ok: false, status: 409, error: 'empty_cart', stockIssues: [] })
+  })
+})
+
+describe('listStoreOrders / getStoreOrder — /me/store/orders', () => {
+  beforeEach(() => {
+    apiFetchMock.mockReset()
+  })
+
+  it('lista atravessa arenas, na ordem que o backend devolve', async () => {
+    apiFetchMock.mockResolvedValue(
+      jsonResponse(200, {
+        items: [
+          orderWire(),
+          orderWire({
+            id: 'order-2',
+            number_label: '#0038',
+            unit_id: 'unit-2',
+            unit_name: 'Beach Master Barra',
+            status: 'entregue',
+          }),
+        ],
+      }),
+    )
+
+    const result = await listStoreOrders()
+
+    expect(apiFetchMock).toHaveBeenCalledWith('/me/store/orders')
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.orders.map((order) => order.unitName)).toEqual([
+      'Arena Beira-Mar',
+      'Beach Master Barra',
+    ])
+  })
+
+  it('items ausente na listagem vira lista vazia, não quebra', async () => {
+    apiFetchMock.mockResolvedValue(jsonResponse(200, { items: null }))
+
+    const result = await listStoreOrders()
+
+    expect(result).toEqual({ ok: true, orders: [] })
+  })
+
+  it('detalhe escapa o id e propaga o 404 de pedido alheio', async () => {
+    apiFetchMock.mockResolvedValue(jsonResponse(404, { error: 'order_not_found' }))
+
+    const result = await getStoreOrder('order/1')
+
+    expect(apiFetchMock).toHaveBeenCalledWith('/me/store/orders/order%2F1')
+    expect(result).toMatchObject({ ok: false, status: 404, error: 'order_not_found' })
+  })
+
+  it('pickup ausente cai no nome da arena, sem endereço inventado', async () => {
+    apiFetchMock.mockResolvedValue(jsonResponse(200, orderWire({ pickup: null })))
+
+    const result = await getStoreOrder('order-1')
+
+    expect(result.ok).toBe(true)
+    if (!result.ok) return
+    expect(result.order.pickup).toEqual({
+      unitName: 'Arena Beira-Mar',
+      address: '',
+      city: '',
+      state: '',
+    })
   })
 })

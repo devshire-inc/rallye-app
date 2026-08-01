@@ -422,6 +422,252 @@ export async function removeCartItem(itemId: string): Promise<CartResult> {
 }
 
 // ---------------------------------------------------------------------------
+// Pedidos — /me/store/orders (self-service, atravessa arenas)
+// ---------------------------------------------------------------------------
+
+/**
+ * Status EXIBIDO do pedido. É **derivado** no backend (`store.DeriveStatus`),
+ * não uma coluna: `cancelado` vence tudo; fatura não paga vira
+ * `aguardando_pagamento`; só então vale o `fulfillmentStatus`. Por isso o
+ * pedido não tem — e não deve ganhar — um estado de pagamento próprio: quem
+ * sabe se foi pago é a FATURA (ver `invoiceId`/`invoiceStatus`).
+ */
+export type StoreOrderStatus =
+  | 'aguardando_pagamento'
+  | 'preparando'
+  | 'pronto'
+  | 'entregue'
+  | 'cancelado'
+
+/** Valor cru da coluna do pedido — descreve só o que a arena faz com a
+ * mercadoria, sem nada de pagamento. Exposto porque o backend o devolve, mas
+ * quem as telas exibem é o `status` acima. */
+export type StoreFulfillmentStatus = 'preparando' | 'pronto' | 'entregue' | 'cancelado'
+
+export interface StoreOrderItem {
+  id: string
+  variantId: string
+  productName: string
+  /** "Preto · 340g"; vazio quando o produto não tem opções. */
+  variantLabel: string
+  /** CONGELADO no fechamento (o carrinho lê preço ao vivo, o pedido não). */
+  unitPrice: number
+  quantity: number
+  lineTotal: number
+}
+
+/** "📍 Retire na recepção" das telas 25/26. Sem coordenada: o backend devolve
+ * endereço textual, e a distância "2,3 km"/"COMO CHEGAR" do frame 26 exigiria
+ * geolocalização, que não existe em lado nenhum (ver gaps). */
+export interface StoreOrderPickup {
+  unitName: string
+  address: string
+  city: string
+  state: string
+}
+
+export interface StoreOrder {
+  id: string
+  orderNumber: number
+  /** "#0042", já formatado pelo backend — o cliente não repadroniza. */
+  numberLabel: string
+  unitId: string
+  unitName: string
+  status: StoreOrderStatus
+  fulfillmentStatus: StoreFulfillmentStatus
+  /** Fatura gerada no fechamento. É por ELA que o pedido é pago — o fluxo de
+   * PIX (`/invoices/{id}/pix`) já existe e não é duplicado aqui. */
+  invoiceId: string
+  invoiceStatus: string
+  total: number
+  /** Contagem de LINHAS ("2 itens · R$ 447,00" do frame 27). */
+  itemCount: number
+  items: StoreOrderItem[]
+  pickup: StoreOrderPickup
+  createdAt: string
+  readyAt: string | null
+  deliveredAt: string | null
+  cancelledAt: string | null
+}
+
+type StoreOrderItemWire = {
+  id: string
+  variant_id: string
+  product_name: string
+  variant_label: string
+  unit_price: number
+  quantity: number
+  line_total: number
+}
+
+type StoreOrderWire = {
+  id: string
+  order_number: number
+  number_label: string
+  unit_id: string
+  unit_name: string
+  student_id: string
+  status: StoreOrderStatus
+  fulfillment_status: StoreFulfillmentStatus
+  invoice_id: string
+  invoice_status: string
+  total: number
+  item_count: number
+  items: StoreOrderItemWire[] | null
+  pickup: {
+    unit_name: string
+    address: string | null
+    city: string | null
+    state: string | null
+  } | null
+  created_at: string
+  ready_at: string | null
+  delivered_at: string | null
+  cancelled_at: string | null
+}
+
+function orderFromWire(wire: StoreOrderWire): StoreOrder {
+  return {
+    id: wire.id,
+    orderNumber: wire.order_number,
+    numberLabel: wire.number_label,
+    unitId: wire.unit_id,
+    unitName: wire.unit_name,
+    status: wire.status,
+    fulfillmentStatus: wire.fulfillment_status,
+    invoiceId: wire.invoice_id,
+    invoiceStatus: wire.invoice_status,
+    total: wire.total,
+    itemCount: wire.item_count,
+    items: (wire.items ?? []).map((item) => ({
+      id: item.id,
+      variantId: item.variant_id,
+      productName: item.product_name,
+      variantLabel: item.variant_label ?? '',
+      unitPrice: item.unit_price,
+      quantity: item.quantity,
+      lineTotal: item.line_total,
+    })),
+    pickup: {
+      unitName: wire.pickup?.unit_name ?? wire.unit_name,
+      address: wire.pickup?.address ?? '',
+      city: wire.pickup?.city ?? '',
+      state: wire.pickup?.state ?? '',
+    },
+    createdAt: wire.created_at,
+    readyAt: wire.ready_at ?? null,
+    deliveredAt: wire.delivered_at ?? null,
+    cancelledAt: wire.cancelled_at ?? null,
+  }
+}
+
+/** Uma linha do `409 insufficient_stock`: o backend diz exatamente quanto foi
+ * pedido e quanto sobrou, por variação, para a tela poder nomear o produto em
+ * vez de dizer "algo acabou". */
+export interface StoreStockIssue {
+  variantId: string
+  productName: string
+  requested: number
+  available: number
+}
+
+/** `ApiFailure` do checkout, com as linhas do `409 insufficient_stock` quando
+ * o erro é esse. */
+export interface CreateStoreOrderFailure extends ApiFailure {
+  stockIssues: StoreStockIssue[]
+}
+
+export interface CreateStoreOrderSuccess {
+  ok: true
+  order: StoreOrder
+}
+
+export type CreateStoreOrderResult = CreateStoreOrderSuccess | CreateStoreOrderFailure
+
+/**
+ * `POST /me/store/orders` — fecha o grupo de UMA arena.
+ *
+ * O corpo é só `{unit_id}`: itens, quantidades e total vêm do banco. Mandar a
+ * lista abriria porta para preço/quantidade forjados, e mandar o total só
+ * tornaria o servidor verificador de uma conta que ele mesmo faz.
+ *
+ * Numa transação o backend trava o grupo, reserva o estoque, numera o pedido,
+ * grava os snapshots, **gera a fatura** e esvazia SÓ aquele grupo do carrinho
+ * — os itens das outras arenas continuam lá. Por isso quem chama precisa
+ * invalidar o carrinho (ver ../query/store.ts): ao contrário das quatro rotas
+ * de carrinho, esta NÃO devolve o carrinho novo.
+ *
+ * Erros: `409 empty_cart` (inclui o duplo clique em CONFIRMAR, que vira 409 e
+ * não um segundo pedido), `409 insufficient_stock` com as linhas em
+ * `stockIssues` (a transação inteira é desfeita — não existe pedido parcial
+ * nem reserva fantasma), `404 unit_not_found`.
+ */
+export async function createStoreOrder(unitId: string): Promise<CreateStoreOrderResult> {
+  const response = await apiFetch('/me/store/orders', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ unit_id: unitId }),
+  })
+
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}))
+    return {
+      ok: false,
+      status: response.status,
+      error: body.error ?? 'unknown_error',
+      message: body.message,
+      stockIssues: (
+        (body.items ?? []) as {
+          variant_id: string
+          product_name: string
+          requested: number
+          available: number
+        }[]
+      ).map((item) => ({
+        variantId: item.variant_id,
+        productName: item.product_name,
+        requested: item.requested,
+        available: item.available,
+      })),
+    }
+  }
+
+  return { ok: true, order: orderFromWire((await response.json()) as StoreOrderWire) }
+}
+
+export interface ListStoreOrdersSuccess {
+  ok: true
+  orders: StoreOrder[]
+}
+
+export type ListStoreOrdersResult = ListStoreOrdersSuccess | ApiFailure
+
+/** `GET /me/store/orders` — ATRAVESSA arenas, mais recentes primeiro. `items`
+ * vem preenchido também na listagem (um pedido tem poucas linhas), então a
+ * tela 27 não precisa de um GET por pedido para escrever "2 itens". */
+export async function listStoreOrders(): Promise<ListStoreOrdersResult> {
+  const response = await apiFetch('/me/store/orders')
+  if (!response.ok) return failureFrom(response)
+  const body = (await response.json()) as { items: StoreOrderWire[] | null }
+  return { ok: true, orders: (body.items ?? []).map(orderFromWire) }
+}
+
+export interface GetStoreOrderSuccess {
+  ok: true
+  order: StoreOrder
+}
+
+export type GetStoreOrderResult = GetStoreOrderSuccess | ApiFailure
+
+/** `GET /me/store/orders/{id}` — self-only. Pedido de outra pessoa é `404
+ * order_not_found`, nunca 403: o backend não vaza a existência do pedido. */
+export async function getStoreOrder(orderId: string): Promise<GetStoreOrderResult> {
+  const response = await apiFetch(`/me/store/orders/${encodeURIComponent(orderId)}`)
+  if (!response.ok) return failureFrom(response)
+  return { ok: true, order: orderFromWire((await response.json()) as StoreOrderWire) }
+}
+
+// ---------------------------------------------------------------------------
 // Rótulos — catálogos fechados do backend traduzidos pra UI
 // ---------------------------------------------------------------------------
 
@@ -450,4 +696,27 @@ export const BADGE_LABEL: Record<StoreBadge, string> = {
   mais_vendido: 'Mais vendido',
   novo: 'Novo',
   promocao: 'Promoção',
+}
+
+/** Rótulo do status derivado do pedido (frames 26/27). O texto sozinho é o
+ * nome acessível — os emojis do frame vivem em `STORE_ORDER_STATUS_GLYPH`,
+ * marcados como decorativos, para o leitor de tela não ler "círculo verde"
+ * antes de "pronto para retirada". */
+export const STORE_ORDER_STATUS_LABEL: Record<StoreOrderStatus, string> = {
+  aguardando_pagamento: 'Aguardando pagamento',
+  preparando: 'Preparando',
+  pronto: 'Pronto para retirada',
+  entregue: 'Entregue',
+  cancelado: 'Cancelado',
+}
+
+/** Emoji do frame 27, puramente decorativo. `aguardando_pagamento` e
+ * `cancelado` não têm frame próprio (o protótipo só desenha os três de
+ * fulfillment), então usam o 💠 que o frame 25 já dá ao PIX e um ✕ neutro. */
+export const STORE_ORDER_STATUS_GLYPH: Record<StoreOrderStatus, string> = {
+  aguardando_pagamento: '💠',
+  preparando: '📦',
+  pronto: '🟢',
+  entregue: '✅',
+  cancelado: '✕',
 }
