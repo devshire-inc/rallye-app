@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Pagination } from './Pagination'
+import { Pagination, type PaginationProps } from './Pagination'
+
+/** No-op tipado: só preenche o arg obrigatório do meta — as stories
+ * assumem o controle do handler. */
+const noop: PaginationProps['onPageChange'] = () => {}
 
 const meta = {
   title: 'ui/Pagination',
@@ -14,7 +18,7 @@ const meta = {
   args: {
     page: 1,
     totalPages: 9,
-    onPageChange: () => {},
+    onPageChange: noop,
   },
 } satisfies Meta<typeof Pagination>
 

@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Radio } from './Radio'
+import { Radio, type RadioProps } from './Radio'
 import './Radio.stories.css'
+
+/** No-op tipado: só preenche o arg obrigatório do meta — as stories
+ * assumem o controle do handler. */
+const noop: RadioProps['onChange'] = () => {}
 
 const meta = {
   title: 'ui/Radio',
@@ -16,7 +20,7 @@ const meta = {
     label: 'Bloquear horário',
     checked: false,
     disabled: false,
-    onChange: () => {},
+    onChange: noop,
   },
 } satisfies Meta<typeof Radio>
 

@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Tabs } from './Tabs'
+import { Tabs, type TabsProps } from './Tabs'
 import './Tabs.stories.css'
+
+/** No-op tipado: só preenche o arg obrigatório do meta — as stories
+ * assumem o controle do handler. */
+const noop: TabsProps['onChange'] = () => {}
 
 const meta = {
   title: 'ui/Tabs',
@@ -16,7 +20,7 @@ const meta = {
     tabs: ['Quadras', 'Aulas', 'Torneios'],
     value: 'Quadras',
     ariaLabel: 'Abas de navegação',
-    onChange: () => {},
+    onChange: noop,
   },
 } satisfies Meta<typeof Tabs>
 

@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Segmented } from './Segmented'
+import { Segmented, type SegmentedProps } from './Segmented'
 import './Segmented.stories.css'
+
+/** No-op tipado: só preenche o arg obrigatório do meta — as stories
+ * assumem o controle do handler. */
+const noop: SegmentedProps['onChange'] = () => {}
 
 const meta = {
   title: 'ui/Segmented',
@@ -16,7 +20,7 @@ const meta = {
     options: ['Hoje', 'Semana', 'Mês'],
     value: 'Hoje',
     ariaLabel: 'Período',
-    onChange: () => {},
+    onChange: noop,
   },
 } satisfies Meta<typeof Segmented>
 

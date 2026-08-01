@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Checkbox } from './Checkbox'
+import { Checkbox, type CheckboxProps } from './Checkbox'
 import './Checkbox.stories.css'
+
+/** No-op tipado: só preenche o arg obrigatório do meta — as stories
+ * assumem o controle do handler. */
+const noop: CheckboxProps['onChange'] = () => {}
 
 const meta = {
   title: 'ui/Checkbox',
@@ -16,7 +20,7 @@ const meta = {
     label: 'Confirmar presença',
     checked: false,
     disabled: false,
-    onChange: () => {},
+    onChange: noop,
   },
 } satisfies Meta<typeof Checkbox>
 

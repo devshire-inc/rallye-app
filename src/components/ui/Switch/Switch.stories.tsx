@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { Switch } from './Switch'
+import { Switch, type SwitchProps } from './Switch'
 import './Switch.stories.css'
+
+/** No-op tipado: só preenche o arg obrigatório do meta — as stories
+ * assumem o controle do handler. */
+const noop: SwitchProps['onChange'] = () => {}
 
 const meta = {
   title: 'ui/Switch',
@@ -16,7 +20,7 @@ const meta = {
     label: 'Notificações',
     checked: false,
     disabled: false,
-    onChange: () => {},
+    onChange: noop,
   },
 } satisfies Meta<typeof Switch>
 

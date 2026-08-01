@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ArenaCard } from './ArenaCard'
+import { ArenaCard, type ArenaCardProps } from './ArenaCard'
 import './ArenaCard.stories.css'
 
 const meta = {
@@ -37,12 +37,12 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-function PlaygroundInner(args: Story['args']) {
+function PlaygroundInner(args: ArenaCardProps) {
   const [clicks, setClicks] = useState(0)
   return (
     <div className="arena-card-story-wrap">
-      <ArenaCard {...args} onClick={args?.onClick ? () => setClicks((n) => n + 1) : undefined} />
-      {args?.onClick ? <p className="arena-card-story-note">Clicado: {clicks}x</p> : null}
+      <ArenaCard {...args} onClick={args.onClick ? () => setClicks((n) => n + 1) : undefined} />
+      {args.onClick ? <p className="arena-card-story-note">Clicado: {clicks}x</p> : null}
     </div>
   )
 }
@@ -106,7 +106,9 @@ export const RoleTones: Story = {
 export const Disabled: Story = {
   args: {
     disabled: true,
-    onClick: true,
+    // Só a presença de `onClick` importa aqui — o PlaygroundInner troca por um
+    // handler real (o contador). O control continua sendo booleano.
+    onClick: () => {},
   },
   render: (args) => <PlaygroundInner {...args} />,
 }

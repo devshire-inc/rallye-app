@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { ListRow } from './ListRow'
+import { ListRow, type ListRowProps } from './ListRow'
 import './ListRow.stories.css'
 
 const meta = {
@@ -33,12 +33,12 @@ const meta = {
 export default meta
 type Story = StoryObj<typeof meta>
 
-function PlaygroundInner(args: Story['args']) {
+function PlaygroundInner(args: ListRowProps) {
   const [clicks, setClicks] = useState(0)
   return (
     <div className="list-row-story-wrap">
-      <ListRow {...args} onClick={args?.onClick ? () => setClicks((n) => n + 1) : undefined} />
-      {args?.onClick ? <p className="list-row-story-note">Clicado: {clicks}x</p> : null}
+      <ListRow {...args} onClick={args.onClick ? () => setClicks((n) => n + 1) : undefined} />
+      {args.onClick ? <p className="list-row-story-note">Clicado: {clicks}x</p> : null}
     </div>
   )
 }

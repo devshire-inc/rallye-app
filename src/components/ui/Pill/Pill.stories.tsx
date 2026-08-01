@@ -5,6 +5,11 @@ const meta = {
   title: 'ui/Pill',
   component: Pill,
   tags: ['autodocs'],
+  // `children` é obrigatório; as stories abaixo montam o próprio conteúdo via
+  // `render`, então o valor aqui só satisfaz o arg obrigatório do meta.
+  args: {
+    children: 'Reenviar código em 60s',
+  },
 } satisfies Meta<typeof Pill>
 
 export default meta

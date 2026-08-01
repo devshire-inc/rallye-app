@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
-import { OtpInput } from './OtpInput'
+import { OtpInput, type OtpInputProps } from './OtpInput'
 import './OtpInput.stories.css'
+
+/** No-op tipado: só preenche o arg obrigatório do meta — as stories
+ * assumem o controle do handler. */
+const noop: OtpInputProps['onChange'] = () => {}
 
 const meta = {
   title: 'ui/OtpInput (Code Input)',
@@ -15,6 +19,11 @@ const meta = {
     autoFocus: { control: 'boolean' },
   },
   args: {
+    // `value`/`onChange` são obrigatórios no componente (controlado); todas as
+    // stories abaixo assumem o controle via `useState`, então aqui servem só
+    // para satisfazer os args obrigatórios do meta.
+    value: '',
+    onChange: noop,
     length: 6,
     mode: 'numeric',
     error: false,
