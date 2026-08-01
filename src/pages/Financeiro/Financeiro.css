@@ -14,12 +14,19 @@
    --border-default/--text-heading/--interactive-primary/--sand-200/
    --state-info/etc.) — MESMOS valores visuais, só sem indireção.
    Seletores/classes preservados intactos (não removidos nem renomeados):
-   F4CreateInvoicePage.tsx/F5MyInvoicesPage.tsx (fora desta task, começam
-   depois) ainda consomem `.card`/`.badge`/`.b-*`/`.tabs2`/`.pills` crus
-   direto desta folha. `.searchbar`/`.unit-filter select`/`.month-nav
-   button` foram simplificados porque só F1/F2 os usavam e passaram a usar
-   ui/Input, ui/Select e ui/IconButton respectivamente (ver comentário de
-   pacote nos .tsx). */
+   F4CreateInvoicePage.tsx (fora desta task) ainda consome `.card`/`.badge`/
+   `.b-*`/`.tabs2`/`.pills` crus direto desta folha. `.searchbar`/
+   `.unit-filter select`/`.month-nav button` foram simplificados porque só
+   F1/F2 os usavam e passaram a usar ui/Input, ui/Select e ui/IconButton
+   respectivamente (ver comentário de pacote nos .tsx).
+
+   Reskin F5 (Minhas Faturas — Aluno): trocou `.tabs2`/`.card`/`.badge`/
+   `.btn` por ui/Tabs, ui/EmptyState, ui/Badge e ui/Button — ver
+   F5MyInvoicesPage.tsx. As classes `.invoice-card*` abaixo são exclusivas
+   de F5 (não compartilhadas com F1-F4), deliberadamente com nome diferente
+   de `.card` pra não colidir com a classe genérica acima nem com
+   `ui/Card`. `.group-header` ganhou modificadores de tom pros headers
+   ATRASADA/PENDENTE coloridos do Figma (node 163:5407/163:5417). */
 
 .pg-head {
   display: flex;
@@ -399,6 +406,67 @@
   color: var(--text-muted);
   margin: var(--space-2) 0 4px;
 }
+.group-header--danger {
+  color: var(--state-danger);
+}
+.group-header--warning {
+  color: var(--state-warning);
+}
+
+/* F5 — Invoice Card (Figma node 163:5408/163:5418/163:5429) */
+.invoice-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-card);
+}
+.invoice-card__content {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 100%;
+  border: none;
+  background: none;
+  margin: 0;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.invoice-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  width: 100%;
+}
+.invoice-card__title {
+  font: var(--type-body);
+  font-weight: 700;
+  color: var(--text-heading);
+}
+.invoice-card__desc {
+  font: var(--type-small);
+  font-weight: 600;
+  color: var(--text-heading);
+}
+.invoice-card__hint {
+  font: var(--type-small);
+}
+.invoice-card__hint--danger {
+  color: var(--state-danger);
+}
+.invoice-card__hint--warning {
+  color: var(--state-warning);
+}
+.invoice-card__hint--success {
+  color: var(--state-success);
+}
 
 /* Sheet de estorno (F3, BEAC-1952/BEAC-1711) — .ssub/.refund-rule-toast
    copiadas do protótipo real (`#sheet-estorno`, Artifact "Rallye —
@@ -438,4 +506,150 @@
 }
 .btn-danger:hover:not(:disabled) {
   filter: brightness(1.08);
+}
+
+/* F5 — Layout desktop: tabela de faturas (Figma node 186:2170, frame
+   "11 · Minhas Faturas — Aluno — Desktop", tabela 186:3918).
+
+   Esta é a primeira tela do app com um layout desktop estruturalmente
+   diferente do mobile, então vale o contrato: os DOIS layouts ficam no DOM
+   e a troca é só de CSS no breakpoint — nada de `matchMedia` em JS. Abaixo
+   de 860px vale o card (`.invoice-card`, frame mobile 159:1702, inalterado);
+   a partir de 860px o card some e entra a tabela. `display: contents` no
+   wrapper dos cards mantém `.group-header`/`.ag-list` como filhos diretos
+   do `.dash-body` (flex column com gap), ou seja: espaçamento mobile
+   idêntico ao de antes deste wrapper existir.
+
+   As células são compostas aqui com ui/TableHeaderCell + ui/TableRow (que
+   já trazem altura, padding lateral, fundo, borda do header e os estados
+   default/hover/selected) — este arquivo só cuida do container da tabela,
+   das larguras de coluna e da tipografia por coluna. */
+
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
+@media (max-width: 859px) {
+  .invoice-table {
+    display: none;
+  }
+}
+
+.invoices-cards {
+  display: contents;
+}
+
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
+@media (min-width: 860px) {
+  .invoices-cards {
+    display: none;
+  }
+}
+
+/* `.dash-body` carrega `max-width: 560px` como regra global (mobile-first,
+   replicada por várias páginas). Serve pros cards, mas engessava a tabela
+   em ~512px num viewport de 1440 — o frame 186:2170 mostra a tabela
+   ocupando toda a coluna de conteúdo (~1040px). Só esta tela solta a
+   trava, e só a partir do breakpoint desktop; abaixo dele o mobile
+   continua com a mesma largura de sempre.
+
+   `:has(.invoice-table)` (mesmo recurso já usado por AuthLayout.css/
+   Switch.css/Select.css) restringe a soltura aos estados que realmente
+   têm tabela: nos empty states (`EmptyState`, bloco fixo de 320px) a
+   coluna continua com os 560px de sempre, senão o bloco ficaria encostado
+   à esquerda de uma coluna de 1040px. */
+/* breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor */
+@media (min-width: 860px) {
+  .dash-body.invoices-body:has(.invoice-table) {
+    max-width: none;
+  }
+}
+
+.invoice-table {
+  width: 100%;
+  /* `auto` (e não `hidden`): entre 860px e ~1100px a coluna de conteúdo
+     ainda é estreita demais pras 5 colunas, e com `table-layout: fixed` o
+     texto transbordava a célula e colidia com a vizinha (DATA por cima de
+     STATUS). Com `min-width` na tabela, o excedente vira rolagem
+     horizontal dentro do card em vez de sobreposição. */
+  overflow-x: auto;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
+}
+
+.invoice-table__table {
+  width: 100%;
+  min-width: 720px;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+/* Larguras do Figma (380/140/160/160/200 sobre 1040px úteis) em
+   porcentagem, pra tabela acompanhar a largura real do `.shell-main`. */
+.invoice-table__col--desc {
+  width: 36%;
+}
+.invoice-table__col--amount {
+  width: 14%;
+}
+.invoice-table__col--date {
+  width: 16%;
+}
+.invoice-table__col--status {
+  width: 15%;
+}
+.invoice-table__col--action {
+  width: 19%;
+}
+
+/* O `<caption>` nomeia a tabela pra leitores de tela ("Faturas em aberto"/
+   "Faturas pagas"); o Figma não mostra título acima da tabela porque as
+   Tabs logo acima já dão esse contexto visualmente. */
+.invoice-table__caption {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.invoice-table__sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.invoice-table__desc {
+  font: var(--type-body);
+  font-weight: 700;
+  color: var(--text-heading);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.invoice-table__amount {
+  font: var(--type-body);
+  color: var(--text-heading);
+}
+
+.invoice-table__date {
+  font: var(--type-small);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* A ação é um Button ghost (texto laranja, node 186:3940/186:3964); o
+   padding lateral do botão é anulado pra alinhar com a borda da célula,
+   como no Figma, sem perder a área de clique vertical. */
+.invoice-table__action .button {
+  padding-left: 0;
+  padding-right: 0;
+  justify-content: flex-start;
 }
