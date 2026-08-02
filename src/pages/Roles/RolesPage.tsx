@@ -10,11 +10,21 @@ import { RoleFormSheet } from './RoleFormSheet'
 import RoleAuditPanel from '../RoleAudit/RoleAuditPanel'
 import '../../components/AuthLayout/AuthLayout.css'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
+import { Tabs } from '../../components/ui/Tabs/Tabs'
 import './RolesPage.css'
 
 type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; roles: Role[] }
 
 type Tab = 'papeis' | 'historico'
+
+/** `ui/Tabs` é indexado por rótulo (o rótulo É o valor); esta tela modela as
+ * abas por chave, então a ida e volta chave<->rótulo mora aqui — mesmo par
+ * TAB_ORDER/TAB_LABELS de TournamentViewPage.tsx. */
+const TAB_ORDER: Tab[] = ['papeis', 'historico']
+const TAB_LABELS: Record<Tab, string> = {
+  papeis: 'Papéis',
+  historico: 'Histórico',
+}
 
 /** Nenhum sheet aberto, o form de criação, ou o form de edição de um
  * customizado específico — nunca de um role de sistema (RolesPage não
@@ -115,25 +125,16 @@ export default function RolesPage() {
         ) : null}
       </div>
 
-      <div className="ptabs" role="tablist">
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'papeis'}
-          className={tab === 'papeis' ? 'active' : ''}
-          onClick={() => setTab('papeis')}
-        >
-          Papéis
-        </button>
-        <button
-          type="button"
-          role="tab"
-          aria-selected={tab === 'historico'}
-          className={tab === 'historico' ? 'active' : ''}
-          onClick={() => setTab('historico')}
-        >
-          Histórico
-        </button>
+      <div className="c3-tabs">
+        <Tabs
+          tabs={TAB_ORDER.map((key) => TAB_LABELS[key])}
+          value={TAB_LABELS[tab]}
+          onChange={(label) => {
+            const next = TAB_ORDER.find((key) => TAB_LABELS[key] === label)
+            if (next) setTab(next)
+          }}
+          ariaLabel="Seções de papéis e permissões"
+        />
       </div>
 
       <div className="dash-body">

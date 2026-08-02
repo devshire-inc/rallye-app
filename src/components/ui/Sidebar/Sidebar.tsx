@@ -48,8 +48,17 @@ const ICON_PATHS: Record<string, string> = {
   bag: 'M6 7h12l1 14H5zM9 7a3 3 0 016 0',
   settings:
     'M12 15a3 3 0 100-6 3 3 0 000 6z M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09a1.65 1.65 0 00-1-1.51 1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09a1.65 1.65 0 001.51-1 1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z',
+  // O busto tem que caber DENTRO do anel. A versão anterior desenhava o arco
+  // dos ombros de x=4.5 a x=19.5 em y=20, enquanto o anel (r=9, centro 12,12)
+  // só tem x≈7.9..16.1 nessa altura: os ombros furavam o círculo dos dois
+  // lados e a cabeça (r=4, centro y=8) encostava no topo do anel — o "Perfil"
+  // saía deformado ao lado dos outros ícones desta nav. Geometria refeita
+  // mantendo o mesmo anel r=9 (tamanho óptico idêntico ao resto do
+  // dicionário): cabeça r=3.6 centrada em (12,10.2) e ombros r=5.4 de
+  // (17.4,19.2) a (6.6,19.2) — os extremos do arco caem exatamente sobre o
+  // anel (√(9² − 7.2²) = 5.4), que é a proporção do outline 24x24 padrão.
   'user-circle':
-    'M12 12a4 4 0 100-8 4 4 0 000 8zM4.5 20a7.5 7.5 0 0115 0M12 21a9 9 0 100-18 9 9 0 000 18z',
+    'M12 21a9 9 0 100-18 9 9 0 000 18zM12 13.8a3.6 3.6 0 100-7.2 3.6 3.6 0 000 7.2zM17.4 19.2a5.4 5.4 0 00-10.8 0',
 }
 
 const DEFAULT_SECTIONS: SidebarSection[] = [

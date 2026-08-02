@@ -4,6 +4,7 @@ import { AppShell } from '../../components/AppShell/AppShell'
 import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { SportTag } from '../../components/ui/SportTag/SportTag'
 import { StatCard } from '../../components/ui/StatCard/StatCard'
+import { Tabs } from '../../components/ui/Tabs/Tabs'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
@@ -25,12 +26,24 @@ type LoadState =
 
 type Tab = 'alunos' | 'proximas' | 'presenca' | 'waitlist'
 
+/** `ui/Tabs` é indexado por rótulo (o rótulo É o valor); esta tela modela as
+ * abas por chave, então a ida e volta chave<->rótulo mora aqui — mesmo par
+ * TAB_ORDER/TAB_LABELS de TournamentViewPage.tsx. */
+const TAB_ORDER: Tab[] = ['alunos', 'proximas', 'presenca', 'waitlist']
+const TAB_LABELS: Record<Tab, string> = {
+  alunos: 'Alunos',
+  proximas: 'Próximas',
+  presenca: 'Presença',
+  waitlist: 'Waitlist',
+}
+
 /**
  * T2 — Detalhe da turma (BEAC-1901, story BEAC-1704). Markup/copy lidos
  * diretamente do protótipo real (mesmo Artifact de T1, seção `scr-t2`,
  * linhas ~626-700 do arquivo salvo): `.prof-head` (h1 nome + esporte·nível
- * + `.mt` professor/quadra/dias·horário·ocupação), `.ptabs` com 4 abas
- * (Alunos/Próximas/Presença/Waitlist), botão [⚙️] só para quem tem
+ * + `.mt` professor/quadra/dias·horário·ocupação), 4 abas
+ * (Alunos/Próximas/Presença/Waitlist — hoje o `ui/Tabs` do DS, antes um
+ * `.ptabs` local), botão [⚙️] só para quem tem
  * `agenda:write`. Esporte·nível e o botão de configurações migrados para os
  * componentes ui/SportTag e ui/IconButton (BEAC-2105, restyle Claude
  * Design).
@@ -164,43 +177,16 @@ export default function TurmaDetailPage() {
         <>
           <ClassHeader classItem={classItem} />
 
-          <div className="ptabs" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'alunos'}
-              className={tab === 'alunos' ? 'active' : ''}
-              onClick={() => setTab('alunos')}
-            >
-              Alunos
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'proximas'}
-              className={tab === 'proximas' ? 'active' : ''}
-              onClick={() => setTab('proximas')}
-            >
-              Próximas
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'presenca'}
-              className={tab === 'presenca' ? 'active' : ''}
-              onClick={() => setTab('presenca')}
-            >
-              Presença
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'waitlist'}
-              className={tab === 'waitlist' ? 'active' : ''}
-              onClick={() => setTab('waitlist')}
-            >
-              Waitlist
-            </button>
+          <div className="t2-tabs">
+            <Tabs
+              tabs={TAB_ORDER.map((key) => TAB_LABELS[key])}
+              value={TAB_LABELS[tab]}
+              onChange={(label) => {
+                const next = TAB_ORDER.find((key) => TAB_LABELS[key] === label)
+                if (next) setTab(next)
+              }}
+              ariaLabel="Seções da turma"
+            />
           </div>
 
           <div className="dash-body">

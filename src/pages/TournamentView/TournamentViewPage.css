@@ -54,8 +54,10 @@
    `.btn*`, `.cat-row`) FICAM declaradas: ao contrário de `.to-card`/
    `.to-list` em TournamentsListPage.css, elas são usadas por dezenas de
    outras telas que dependem de alguma declaração no bundle — remover daqui
-   seria mexer em telas fora do escopo desta task. `.ptabs` idem (4 outras
-   páginas usam), embora esta tela tenha passado a usar `ui/Tabs`.
+   seria mexer em telas fora do escopo desta task. `.ptabs` NÃO fica mais: as
+   4 outras páginas que a usavam (Roles/Turmas/Students/Teachers) migraram
+   para `ui/Tabs` junto com esta, e a classe ficou sem nenhum consumidor —
+   eram 5 declarações globais concorrentes do mesmo seletor.
    -------------------------------------------------------------------------- */
 
 /* "‹ Voltar" — só no frame mobile (174:2358). Nome próprio (`.tv-back`) e
@@ -237,31 +239,6 @@
   border-radius: 50%;
   background: var(--state-danger);
   display: inline-block;
-}
-
-.ptabs {
-  display: flex;
-  gap: 2px;
-  border-bottom: 1px solid var(--border-default);
-  padding: 0 var(--space-6);
-  overflow-x: auto;
-  margin-bottom: var(--space-4);
-}
-.ptabs button {
-  padding: 10px 14px;
-  border: none;
-  background: none;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-}
-.ptabs button.active {
-  color: var(--text-heading);
-  border-bottom-color: var(--interactive-primary);
 }
 
 .dash-body {

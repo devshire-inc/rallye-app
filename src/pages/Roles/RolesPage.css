@@ -30,27 +30,11 @@
   text-decoration: none;
 }
 
-.ptabs {
-  display: flex;
-  gap: var(--space-2);
-  border-bottom: 1px solid var(--border-default);
+/* Só o posicionamento das abas mora aqui; o desenho (rótulo, indicador que
+   desliza) é do `ui/Tabs`, que substituiu o `.ptabs` local — mesmo par
+   wrapper+componente de `.tv-tabs` em TournamentViewPage.css. */
+.c3-tabs {
   margin-bottom: var(--space-5);
-}
-.ptabs button {
-  background: none;
-  border: none;
-  padding: 10px var(--space-2);
-  font-family: var(--font-display);
-  font-weight: 600;
-  font-size: 13.5px;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  margin-bottom: -1px;
-}
-.ptabs button.active {
-  color: var(--text-heading);
-  border-bottom-color: var(--interactive-primary);
 }
 
 .dash-body {

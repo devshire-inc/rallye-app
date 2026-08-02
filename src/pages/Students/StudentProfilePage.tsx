@@ -10,11 +10,27 @@ import { ClassHistorySection } from './ClassHistorySection'
 import { SkillLevelsSection } from './SkillLevelsSection'
 import '../../components/AuthLayout/AuthLayout.css'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
+import { Tabs } from '../../components/ui/Tabs/Tabs'
 import './StudentProfilePage.css'
 
 type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'; student: Student }
 
 type Tab = 'dados' | 'plano' | 'faturas' | 'turmas' | 'progresso'
+
+/** `ui/Tabs` é indexado por rótulo (o rótulo É o valor); esta tela modela as
+ * abas por chave, então a ida e volta chave<->rótulo mora aqui — mesmo par
+ * TAB_ORDER/TAB_LABELS de TournamentViewPage.tsx. 'plano'/'faturas' só entram
+ * na ordem quando há `financeiro:read` (ver `visibleTabs` no componente):
+ * esconder sempre, nunca desabilitar. */
+const TAB_ORDER: Tab[] = ['dados', 'plano', 'faturas', 'turmas', 'progresso']
+const FINANCE_TABS: Tab[] = ['plano', 'faturas']
+const TAB_LABELS: Record<Tab, string> = {
+  dados: 'Dados',
+  plano: 'Plano',
+  faturas: 'Faturas',
+  turmas: 'Turmas',
+  progresso: 'Progresso',
+}
 
 const STATUS_LABEL: Record<StudentStatus, string> = {
   pending: 'Pendente',
@@ -128,6 +144,7 @@ export default function StudentProfilePage() {
   // sessão), a UI cai pra Dados sem nunca deixar uma tab escondida
   // "selecionada" no ar.
   const activeTab: Tab = !canSeeFinance && (tab === 'plano' || tab === 'faturas') ? 'dados' : tab
+  const visibleTabs = TAB_ORDER.filter((key) => canSeeFinance || !FINANCE_TABS.includes(key))
 
   if (!canRead) {
     return (
@@ -174,56 +191,16 @@ export default function StudentProfilePage() {
             </div>
           </div>
 
-          <div className="ptabs" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'dados'}
-              className={activeTab === 'dados' ? 'active' : ''}
-              onClick={() => setTab('dados')}
-            >
-              Dados
-            </button>
-            {canSeeFinance ? (
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'plano'}
-                className={activeTab === 'plano' ? 'active' : ''}
-                onClick={() => setTab('plano')}
-              >
-                Plano
-              </button>
-            ) : null}
-            {canSeeFinance ? (
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'faturas'}
-                className={activeTab === 'faturas' ? 'active' : ''}
-                onClick={() => setTab('faturas')}
-              >
-                Faturas
-              </button>
-            ) : null}
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'turmas'}
-              className={activeTab === 'turmas' ? 'active' : ''}
-              onClick={() => setTab('turmas')}
-            >
-              Turmas
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={activeTab === 'progresso'}
-              className={activeTab === 'progresso' ? 'active' : ''}
-              onClick={() => setTab('progresso')}
-            >
-              Progresso
-            </button>
+          <div className="al2-tabs">
+            <Tabs
+              tabs={visibleTabs.map((key) => TAB_LABELS[key])}
+              value={TAB_LABELS[activeTab]}
+              onChange={(label) => {
+                const next = visibleTabs.find((key) => TAB_LABELS[key] === label)
+                if (next) setTab(next)
+              }}
+              ariaLabel="Seções do aluno"
+            />
           </div>
 
           <div className="dash-body">

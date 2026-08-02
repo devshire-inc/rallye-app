@@ -138,6 +138,28 @@ describe('Sidebar', () => {
     expect(css).not.toMatch(/#[0-9a-fA-F]{3,8}\b/)
   })
 
+  it('icon user-circle (item "Perfil"): o arco dos ombros termina SOBRE o anel, nunca fora dele', () => {
+    // O bug que este teste tranca: o path anterior desenhava os ombros de
+    // x=4.5 a x=19.5 em y=20, muito além da largura do anel (r=9, centro
+    // 12,12) naquela altura — os dois extremos furavam o círculo e o ícone
+    // aparecia deformado ao lado dos outros desta mesma nav.
+    const source = readFileSync('src/components/ui/Sidebar/Sidebar.tsx', 'utf8')
+    const d = /'user-circle':\s*\n?\s*'([^']*)'/.exec(source)?.[1] ?? ''
+
+    const ring = /^M12 [\d.]+a([\d.]+) /.exec(d)
+    const shoulders = /M([\d.]+) ([\d.]+)a[\d.]+ [\d.]+ 0 00-([\d.]+) 0$/.exec(d)
+    expect(ring).not.toBeNull()
+    expect(shoulders).not.toBeNull()
+
+    const radius = Number(ring?.[1])
+    const startX = Number(shoulders?.[1])
+    const y = Number(shoulders?.[2])
+    const span = Number(shoulders?.[3])
+    for (const x of [startX, startX - span]) {
+      expect(Math.hypot(x - 12, y - 12)).toBeLessThanOrEqual(radius + 0.01)
+    }
+  })
+
   it('tokens: --alpha-orange-14 and --text-on-brand-soft exist and are contrast-compliant (>= 4.5:1 for the active label on surface/card)', () => {
     const colorsCss = readFileSync('src/styles/tokens/colors.css', 'utf8')
     expect(colorsCss).toMatch(/--alpha-orange-14:\s*rgba\(249,100,32,\.14\)/)

@@ -10,6 +10,7 @@ import {
 import { Avatar } from '../../components/ui/Avatar/Avatar'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { IconButton } from '../../components/ui/IconButton/IconButton'
+import { Tabs } from '../../components/ui/Tabs/Tabs'
 import { usePermission } from '../../hooks/usePermission'
 import { getAvailability } from '../../lib/api/availability'
 import { listClasses, type RallyeClass } from '../../lib/api/classes'
@@ -31,6 +32,17 @@ type LoadState =
   | { status: 'ready'; teacher: Teacher }
 
 type Tab = 'turmas' | 'horarios' | 'comissao' | 'bio'
+
+/** `ui/Tabs` é indexado por rótulo (o rótulo É o valor); esta tela modela as
+ * abas por chave, então a ida e volta chave<->rótulo mora aqui — mesmo par
+ * TAB_ORDER/TAB_LABELS de TournamentViewPage.tsx. */
+const TAB_ORDER: Tab[] = ['turmas', 'horarios', 'comissao', 'bio']
+const TAB_LABELS: Record<Tab, string> = {
+  turmas: 'Turmas',
+  horarios: 'Horários',
+  comissao: 'Comissão',
+  bio: 'Bio',
+}
 
 /**
  * PR2 — Perfil do Professor (Admin View) (BEAC-1880, épico 5). Markup/copy
@@ -145,43 +157,16 @@ export default function TeacherProfilePage() {
         <>
           <TeacherHeader teacher={teacher} />
 
-          <div className="ptabs" role="tablist">
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'turmas'}
-              className={tab === 'turmas' ? 'active' : ''}
-              onClick={() => setTab('turmas')}
-            >
-              Turmas
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'horarios'}
-              className={tab === 'horarios' ? 'active' : ''}
-              onClick={() => setTab('horarios')}
-            >
-              Horários
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'comissao'}
-              className={tab === 'comissao' ? 'active' : ''}
-              onClick={() => setTab('comissao')}
-            >
-              Comissão
-            </button>
-            <button
-              type="button"
-              role="tab"
-              aria-selected={tab === 'bio'}
-              className={tab === 'bio' ? 'active' : ''}
-              onClick={() => setTab('bio')}
-            >
-              Bio
-            </button>
+          <div className="pr2-tabs">
+            <Tabs
+              tabs={TAB_ORDER.map((key) => TAB_LABELS[key])}
+              value={TAB_LABELS[tab]}
+              onChange={(label) => {
+                const next = TAB_ORDER.find((key) => TAB_LABELS[key] === label)
+                if (next) setTab(next)
+              }}
+              ariaLabel="Seções do professor"
+            />
           </div>
 
           <div className="dash-body">

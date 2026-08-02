@@ -154,8 +154,14 @@ export default function LoginPage({ searchParams }: LoginPageProps = {}) {
           </p>
         )}
 
-        <Button type="submit" size="lg" fullWidth disabled={submitting}>
-          {submitting ? 'Entrando…' : 'Entrar'}
+        {/* `loading` (não `disabled` + troca de rótulo): o estado Loading do
+            Button já desabilita nativamente, marca aria-busy e troca o ícone
+            pelo spinner animado — mesma convenção de AgendarConfirmarPage e
+            OfferSheet. O rótulo fica "Entrar" e só esmaece: com o spinner ao
+            lado, um "Entrando…" seria a mesma informação duas vezes (e ainda
+            faria o rótulo mudar de largura no meio do submit). */}
+        <Button type="submit" size="lg" fullWidth loading={submitting}>
+          Entrar
         </Button>
       </form>
 

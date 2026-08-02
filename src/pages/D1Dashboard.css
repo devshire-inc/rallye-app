@@ -150,6 +150,15 @@
   cursor: pointer;
 }
 
+/* O `a:hover { text-decoration: underline }` global (index.css) é mais
+   específico que o `.quick-action { text-decoration: none }` acima e vencia
+   no hover, sublinhando rótulo E glifo — herança acidental, não um estado
+   projetado. O estado real vive no círculo (ver .quick-action__icon). */
+.quick-action:hover,
+.quick-action:focus-visible {
+  text-decoration: none;
+}
+
 .quick-action--disabled {
   cursor: default;
   opacity: 0.5;
@@ -165,6 +174,32 @@
   background: var(--surface-brand-soft);
   color: var(--text-brand);
   font: var(--type-label);
+  transition:
+    background var(--dur-fast) var(--ease-standard),
+    box-shadow var(--dur-fast) var(--ease-standard),
+    transform var(--dur-fast) var(--ease-standard);
+}
+
+/* Mesmo vocabulário de hover que o resto do DS usa para superfície clicável:
+   elevação (`.card--interactive` em ui/Card/Card.css: shadow-raised +
+   translateY(-2px)) somada ao escurecimento da superfície soft do
+   `Button --soft` (ui/Button/Button.css). Nada de efeito novo. */
+.quick-action:hover .quick-action__icon,
+.quick-action:focus-visible .quick-action__icon {
+  background: color-mix(in srgb, var(--surface-brand-soft) 55%, var(--interactive-primary) 45%);
+  box-shadow: var(--shadow-raised);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quick-action__icon {
+    transition: none;
+  }
+
+  .quick-action:hover .quick-action__icon,
+  .quick-action:focus-visible .quick-action__icon {
+    transform: none;
+  }
 }
 
 .quick-action__label {

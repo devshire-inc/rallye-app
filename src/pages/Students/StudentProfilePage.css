@@ -2,7 +2,7 @@
  * (BEAC-1856). Self-contained: redefine as classes genéricas que esta
  * página usa (mesmo padrão documentado em RolesPage.css — não assume que
  * outra página já carregou o CSS equivalente). Valores de .kv/.chiprow/
- * .chip/.sdot/.sec-head/.prof-head/.ptabs/.ptab-panel copiados diretamente
+ * .chip/.sdot/.sec-head/.prof-head/.ptab-panel copiados diretamente
  * das regras reais do protótipo (Artifact "Rallye — Pessoas & Turmas ·
  * Saque Noturno", seção scr-al2) — lidos do arquivo salvo, não inventados.
  * Avatar e badge de status migrados para os componentes ui/Avatar e
@@ -54,29 +54,13 @@
   margin-top: 2px;
 }
 
-.ptabs {
-  display: flex;
-  gap: 2px;
-  border-bottom: 1px solid var(--border-default);
+/* Só o posicionamento das abas mora aqui; o desenho (rótulo, indicador que
+   desliza) é do `ui/Tabs`, que substituiu o `.ptabs` local — mesmo par
+   wrapper+componente de `.tv-tabs` em TournamentViewPage.css. */
+.al2-tabs {
   padding: 0 var(--space-6);
-  overflow-x: auto;
   margin-bottom: var(--space-4);
-}
-.ptabs button {
-  padding: 10px 14px;
-  border: none;
-  background: none;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 13px;
-  color: var(--text-muted);
-  cursor: pointer;
-  border-bottom: 2px solid transparent;
-  white-space: nowrap;
-}
-.ptabs button.active {
-  color: var(--text-heading);
-  border-bottom-color: var(--interactive-primary);
+  overflow-x: auto;
 }
 
 .dash-body {

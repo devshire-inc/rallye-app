@@ -143,6 +143,29 @@ describe('LoginPage', () => {
     ).toBeInTheDocument()
   })
 
+  it('puts the submit button in the Button loading state (spinner + aria-busy) while the login request is in flight', async () => {
+    checkExistingSessionMock.mockResolvedValue(null)
+    // Nunca resolve: o botão fica no estado de envio até o fim do teste.
+    loginMock.mockReturnValue(new Promise(() => {}))
+    const user = userEvent.setup()
+
+    const { container } = renderLoginPage(new URLSearchParams())
+
+    const submit = await screen.findByRole('button', { name: 'Entrar' })
+    expect(submit).not.toHaveAttribute('aria-busy')
+
+    await user.type(screen.getByLabelText('E-mail'), 'user@example.com')
+    await user.type(screen.getByLabelText('Senha'), 'correct-password')
+    await user.click(submit)
+
+    // O rótulo continua "Entrar" (não vira "Entrando…"): quem comunica o
+    // progresso é o spinner animado do próprio Button, ver LoginPage.tsx.
+    await waitFor(() => expect(submit).toHaveAttribute('aria-busy', 'true'))
+    expect(submit).toBeDisabled()
+    expect(submit).toHaveTextContent('Entrar')
+    expect(container.querySelector('.button__spinner')).toBeInTheDocument()
+  })
+
   it('shows no oauth toast when there is no oauth_error param', async () => {
     checkExistingSessionMock.mockResolvedValue(null)
 
