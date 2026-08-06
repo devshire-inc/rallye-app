@@ -19,8 +19,7 @@
 // no topo de tournamentWithdrawal.ts. getTournamentBracketInfo por isso
 // duplica localmente só os campos de categoria que o bracket precisa
 // (incluindo bracketFormat/skillTier, que a versão de TO3 não expõe).
-import { apiFetch } from '../httpClient'
-import { getSessionToken, isNativePlatform } from '../secureStorage'
+import { apiFetch, buildHeaders } from '../httpClient'
 
 function apiBaseUrl(): string {
   return import.meta.env.VITE_API_BASE_URL ?? ''
@@ -33,14 +32,16 @@ function apiBaseUrl(): string {
  * documentado em BEAC-1991/BEAC-2012/BEAC-2011: as 3 leituras abaixo ainda
  * exigem sessão no backend), usar apiFetch aqui faria um 401 genuíno de
  * visitante disparar SESSION_EXPIRED_EVENT e redirecionar pra /login,
- * quebrando a tela em vez de mostrar "indisponível". */
+ * quebrando a tela em vez de mostrar "indisponível".
+ *
+ * O que ela NÃO replica mais é a montagem dos headers: as 3 leituras abaixo
+ * são escopadas por arena no backend (é de lá que vinha o `409
+ * arena_selection_required` documentado acima), então precisam do
+ * `X-Rallye-Unit` como qualquer outra chamada — e a montagem vem inteira do
+ * `buildHeaders` do httpClient, o mesmo que o apiFetch usa. É só o
+ * INTERCEPTOR que é dispensado aqui, nunca os headers. */
 async function visitorSafeGet(path: string): Promise<Response> {
-  const headers = new Headers()
-  if (isNativePlatform()) {
-    const token = await getSessionToken()
-    if (token) headers.set('Authorization', `Bearer ${token}`)
-  }
-  return fetch(apiBaseUrl() + path, { credentials: 'include', headers })
+  return fetch(apiBaseUrl() + path, { credentials: 'include', headers: await buildHeaders() })
 }
 
 export interface ApiFailure {

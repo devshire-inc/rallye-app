@@ -4,7 +4,11 @@ const { apiFetchMock } = vi.hoisted(() => ({
   apiFetchMock: vi.fn(),
 }))
 
-vi.mock('../httpClient', () => ({
+// Só `apiFetch` é dublado: `buildHeaders` (que passou a montar os headers
+// destas leituras, incluindo o `X-Rallye-Unit`) vem do módulo REAL, para os
+// testes exercitarem a injeção de verdade em vez de uma imitação dela.
+vi.mock('../httpClient', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('../httpClient')>()),
   apiFetch: apiFetchMock,
 }))
 

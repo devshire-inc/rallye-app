@@ -23,20 +23,19 @@
 // usado por src/lib/api.ts pros fluxos pré-login (verifyEmail,
 // requestVisitorCode etc.). withdrawRegistration (ação exclusiva de Admin já
 // autenticado, nunca chamada por um visitante) usa apiFetch normalmente.
-import { apiFetch } from '../httpClient'
-import { getSessionToken, isNativePlatform } from '../secureStorage'
+import { apiFetch, buildHeaders } from '../httpClient'
 
 function apiBaseUrl(): string {
   return import.meta.env.VITE_API_BASE_URL ?? ''
 }
 
+// Headers idênticos aos do apiFetch (bearer no mobile + `X-Rallye-Unit`),
+// via o MESMO `buildHeaders` — as duas leituras abaixo são escopadas por
+// arena no backend, é de lá que vem o `409 arena_selection_required` citado
+// no comentário de topo. O que este helper dispensa é só o interceptor de
+// refresh/401->redirect, nunca os headers.
 async function visitorSafeGet(path: string): Promise<Response> {
-  const headers = new Headers()
-  if (isNativePlatform()) {
-    const token = await getSessionToken()
-    if (token) headers.set('Authorization', `Bearer ${token}`)
-  }
-  return fetch(apiBaseUrl() + path, { credentials: 'include', headers })
+  return fetch(apiBaseUrl() + path, { credentials: 'include', headers: await buildHeaders() })
 }
 
 export interface ApiFailure {

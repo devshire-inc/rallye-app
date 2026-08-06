@@ -32,13 +32,37 @@
  * Provider (exigido pelo eslint react-refresh/only-export-components).
  */
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useSyncExternalStore,
+  type ReactNode,
+} from 'react'
 import { permissionsQueryOptions } from '../lib/query/identity'
 import { SESSION_ESTABLISHED_EVENT } from '../lib/httpClient'
+import { getRequestUnitId, subscribeActiveUnitId } from '../lib/tenantContext'
 import { PermissionsContext, type PermissionsState } from './permissionsContextInstance'
 
 export function PermissionsProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient()
+
+  /**
+   * A arena da requisição entra na CHAVE da query (ver identityKeys.
+   * permissions em ../lib/query/identity.ts): permissions são por arena, e
+   * uma chave única para todas servia o mapa da arena anterior depois da
+   * troca.
+   *
+   * `getRequestUnitId()` lê duas fontes mutáveis FORA do React — a URL e o
+   * sessionStorage da seleção do S1 — e `subscribeActiveUnitId` observa as
+   * duas (ver ../lib/tenantContext.ts). Sem isso, a chave continuaria
+   * descrevendo a arena anterior enquanto o header já leva a nova, e a
+   * resposta da arena B seria gravada na entrada de cache da arena A. Com a
+   * chave certa, o react-query busca a nova sozinho: a troca de arena passa
+   * a ser correta por construção, não por alguém lembrar de invalidar.
+   */
+  const unitId = useSyncExternalStore(subscribeActiveUnitId, getRequestUnitId, () => null)
 
   /**
    * A query fica DESABILITADA até a primeira sessão ser estabelecida (ou
@@ -50,7 +74,7 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
    */
   const [enabled, setEnabled] = useState(false)
 
-  const query = useQuery({ ...permissionsQueryOptions(), enabled })
+  const query = useQuery({ ...permissionsQueryOptions(unitId), enabled })
 
   /**
    * Regra (b): `refetch()` continua AWAITABLE, e continua sendo o que
@@ -72,7 +96,7 @@ export function PermissionsProvider({ children }: { children: ReactNode }) {
   const refetch = useCallback(async () => {
     setEnabled(true)
     try {
-      await queryClient.fetchQuery({ ...permissionsQueryOptions(), staleTime: 0 })
+      await queryClient.fetchQuery({ ...permissionsQueryOptions(getRequestUnitId()), staleTime: 0 })
     } catch {
       // Esconder sempre: uma falha ao buscar permissions nunca deve virar
       // "liberado por omissão". O erro já está registrado no cache da query

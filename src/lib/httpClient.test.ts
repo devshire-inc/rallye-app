@@ -34,6 +34,7 @@ describe('httpClient', () => {
     vi.clearAllMocks()
     isNativePlatformMock.mockReturnValue(false)
     window.sessionStorage.clear()
+    window.history.replaceState({}, '', '/')
   })
 
   afterEach(() => {
@@ -197,5 +198,88 @@ describe('httpClient', () => {
     const [url, options] = fetchMock.mock.calls[0]
     expect(url).toContain('/auth/logout')
     expect(options.method).toBe('POST')
+  })
+
+  // ---------------------------------------------------------------------
+  // X-Rallye-Unit — a arena ativa por REQUISIÇÃO (backend 0ffc008)
+  // ---------------------------------------------------------------------
+
+  const UNIT_A = '11111111-1111-4111-8111-111111111111'
+  const UNIT_B = '22222222-2222-4222-8222-222222222222'
+
+  it('apiFetch: envia X-Rallye-Unit com a unit da URL /units/{id}/... — é o que tira o multi-arena do 409', async () => {
+    window.history.replaceState({}, '', `/units/${UNIT_A}/dashboard`)
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, { total_xp: 10 }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { apiFetch } = await import('./httpClient')
+    await apiFetch('/students/student-1/xp')
+
+    const [, options] = fetchMock.mock.calls[0]
+    expect(new Headers(options.headers).get('X-Rallye-Unit')).toBe(UNIT_A)
+  })
+
+  it('apiFetch: NÃO envia o header quando não há arena resolvida — deixa o backend cair no fallback antigo em vez de chutar (403)', async () => {
+    window.history.replaceState({}, '', '/perfil')
+    const { setSessionMemberships } = await import('./tenantContext')
+    setSessionMemberships([
+      { unit_id: UNIT_A, tenant_id: 'tenant-1' },
+      { unit_id: UNIT_B, tenant_id: 'tenant-2' },
+    ])
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, {}))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { apiFetch } = await import('./httpClient')
+    await apiFetch('/me/permissions')
+
+    const [, options] = fetchMock.mock.calls[0]
+    expect(new Headers(options.headers).has('X-Rallye-Unit')).toBe(false)
+  })
+
+  it('apiFetch: fora de /units/..., usa a arena escolhida no S1 — é o que faz /perfil, /notificacoes e o /me/permissions da troca funcionarem', async () => {
+    window.history.replaceState({}, '', '/perfil')
+    const { setSelectedUnitId } = await import('./tenantContext')
+    setSelectedUnitId(UNIT_B)
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, {}))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { apiFetch } = await import('./httpClient')
+    await apiFetch('/me/permissions')
+
+    const [, options] = fetchMock.mock.calls[0]
+    expect(new Headers(options.headers).get('X-Rallye-Unit')).toBe(UNIT_B)
+  })
+
+  it('apiFetch: no mobile, o header de arena convive com o Authorization: Bearer (nenhum depende de cookie)', async () => {
+    window.history.replaceState({}, '', `/units/${UNIT_A}/agenda`)
+    isNativePlatformMock.mockReturnValue(true)
+    getSessionTokenMock.mockResolvedValue('token-nativo')
+    const fetchMock = vi.fn().mockResolvedValue(jsonResponse(200, {}))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { apiFetch } = await import('./httpClient')
+    await apiFetch('/me/permissions')
+
+    const headers = new Headers(fetchMock.mock.calls[0][1].headers)
+    expect(headers.get('Authorization')).toBe('Bearer token-nativo')
+    expect(headers.get('X-Rallye-Unit')).toBe(UNIT_A)
+  })
+
+  it('apiFetch: o retry depois do refresh-on-401 remonta os headers e leva o header de arena junto', async () => {
+    window.history.replaceState({}, '', `/units/${UNIT_A}/dashboard`)
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(jsonResponse(401, { error: 'unauthorized' }))
+      .mockResolvedValueOnce(
+        jsonResponse(200, { session_token: 'st', refresh_token: 'rt', memberships: [] }),
+      )
+      .mockResolvedValueOnce(jsonResponse(200, { ok: true }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { apiFetch } = await import('./httpClient')
+    await apiFetch('/students/student-1/skill-levels')
+
+    const [, retryOptions] = fetchMock.mock.calls[2]
+    expect(new Headers(retryOptions.headers).get('X-Rallye-Unit')).toBe(UNIT_A)
   })
 })

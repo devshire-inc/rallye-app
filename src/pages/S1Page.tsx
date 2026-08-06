@@ -13,6 +13,7 @@ import { usePermissionsContext } from '../hooks/usePermissionsContext'
 import { accessMembership, listMyMemberships, type MembershipListItem } from '../lib/api'
 import { dashboardPathForRole } from '../lib/dashboardTarget'
 import { invalidateIdentity } from '../lib/query/identity'
+import { setSelectedUnitId } from '../lib/tenantContext'
 import './S1Page.css'
 
 const EMPTY_STATE_MESSAGE =
@@ -62,6 +63,14 @@ export default function S1Page() {
   const enterMembership = useCallback(
     async (membership: MembershipListItem) => {
       setEnteringUnitId(membership.unitId)
+      // Marca a arena escolhida antes de QUALQUER chamada desta troca. As
+      // duas abaixo saem de `/s1`/`/trocar-arena`, rotas sem `/units/` no
+      // path, então é esta seleção persistida que decide o `X-Rallye-Unit`
+      // que elas levam (ver getRequestUnitId em ../lib/tenantContext.ts).
+      // Sem isto, quem tem 2+ memberships continuaria tomando `409
+      // arena_selection_required` justamente na chamada que decide o gating
+      // da arena nova.
+      setSelectedUnitId(membership.unitId)
       try {
         await accessMembership(membership.unitId)
       } catch {

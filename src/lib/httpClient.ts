@@ -21,7 +21,7 @@ import {
   setRefreshToken,
   setSessionToken,
 } from './secureStorage'
-import { type Membership, setSessionMemberships } from './tenantContext'
+import { getRequestUnitId, type Membership, setSessionMemberships } from './tenantContext'
 
 export const SESSION_EXPIRED_EVENT = 'rallye:session-expired'
 /**
@@ -84,13 +84,51 @@ async function persistSessionResponse(data: SessionResponse): Promise<void> {
   await Promise.all([setSessionToken(data.session_token), setRefreshToken(data.refresh_token)])
 }
 
-async function buildHeaders(init?: RequestInit): Promise<Headers> {
+/**
+ * Header que define a arena ativa DA REQUISIÇÃO (backend `0ffc008`, já no
+ * ar). Antes dele o servidor só conseguia derivar a arena quando o usuário
+ * tinha exatamente uma membership — com 0 ou 2+ respondia `409
+ * arena_selection_required`, porque a escolha feita no S1 vivia só na rota
+ * do frontend e nunca chegava ao servidor.
+ *
+ * Contrato do backend (não mude sem mudar lá):
+ *   - ausente          -> comportamento antigo (1 membership resolve; 0/2+ -> 409)
+ *   - membership sua   -> 200
+ *   - qualquer outra coisa (arena alheia, inexistente, malformada) -> 403,
+ *     indistinguíveis entre si de propósito (não vazam existência)
+ *
+ * Por isso o valor NUNCA é chutado: ver `getRequestUnitId` em
+ * ./tenantContext.ts, que devolve null quando não há arena conhecida — um
+ * 409 honesto é melhor que um 403.
+ */
+export const ACTIVE_UNIT_HEADER = 'X-Rallye-Unit'
+
+/**
+ * Headers comuns a TODA chamada autenticada do app. Exportado porque os
+ * clientes "visitor-safe" (../lib/api/tournamentWithdrawal.ts e
+ * ../lib/api/tournamentBrackets.ts) replicam deliberadamente o `fetch` sem o
+ * interceptor de refresh/redirect deste módulo, mas precisam dos MESMOS
+ * headers — sem isto, a injeção do `X-Rallye-Unit` estaria duplicada em três
+ * arquivos e sairia de sincronia no primeiro ajuste.
+ *
+ * Vale igual no caminho nativo (Capacitor): o header de arena é ortogonal ao
+ * `Authorization: Bearer` — os dois são setados aqui, no mesmo lugar, e
+ * nenhum depende de cookie.
+ */
+export async function buildHeaders(init?: RequestInit): Promise<Headers> {
   const headers = new Headers(init?.headers)
   if (isNativePlatform()) {
     const token = await getSessionToken()
     if (token) {
       headers.set('Authorization', `Bearer ${token}`)
     }
+  }
+  // Não sobrescreve um valor explícito de quem chamou (nenhum call site faz
+  // isso hoje; a guarda existe para que passar a fazer seja possível sem
+  // surpresa).
+  if (!headers.has(ACTIVE_UNIT_HEADER)) {
+    const unitId = getRequestUnitId()
+    if (unitId) headers.set(ACTIVE_UNIT_HEADER, unitId)
   }
   if (init?.body && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')

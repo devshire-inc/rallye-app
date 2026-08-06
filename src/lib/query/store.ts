@@ -37,6 +37,16 @@ import {
 } from '../api/store'
 
 /**
+ * Auditoria do header `X-Rallye-Unit`: o catálogo JÁ carrega `unitId` na
+ * chave (ele é escopado por arena e recebe a unit no PATH); carrinho e
+ * pedidos continuam sem — verificado contra o hml: os dois respondem 200 SEM
+ * header nenhum (não estão atrás do gate de arena) e devolvem o mesmo corpo
+ * sob o header de qualquer uma das arenas. Para `orders` a evidência é
+ * direta: a lista traz um pedido da arena A mesmo com o header da arena B.
+ * Para `cart` o carrinho da conta testada estava vazio, então a conclusão se
+ * apoia no formato — a resposta é uma lista de `groups`, um POR ARENA, o que
+ * só faz sentido num recurso que atravessa arenas de propósito.
+ *
  * `catalog` e `cart` são ramos IRMÃOS sob o mesmo namespace, e não um só:
  * o catálogo é dado de arena (invalida ao trocar de arena/filtro), o carrinho
  * é dado do usuário e atravessa arenas. Invalidar um nunca deve derrubar o

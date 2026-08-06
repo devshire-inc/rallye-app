@@ -23,9 +23,14 @@ function Probe() {
   return <span data-testid="status">{state.status === 'ready' ? state.kind : state.status}</span>
 }
 
+const UNIT_A = '11111111-1111-4111-8111-111111111111'
+const UNIT_B = '22222222-2222-4222-8222-222222222222'
+
 describe('PermissionsContext', () => {
   beforeEach(() => {
     fetchMePermissionsMock.mockReset()
+    window.sessionStorage.clear()
+    window.history.replaceState({}, '', '/')
   })
 
   afterEach(() => {
@@ -104,5 +109,45 @@ describe('PermissionsContext', () => {
     })
 
     await waitFor(() => expect(screen.getByTestId('status').textContent).toBe('error'))
+  })
+
+  it('a arena entra na CHAVE de cache: navegar para outra arena não serve o mapa de permissions da anterior', async () => {
+    // Arena A: Aluno (só lê agenda). Arena B: Tenant Owner (config).
+    fetchMePermissionsMock
+      .mockResolvedValueOnce({ kind: 'full', permissions: { agenda: ['read'] } })
+      .mockResolvedValueOnce({ kind: 'full', permissions: { config: ['read', 'write'] } })
+
+    function PermissionsProbe() {
+      const { state } = usePermissionsContext()
+      return (
+        <span data-testid="perms">
+          {state.status === 'ready' && state.kind === 'full'
+            ? Object.keys(state.permissions).join(',')
+            : state.status}
+        </span>
+      )
+    }
+
+    window.history.replaceState({}, '', `/units/${UNIT_A}/dashboard`)
+    render(
+      <QueryTestProvider>
+        <PermissionsProvider>
+          <PermissionsProbe />
+        </PermissionsProvider>
+      </QueryTestProvider>,
+    )
+    act(() => {
+      window.dispatchEvent(new Event(SESSION_ESTABLISHED_EVENT))
+    })
+    await waitFor(() => expect(screen.getByTestId('perms').textContent).toBe('agenda'))
+
+    // Navegação de SPA pura (pushState), sem remontar nada — exatamente o
+    // caminho que pulava a invalidação manual e servia o cache da arena A.
+    act(() => {
+      window.history.pushState({}, '', `/units/${UNIT_B}/dashboard`)
+    })
+
+    await waitFor(() => expect(screen.getByTestId('perms').textContent).toBe('config'))
+    expect(fetchMePermissionsMock).toHaveBeenCalledTimes(2)
   })
 })

@@ -28,9 +28,34 @@ import { fetchMePermissions, type PermissionsResult } from '../api/permissions'
  */
 export const identityKeys = {
   all: ['identity'] as const,
+  /** GLOBAL: `GET /me` é `{ id, full_name }` do usuário — idêntico em
+   * qualquer arena. Incluir a unit aqui só criaria uma entrada de cache por
+   * arena para o mesmo dado. */
   me: ['identity', 'me'] as const,
+  /** GLOBAL: `GET /me/memberships` é justamente a LISTA de arenas. Escopá-la
+   * por arena seria circular. */
   memberships: ['identity', 'memberships'] as const,
-  permissions: ['identity', 'permissions'] as const,
+  /**
+   * ESCOPADA POR ARENA — e este é o ponto perigoso desta camada.
+   *
+   * `GET /me/permissions` responde as permissões do usuário NA ARENA ATIVA
+   * (é um dos endpoints que devolvia `409 arena_selection_required` sem
+   * arena resolvida). Com a chave sem a unit, o mapa da arena A ficava
+   * cacheado e a arena B lia ele: gating de menu, botões e telas inteiras
+   * decididos pelo papel da arena errada, sem erro nenhum na tela. Um
+   * Tenant Owner numa arena e Aluno na outra veria o app inteiro como Owner.
+   *
+   * Antes disso só não acontecia porque a troca de arena chamava
+   * `invalidateIdentity` na mão — uma disciplina de call site, não uma
+   * garantia: qualquer caminho novo para a arena B (link direto, deep link
+   * de notificação, reload em `/units/B/...`, segunda aba) pulava a
+   * invalidação e servia o cache errado. Com a unit na chave, arena A e
+   * arena B são entradas diferentes e a pergunta deixa de existir.
+   *
+   * `null` (nenhuma arena resolvida) é uma chave legítima e distinta: é o
+   * estado em que o header não vai e o backend responde pelo caminho antigo.
+   */
+  permissions: (unitId: string | null) => ['identity', 'permissions', unitId] as const,
 }
 
 /** Falha de `GET /me` (resposta `!ok` ou erro de rede) transportada como
@@ -95,10 +120,17 @@ export function membershipsQueryOptions() {
  * quando pode buscar — o PermissionsProvider só habilita depois de
  * SESSION_ESTABLISHED_EVENT (ver comentário de pacote lá), preservando o
  * estado `idle` de antes do primeiro fetch.
+ *
+ * `unitId` NÃO é um parâmetro da requisição — a arena viaja no header
+ * `X-Rallye-Unit`, injetado por `apiFetch` (../httpClient.ts). Ele existe
+ * aqui só para entrar na CHAVE, e por isso tem que ser exatamente o mesmo
+ * valor que o header vai levar: quem chama passa `getRequestUnitId()`, nunca
+ * um unitId de outra fonte (route param, props, `getActiveUnitId`), sob pena
+ * de a chave descrever uma arena e a resposta ser de outra.
  */
-export function permissionsQueryOptions() {
+export function permissionsQueryOptions(unitId: string | null) {
   return queryOptions<PermissionsResult>({
-    queryKey: identityKeys.permissions,
+    queryKey: identityKeys.permissions(unitId),
     queryFn: fetchMePermissions,
     retry: false,
   })

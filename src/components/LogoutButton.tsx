@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from './ui/Button/Button'
 import { logout } from '../lib/httpClient'
 import { clearTokens } from '../lib/secureStorage'
+import { clearSelectedUnitId } from '../lib/tenantContext'
 
 /**
  * Botão de logout (BEAC-1794): chama POST /auth/logout e, independente do
@@ -24,6 +25,11 @@ export default function LogoutButton() {
       await logout()
     } finally {
       await clearTokens()
+      // A arena escolhida é da SESSÃO, não da aba: mantida, ela iria no
+      // header `X-Rallye-Unit` da próxima sessão desta aba — e uma unit que
+      // não é membership de quem logar depois recebe 403 do backend (ver
+      // ACTIVE_UNIT_HEADER em ../lib/httpClient.ts).
+      clearSelectedUnitId()
       navigate('/login', { replace: true })
     }
   }

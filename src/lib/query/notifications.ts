@@ -16,6 +16,14 @@
 import { queryOptions } from '@tanstack/react-query'
 import { getUnreadNotificationCount } from '../api/notifications'
 
+/**
+ * SEM a unit na chave, e isso foi VERIFICADO, não presumido (auditoria do
+ * header `X-Rallye-Unit`): contra o hml, `GET /me/notifications/unread-count`
+ * e `GET /me/notifications` respondem 200 sem header nenhum e devolvem
+ * exatamente o mesmo corpo com o header de cada uma das duas arenas de uma
+ * conta multi-arena. São dados do PERFIL, não da arena — escopá-los por
+ * arena só duplicaria entrada de cache para o mesmo conteúdo.
+ */
 export const notificationKeys = {
   all: ['notifications'] as const,
   unreadCount: ['notifications', 'unread-count'] as const,
