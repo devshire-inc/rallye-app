@@ -1,7 +1,7 @@
 /* PF5 — Configurações, seção mínima "Notificações" (BEAC-2035, story
  * BEAC-1727). Self-contained, mesmo padrão de NotificationPreferencesPage.css
  * (PF6, mesma pasta) — reaproveita literalmente os mesmos seletores
- * genéricos (.pg-head/.dash-body/.set-title/.menu-list/.menu-row/.switch),
+ * genéricos (.pg-head/.dash-body/.set-title/.menu-list/.switch),
  * já que as duas telas compõem o mesmo fluxo de preferências.
  */
 
@@ -54,7 +54,25 @@
   background: var(--surface-card);
 }
 
-.menu-row {
+/* Linha do cartão de configurações. Nome próprio (`.pf5-menu-row`, mesmo
+ * prefixo de `.pf5-error` abaixo), NÃO `.menu-row`: a classe nua `.menu-row`
+ * é do componente do design system (src/components/ui/ListRow/MenuRow.css) e
+ * a redeclaração daqui, com a mesma especificidade (0,1,0), carregava depois
+ * dele no bundle e vencia — todo `MenuRow` do app (ProfilePage) renderizava
+ * com `padding: 13px 16px` e `600 13.5px` em vez do `var(--space-3)
+ * var(--space-4)` + `font: var(--type-body)` do componente.
+ *
+ * As cinco primeiras declarações não são novas: eram o que estas linhas
+ * herdavam do `.menu-row` do design system e precisam continuar valendo para
+ * a tela não mudar. `cursor: default` importa de verdade — a última linha é
+ * um `<Link>`, e sem essa declaração o cursor viraria `pointer`, que é
+ * comportamento diferente do de hoje. */
+.pf5-menu-row {
+  box-sizing: border-box;
+  width: 100%;
+  background: transparent;
+  text-align: left;
+  cursor: default;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -63,12 +81,13 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-heading);
+  border: none;
   border-bottom: 1px solid var(--border-default);
 }
-.menu-row:last-child {
+.pf5-menu-row:last-child {
   border-bottom: none;
 }
-.menu-row .chev {
+.pf5-menu-row .chev {
   color: var(--text-muted);
 }
 

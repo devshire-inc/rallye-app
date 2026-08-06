@@ -59,7 +59,16 @@
   gap: 10px;
 }
 
-.plan-card {
+/* Cartão de plano da listagem. Nome próprio (`.pl1-plan-card`), NÃO
+ * `.plan-card`: a classe nua é do componente do design system
+ * (src/components/ui/PlanCard/PlanCard.css). Hoje a colisão ainda não
+ * aparecia no app porque nenhuma tela importa `ui/PlanCard` — o CSS dele
+ * sequer entra no bundle de produção, então esta regra era a única `.plan-card`
+ * existente e a renomeação não muda um pixel desta tela. Bastaria a primeira
+ * tela consumir o componente para ele nascer sobrescrito, com a mesma
+ * especificidade (0,1,0) e ordem de bundle decidindo — foi assim que `.toast`,
+ * `.card` e `.badge` chegaram até o dono do produto. */
+.pl1-plan-card {
   display: flex;
   gap: 12px;
   align-items: center;
@@ -74,25 +83,25 @@
   font: inherit;
   color: inherit;
 }
-.plan-card:hover {
+.pl1-plan-card:hover {
   border-color: var(--interactive-primary);
 }
-.plan-card.inactive {
+.pl1-plan-card.inactive {
   opacity: 0.55;
 }
-.plan-card .pc-main {
+.pl1-plan-card .pc-main {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
 }
-.plan-card h3 {
+.pl1-plan-card h3 {
   font-family: var(--font-display);
   font-weight: 600;
   font-size: 15px;
   margin: 0 0 2px;
 }
-.plan-card .mt {
+.pl1-plan-card .mt {
   font-size: 11.5px;
   color: var(--text-muted);
 }

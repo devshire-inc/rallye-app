@@ -1,9 +1,9 @@
 /* PF6 — Preferências de Notificação (BEAC-2034, story BEAC-1727).
  * Self-contained: redefine as classes genéricas que esta página usa
- * (.pg-head/.dash-body/.set-title/.menu-list/.menu-row/.switch) em vez de
+ * (.pg-head/.dash-body/.set-title/.menu-list/.switch) em vez de
  * depender de outra página já ter carregado o CSS equivalente — mesmo
  * padrão de ArenaSettingsPage.css/ProfilePage.css/DayUseConfigPage.css.
- * .menu-list/.menu-row copiados de ProfilePage.css (mesmo cartão de linhas
+ * .menu-list copiado de ProfilePage.css (mesmo cartão de linhas
  * agrupadas), .switch/.tr/.th copiados de DayUseConfigPage.css (mesmo
  * toggle visual), .pg-head copiado de ArenaSettingsPage.css.
  */
@@ -57,7 +57,21 @@
   background: var(--surface-card);
 }
 
-.menu-row {
+/* Linha do cartão de preferências. Nome próprio (`.pf6-menu-row`, mesmo
+ * prefixo de `.pf6-error` abaixo), NÃO `.menu-row`: a classe nua é do
+ * componente do design system (src/components/ui/ListRow/MenuRow.css) e
+ * redeclará-la aqui derrubava as declarações dele em todo o app pela ordem do
+ * bundle — ver o comentário longo em SettingsPage.css, que tinha a cópia
+ * gêmea desta regra. As quatro primeiras declarações vinham do componente e
+ * foram copiadas para a tela não mudar. `cursor: default` entra junto: sem
+ * ele o valor cai para `auto`, que sobre texto vira cursor de seleção — o
+ * Chromium mostrou essa diferença na medição antes/depois. */
+.pf6-menu-row {
+  box-sizing: border-box;
+  width: 100%;
+  background: transparent;
+  text-align: left;
+  cursor: default;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -66,9 +80,10 @@
   font-size: 13.5px;
   font-weight: 600;
   color: var(--text-heading);
+  border: none;
   border-bottom: 1px solid var(--border-default);
 }
-.menu-row:last-child {
+.pf6-menu-row:last-child {
   border-bottom: none;
 }
 

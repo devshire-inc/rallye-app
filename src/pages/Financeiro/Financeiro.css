@@ -132,37 +132,24 @@
   margin: 0 0 var(--space-3);
 }
 
-/* Badges */
-.badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-}
-.badge.b-success {
-  background: var(--state-success-soft);
-  color: var(--state-success);
-}
-.badge.b-warning {
-  background: var(--state-warning-soft);
-  color: var(--state-warning);
-}
-.badge.b-error {
-  background: var(--state-danger-soft);
-  color: var(--state-danger);
-}
-.badge.b-neutral {
-  background: var(--sand-200);
-  color: var(--text-heading);
-}
-.badge.b-info {
-  background: var(--state-info-soft);
-  color: var(--state-info);
-}
+/* Badges — REMOVIDOS.
+
+   `.badge` + `.badge.b-*` eram o selo legado desta folha, de antes de F2/F3/F5
+   migrarem para `ui/Badge` (`tone=`, ver STATUS_BADGE_TONE nos .tsx). Depois
+   da migração nenhuma marcação do Financeiro emitia mais `class="badge"` —
+   varrido em F1..F5/Blocked/Pix, e `statusBadgeClass` (src/lib/invoiceStatus.ts)
+   não tem consumidor em nenhum .tsx. O único efeito que restava era o
+   colateral: a classe NUA `.badge` é do componente
+   (src/components/ui/Badge/Badge.css) e esta folha carregava DEPOIS dele no
+   bundle, com a mesma especificidade (0,1,0) — então todo `ui/Badge` do app,
+   em qualquer tela, renderizava com os valores daqui em vez dos do design
+   system. Medido em Chromium sobre o bundle de produção: 10,5px/600 com
+   `padding: 4px 11px` e `letter-spacing: 0.02em`, no lugar de
+   `font: var(--type-label)` (700 13px/1.2) com `padding: 0 var(--space-3)`.
+   Removendo, o componente volta a valer — inclusive aqui.
+
+   O selo local de AG4 (única tela que ainda tinha marcação própria) ganhou
+   nome próprio no mesmo passo: `.ag4-badge` em AG4TeacherAgendaPage.css. */
 
 /* Lista de faturas (F2/F5) */
 .ag-list {
@@ -400,12 +387,17 @@
   text-align: right;
 }
 
-.empty-state {
-  text-align: center;
-  padding: var(--space-8) var(--space-4);
-  color: var(--text-muted);
-  font-size: 13px;
-}
+/* `.empty-state` — REMOVIDO, mesma história do `.badge` acima. Era o vazio
+   legado desta folha; F5 e BlockedByDelinquency passaram a usar
+   `ui/EmptyState`, e nenhuma marcação do Financeiro emite mais
+   `class="empty-state"` — o único consumidor da classe no repositório é o
+   próprio componente (src/components/ui/EmptyState/EmptyState.tsx). Como a
+   classe é nua e esta folha carrega depois do componente, a regra vencia e
+   apertava o `padding` lateral de TODO `ui/EmptyState` do app de
+   `var(--space-6)` (24px) para `var(--space-4)` (16px). `text-align`, `color`
+   e `font-size` daqui não chegavam a aparecer: `.empty-state__title` e
+   `.empty-state__description` já os redefinem. Medido em Chromium sobre o
+   bundle: 320x239,19 com padding `32px 16px` -> padding `32px 24px`. */
 
 .group-header {
   font-size: 11px;

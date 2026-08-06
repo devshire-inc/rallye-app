@@ -120,7 +120,7 @@ export default function SettingsPage() {
           <div>
             <div className="set-title">Notificações</div>
             <div className="menu-list">
-              <div className="menu-row">
+              <div className="pf5-menu-row">
                 <span>🔔 Push notifications</span>
                 <Switch
                   ariaLabel="Push notifications"
@@ -129,7 +129,7 @@ export default function SettingsPage() {
                   onChange={(checked) => handleToggle('push', checked)}
                 />
               </div>
-              <div className="menu-row">
+              <div className="pf5-menu-row">
                 <span>📧 Email</span>
                 <Switch
                   ariaLabel="Email"
@@ -138,14 +138,14 @@ export default function SettingsPage() {
                   onChange={(checked) => handleToggle('email', checked)}
                 />
               </div>
-              <div className="menu-row menu-row-whatsapp">
+              <div className="pf5-menu-row menu-row-whatsapp">
                 <span className="menu-row-main">
                   <span>📱 WhatsApp</span>
                   <span className="hint-inline">disponível quando a integração estiver ativa</span>
                 </span>
                 <Switch ariaLabel="WhatsApp" checked={false} disabled />
               </div>
-              <Link className="menu-row" to="/configuracoes/notificacoes">
+              <Link className="pf5-menu-row" to="/configuracoes/notificacoes">
                 <span>Gerenciar preferências por evento</span>
                 <span className="chev">→</span>
               </Link>

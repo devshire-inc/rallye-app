@@ -171,7 +171,7 @@ export default function NotificationPreferencesPage() {
         <div className="set-title">{group.title}</div>
         <div className="menu-list">
           {group.items.map((item) => (
-            <div className="menu-row" key={item.eventType}>
+            <div className="pf6-menu-row" key={item.eventType}>
               <span>{item.label}</span>
               <Switch
                 ariaLabel={item.label}

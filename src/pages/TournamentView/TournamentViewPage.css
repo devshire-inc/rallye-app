@@ -277,12 +277,25 @@
   white-space: nowrap;
 }
 
-.card {
-  background: var(--surface-card);
-  border: 1px solid var(--border-default);
-  border-radius: var(--radius-lg);
-  padding: var(--space-4);
-}
+/* `.card` — REMOVIDO. Era o card genérico copiado do protótipo, e esta tela
+   não tinha (nem tem) um único elemento com `class="card"`: os blocos daqui
+   usam `.tv-card`, e a página não importa `ui/Card`. O que a regra fazia, na
+   prática, era só uma coisa — sobrescrever o componente do design system.
+   A classe nua `.card` é de src/components/ui/Card/Card.css; mesma
+   especificidade (0,1,0), e esta folha carrega depois no bundle, então todo
+   `ui/Card` do app ganhava `border: 1px solid var(--border-default)` (o DS
+   entrega borda nenhuma + `--shadow-card`) e `padding: var(--space-4)` fixo,
+   ignorando a prop `padding` do componente, que só seta `--card-padding`
+   inline. Esse é exatamente o defeito que MatchDetailPage.css e
+   RankingsPage.css já descrevem como "COLISÃO GLOBAL" e contornam com
+   `.mtc-page .card` / `.rnk-page .card` (0,2,0) — os contornos continuam
+   válidos, agora reafirmando valores em vez de consertar sobrescrita alheia.
+   Medido em Chromium sobre o bundle de produção: `ui/Card` sai de
+   `border: 1px solid rgb(235,223,201)` para `border: none`; o `padding` não
+   muda no caso padrão (`--card-padding` já é `var(--space-4)`). Os cards do
+   Day Use (`.card.du2-day-use-card` etc., 0,2,0) não mudam: já declaravam
+   fundo/borda/raio/padding próprios. Precedente: `.card` -> `.fin-card` em
+   Financeiro.css. */
 .sec-head-title {
   font-family: var(--font-display);
   font-size: 14px;

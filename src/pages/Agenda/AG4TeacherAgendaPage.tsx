@@ -233,7 +233,7 @@ export default function AG4TeacherAgendaPage() {
             </>
           ) : null}
           {state === 'future' ? <span className="hint ag4-future-hint">Disponível às {formatTime(booking.startAt)}</span> : null}
-          {state === 'done' ? <span className="badge b-success">✅ Check-in feito</span> : null}
+          {state === 'done' ? <span className="ag4-badge ag4-badge--success">✅ Check-in feito</span> : null}
         </div>
       </div>
     )
@@ -335,7 +335,7 @@ export default function AG4TeacherAgendaPage() {
                       onClick={() => navigate(`/units/${participantsBooking.unitId}/students/${p.studentId}`)}
                     >
                       <span className="ag4-participant-name">{p.studentName ?? 'Aluno'}</span>
-                      {tierLabel ? <span className="badge b-neutral">{tierLabel}</span> : null}
+                      {tierLabel ? <span className="ag4-badge ag4-badge--neutral">{tierLabel}</span> : null}
                     </button>
                   </li>
                 )

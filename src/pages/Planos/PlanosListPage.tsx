@@ -215,7 +215,7 @@ function PlanCard({ plan, onClick }: { plan: PlanSummary; onClick: () => void })
   return (
     <button
       type="button"
-      className={`plan-card${plan.isActive ? '' : ' inactive'}`}
+      className={`pl1-plan-card${plan.isActive ? '' : ' inactive'}`}
       onClick={onClick}
       data-testid={`plan-card-${plan.id}`}
     >

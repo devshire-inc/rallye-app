@@ -1,6 +1,6 @@
 /* AG4 — Minha Agenda (Professor). .dgroup/.ag-list/.ag-row/.date-nav/
  * .iconbtn/.dlabel já vêm de Agenda.css (compartilhado com AG1/AG2/AG3);
- * .dash-body/.hint/.badge são redefinidos aqui (mesmo padrão de
+ * .dash-body/.hint são redefinidos aqui (mesmo padrão de
  * AG3StudentAgendaPage.css — cada tela de agenda possui seu próprio CSS
  * scoped, sem um arquivo verdadeiramente global para essas classes ainda). */
 .dash-body {
@@ -14,20 +14,43 @@
   font-size: 12.5px;
   color: var(--text-muted);
 }
-.badge {
+/* Selo local da linha de agenda. Nome próprio (`.ag4-badge`), NÃO `.badge`:
+ * a classe nua `.badge` é do componente do design system
+ * (src/components/ui/Badge/Badge.css) e redeclará-la aqui, com a mesma
+ * especificidade (0,1,0), derrubava as declarações do componente em TODO o
+ * app pela ordem do bundle. Mesmo desfecho de `.toast` -> `.nrs-notice` em
+ * NovaReservaSheet.css e de `.card` -> `.fin-card` em Financeiro.css.
+ *
+ * As seis primeiras declarações abaixo NÃO são novas: eram o que estes spans
+ * herdavam silenciosamente do `.badge` do design system (a regra da tela só
+ * sobrescrevia parte dele). Foram copiadas com os mesmos valores para que a
+ * aparência de AG4 não mude — medido em Chromium sobre o bundle de produção:
+ * o selo continua com caixa 26px de altura e texto 10,5px/600.
+ *
+ * `letter-spacing: 0.02em` vinha do `.badge` de Financeiro.css, que carregava
+ * depois desta folha e vencia a cascata mesmo em AG4 — o valor foi trazido
+ * para cá pelo mesmo motivo (sem ele o texto encolheria ~0,2px por caractere). */
+.ag4-badge {
+  box-sizing: border-box;
+  justify-content: center;
+  height: 26px;
+  border: 1px solid transparent;
+  font: var(--type-label);
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 5px;
   font-size: 10.5px;
   font-weight: 600;
+  letter-spacing: 0.02em;
   padding: 4px 11px;
   border-radius: var(--radius-pill);
 }
-.badge.b-success {
+.ag4-badge--success {
   background: var(--state-success-soft);
   color: var(--state-success);
 }
-.badge.b-neutral {
+.ag4-badge--neutral {
   background: var(--sand-200);
   color: var(--text-heading);
 }
