@@ -309,7 +309,13 @@
   gap: 8px;
 }
 
-.toast {
+/* Aviso inline da aba de ranking. Nome próprio (`.tv-notice`), NÃO `.toast`:
+   `.toast` é do componente do design system (src/components/Toast.css) e a
+   colisão de classe nua sobrescrevia `align-items: center` por `flex-start`
+   em TODO o app — o toast real ficava com mensagem e ação desalinhadas.
+   Mesmo desfecho já registrado em Financeiro.css (`.toast` ->
+   `.refund-rule-toast`). */
+.tv-notice {
   display: flex;
   align-items: flex-start;
   gap: 8px;
@@ -318,7 +324,7 @@
   font-size: 12.5px;
   margin: 0;
 }
-.toast-neutral {
+.tv-notice--neutral {
   background: var(--sand-200);
   color: var(--text-heading);
 }

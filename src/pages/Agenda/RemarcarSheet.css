@@ -8,6 +8,23 @@
   gap: var(--space-4);
 }
 
+/* Contador de créditos. Antes usava `toast toast-info` sem NENHUMA regra
+   local: pegava carona no `.toast` nu de outra página (TournamentViewPage/
+   NovaReservaSheet/DayUseConfigPage), então a aparência dependia da ordem do
+   bundle, e `.toast-info` nunca existiu em lugar nenhum. Classe própria aqui
+   — as regras `.toast` nuas foram renomeadas justamente por colidirem com o
+   componente Toast do design system. Valores = os do `.toast` que vencia a
+   cascata (TournamentViewPage.css), pra não mudar o visual desta tela. */
+.remarcar-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font-size: 12.5px;
+  margin: 0;
+}
+
 .remarcar-slot-list {
   display: flex;
   flex-direction: column;

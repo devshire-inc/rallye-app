@@ -534,7 +534,7 @@ export function NovaReservaSheet({
         {message ? (
           <div
             role={message.kind === 'error' ? 'alert' : 'status'}
-            className={`toast toast-${message.kind === 'success' ? 'success' : message.kind === 'unavailable' ? 'neutral' : 'error'}`}
+            className={`nrs-notice nrs-notice--${message.kind === 'success' ? 'success' : message.kind === 'unavailable' ? 'neutral' : 'error'}`}
           >
             {message.text}
           </div>

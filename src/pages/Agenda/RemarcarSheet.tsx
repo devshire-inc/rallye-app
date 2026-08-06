@@ -236,7 +236,7 @@ export function RemarcarSheet({ unitId, studentId, onRescheduled, onRequestWaitl
 
       {state.status === 'ready' ? (
         <>
-          <p role="status" className="toast toast-info">
+          <p role="status" className="remarcar-notice">
             {`${state.creditCount} ${state.creditCount === 1 ? 'crédito' : 'créditos'} de reagendamento ${
               state.creditCount === 1 ? 'disponível' : 'disponíveis'
             } este mês`}

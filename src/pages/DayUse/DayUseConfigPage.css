@@ -1,5 +1,5 @@
 /* DU5 — Config Day Use (BEAC-1955, story BEAC-1712). Self-contained: redefine
- * as classes genéricas que esta página usa (.pg-head/.dash-body/.toast/
+ * as classes genéricas que esta página usa (.pg-head/.dash-body/
  * .tabs2/.form-grid/.hint-note) em vez de depender de outra página já ter
  * carregado o CSS equivalente — mesmo padrão de ArenaSettingsPage.css/
  * TurmasListPage.css. Valores copiados diretamente do protótipo real
@@ -39,7 +39,13 @@
   max-width: 600px;
 }
 
-.toast {
+/* Aviso inline do topo da tela. Nome próprio (`.dayuse-notice`), NÃO `.toast`:
+   `.toast` é do componente do design system (src/components/Toast.css) e a
+   colisão de classe nua sobrescrevia `align-items: center` por `flex-start`
+   em TODO o app — o toast real ficava com mensagem e ação desalinhadas.
+   Mesmo desfecho já registrado em Financeiro.css (`.toast` ->
+   `.refund-rule-toast`). */
+.dayuse-notice {
   display: flex;
   align-items: flex-start;
   gap: 10px;
@@ -49,7 +55,7 @@
   font-weight: 500;
   text-align: left;
 }
-.toast-neutral {
+.dayuse-notice--neutral {
   background: var(--surface-card);
   color: var(--text-heading);
   border: 1px solid var(--border-default);

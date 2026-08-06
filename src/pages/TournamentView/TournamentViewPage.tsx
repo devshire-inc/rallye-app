@@ -540,7 +540,7 @@ function ChavesTab({ tournamentId, status }: { tournamentId: string; status: Tou
 function RankingTab() {
   return (
     <div className="ptab-panel">
-      <div className="toast toast-neutral" role="status">
+      <div className="tv-notice tv-notice--neutral" role="status">
         O ranking do torneio aparece aqui após o encerramento — veja o ranking geral em <b>TO8</b>.
       </div>
     </div>

@@ -5,7 +5,16 @@
    Posição: Mobile ancora embaixo, Desktop no canto superior direito (doc
    239:546). Sem prop `layout`, a troca é só CSS por breakpoint — mesmo
    padrão do AppShell (sidebar/bottom-nav), ver src/lib/breakpoints.ts:
-   BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor. */
+   BREAKPOINT_SHELL_DESKTOP_MIN é a fonte canônica deste valor.
+
+   A classe nua `.toast` é DESTE componente. CSS de tela não deve redefini-la:
+   como a especificidade é a mesma (0,1,0), quem carrega depois vence, e uma
+   redefinição de página derrubava silenciosamente o `align-items: center`
+   daqui para `flex-start` — a mensagem (line-height 22,5px) e a ação
+   (15,6px) passavam a alinhar pelo topo, com as baselines 5px separadas, e
+   a ação aparecia visivelmente mais alta. Telas com aviso inline usam nome
+   próprio (`.tv-notice`, `.dayuse-notice`, `.nrs-notice`,
+   `.withdraw-notice`, `.remarcar-notice`, `.refund-rule-toast`). */
 
 .toast {
   box-sizing: border-box;

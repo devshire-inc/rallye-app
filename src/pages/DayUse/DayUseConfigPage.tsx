@@ -32,7 +32,8 @@ const BOOKING_VISIBILITY_HINT_TEXT =
  * quadra em DU5"). Markup/copy lidos diretamente do protótipo real (Artifact
  * "Rallye — Financeiro · Saque Noturno", seção `id="scr-du5"`, HTML salvo em
  * .claude/.../tool-results/artifact-89d79e7b-1783743889-d509.html linhas
- * ~1085-1149): `.toast.toast-neutral` fixo, um `.card` por quadra
+ * ~1085-1149): aviso neutro fixo (`.dayuse-notice`, renomeado do `.toast` do
+ * protótipo pra não colidir com o Toast do design system), um `.card` por quadra
  * (`.sdot` + nome + esporte + `.switch`), `.form-grid` (Preço/Vagas por dia/
  * Horário liberado/Dias disponíveis em `.tabs2`) só QUANDO ligado, botão
  * "Ver reservas" -> DU6, `.hint-note` fixo no rodapé.
@@ -136,7 +137,7 @@ export default function DayUseConfigPage() {
 
       {!canManage ? null : (
         <div className="dash-body">
-          <div className="toast toast-neutral" role="status">
+          <div className="dayuse-notice dayuse-notice--neutral" role="status">
             {SEPARATE_SCREEN_TOAST_TEXT}
           </div>
 

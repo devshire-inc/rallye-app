@@ -105,7 +105,7 @@ export function WithdrawSheet({
           {pairLabel} · {categoryName}
         </p>
 
-        <div className="toast toast-neutral" role="status">
+        <div className="withdraw-notice withdraw-notice--neutral" role="status">
           Decisão caso a caso — mesma lógica de estorno do Financeiro (total ou parcial).
         </div>
 
@@ -158,7 +158,7 @@ export function WithdrawSheet({
           </p>
         ) : null}
         {success ? (
-          <div className="toast toast-success" role="status">
+          <div className="withdraw-notice withdraw-notice--success" role="status">
             Desistência registrada. Vaga liberada na categoria.
           </div>
         ) : null}
