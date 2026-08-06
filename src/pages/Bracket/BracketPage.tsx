@@ -1,12 +1,10 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { BracketRoundHeader } from '../../components/ui/BracketRoundHeader/BracketRoundHeader'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { MatchCard } from '../../components/ui/MatchCard/MatchCard'
 import { Icon } from '../../components/ui/Icon/Icon'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useTournamentLive } from '../../hooks/useTournamentLive'
 import {
   getTournamentBracketInfo,
@@ -301,7 +299,6 @@ function BracketTableView({
  * único conjunto de nomes a partir da última rodada.
  */
 export default function BracketPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { tournamentId } = useParams<{ tournamentId: string }>()
   const navigate = useNavigate()
   const [tournamentState, setTournamentState] = useState<TournamentLoadState>({ status: 'loading' })
@@ -374,7 +371,7 @@ export default function BracketPage() {
   const tournamentHref = tournamentId ? `/tournaments/${tournamentId}` : '#'
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="brk-page">
         {/* "‹ Voltar" (frame mobile 177:2346) e breadcrumb (o frame desktop
             não desenha retorno nenhum, mas esta tela fica dois níveis abaixo
@@ -456,6 +453,6 @@ export default function BracketPage() {
           )}
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }

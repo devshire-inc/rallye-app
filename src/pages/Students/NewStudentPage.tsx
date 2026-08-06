@@ -1,8 +1,6 @@
 import { type FormEvent, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
   createStudent,
@@ -46,7 +44,6 @@ import './NewStudentPage.css'
  * 'alunos' — não existe uma versão "desabilitada" desta tela.
  */
 export default function NewStudentPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const canWrite = usePermission('alunos', 'write')
@@ -150,16 +147,16 @@ export default function NewStudentPage() {
 
   if (!canWrite) {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+      <>
         <div className="dash-body">
           <p role="alert">Você não tem permissão para cadastrar alunos nesta unidade.</p>
         </div>
-      </AppShell>
+      </>
     )
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <Link className="back" to={unitId ? `/units/${unitId}/members` : '/dashboard'}>
           ‹ Alunos
@@ -336,6 +333,6 @@ export default function NewStudentPage() {
           {submitting ? 'Cadastrando…' : 'Cadastrar e convidar'}
         </button>
       </form>
-    </AppShell>
+    </>
   )
 }

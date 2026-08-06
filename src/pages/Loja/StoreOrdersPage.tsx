@@ -1,12 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Button } from '../../components/ui/Button/Button'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import { TableHeaderCell } from '../../components/ui/TableHeaderCell/TableHeaderCell'
 import { TableRow } from '../../components/ui/TableRow/TableRow'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getActiveUnitId } from '../../lib/tenantContext'
 import type { StoreOrder } from '../../lib/api/store'
 import { formatBRL } from '../../lib/money'
@@ -49,7 +47,6 @@ import './Loja.css'
  * que distingue, exatamente como no frame.
  */
 export default function StoreOrdersPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const navigate = useNavigate()
   const activeUnitId = getActiveUnitId()
 
@@ -61,7 +58,7 @@ export default function StoreOrdersPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head shop-head">
         <button type="button" className="back shop-back" onClick={() => navigate(-1)}>
           ‹ Voltar
@@ -97,7 +94,7 @@ export default function StoreOrdersPage() {
           </>
         ) : null}
       </div>
-    </AppShell>
+    </>
   )
 }
 

@@ -1,12 +1,10 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
 import { Card } from '../../components/ui/Card/Card'
 import { IconButton } from '../../components/ui/IconButton/IconButton'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { ensureMe } from '../../lib/query/identity'
 import { getPlan, listPlans, type BillingCycle } from '../../lib/api/plans'
@@ -113,7 +111,6 @@ type LoadState =
  * "editar/desativar não afeta assinaturas existentes").
  */
 export default function PL5ChangePlanPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -255,7 +252,7 @@ export default function PL5ChangePlanPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <IconButton
           variant="ghost"
@@ -394,6 +391,6 @@ export default function PL5ChangePlanPage() {
           </Button>
         </div>
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }

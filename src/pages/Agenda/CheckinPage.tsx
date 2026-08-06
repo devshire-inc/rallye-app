@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { Toast } from '../../components/Toast'
 import { useToast } from '../../hooks/useToast'
 import { usePermission } from '../../hooks/usePermission'
@@ -70,7 +68,6 @@ import './CheckinPage.css'
  * cobrir o AC sem introduzir um novo componente de UI para uma única tela.
  */
 export default function CheckinPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, bookingId } = useParams<{ unitId: string; bookingId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
@@ -186,7 +183,7 @@ export default function CheckinPage() {
   const headerSubtitle = booking ? formatCheckinSubtitle(booking) : null
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <button type="button" className="back" onClick={handleBack}>
           ‹ Voltar
@@ -270,7 +267,7 @@ export default function CheckinPage() {
       </div>
 
       <Toast message={toast.message} variant={toast.variant} onDismiss={toast.dismiss} />
-    </AppShell>
+    </>
   )
 }
 

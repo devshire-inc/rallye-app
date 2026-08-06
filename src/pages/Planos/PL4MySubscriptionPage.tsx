@@ -1,14 +1,12 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useState, type CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
 import { Card } from '../../components/ui/Card/Card'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { Icon } from '../../components/ui/Icon/Icon'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { ensureMe } from '../../lib/query/identity'
 import type { BillingCycle } from '../../lib/api/plans'
@@ -182,7 +180,6 @@ type LoadState =
  *   retokenizado.
  */
 export default function PL4MySubscriptionPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -227,7 +224,7 @@ export default function PL4MySubscriptionPage() {
   }, [load])
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       {/* "‹ Voltar" existe só no frame mobile (node 165:1815); no desktop
           (186:2227) o topo é só o título — quem navega é a sidebar. Os dois
           estados vivem no mesmo DOM e quem escolhe é a @media de
@@ -327,7 +324,7 @@ export default function PL4MySubscriptionPage() {
           </Button>
         </div>
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }
 

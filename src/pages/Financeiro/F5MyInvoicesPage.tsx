@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
@@ -8,7 +7,6 @@ import { Icon } from '../../components/ui/Icon/Icon'
 import { TableHeaderCell } from '../../components/ui/TableHeaderCell/TableHeaderCell'
 import { TableRow } from '../../components/ui/TableRow/TableRow'
 import { Tabs } from '../../components/ui/Tabs/Tabs'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listInvoices, type InvoiceListItem, type InvoiceStatus } from '../../lib/api/invoices'
 import { daysUntilDue } from '../../lib/invoiceStatus'
 import { formatBRL } from '../../lib/money'
@@ -66,7 +64,6 @@ function formatDate(iso: string): string {
  * primeiro, depois pendentes.
  */
 export default function F5MyInvoicesPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [tab, setTab] = useState<Tab>('abertas')
@@ -119,7 +116,7 @@ export default function F5MyInvoicesPage() {
   }, [state])
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <h1>Minhas Faturas</h1>
       </div>
@@ -221,7 +218,7 @@ export default function F5MyInvoicesPage() {
           )
         ) : null}
       </div>
-    </AppShell>
+    </>
   )
 }
 

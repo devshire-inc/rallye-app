@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { SportTag } from '../../components/ui/SportTag/SportTag'
 import { StatCard } from '../../components/ui/StatCard/StatCard'
 import { Tabs } from '../../components/ui/Tabs/Tabs'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { listClasses, type RallyeClass } from '../../lib/api/classes'
@@ -109,7 +107,6 @@ const TAB_LABELS: Record<Tab, string> = {
  * então a página de destino espera `location.state.booking`).
  */
 export default function TurmaDetailPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, classId } = useParams<{ unitId: string; classId: string }>()
   const navigate = useNavigate()
   const canManage = usePermission('agenda', 'write')
@@ -150,7 +147,7 @@ export default function TurmaDetailPage() {
   const classItem = state.status === 'ready' ? state.classItem : null
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <Link className="back" to={unitId ? `/units/${unitId}/classes` : '/perfil'}>
           ‹ Turmas
@@ -237,7 +234,7 @@ export default function TurmaDetailPage() {
           </p>
         </div>
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }
 

@@ -1,12 +1,10 @@
 import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Button } from '../../components/ui/Button/Button'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { createStoreOrder, type CreateStoreOrderFailure, type CartGroup } from '../../lib/api/store'
 import { formatBRL } from '../../lib/money'
 import { applyCheckoutResult, cartQueryOptions } from '../../lib/query/store'
@@ -99,7 +97,6 @@ function checkoutErrorCopy(failure: CreateStoreOrderFailure): {
  * endereço inventado seria pior que um endereço ausente.
  */
 export default function StoreCheckoutPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -128,7 +125,7 @@ export default function StoreCheckoutPage() {
   const copy = failure ? checkoutErrorCopy(failure) : null
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head shop-head">
         <button type="button" className="back shop-back" onClick={() => navigate(-1)}>
           ‹ Voltar
@@ -211,7 +208,7 @@ export default function StoreCheckoutPage() {
           </>
         ) : null}
       </div>
-    </AppShell>
+    </>
   )
 }
 

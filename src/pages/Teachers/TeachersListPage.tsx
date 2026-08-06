@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Avatar } from '../../components/ui/Avatar/Avatar'
 import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
 import { Input } from '../../components/ui/Input/Input'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import { listTeachers, type TeacherListItem } from '../../lib/api/teachers'
 import { sportCssVar } from '../../lib/sports'
@@ -43,7 +41,6 @@ type LoadState =
  * roteada para um Professor pela navegação principal do app).
  */
 export default function TeachersListPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const canCreate = usePermission('professores', 'write')
@@ -83,7 +80,7 @@ export default function TeachersListPage() {
   const teachers = useMemo(() => (state.status === 'ready' ? state.teachers : []), [state])
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <h1>Professores</h1>
         <span className="count">{teachers.length}</span>
@@ -134,7 +131,7 @@ export default function TeachersListPage() {
           </div>
         ) : null}
       </div>
-    </AppShell>
+    </>
   )
 }
 

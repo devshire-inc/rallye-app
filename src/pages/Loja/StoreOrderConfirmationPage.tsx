@@ -1,11 +1,9 @@
 import { useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Button } from '../../components/ui/Button/Button'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { Icon } from '../../components/ui/Icon/Icon'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getActiveUnitId } from '../../lib/tenantContext'
 import { formatBRL } from '../../lib/money'
 import { storeFailureOf, storeOrderQueryOptions } from '../../lib/query/store'
@@ -53,7 +51,6 @@ import './Loja.css'
  *   falta), e o badge de status diz a verdade sobre o resto.
  */
 export default function StoreOrderConfirmationPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { orderId } = useParams<{ orderId: string }>()
   const navigate = useNavigate()
   const activeUnitId = getActiveUnitId()
@@ -69,7 +66,7 @@ export default function StoreOrderConfirmationPage() {
   const address = order ? pickupAddressLabel(order.pickup) : null
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="dash-body shop-body">
         {query.isPending ? <PageLoading label="Carregando pedido" variant="section" /> : null}
 
@@ -164,6 +161,6 @@ export default function StoreOrderConfirmationPage() {
           </div>
         ) : null}
       </div>
-    </AppShell>
+    </>
   )
 }

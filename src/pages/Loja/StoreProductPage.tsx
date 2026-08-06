@@ -1,7 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Toast } from '../../components/Toast'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
@@ -9,7 +8,6 @@ import { Chip } from '../../components/ui/Chip/Chip'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import { SportTag } from '../../components/ui/SportTag/SportTag'
 import { useCartMutations } from '../../hooks/useCart'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useToast } from '../../hooks/useToast'
 import { BADGE_LABEL, type StoreProduct } from '../../lib/api/store'
 import { formatBRL } from '../../lib/money'
@@ -63,7 +61,6 @@ import './Loja.css'
  *   desenha (o frame também mostra a área vazia).
  */
 export default function StoreProductPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, productId } = useParams<{ unitId: string; productId: string }>()
 
   const query = useQuery({
@@ -74,7 +71,7 @@ export default function StoreProductPage() {
   const failure = storeFailureOf(query.error)
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head shop-head">
         {unitId ? (
           <Link className="back shop-back" to={storeCatalogPath(unitId)}>
@@ -96,7 +93,7 @@ export default function StoreProductPage() {
 
         {query.isSuccess ? <ProductDetail product={query.data} /> : null}
       </div>
-    </AppShell>
+    </>
   )
 }
 

@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { Card } from '../../components/ui/Card/Card'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { Icon } from '../../components/ui/Icon/Icon'
 import { Medal, type MedalPlace } from '../../components/ui/Medal/Medal'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useMe } from '../../hooks/useMe'
 import { getRankings, type RankingEntry, type RankingScope } from '../../lib/api/rankings'
 import { getActiveUnitId } from '../../lib/tenantContext'
@@ -95,7 +93,6 @@ const SCOPE_TABS: { key: RankingScope; label: string }[] = [
  * `Tabs` não tem como expressar as abas Cidade/Estado desabilitadas.
  */
 export default function RankingsPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const [scope, setScope] = useState<RankingScope>('arena')
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   // Compartilha o `GET /me` do useShellIdentity acima — ver hooks/useMe.ts.
@@ -159,7 +156,7 @@ export default function RankingsPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="rnk-page">
         <div className="pg-head rnk-head">
           <h1 className="rnk-title">Rankings</h1>
@@ -222,6 +219,6 @@ export default function RankingsPage() {
           )}
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }

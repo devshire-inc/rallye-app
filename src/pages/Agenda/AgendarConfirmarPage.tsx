@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Button } from '../../components/ui/Button/Button'
 import { Card } from '../../components/ui/Card/Card'
@@ -56,7 +54,6 @@ function bookingErrorMessage(error: string): string {
  * pagamento — o texto "Confirmar e pagar com PIX" é só a copy do Figma.
  */
 export default function AgendarConfirmarPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
@@ -69,7 +66,7 @@ export default function AgendarConfirmarPage() {
 
   if (!selection) {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+      <>
         <div className="agendar-body">
           <Link className="agendar-back" to={`/units/${unitId}/agenda/agendar`}>
             ‹ Voltar
@@ -81,7 +78,7 @@ export default function AgendarConfirmarPage() {
             </AlertCard>
           </div>
         </div>
-      </AppShell>
+      </>
     )
   }
 
@@ -107,7 +104,7 @@ export default function AgendarConfirmarPage() {
   const total = formatPriceCents(selection.occurrence.priceCents as number)
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="agendar-body">
         <Link className="agendar-back" to={`/units/${unitId}/agenda/agendar`}>
           ‹ Voltar
@@ -174,6 +171,6 @@ export default function AgendarConfirmarPage() {
           </Button>
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }

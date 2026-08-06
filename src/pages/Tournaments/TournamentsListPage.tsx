@@ -1,14 +1,12 @@
 import type { ReactNode } from 'react'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { EventStatusBadge } from '../../components/ui/EventStatusBadge/EventStatusBadge'
 import { SportTag } from '../../components/ui/SportTag/SportTag'
 import { Tabs } from '../../components/ui/Tabs/Tabs'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import {
   listTournaments,
@@ -114,7 +112,6 @@ function formatDateRange(startIso: string, endIso: string): string {
  * apagá-los do DOM tiraria o agrupamento de quem navega por headings.
  */
 export default function TournamentsListPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const canCreate = usePermission('torneios', 'write')
@@ -179,7 +176,7 @@ export default function TournamentsListPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <h1>Torneios</h1>
         <div className="spacer" />
@@ -249,7 +246,7 @@ export default function TournamentsListPage() {
           )
         ) : null}
       </div>
-    </AppShell>
+    </>
   )
 }
 

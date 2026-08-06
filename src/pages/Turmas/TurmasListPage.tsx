@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { Input } from '../../components/ui/Input/Input'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { listClasses, type RallyeClass } from '../../lib/api/classes'
@@ -58,7 +56,6 @@ type SportFilter = 'all' | string
  * `occupancyOf`/`OccupancyBadge` abaixo.
  */
 export default function TurmasListPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const canManage = usePermission('agenda', 'write')
@@ -117,7 +114,7 @@ export default function TurmasListPage() {
   }, [allClasses, sportFilter, query])
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <h1>Turmas</h1>
         <span className="count">{activeCount} ativas</span>
@@ -212,7 +209,7 @@ export default function TurmasListPage() {
           </p>
         </div>
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }
 

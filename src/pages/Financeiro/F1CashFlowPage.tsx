@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { Select } from '../../components/ui/Select/Select'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listInvoices } from '../../lib/api/invoices'
 import { listMyMemberships, type MembershipListItem } from '../../lib/api'
 import { getNetworkReport } from '../../lib/api/reports'
@@ -130,7 +128,6 @@ function emptyRecebimentos(): RecebimentosView {
  * consolidada nova, o caso por-unit já estava resolvido.
  */
 export default function F1CashFlowPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [monthOffset, setMonthOffset] = useState(0)
@@ -279,7 +276,7 @@ export default function F1CashFlowPage() {
     state.status === 'ready' ? Math.max(1, ...state.history.map((h) => h.receita)) : 1
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <h1>Fluxo de Caixa</h1>
         <div className="spacer" />
@@ -441,6 +438,6 @@ export default function F1CashFlowPage() {
           </>
         ) : null}
       </div>
-    </AppShell>
+    </>
   )
 }

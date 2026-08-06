@@ -1,6 +1,4 @@
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Button } from '../../components/ui/Button/Button'
 import { Icon } from '../../components/ui/Icon/Icon'
@@ -25,7 +23,6 @@ import './AgendarFlow.css'
  * há nada de crítico que dependa do state para funcionar.
  */
 export default function AgendarSucessoPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
@@ -43,7 +40,7 @@ export default function AgendarSucessoPage() {
     : 'Sua vaga está garantida.'
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="agendar-success">
         <div className="agendar-success__badge" aria-hidden="true">
           <Icon name="check" size={40} />
@@ -76,6 +73,6 @@ export default function AgendarSucessoPage() {
           </Button>
         </div>
       </div>
-    </AppShell>
+    </>
   )
 }

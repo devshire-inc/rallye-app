@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
 import { Card } from '../../components/ui/Card/Card'
 import { Icon } from '../../components/ui/Icon/Icon'
 import { Input } from '../../components/ui/Input/Input'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { Toast } from '../../components/Toast'
 import { usePermission } from '../../hooks/usePermission'
@@ -138,7 +136,6 @@ const STATUS_BADGE_TONE: Record<InvoiceDetail['status'], BadgeProps['tone']> = {
  * estornar).
  */
 export default function F3InvoiceDetailPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { invoiceId } = useParams<{ invoiceId: string }>()
   const navigate = useNavigate()
   const canManage = usePermission('financeiro', 'write')
@@ -264,7 +261,7 @@ export default function F3InvoiceDetailPage() {
     state.invoice.status !== 'estornada'
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       {/* Voltar (mobile, node 163:5454) e breadcrumb (desktop, node 186:4939)
           convivem no DOM; quem escolhe é a @media de `.f3-nav-*` em
           Financeiro.css, no mesmo breakpoint da sidebar do shell. */}
@@ -514,6 +511,6 @@ export default function F3InvoiceDetailPage() {
       </BottomSheet>
 
       <Toast message={message} variant={variant} onDismiss={dismiss} />
-    </AppShell>
+    </>
   )
 }

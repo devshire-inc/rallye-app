@@ -1,8 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Switch } from '../../components/ui/Switch/Switch'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   getNotificationPreferences,
   patchNotificationPreferences,
@@ -110,7 +108,6 @@ function setEnabledLocally(events: EventPref[], eventType: string, enabled: bool
  * update otimista revertido em falha.
  */
 export default function NotificationPreferencesPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [savingType, setSavingType] = useState<string | null>(null)
 
@@ -190,7 +187,7 @@ export default function NotificationPreferencesPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <Link className="back" to="/configuracoes" aria-label="Voltar">
           ‹
@@ -216,6 +213,6 @@ export default function NotificationPreferencesPage() {
           {hasEvent(ADMIN_EVENT_GROUP.items[0].eventType) && renderGroup(ADMIN_EVENT_GROUP)}
         </div>
       )}
-    </AppShell>
+    </>
   )
 }

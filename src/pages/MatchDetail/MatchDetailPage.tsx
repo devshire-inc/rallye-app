@@ -1,10 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
 import { Card } from '../../components/ui/Card/Card'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { usePermission } from '../../hooks/usePermission'
 import { useTournamentLive } from '../../hooks/useTournamentLive'
@@ -109,7 +107,6 @@ function setsWonBy(match: MatchDetailResponse): { one: number; two: number } {
  * de forçado.
  */
 export default function MatchDetailPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { tournamentId, matchId } = useParams<{ tournamentId: string; matchId: string }>()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -163,7 +160,7 @@ export default function MatchDetailPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="mtc-page">
         <div className="pg-head mtc-head">
           <Link className="mtc-back" to={bracketHref}>
@@ -294,6 +291,6 @@ export default function MatchDetailPage() {
           />
         ) : null}
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }

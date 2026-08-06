@@ -1,12 +1,10 @@
 import { type FormEvent, useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Button } from '../../components/ui/Button/Button'
 import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
 import { IconButton } from '../../components/ui/IconButton/IconButton'
 import { Input } from '../../components/ui/Input/Input'
 import { Segmented } from '../../components/ui/Segmented/Segmented'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   createPlan,
   getPlanForEdit,
@@ -103,7 +101,6 @@ type LoadState = 'idle' | 'loading' | 'error' | 'ready'
  * nome ter ficado o mesmo apesar da troca de endpoint por baixo).
  */
 export default function PlanoFormPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, planId } = useParams<{ unitId: string; planId?: string }>()
   const navigate = useNavigate()
   const isEdit = Boolean(planId)
@@ -210,21 +207,17 @@ export default function PlanoFormPage() {
 
   if (loadState === 'loading') {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <PageLoading label="Carregando plano" />
-      </AppShell>
+      <PageLoading label="Carregando plano" />
     )
   }
   if (loadState === 'error') {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <p role="alert">Não foi possível carregar este plano.</p>
-      </AppShell>
+      <p role="alert">Não foi possível carregar este plano.</p>
     )
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <form className="plano-form" onSubmit={handleSubmit}>
         <div className="pg-head">
           <IconButton
@@ -358,6 +351,6 @@ export default function PlanoFormPage() {
           <p className="hint-note">Editar não afeta assinaturas existentes — só novas.</p>
         </div>
       </form>
-    </AppShell>
+    </>
   )
 }

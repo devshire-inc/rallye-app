@@ -1,5 +1,4 @@
 import { useNavigate } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Avatar } from '../../components/ui/Avatar/Avatar'
 import { MenuRow } from '../../components/ui/ListRow/MenuRow'
 import LogoutButton from '../../components/LogoutButton'
@@ -88,7 +87,7 @@ import './ProfilePage.css'
  */
 export default function ProfilePage() {
   const navigate = useNavigate()
-  const { orgLabel, userLabel, role } = useShellIdentity()
+  const { orgLabel, role } = useShellIdentity()
   // O nome cru vem da MESMA entrada de cache de `GET /me` que o
   // `useShellIdentity` acima já lê (ele só expõe o `userLabel` combinado
   // "{nome} · {papel}") — antes esta tela pagava um segundo fetch por isso.
@@ -100,7 +99,7 @@ export default function ProfilePage() {
   const subtitle = [role, orgLabel].filter(Boolean).join(' · ')
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="profile-page">
       <div className="prof-head">
         <Avatar name={fullName} size="lg" />
@@ -168,6 +167,6 @@ export default function ProfilePage() {
         <div className="foot-note">Rallye v1.0.0</div>
       </div>
       </div>
-    </AppShell>
+    </>
   )
 }

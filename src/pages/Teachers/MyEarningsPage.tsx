@@ -1,8 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { getEarnings, type Earnings } from '../../lib/api/earnings'
 import { ensureMe } from '../../lib/query/identity'
 import { getTeacher } from '../../lib/api/teachers'
@@ -31,7 +29,6 @@ type LoadState =
  * (mesma decisão de TeacherEarningsPage).
  */
 export default function MyEarningsPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const queryClient = useQueryClient()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -68,7 +65,7 @@ export default function MyEarningsPage() {
   }, [queryClient])
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <Link className="back" to={unitId ? `/units/${unitId}/dashboard` : '/dashboard'}>
           ‹ Dashboard
@@ -85,6 +82,6 @@ export default function MyEarningsPage() {
           <EarningsSummary earnings={state.earnings} remunerationValue={state.remunerationValue} />
         </div>
       ) : null}
-    </AppShell>
+    </>
   )
 }

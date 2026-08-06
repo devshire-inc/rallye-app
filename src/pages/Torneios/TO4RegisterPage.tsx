@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { listMembers, type Member } from '../../lib/api/members'
 import {
@@ -99,7 +97,6 @@ function registerErrorMessage(failure: ApiFailure): string {
  * BREAKPOINT_SHELL_DESKTOP_MIN.
  */
 export default function TO4RegisterPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { tournamentId } = useParams<{ tournamentId: string }>()
   const navigate = useNavigate()
   const unitId = getActiveUnitId()
@@ -199,17 +196,13 @@ export default function TO4RegisterPage() {
 
   if (state.status === 'loading') {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <PageLoading label="Carregando torneio" />
-      </AppShell>
+      <PageLoading label="Carregando torneio" />
     )
   }
 
   if (state.status === 'error') {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <p className="to4-loading">Não foi possível carregar este torneio.</p>
-      </AppShell>
+      <p className="to4-loading">Não foi possível carregar este torneio.</p>
     )
   }
 
@@ -259,7 +252,7 @@ export default function TO4RegisterPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         {/* `.to4-back` e não `.pg-head .back`: esse seletor genérico já colidiu
             entre CSS de página nesta leva (o bundle é único e a
@@ -458,6 +451,6 @@ export default function TO4RegisterPage() {
           Cada jogador: 1 categoria por tipo (ex.: 1 feminina + 1 mista).
         </p>
       </div>
-    </AppShell>
+    </>
   )
 }

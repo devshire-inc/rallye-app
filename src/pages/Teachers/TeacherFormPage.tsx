@@ -1,7 +1,5 @@
 import { type FormEvent, useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { AvailabilityGrid } from '../../components/AvailabilityGrid/AvailabilityGrid'
 import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
 import { usePermission } from '../../hooks/usePermission'
@@ -90,7 +88,6 @@ type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'not-fo
  * sempre, nunca desabilitar" (mesmo padrão de NewStudentPage).
  */
 export default function TeacherFormPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, teacherId } = useParams<{ unitId: string; teacherId?: string }>()
   const navigate = useNavigate()
   const canWrite = usePermission('professores', 'write')
@@ -285,38 +282,32 @@ export default function TeacherFormPage() {
 
   if (!canWrite) {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+      <>
         <div className="dash-body">
           <p role="alert">Você não tem permissão para {isEdit ? 'editar' : 'cadastrar'} professores nesta unidade.</p>
         </div>
-      </AppShell>
+      </>
     )
   }
 
   if (isEdit && loadState.status === 'loading') {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <PageLoading label="Carregando professor" />
-      </AppShell>
+      <PageLoading label="Carregando professor" />
     )
   }
   if (isEdit && loadState.status === 'error') {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <p role="alert">Não foi possível carregar este professor.</p>
-      </AppShell>
+      <p role="alert">Não foi possível carregar este professor.</p>
     )
   }
   if (isEdit && loadState.status === 'not-found') {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-        <p role="alert">Professor não encontrado.</p>
-      </AppShell>
+      <p role="alert">Professor não encontrado.</p>
     )
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <Link
           className="back"
@@ -498,7 +489,7 @@ export default function TeacherFormPage() {
           {submitting ? 'Salvando…' : isEdit ? 'Salvar alterações' : 'Cadastrar e convidar'}
         </button>
       </form>
-    </AppShell>
+    </>
   )
 }
 

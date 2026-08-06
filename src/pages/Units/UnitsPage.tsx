@@ -1,7 +1,5 @@
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Badge } from '../../components/ui/Badge/Badge'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { loadUnits } from '../../lib/unitsLocalStore'
 import '../../components/AuthLayout/AuthLayout.css'
 import './UnitsPage.css'
@@ -21,7 +19,6 @@ import './UnitsPage.css'
  * épico).
  */
 export default function UnitsPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { tenantId } = useParams<{ tenantId: string }>()
   const navigate = useNavigate()
   // sessionStorage é lido direto no corpo do componente (não via
@@ -33,7 +30,7 @@ export default function UnitsPage() {
   const units = tenantId ? loadUnits(tenantId) : []
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <h1>Minhas unidades</h1>
         <span className="count">{units.length}</span>
@@ -67,6 +64,6 @@ export default function UnitsPage() {
           </button>
         ))}
       </div>
-    </AppShell>
+    </>
   )
 }

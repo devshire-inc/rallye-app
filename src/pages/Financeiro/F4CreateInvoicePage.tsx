@@ -1,9 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Checkbox } from '../../components/ui/Checkbox/Checkbox'
 import { Input } from '../../components/ui/Input/Input'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useDebouncedValue } from '../../hooks/useDebouncedValue'
 import { listMembers, type Member } from '../../lib/api/members'
 import { createInvoice, type CreateInvoiceType } from '../../lib/api/invoices'
@@ -63,7 +61,6 @@ function currentMonthLabel(): string {
  * comportamento observável).
  */
 export default function F4CreateInvoicePage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
 
@@ -143,7 +140,7 @@ export default function F4CreateInvoicePage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <button type="button" className="back" onClick={() => navigate(-1)}>
           ‹ Cancelar
@@ -248,6 +245,6 @@ export default function F4CreateInvoicePage() {
           CRIAR COBRANÇA
         </button>
       </div>
-    </AppShell>
+    </>
   )
 }

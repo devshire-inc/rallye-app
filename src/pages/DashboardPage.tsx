@@ -1,5 +1,4 @@
 import { useParams } from 'react-router-dom'
-import { AppShell } from '../components/AppShell/AppShell'
 import LogoutButton from '../components/LogoutButton'
 import { PageLoading } from '../components/ui/PageLoading/PageLoading'
 import { useShellIdentity } from '../hooks/useShellIdentity'
@@ -49,8 +48,8 @@ function GenericDashboard({ unitId }: { unitId: string | undefined }) {
 
 /**
  * Estado de carregamento do dispatcher — só o MIOLO, sem casca: quem
- * renderiza o `AppShell` é o `DashboardPage` abaixo, uma única vez, tanto
- * durante o carregamento quanto depois. `<main className="dashboard-page">`
+ * renderiza o `AppShell` é a rota de layout
+ * (../components/AppShell/AppShellLayout.tsx). `<main className="dashboard-page">`
  * espelha o que as 5 variantes reais renderizam dentro da casca, então a
  * transição loading -> variante troca só o conteúdo.
  */
@@ -63,7 +62,7 @@ function DashboardLoading() {
 }
 
 /** Miolo da variante resolvida — só o conteúdo, sempre dentro do `AppShell`
- * que `DashboardPage` monta. `GENERIC` é o único caso tratado FORA daqui
+ * que a rota de layout monta. `GENERIC` é o único caso tratado FORA daqui
  * (ver comentário no `DashboardPage`). */
 function DashboardVariant({ role }: { role: string | null }) {
   switch (resolveDashboardVariant(role)) {
@@ -84,29 +83,32 @@ function DashboardVariant({ role }: { role: string | null }) {
 
 export default function DashboardPage() {
   const { unitId } = useParams<{ unitId?: string }>()
-  const { role, loading, orgLabel, userLabel } = useShellIdentity()
+  const { role, loading } = useShellIdentity()
 
   // `loading` importa porque, sem ele, `role` ainda null durante os fetches
   // cai em GENERIC e TODO usuário vê o dashboard genérico por um instante
   // antes da variante real (o "flash da tela errada"). `GenericDashboard`
   // significa só o que deveria: autenticado, resolvido, e sem papel nesta
-  // unit — e continua sendo o ÚNICO caso sem casca (markup pré-dispatcher
-  // preservado, ver comentário de pacote acima).
+  // unit.
+  //
+  // MUDANÇA DE COMPORTAMENTO desta refatoração, a única do refactor: este
+  // caso era o ÚNICO sem casca no app inteiro (markup pré-dispatcher
+  // preservado). Com a casca numa rota de layout, ela envolve as duas rotas
+  // de dashboard e o GENERIC passa a ter nav como qualquer outra tela.
+  // Preservar a exceção exigiria ou deixar `/dashboard` fora do layout — e
+  // o dashboard é o destino do item "Início" do BottomNav, justamente onde a
+  // animação precisa acontecer —, ou um mecanismo de esconder a casca por
+  // tela, que não se paga por um caso de borda (autenticado e sem papel
+  // NESTA unit). Está documentado no resumo da task para o Bruno decidir se
+  // quer de volta.
   if (!loading && resolveDashboardVariant(role) === 'GENERIC') {
     return <GenericDashboard unitId={unitId} />
   }
 
-  // O `AppShell` é montado AQUI, uma vez só, e é o MESMO elemento na mesma
-  // posição da árvore antes e depois de `loading` resolver — é isso que faz
-  // o React reconciliar em vez de desmontar/remontar a casca. Antes, o
-  // loading renderizava o próprio `<AppShell>` e cada variante renderizava o
-  // dela: como os elementos ficavam em posições diferentes da árvore
-  // (`<AppShell>` direto × `<D1Dashboard><AppShell>`), a transição
-  // desmontava a casca inteira — a nav piscava e todo efeito de montagem do
-  // shell (o `GET /me/notifications/unread-count` do sino) rodava de novo.
-  return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
-      {loading ? <DashboardLoading /> : <DashboardVariant role={role} />}
-    </AppShell>
-  )
+  // Só o miolo: quem monta a casca é a rota de layout
+  // (../components/AppShell/AppShellLayout.tsx). O que este `return` ainda
+  // garante é a metade INTERNA da mesma propriedade — `DashboardLoading` e
+  // `DashboardVariant` ocupam a mesma posição na árvore, então a transição
+  // loading -> variante troca só o conteúdo, sem remontar nada acima.
+  return loading ? <DashboardLoading /> : <DashboardVariant role={role} />
 }

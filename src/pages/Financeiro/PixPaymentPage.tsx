@@ -1,14 +1,12 @@
 import { useEffect, useState } from 'react'
 import { useQuery } from '@tanstack/react-query'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Button } from '../../components/ui/Button/Button'
 import { Icon } from '../../components/ui/Icon/Icon'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import { Pill } from '../../components/ui/Pill/Pill'
 import { Toast } from '../../components/Toast'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useToast } from '../../hooks/useToast'
 import { getInvoice } from '../../lib/api/invoices'
 import {
@@ -221,7 +219,6 @@ function PixOutcome({
  * "aguardando" depois que o pagamento entrou.
  */
 export default function PixPaymentPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { invoiceId } = useParams<{ invoiceId: string }>()
   const navigate = useNavigate()
   const { message, variant, showError, showSuccess, dismiss } = useToast()
@@ -327,7 +324,7 @@ export default function PixPaymentPage() {
   const remaining = payment && pending ? countdownLabel(payment.expiresAt, now) : null
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       {/* Mesmo par voltar/breadcrumb de F3 (os dois no DOM, a @media escolhe). */}
       <div className="pg-head pix-head">
         <button type="button" className="back pix-nav-back" onClick={goBack}>
@@ -450,6 +447,6 @@ export default function PixPaymentPage() {
       </div>
 
       <Toast message={message} variant={variant} onDismiss={dismiss} />
-    </AppShell>
+    </>
   )
 }

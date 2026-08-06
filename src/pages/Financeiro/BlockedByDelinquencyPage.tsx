@@ -1,13 +1,11 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Button } from '../../components/ui/Button/Button'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { Icon } from '../../components/ui/Icon/Icon'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listInvoices, type InvoiceListItem } from '../../lib/api/invoices'
 import { formatBRL } from '../../lib/money'
 import './Financeiro.css'
@@ -98,7 +96,6 @@ function formatDate(iso: string): string {
  * a escala do texto, resolvidas por @media em BREAKPOINT_SHELL_DESKTOP_MIN.
  */
 export default function BlockedByDelinquencyPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -141,7 +138,7 @@ export default function BlockedByDelinquencyPage() {
   }, [state])
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="dash-body blk-body">
         {state.status === 'loading' ? (
           <PageLoading label="Verificando suas faturas" variant="section" />
@@ -244,6 +241,6 @@ export default function BlockedByDelinquencyPage() {
           </Button>
         </div>
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }

@@ -2,6 +2,7 @@ import { act, screen, waitFor } from '@testing-library/react'
 import { useReducer } from 'react'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+import { AppShellLayout } from '../components/AppShell/AppShellLayout'
 import { renderWithPermissions } from '../test/renderWithPermissions'
 import * as useShellIdentityModule from '../hooks/useShellIdentity'
 import * as notificationsApi from '../lib/api/notifications'
@@ -136,14 +137,22 @@ describe('DashboardPage', () => {
 })
 
 /**
- * Regressão do remount da casca: o loading renderizava o próprio `<AppShell>`
- * e cada variante renderizava o dela, em posições DIFERENTES da árvore
- * (`<AppShell>` × `<D1Dashboard><AppShell>`) — o React desmontava e remontava
- * a shell inteira na transição, a nav piscava e todo efeito de montagem dela
- * (o `GET /me/notifications/unread-count` do sino) rodava de novo.
+ * Regressão do remount da casca, na transição `loading -> variante`.
  *
- * A sonda é o próprio nó DOM do sino: se ele for o MESMO objeto antes e
- * depois de `loading` resolver, a casca sobreviveu à transição.
+ * Historicamente o loading renderizava o próprio `<AppShell>` e cada variante
+ * renderizava a dela, em posições DIFERENTES da árvore — o React desmontava e
+ * remontava a shell inteira na transição, a nav piscava e todo efeito de
+ * montagem dela (o `GET /me/notifications/unread-count` do sino) rodava de
+ * novo. A correção foi hoiçar o `AppShell` para cima do estado de loading
+ * DENTRO desta página.
+ *
+ * Desde que o `AppShell` subiu de vez para a rota de layout
+ * (../components/AppShell/AppShellLayout.tsx), a casca não é mais montada por
+ * esta página — então o teste passou a renderizar `DashboardPage` DEBAIXO da
+ * rota de layout real, e não mais solta. A asserção não mudou: é a mesma
+ * sonda (o nó DOM do sino) verificando a mesma propriedade, agora exercitando
+ * a estrutura real. A versão FORTE dela — a casca sobrevive à navegação entre
+ * duas rotas, não só a uma troca de estado — vive no teste do próprio layout.
  */
 describe('DashboardPage — a casca sobrevive à transição loading -> variante', () => {
   let identity: useShellIdentityModule.ShellIdentity = {
@@ -173,7 +182,9 @@ describe('DashboardPage — a casca sobrevive à transição loading -> variante
     renderWithPermissions(
       <MemoryRouter initialEntries={['/units/unit-1/dashboard']}>
         <Routes>
-          <Route path="/units/:unitId/dashboard" element={<IdentityHarness />} />
+          <Route element={<AppShellLayout />}>
+            <Route path="/units/:unitId/dashboard" element={<IdentityHarness />} />
+          </Route>
         </Routes>
       </MemoryRouter>,
     )

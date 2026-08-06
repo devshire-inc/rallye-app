@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { listCourts, type Court } from '../../lib/api/courts'
 import {
   createTournament,
@@ -131,7 +129,6 @@ function toRegistrationClosesAt(date: string): string | null {
  * (patchTournamentCategories) — mesmo gap, documentado lá.
  */
 export default function TournamentFormPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
 
@@ -294,7 +291,7 @@ export default function TournamentFormPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <button
           type="button"
@@ -554,6 +551,6 @@ export default function TournamentFormPage() {
           chaveamento.
         </p>
       </div>
-    </AppShell>
+    </>
   )
 }

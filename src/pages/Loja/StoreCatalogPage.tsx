@@ -1,13 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Chip } from '../../components/ui/Chip/Chip'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { Input } from '../../components/ui/Input/Input'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import { ProductCard } from '../../components/ui/ProductCard/ProductCard'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import {
   BADGE_LABEL,
   CATEGORY_LABEL,
@@ -87,7 +85,6 @@ const SEARCH_DEBOUNCE_MS = 350
  * - **Filtro por esporte `outro`**: ver `SPORT_CHIPS` acima.
  */
 export default function StoreCatalogPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
 
@@ -113,7 +110,7 @@ export default function StoreCatalogPage() {
   const hasFilters = category !== null || sport !== null || search.trim() !== ''
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head shop-head">
         <h1>Loja</h1>
         <div className="spacer" />
@@ -202,7 +199,7 @@ export default function StoreCatalogPage() {
           )
         ) : null}
       </div>
-    </AppShell>
+    </>
   )
 }
 

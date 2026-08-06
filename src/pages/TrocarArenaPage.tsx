@@ -1,7 +1,6 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { AppShell } from '../components/AppShell/AppShell'
 import { BottomSheet } from '../components/BottomSheet/BottomSheet'
 import { EnterArenaSheet } from '../components/EnterArenaSheet/EnterArenaSheet'
 import { ArenaCard } from '../components/ui/ArenaCard/ArenaCard'
@@ -9,7 +8,6 @@ import { Button } from '../components/ui/Button/Button'
 import { EmptyState } from '../components/ui/EmptyState/EmptyState'
 import { Icon } from '../components/ui/Icon/Icon'
 import { Skeleton, SkeletonGroup } from '../components/ui/Skeleton/Skeleton'
-import { useShellIdentity } from '../hooks/useShellIdentity'
 import { usePermissionsContext } from '../hooks/usePermissionsContext'
 import { accessMembership, listMyMemberships, type MembershipListItem } from '../lib/api'
 import { dashboardPathForRole } from '../lib/dashboardTarget'
@@ -53,7 +51,6 @@ function roleTone(role: string | null): 'success' | 'info' {
  */
 export default function TrocarArenaPage() {
   const navigate = useNavigate()
-  const { orgLabel, userLabel } = useShellIdentity()
   const { refetch: refetchPermissions } = usePermissionsContext()
   const queryClient = useQueryClient()
   const [state, setState] = useState<LoadState>({ status: 'loading' })
@@ -137,7 +134,7 @@ export default function TrocarArenaPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="trocar-arena-page">
         <nav className="trocar-arena-breadcrumb" aria-label="Breadcrumb">
           <button type="button" className="trocar-arena-breadcrumb__link" onClick={() => navigate('/perfil')}>
@@ -260,6 +257,6 @@ export default function TrocarArenaPage() {
           submitButtonId="trocarArenaDialogConfirm"
         />
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }

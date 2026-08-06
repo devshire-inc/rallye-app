@@ -1,12 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from '@tanstack/react-query'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Toast } from '../../components/Toast'
 import { Button } from '../../components/ui/Button/Button'
 import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { PageLoading } from '../../components/ui/PageLoading/PageLoading'
 import { useCartMutations } from '../../hooks/useCart'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { useToast } from '../../hooks/useToast'
 import { getActiveUnitId } from '../../lib/tenantContext'
 import type { CartGroup, CartItem } from '../../lib/api/store'
@@ -73,7 +71,6 @@ const MAX_QUANTITY = 99
  * um item indisponível o backend recusaria o fechamento, e a tela para antes.
  */
 export default function StoreCartPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const navigate = useNavigate()
   const query = useQuery(cartQueryOptions())
   const { setQuantity, remove, pending } = useCartMutations()
@@ -91,7 +88,7 @@ export default function StoreCartPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head shop-head">
         <button type="button" className="back shop-back" onClick={() => navigate(-1)}>
           ‹ Voltar
@@ -176,7 +173,7 @@ export default function StoreCartPage() {
       </div>
 
       <Toast message={toast.message} tone="danger" onDismiss={toast.dismiss} />
-    </AppShell>
+    </>
   )
 }
 

@@ -1,7 +1,5 @@
 import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Badge } from '../../components/ui/Badge/Badge'
@@ -76,7 +74,6 @@ import './AG5BookingDetailPage.css'
  * aberto).
  */
 export default function AG5BookingDetailPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, bookingId } = useParams<{ unitId: string; bookingId: string }>()
   const navigate = useNavigate()
   const location = useLocation()
@@ -125,7 +122,7 @@ export default function AG5BookingDetailPage() {
 
   if (!booking) {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+      <>
         <div className="pg-head">
           <Link className="ag5-back" to={`/units/${unitId}/agenda`}>
             ‹ Voltar
@@ -138,7 +135,7 @@ export default function AG5BookingDetailPage() {
             relatório de dispatch.)
           </AlertCard>
         </div>
-      </AppShell>
+      </>
     )
   }
 
@@ -170,7 +167,7 @@ export default function AG5BookingDetailPage() {
   const isConfirmed = booking.status === 'confirmed'
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         <Link className="ag5-back" to={`/units/${unitId}/agenda`}>
           ‹ Voltar
@@ -438,6 +435,6 @@ export default function AG5BookingDetailPage() {
           <p role="alert">Não foi possível identificar sua conta para entrar na fila (tente recarregar a página).</p>
         )}
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }

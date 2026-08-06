@@ -1,9 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { Avatar } from '../../components/ui/Avatar/Avatar'
 import { Badge, type BadgeProps } from '../../components/ui/Badge/Badge'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { usePermission } from '../../hooks/usePermission'
 import { getStudent, type Student, type StudentStatus } from '../../lib/api/students'
 import { ClassHistorySection } from './ClassHistorySection'
@@ -95,7 +93,6 @@ function formatDate(iso: string): string {
  * etc.) não é construída aqui — fora do escopo deste scaffold.
  */
 export default function StudentProfilePage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId, studentId } = useParams<{ unitId: string; studentId: string }>()
   const canRead = usePermission('alunos', 'read')
   const canSeeFinance = usePermission('financeiro', 'read')
@@ -148,16 +145,16 @@ export default function StudentProfilePage() {
 
   if (!canRead) {
     return (
-      <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+      <>
         <div className="dash-body">
           <p role="alert">Você não tem permissão para ver o perfil deste aluno.</p>
         </div>
-      </AppShell>
+      </>
     )
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="pg-head">
         {/* AL1 (lista de alunos) ainda não existe nesta base — aponta pra
             Perfil como destino de volta temporário, mesma solução já usada
@@ -248,6 +245,6 @@ export default function StudentProfilePage() {
           </div>
         </>
       ) : null}
-    </AppShell>
+    </>
   )
 }

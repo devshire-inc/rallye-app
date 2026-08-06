@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
 import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { Chip } from '../../components/ui/Chip/Chip'
 import { Button } from '../../components/ui/Button/Button'
@@ -54,7 +53,7 @@ function occurrenceTime(iso: string): string {
  * client-side já usado noutras telas do módulo (ex.: AG4TeacherAgendaPage).
  */
 export default function AgendarEscolherHorarioPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
+  const { orgLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
 
@@ -129,7 +128,7 @@ export default function AgendarEscolherHorarioPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="agendar-body">
         <Link className="agendar-back" to={`/units/${unitId}/agenda/minha`}>
           ‹ Voltar
@@ -213,6 +212,6 @@ export default function AgendarEscolherHorarioPage() {
             : 'Continuar'}
         </Button>
       </div>
-    </AppShell>
+    </>
   )
 }

@@ -1,9 +1,7 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
-import { afterEach, describe, expect, it, vi } from 'vitest'
-import * as api from '../../lib/api'
-import * as meApi from '../../lib/api/me'
+import { describe, expect, it } from 'vitest'
 import { renderWithPermissions } from '../../test/renderWithPermissions'
 import ProfilePage from './ProfilePage'
 
@@ -41,34 +39,11 @@ describe('ProfilePage — link "Configurações" (BEAC-2035)', () => {
   })
 })
 
-// BEAC-2080 (story BEAC-2057): AppShell mostra orgLabel/userLabel reais via
-// useShellIdentity, não mais os literais hardcoded "Arena Areia Dourada"/
-// "Perfil" que ProfilePage passava antes.
-describe('ProfilePage — AppShell recebe orgLabel/userLabel reais (BEAC-2080)', () => {
-  afterEach(() => {
-    vi.restoreAllMocks()
-  })
-
-  it('shows the real active-unit name and "{full_name} · {roleLabel}" instead of the old hardcoded literals', async () => {
-    vi.spyOn(meApi, 'getMe').mockResolvedValue({ ok: true, id: 'user-1', fullName: 'Ana Beatriz' })
-    vi.spyOn(api, 'listMyMemberships').mockResolvedValue([
-      {
-        unitId: 'unit-1',
-        unit: { name: 'Arena Praia Sul', address: null, sportsOffered: null },
-        role: 'Aluno',
-        lastAccessedAt: null,
-        liveActivity: null,
-      },
-    ])
-
-    const { container } = renderPage()
-
-    await waitFor(() =>
-      expect(container.querySelector('.sidebar__arena-selector')).toHaveTextContent('Arena Praia Sul'),
-    )
-    const arenaSelector = container.querySelector('.sidebar__arena-selector')
-    expect(arenaSelector).toHaveTextContent('Ana Beatriz · Aluno')
-    expect(arenaSelector).not.toHaveTextContent('Arena Areia Dourada')
-    expect(arenaSelector).not.toHaveTextContent('Perfil')
-  })
-})
+// BEAC-2080 (story BEAC-2057) — "AppShell recebe orgLabel/userLabel reais":
+// esta suíte MIGROU para src/components/AppShell/AppShellLayout.test.tsx e não
+// foi descartada. A asserção (a casca mostra o nome real da unit ativa e
+// "{full_name} · {roleLabel}", nunca os literais hardcoded) nunca foi sobre a
+// tela de Perfil: ela testava a casca, que esta página só por acaso
+// hospedava. Desde que o `AppShell` subiu para a rota de layout, quem deriva
+// esses rótulos é o `AppShellLayout` — e é lá que a asserção vive agora,
+// palavra por palavra.

@@ -1,7 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { AppShell } from '../../components/AppShell/AppShell'
-import { useShellIdentity } from '../../hooks/useShellIdentity'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
 import { Badge } from '../../components/ui/Badge/Badge'
@@ -126,7 +124,6 @@ function groupByDate(bookings: Booking[]): { label: string; items: Booking[] }[]
  * para religar).
  */
 export default function AG3StudentAgendaPage() {
-  const { orgLabel, userLabel } = useShellIdentity()
   const { unitId } = useParams<{ unitId: string }>()
   const navigate = useNavigate()
   const [searchParams, setSearchParams] = useSearchParams()
@@ -308,7 +305,7 @@ export default function AG3StudentAgendaPage() {
   }
 
   return (
-    <AppShell orgLabel={orgLabel} userLabel={userLabel}>
+    <>
       <div className="dash-body">
         <h1>Minha agenda</h1>
         <Tabs tabs={['Próximas', 'Histórico']} value={tabValue} onChange={handleTabChange} ariaLabel="Abas da agenda" />
@@ -482,6 +479,6 @@ export default function AG3StudentAgendaPage() {
           />
         ) : null}
       </BottomSheet>
-    </AppShell>
+    </>
   )
 }
