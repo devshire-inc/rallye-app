@@ -246,3 +246,23 @@ export function formatWeekLabel(monday: Date): string {
 }
 
 export const WEEKDAY_SHORT_LABELS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
+
+/** "qui, 18 jul · 18:00" — subtítulo do detalhe da reserva (AG5), frames
+ * 5:246 (Admin Mobile) / 35:1162 (Professor Mobile), onde a linha abaixo do
+ * título é "Aula em turma · qui, 18 jul · 18:00". Montado a partir de partes
+ * (`weekday`/`month` curtos) em vez de um `toLocaleDateString` único porque o
+ * pt-BR intercala "de" ("qui., 18 de jul.") e o frame não tem esse "de". */
+export function bookingWhenLabel(iso: string): string {
+  const date = new Date(iso)
+  const weekday = date.toLocaleDateString('pt-BR', { weekday: 'short' }).replace(/\.$/, '')
+  const month = date.toLocaleDateString('pt-BR', { month: 'short' }).replace(/\.$/, '')
+  const time = date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })
+  return `${weekday}, ${date.getDate()} ${month} · ${time}`
+}
+
+/** "8 matriculados" / "1 matriculado" — linha "Alunos" do detalhe (AG5). O
+ * número vem de `studentCount`, que `getBookingsGrid` já devolve (mesmo campo
+ * que AG4 usa no bloco da timeline desde fd4b759) — nenhuma chamada nova. */
+export function enrolledLabel(studentCount: number): string {
+  return `${studentCount} ${studentCount === 1 ? 'matriculado' : 'matriculados'}`
+}

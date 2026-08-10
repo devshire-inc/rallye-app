@@ -2,17 +2,17 @@ import { useState } from 'react'
 import { Link, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { BottomSheet } from '../../components/BottomSheet/BottomSheet'
 import { AlertCard } from '../../components/ui/AlertCard/AlertCard'
-import { Badge } from '../../components/ui/Badge/Badge'
 import { Button } from '../../components/ui/Button/Button'
 import { Card } from '../../components/ui/Card/Card'
 import { Input } from '../../components/ui/Input/Input'
 import { usePermission } from '../../hooks/usePermission'
 import { cancelBooking, type Booking, type Participant } from '../../lib/api/bookings'
 import { useMe } from '../../hooks/useMe'
+import { Icon } from '../../components/ui/Icon/Icon'
 import { AddStudentSheet } from './AddStudentSheet'
 import { RemarcarSheet, type RemarcarResult } from './RemarcarSheet'
 import { WaitlistSheet, type WaitlistJoinedResult } from './WaitlistSheet'
-import { bookingTitle, bookingTypeLabel } from './agendaShared'
+import { bookingTitle, bookingTypeLabel, bookingWhenLabel, enrolledLabel } from './agendaShared'
 import '../../components/AuthLayout/AuthLayout.css'
 import './Agenda.css'
 import './AG5BookingDetailPage.css'
@@ -51,6 +51,56 @@ import './AG5BookingDetailPage.css'
  * Button/AlertCard/Input), seguindo os frames Figma "03 · Detalhe de Reserva
  * — Aluno — Mobile" (36:1119) e "— Desktop" (100:2575). Nenhuma lógica de
  * negócio, fetch ou fluxo de cancelamento foi alterado — só a casca visual.
+ *
+ * RESKIN ADMIN/PROFESSOR (rodada AG5, frames 5:246 Admin Mobile, 89:1203
+ * Admin Desktop, 35:1162 Professor Mobile, 99:1646 Professor Desktop).
+ *
+ * MESMA TELA COM GATING — CONFIRMADO, ao contrário da Agenda. Em AG1/AG4 a
+ * premissa se revelou falsa (rotas e páginas diferentes); aqui ela se
+ * sustenta nos dois lados: (a) o código já tem UMA rota só
+ * (`/units/:unitId/bookings/:bookingId`, App.tsx) para todos os papéis, sem
+ * nada equivalente ao `agendaPathFor` que separa AG1 de AG4; (b) os frames
+ * Admin e Professor são nó a nó idênticos no conteúdo da página — mesmo
+ * "‹ Voltar", mesmo bloco de título, mesmo card e as MESMAS cinco linhas
+ * (Horário/Quadra/Professor/Alunos/Status) com os mesmos rótulos. A única
+ * diferença DENTRO da página é a fileira de ações; a outra (bottom nav de 5
+ * itens no Admin, 4 no Professor) é cromo do AppShell, que desde 77fbf51 nem
+ * mora mais aqui.
+ *
+ * Mudanças de conteúdo desta rodada, ambas exigidas pelos quatro frames e
+ * ambas com o dado JÁ em mão (nenhuma chamada nova):
+ * - "Alunos" passa a mostrar `studentCount` ("8 matriculados", frame) em vez
+ *   do parágrafo de desculpa que vazava número de ticket e caminho de arquivo
+ *   Go para a UI. O campo vem de `getBookingsGrid`, o mesmo que AG4 usa no
+ *   bloco da timeline desde fd4b759.
+ * - "Status" volta a ser texto simples na tipografia das outras linhas, como
+ *   os quatro frames desenham — sai o `Badge` e sai o "✓" que estava grudado
+ *   dentro da string. Ver AG5BookingDetailPage.css sobre o estado cancelado,
+ *   que nenhum frame cobre.
+ *
+ * DESVIO DELIBERADO DO FRAME (Admin): os frames desenham a fileira de ações
+ * do Admin como dois botões — "Notificar alunos" e "Cancelar aula". O
+ * conjunto real de ações desta tela tem cinco entradas e não cabe em dois
+ * botões: "Adicionar aluno" é um fluxo que FUNCIONA (gated por config:write,
+ * com sheet e testes próprios), e o cancelamento real EXIGE motivo
+ * (`cancelReason`), que o frame não modela. Colapsar na fileira do frame
+ * apagaria funcionalidade em uso — decisão de produto, não de reskin. O ponto
+ * de entrada segue sendo "Ações", e a subseção de cancelamento dentro do
+ * sheet já reproduz o tratamento de perigo do frame. Mesmo tipo de desvio
+ * declarado que fd4b759 fez no bloco de check-in do Professor.
+ *
+ * DESVIO DELIBERADO DO FRAME (Professor): o frame 35:1162 mostra dois botões
+ * ("Abrir check-in", "Dar feedback") e omite o terceiro que existe aqui, "Ver
+ * perfil aluno". Ele continua no DOM porque removê-lo é decisão de produto —
+ * mas "Abrir Check-in" vira `primary`, como o frame pinta.
+ *
+ * DIVERGÊNCIA ENTRE OS DOIS FRAMES DE DESKTOP: 89:1203 (Admin) desenha a
+ * coluna centralizada, card de 560px com bordas e divisórias entre linhas;
+ * 99:1646 (Professor) desenha o mesmo conteúdo esticado na largura toda
+ * (card de 1064px, botões de 528px), sem divisórias. Como é UMA página, ela
+ * precisa de UM layout: vale o tratamento do Admin, que é o refinado e o que
+ * respeita a medida de leitura. Diferença de arquivo de design, registrada no
+ * relatório.
  *
  * MAPEAMENTO "03b · Confirmar Cancelamento — Aluno — Mobile" (152:2646): o
  * 03b é um sheet de confirmação separado (título + parágrafo estático +
@@ -123,7 +173,7 @@ export default function AG5BookingDetailPage() {
   if (!booking) {
     return (
       <>
-        <div className="pg-head">
+        <div className="pg-head ag5-head">
           <Link className="ag5-back" to={`/units/${unitId}/agenda`}>
             ‹ Voltar
           </Link>
@@ -168,10 +218,22 @@ export default function AG5BookingDetailPage() {
 
   return (
     <>
-      <div className="pg-head">
+      {/* "‹ Voltar" (mobile) e breadcrumb (desktop) convivem no DOM; quem
+          escolhe é a @media de `.ag5-crumbs`/`.ag5-back` no CSS, no mesmo
+          breakpoint da sidebar do shell — mesmo mecanismo de
+          F3InvoiceDetailPage. Os frames mobile (5:246/35:1162) desenham o
+          Voltar; os de desktop (89:1203/99:1646), "Agenda › Booking Detail". */}
+      <div className="pg-head ag5-head">
         <Link className="ag5-back" to={`/units/${unitId}/agenda`}>
           ‹ Voltar
         </Link>
+        <nav className="ag5-crumbs" aria-label="Trilha de navegação">
+          <Link className="ag5-crumbs__link" to={`/units/${unitId}/agenda`}>
+            Agenda
+          </Link>
+          <Icon name="chevron-right" size={12} />
+          <span className="ag5-crumbs__current">Detalhe da reserva</span>
+        </nav>
         <div className="spacer" />
       </div>
 
@@ -179,11 +241,11 @@ export default function AG5BookingDetailPage() {
         <div className="ag5-heading">
           <h1>{bookingTitle(booking)}</h1>
           <p className="ag5-subtitle">
-            {bookingTypeLabel(booking.type)} · {new Date(booking.startAt).toLocaleString('pt-BR')}
+            {bookingTypeLabel(booking.type)} · {bookingWhenLabel(booking.startAt)}
           </p>
         </div>
 
-        <Card>
+        <Card padding={16}>
           <div className="ag5-rows">
             <div className="ag5-row">
               <span className="ag5-row-label">Horário</span>
@@ -209,13 +271,15 @@ export default function AG5BookingDetailPage() {
                 <span className="ag5-row-value">{booking.studentName ?? '—'}</span>
               </div>
             ) : null}
+            {/* Frame: "Alunos — 8 matriculados". `studentCount` vem junto com
+                a reserva (getBookingsGrid), então o número que o frame pede já
+                está em mão — o que segue sem existir é a LISTA nominal de
+                matriculados (BEAC-1861/1862), que nenhum dos quatro frames
+                desenha. */}
             {booking.type === 'class_occurrence' ? (
               <div className="ag5-row">
                 <span className="ag5-row-label">Alunos</span>
-                <span className="ag5-row-value ag5-row-value--hint">
-                  Lista de alunos indisponível — não existe matrícula modelada no backend ainda (ver
-                  BEAC-1861/1862, gap documentado em api/internal/classes/handler.go).
-                </span>
+                <span className="ag5-row-value">{enrolledLabel(booking.studentCount)}</span>
               </div>
             ) : null}
             {booking.responsibleName ? (
@@ -230,9 +294,15 @@ export default function AG5BookingDetailPage() {
                 <span className="ag5-row-value">{booking.reason ?? '—'}</span>
               </div>
             ) : null}
+            {/* Os quatro frames desenham Status como texto simples, na mesma
+                tipografia das outras linhas — nada de Badge e nada de "✓"
+                grudado na string. Nenhum deles desenha o estado cancelado; ver
+                `.ag5-row-value--cancelled` no CSS. */}
             <div className="ag5-row">
               <span className="ag5-row-label">Status</span>
-              <Badge tone={isConfirmed ? 'success' : 'neutral'}>{isConfirmed ? '✓ Confirmada' : 'Cancelada'}</Badge>
+              <span className={`ag5-row-value${isConfirmed ? '' : ' ag5-row-value--cancelled'}`}>
+                {isConfirmed ? 'Confirmada' : 'Cancelada'}
+              </span>
             </div>
           </div>
 
@@ -294,8 +364,11 @@ export default function AG5BookingDetailPage() {
 
         {isProfessor ? (
           <div className="ag5-actions">
+            {/* Frame 35:1162 pinta "Abrir check-in" como Primary e "Dar
+                feedback" como Ghost. "Ver perfil aluno" não aparece no frame e
+                fica (ver comentário de módulo). */}
             <Button
-              variant="ghost"
+              variant="primary"
               size="md"
               onClick={() => navigate(`/units/${unitId}/bookings/${bookingId}/checkin`, { state: { booking } })}
             >

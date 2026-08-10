@@ -3,16 +3,20 @@
  * componentes reais do design system, seguindo os frames Figma "03 · Detalhe
  * de Reserva — Aluno — Mobile" (36:1119) / "— Desktop" (100:2575) e o estado
  * "03b · Confirmar Cancelamento" (152:2646) — ver comentário de módulo em
- * AG5BookingDetailPage.tsx para a decisão de mapeamento do 03b. Layout único
- * (mobile-first), reaproveitado em desktop — mesmo padrão de
- * AG3StudentAgendaPage.css: sem breakpoint dedicado, o AppShell já resolve
- * sidebar vs bottom nav. */
+ * AG5BookingDetailPage.tsx para a decisão de mapeamento do 03b.
+ *
+ * Rodada AG5 Admin/Professor (frames 5:246, 89:1203, 35:1162, 99:1646): a
+ * mesma folha atende os dois papéis, porque os frames só divergem na fileira
+ * de ações — ver o comentário de módulo do .tsx sobre a confirmação dessa
+ * premissa. Deixa de ser layout único: os frames de desktop trocam o
+ * "‹ Voltar" por breadcrumb e dão divisórias e borda ao card, então esta
+ * folha ganhou um @media no mesmo 860 da sidebar do shell. */
 
 .pg-head {
   display: flex;
   align-items: center;
   gap: var(--space-2);
-  padding: 0 var(--space-6);
+  padding: 0 var(--page-pad-app);
   margin-bottom: var(--space-2);
 }
 .pg-head .spacer {
@@ -25,12 +29,34 @@
   text-decoration: none;
 }
 
+/* Breadcrumb dos frames de desktop ("Agenda › Booking Detail", 123:2202 /
+   124:1415). Fica escondido no mobile e troca de lugar com o "‹ Voltar" na
+   @media lá embaixo — os dois estão no DOM, sem matchMedia, mesmo mecanismo de
+   Financeiro.css (`.f3-nav-crumbs`). */
+.ag5-crumbs {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font: var(--type-body);
+  color: var(--text-muted);
+}
+.ag5-crumbs__link {
+  color: var(--text-brand);
+  text-decoration: none;
+}
+.ag5-crumbs__link:hover {
+  text-decoration: underline;
+}
+.ag5-crumbs__current {
+  color: var(--text-muted);
+}
+
 .ag5-body {
-  padding: 0 var(--space-6) var(--space-6);
+  padding: 0 var(--page-pad-app) var(--space-6);
   max-width: 560px;
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  gap: var(--space-6);
 }
 
 .ag5-heading {
@@ -74,9 +100,15 @@
   text-align: right;
 }
 
-.ag5-row-value--hint {
-  color: var(--text-muted);
-  font: var(--type-small);
+/* Estado cancelado: nenhum dos quatro frames o desenha (todos mostram
+   "Confirmada"). Como a linha virou texto simples, sem o Badge que antes
+   carregava a cor, um cancelamento ficaria com exatamente o mesmo peso visual
+   de uma reserva ativa — só a palavra mudando. Mantém a tipografia da linha,
+   que é o que o frame determina, e devolve o sinal de estado pelo token de
+   perigo (o mesmo que o botão de cancelar já usa), que passa AA nos dois
+   temas. */
+.ag5-row-value--cancelled {
+  color: var(--state-danger-text);
 }
 
 .ag5-note {
@@ -97,8 +129,14 @@
   flex-wrap: wrap;
   margin-top: var(--space-2);
 }
+/* Os frames desenham a fileira de ações como botões de larguras IGUAIS
+   dividindo a linha (5:246, 35:1162), não como botões do tamanho do próprio
+   rótulo. Com base de 50% a fileira do Professor cai em 2 + 1 — duas metades
+   e o terceiro ocupando a linha inteira — em vez do escadinha irregular que
+   `flex-basis: auto` produzia, e a do Admin, com um botão só, ocupa a
+   largura toda. */
 .ag5-actions > * {
-  flex: 1 1 auto;
+  flex: 1 1 calc(50% - var(--space-2));
 }
 
 /* Ações do aluno (Remarcar / Cancelar presença): Figma (36:1119) mostra os
@@ -158,4 +196,53 @@
 .ag5-cancel-section p {
   font: var(--type-body);
   color: var(--text-muted);
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop (frames 89:1203 Admin / 99:1646 Professor).
+
+   breakpoints.ts: BREAKPOINT_SHELL_DESKTOP_MIN (860) é a fonte canônica —
+   é o ponto em que a sidebar do shell aparece e o topo vira o do desktop,
+   mesmo valor usado por Financeiro.css e AG1DayPage.css.
+
+   Os dois frames de desktop divergem entre si (o do Admin centraliza a coluna
+   num card de 560px com divisórias; o do Professor estica o mesmo conteúdo na
+   largura toda, sem divisórias). Como é UMA página com gating, vale o
+   tratamento do Admin — ver o comentário de módulo do .tsx.
+   -------------------------------------------------------------------------- */
+@media (min-width: 860px) {
+  .ag5-crumbs {
+    display: flex;
+  }
+  /* Seletor duplo (0,3,0) pelo mesmo motivo documentado em Financeiro.css:
+     ~20 folhas de página declaram regras em `.pg-head` com especificidade de
+     uma classe no mesmo bundle, e aí quem ganha é a ordem de import. */
+  .pg-head.ag5-head .ag5-back {
+    display: none;
+  }
+
+  /* Coluna centralizada dos frames — o breadcrumb alinha com o card, e não com
+     a borda da área de conteúdo. */
+  .pg-head.ag5-head,
+  .ag5-body {
+    max-width: 560px;
+    margin-inline: auto;
+  }
+
+  /* Card do frame 90:1238: borda de 1px e linhas separadas por divisória, com
+     respiro vertical maior. O gap do `.ag5-rows` zera para a divisória não
+     ficar boiando longe do texto — o espaçamento passa a ser o padding das
+     linhas, como no frame (py-14). */
+  .ag5-body .card {
+    border: 1px solid var(--border-default);
+  }
+  .ag5-rows {
+    gap: 0;
+  }
+  .ag5-row {
+    padding: var(--space-3) 0;
+  }
+  .ag5-row + .ag5-row {
+    border-top: 1px solid var(--border-default);
+  }
 }

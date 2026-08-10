@@ -77,6 +77,55 @@ describe('AG5BookingDetailPage', () => {
     expect(screen.getByText('Confirmada')).toBeInTheDocument()
   })
 
+  // Reskin AG5 (frames 5:246 / 89:1203 / 35:1162 / 99:1646). O teste
+  // "renders header fields" acima falhava no baseline (fd4b759) porque a linha
+  // Status era um Badge com "✓ Confirmada" — o "✓" grudado na string fazia o
+  // getByText('Confirmada') exato não casar. Os quatro frames desenham Status
+  // como texto simples, então o reskin resolveu a falha pela própria tela, sem
+  // afrouxar a asserção. Estes testes travam o que o frame pede.
+  it('renders Status as plain text (no Badge, no "✓" glued to the string) — the four frames draw it like any other row', () => {
+    mockPermissions({ 'agenda:write': true, 'alunos:read': true })
+    const { container } = renderWithState({ booking })
+
+    expect(screen.getByText('Confirmada')).toBeInTheDocument()
+    expect(container.querySelector('.badge')).toBeNull()
+  })
+
+  it('renders the cancelled status with the danger token — no frame draws this state and the Badge no longer carries the colour', () => {
+    mockPermissions({ 'agenda:write': true, 'alunos:read': true })
+    renderWithState({ booking: { ...booking, status: 'cancelled' } })
+
+    expect(screen.getByText('Cancelada')).toHaveClass('ag5-row-value--cancelled')
+  })
+
+  it('shows the enrolled count from studentCount ("8 matriculados", frame) instead of the old backend-gap paragraph', () => {
+    mockPermissions({ 'agenda:write': true, 'alunos:read': true })
+    renderWithState({ booking: { ...booking, studentCount: 8 } })
+
+    expect(screen.getByText('8 matriculados')).toBeInTheDocument()
+    expect(screen.queryByText(/lista de alunos indisponível/i)).not.toBeInTheDocument()
+    expect(screen.queryByText(/BEAC-1861/)).not.toBeInTheDocument()
+  })
+
+  it('singularises the enrolled count', () => {
+    mockPermissions({ 'agenda:write': true, 'alunos:read': true })
+    renderWithState({ booking: { ...booking, studentCount: 1 } })
+
+    expect(screen.getByText('1 matriculado')).toBeInTheDocument()
+  })
+
+  // Os dois no DOM; quem escolhe é a @media de 860 (mesmo mecanismo de F3) —
+  // jsdom não aplica @media, então aqui só se afirma que ambos existem.
+  it('keeps both the mobile "‹ Voltar" and the desktop breadcrumb in the DOM, pointing at the Agenda', () => {
+    mockPermissions({ 'agenda:write': true, 'alunos:read': true })
+    renderWithState({ booking })
+
+    expect(screen.getByRole('link', { name: '‹ Voltar' })).toHaveAttribute('href', '/units/unit-1/agenda')
+    const crumbs = screen.getByRole('navigation', { name: 'Trilha de navegação' })
+    expect(crumbs).toHaveTextContent('Agenda')
+    expect(crumbs).toHaveTextContent('Detalhe da reserva')
+  })
+
   it('shows only the Admin "Ações" entry point when agenda:write is present', () => {
     mockPermissions({ 'agenda:write': true, 'alunos:read': true })
     renderWithState({ booking })
