@@ -1,89 +1,122 @@
-/* AG4 — Minha Agenda (Professor). .dgroup/.ag-list/.ag-row/.date-nav/
- * .iconbtn/.dlabel já vêm de Agenda.css (compartilhado com AG1/AG2/AG3);
- * .dash-body/.hint são redefinidos aqui (mesmo padrão de
- * AG3StudentAgendaPage.css — cada tela de agenda possui seu próprio CSS
- * scoped, sem um arquivo verdadeiramente global para essas classes ainda). */
-.dash-body {
-  padding: 0 var(--space-6) var(--space-6);
-  max-width: 560px;
+/* AG4 — Minha Agenda (Professor), frames 35:1096 / 186:4455 (dark) /
+   99:1584 (desktop) do protótipo hb7PA0Xx3L7iHjt9AfHsGK.
+
+   Como AG1DayPage.css: a tela não desenha mais grade nem lista própria — o
+   layout é do pattern AgendaMobile (ver AG4TeacherAgendaPage.tsx). Aqui fica
+   só o enquadramento da página, a largura no desktop e a aba Semana, que é
+   uma lista (não cabe numa timeline de um dia) e por isso entra pelo
+   `children` do pattern.
+
+   O que SUMIU desta folha em relação à versão anterior, tudo por troca para
+   componente do design system — nenhum estilo órfão ficou para trás:
+   - `.ag4-badge` / `--success` / `--neutral` -> `ui/Badge` (tone success /
+     neutral). O selo tinha sido renomeado de `.badge` em cafdcae justamente
+     para não colidir com o componente; usar o componente encerra o assunto.
+   - `.btn-xs` -> `ui/Button` size="sm". Era uma classe NUA de tela (28px)
+     inventada para caber dois botões numa linha; o bloco da timeline não tem
+     mais dois botões lado a lado.
+   - `.ag4-row` / `.ag4-actions` / `.ag4-future-hint` / `.ag4-arena-header` /
+     `.dash-body` / `.hint` -> a lista de linhas de agenda deixou de existir
+     na aba Hoje (virou timeline) e o cabeçalho por arena deixou de existir
+     (a arena vive dentro do bloco — ver o comentário de pacote do .tsx). */
+
+.ag4-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* No desktop (BREAKPOINT_SHELL_DESKTOP_MIN, src/lib/breakpoints.ts) o frame
+   99:1584 mostra a MESMA timeline ocupando a coluna de conteúdo inteira, com
+   os chips de quadra acima — e não a grade hora × quadra do admin. O pattern
+   já se reorganiza sozinho nessa largura (AgendaMobile.css); aqui só soltamos
+   a coluna, já que `.dash-body` (560px) não envolve mais esta tela. */
+@media (min-width: 860px) {
+  .ag4-page {
+    max-width: 1040px;
+  }
+}
+
+/* ---------- aba Semana (lista) ---------- */
+
+.ag4-week-group {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
 }
-.hint {
-  font-size: 12.5px;
+
+.ag4-week-group__label {
+  font: var(--type-label);
   color: var(--text-muted);
 }
-/* Selo local da linha de agenda. Nome próprio (`.ag4-badge`), NÃO `.badge`:
- * a classe nua `.badge` é do componente do design system
- * (src/components/ui/Badge/Badge.css) e redeclará-la aqui, com a mesma
- * especificidade (0,1,0), derrubava as declarações do componente em TODO o
- * app pela ordem do bundle. Mesmo desfecho de `.toast` -> `.nrs-notice` em
- * NovaReservaSheet.css e de `.card` -> `.fin-card` em Financeiro.css.
- *
- * As seis primeiras declarações abaixo NÃO são novas: eram o que estes spans
- * herdavam silenciosamente do `.badge` do design system (a regra da tela só
- * sobrescrevia parte dele). Foram copiadas com os mesmos valores para que a
- * aparência de AG4 não mude — medido em Chromium sobre o bundle de produção:
- * o selo continua com caixa 26px de altura e texto 10,5px/600.
- *
- * `letter-spacing: 0.02em` vinha do `.badge` de Financeiro.css, que carregava
- * depois desta folha e vencia a cascata mesmo em AG4 — o valor foi trazido
- * para cá pelo mesmo motivo (sem ele o texto encolheria ~0,2px por caractere). */
-.ag4-badge {
-  box-sizing: border-box;
-  justify-content: center;
-  height: 26px;
-  border: 1px solid transparent;
-  font: var(--type-label);
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  padding: 4px 11px;
-  border-radius: var(--radius-pill);
-}
-.ag4-badge--success {
-  background: var(--state-success-soft);
-  color: var(--state-success);
-}
-.ag4-badge--neutral {
-  background: var(--sand-200);
-  color: var(--text-heading);
+
+.ag4-week-group__rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
 }
 
-/* Linha de agenda de AG4: mais alta que uma .ag-row normal (72px, AC da
- * tela) por ter até 2 botões de ação lado a lado. */
-.ag4-row {
-  min-height: 72px;
-}
-.ag4-actions {
+/* Mesma anatomia do bloco da timeline (hora à esquerda, corpo tocável,
+   ação/selo à direita), em caixa de card — para as duas abas lerem como a
+   mesma agenda. */
+.ag4-week-row {
   display: flex;
   align-items: center;
-  gap: var(--space-2);
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  min-height: 56px;
+  background: var(--surface-card);
+  border-radius: var(--radius-lg);
 }
-.ag4-future-hint {
+
+.ag4-week-row__time {
+  flex: 0 0 auto;
+  font: var(--type-small);
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.ag4-week-row__body {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ag4-week-row__body:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+  border-radius: var(--radius-sm);
+}
+
+.ag4-week-row__title {
+  font: var(--type-label);
+  color: var(--text-heading);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-/* Cabeçalho de grupo por arena (AG4, professor cross-arena) — só aparece
- * quando há mais de 1 arena nos resultados; 14px bold per AC (diferente do
- * .dgroup padrão de 12px, usado pelos grupos por dia da aba Semana). */
-.ag4-arena-header {
-  font-size: 14px;
+.ag4-week-row__subtitle {
+  font: var(--type-small);
+  color: var(--text-muted);
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-/* .btn-xs: variante 28px (AuthLayout.css só define .btn-sm/.btn-md, 36px/
- * 44px) — os botões [CHECK-IN]/[ALUNOS] de AG4 são menores por caber 2 lado
- * a lado numa linha de 72px. */
-.btn-xs {
-  min-height: 28px;
-  padding: 0 12px;
-  font-size: 12px;
-}
+/* ---------- sheet "Alunos da Aula" ---------- */
 
 .ag4-participants-sheet {
   display: flex;
@@ -91,6 +124,13 @@
   gap: var(--space-3);
   min-width: 280px;
 }
+
+.ag4-participants-note {
+  margin: 0;
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
 .ag4-participants-list {
   list-style: none;
   margin: 0;
@@ -99,6 +139,7 @@
   flex-direction: column;
   gap: 1px;
 }
+
 .ag4-participant-row {
   display: flex;
   align-items: center;
@@ -114,7 +155,44 @@
   font: inherit;
   color: inherit;
 }
+
 .ag4-participant-name {
   font-size: 13.5px;
   font-weight: 600;
+}
+
+/* Complemento de rótulo só para leitor de tela (o "Check-in" da lista da
+   aba Semana, que sem contexto é indistinguível dos outros da mesma
+   semana) — mesma convenção por-componente de `.otp-input__sr-only` e
+   `.invoice-table__sr-only`. */
+.ag4-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* O gatilho do TeacherBlockRequestButton no slot de ação do pattern: largura
+   cheia no rodapé do mobile (frame 35:1096) e largura de conteúdo à direita
+   no desktop (frame 99:1584, onde o pattern já sobe o slot para o topo).
+   Sobrescrita escopada por ancestral (0,3,0) — o escape hatch previsto por
+   src/test/cssClassCollision.test.ts; a aparência do componente em si
+   (usado no header de outras telas) não muda. */
+.ag4-page .agenda-mobile__action--slot {
+  display: flex;
+}
+
+.ag4-page .agenda-mobile__action--slot .teacher-block-request-button__trigger {
+  flex: 1 1 auto;
+}
+
+@media (min-width: 860px) {
+  .ag4-page .agenda-mobile__action--slot .teacher-block-request-button__trigger {
+    flex: 0 0 auto;
+  }
 }

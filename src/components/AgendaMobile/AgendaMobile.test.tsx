@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 import {
   AgendaMobile,
+  computeEventLanes,
   computeEventLayout,
   hoursInRange,
   parseHM,
@@ -316,5 +317,205 @@ describe('AgendaMobile — filtro de quadra opcional', () => {
     })
     expect(screen.getByRole('button', { name: 'Quadra 1' })).toBeInTheDocument()
     expect(container.querySelector('.agenda-mobile__chip-dot')).toBeNull()
+  })
+})
+
+/* ── Props de AG4 (Agenda do Professor). Todas opcionais: cada bloco abaixo
+   também prova que, SEM a prop, o comportamento anterior (o que AG1DayPage
+   consome) continua valendo. ── */
+
+describe('computeEventLanes', () => {
+  it('deixa evento sem sobreposição ocupando a faixa inteira', () => {
+    const lanes = computeEventLanes([
+      { id: 'a', start: '07:00', end: '08:00' },
+      { id: 'b', start: '09:00', end: '10:00' },
+    ])
+    expect(lanes.get('a')).toEqual({ lane: 0, lanes: 1 })
+    expect(lanes.get('b')).toEqual({ lane: 0, lanes: 1 })
+  })
+
+  it('reparte dois eventos no mesmo horário em duas colunas', () => {
+    const lanes = computeEventLanes([
+      { id: 'a', start: '07:00', end: '08:00' },
+      { id: 'b', start: '07:00', end: '08:00' },
+    ])
+    expect(lanes.get('a')).toEqual({ lane: 0, lanes: 2 })
+    expect(lanes.get('b')).toEqual({ lane: 1, lanes: 2 })
+  })
+
+  it('dá a MESMA contagem de colunas a todo o cluster, mesmo a quem sobrepõe só um', () => {
+    // a e c não se tocam, mas b cruza os dois — o cluster inteiro é de 2
+    // colunas, senão eventos vizinhos teriam larguras diferentes.
+    const lanes = computeEventLanes([
+      { id: 'a', start: '07:00', end: '08:00' },
+      { id: 'b', start: '07:30', end: '09:30' },
+      { id: 'c', start: '09:00', end: '10:00' },
+    ])
+    expect(lanes.get('a')).toEqual({ lane: 0, lanes: 2 })
+    expect(lanes.get('b')).toEqual({ lane: 1, lanes: 2 })
+    expect(lanes.get('c')).toEqual({ lane: 0, lanes: 2 })
+  })
+
+  it('não considera sobreposição quando um termina exatamente onde o outro começa', () => {
+    const lanes = computeEventLanes([
+      { id: 'a', start: '07:00', end: '08:00' },
+      { id: 'b', start: '08:00', end: '09:00' },
+    ])
+    expect(lanes.get('a')).toEqual({ lane: 0, lanes: 1 })
+    expect(lanes.get('b')).toEqual({ lane: 0, lanes: 1 })
+  })
+
+  it('reaproveita a coluna liberada em vez de abrir uma terceira', () => {
+    const lanes = computeEventLanes([
+      { id: 'a', start: '07:00', end: '08:00' },
+      { id: 'b', start: '07:00', end: '10:00' },
+      { id: 'c', start: '08:00', end: '09:00' },
+    ])
+    expect(lanes.get('c')).toEqual({ lane: 0, lanes: 2 })
+  })
+
+  it('devolve coluna única para horário inválido, sem quebrar', () => {
+    const lanes = computeEventLanes([{ id: 'x', start: '99:99', end: '08:00' }])
+    expect(lanes.get('x')).toEqual({ lane: 0, lanes: 1 })
+  })
+})
+
+describe('AgendaMobile — overlapLanes', () => {
+  const OVERLAPPING: AgendaMobileEvent[] = [
+    { id: 'ev-a', title: 'BT Iniciante', start: '07:00', end: '08:00', status: 'confirmado' },
+    { id: 'ev-b', title: 'Padel Avançado', start: '07:00', end: '08:00', status: 'confirmado' },
+  ]
+
+  it('sem a prop (default), eventos sobrepostos mantêm a geometria antiga', () => {
+    const { container } = renderAgenda({ events: OVERLAPPING })
+    expect(container.querySelectorAll('.agenda-mobile__event--laned')).toHaveLength(0)
+  })
+
+  it('com a prop, cada evento sobreposto recebe sua fração de coluna', () => {
+    renderAgenda({ events: OVERLAPPING, overlapLanes: true })
+
+    const a = screen.getByTestId('agenda-mobile-event-ev-a')
+    const b = screen.getByTestId('agenda-mobile-event-ev-b')
+    expect(a).toHaveClass('agenda-mobile__event--laned')
+    expect(a.style.getPropertyValue('--agenda-mobile-event-lane-left')).toBe('0')
+    expect(a.style.getPropertyValue('--agenda-mobile-event-lane-width')).toBe('0.5')
+    expect(b.style.getPropertyValue('--agenda-mobile-event-lane-left')).toBe('0.5')
+  })
+
+  it('com a prop, evento sozinho na faixa continua ocupando a largura toda', () => {
+    const { container } = renderAgenda({ overlapLanes: true })
+    expect(container.querySelectorAll('.agenda-mobile__event--laned')).toHaveLength(0)
+  })
+})
+
+describe('AgendaMobile — ação e selo dentro do bloco', () => {
+  it('sem action/badge o bloco clicável continua sendo um <button> único', () => {
+    renderAgenda({ onSelectEvent: vi.fn() })
+    const event = screen.getByTestId('agenda-mobile-event-ev-1')
+    expect(event.tagName).toBe('BUTTON')
+  })
+
+  it('dispara a ação do bloco sem disparar onSelectEvent', async () => {
+    const onClick = vi.fn()
+    const onSelectEvent = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda({
+      onSelectEvent,
+      events: [{ ...EVENTS[0]!, action: { label: 'Check-in', onClick } }],
+    })
+
+    await user.click(screen.getByRole('button', { name: 'Check-in' }))
+
+    expect(onClick).toHaveBeenCalledTimes(1)
+    expect(onSelectEvent).not.toHaveBeenCalled()
+  })
+
+  it('mantém o corpo do bloco tocável (abre o evento) quando há ação', async () => {
+    const onSelectEvent = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda({
+      onSelectEvent,
+      events: [{ ...EVENTS[0]!, action: { label: 'Check-in', onClick: vi.fn() } }],
+    })
+
+    await user.click(screen.getByText('BT Iniciante'))
+
+    expect(onSelectEvent).toHaveBeenCalledWith('ev-1')
+  })
+
+  it('anexa contextLabel ao nome acessível sem tirar o rótulo visível dele', () => {
+    renderAgenda({
+      events: [
+        { ...EVENTS[0]!, action: { label: 'Check-in', contextLabel: 'BT Iniciante às 07:00', onClick: vi.fn() } },
+      ],
+    })
+
+    expect(screen.getByRole('button', { name: 'Check-in BT Iniciante às 07:00' })).toBeInTheDocument()
+  })
+
+  it('não aninha <button> dentro de <button> quando há ação', () => {
+    const { container } = renderAgenda({
+      onSelectEvent: vi.fn(),
+      events: [{ ...EVENTS[0]!, action: { label: 'Check-in', onClick: vi.fn() } }],
+    })
+
+    expect(container.querySelector('button button')).toBeNull()
+  })
+
+  it('renderiza o selo (ui/Badge) quando o evento traz badge', () => {
+    const { container } = renderAgenda({ events: [{ ...EVENTS[0]!, badge: '✅ Check-in feito' }] })
+
+    expect(screen.getByText('✅ Check-in feito')).toBeInTheDocument()
+    expect(container.querySelector('.badge--success')).not.toBeNull()
+  })
+})
+
+describe('AgendaMobile — corpo alternativo, actionSlot e filterLabel', () => {
+  it('children substitui a timeline inteira', () => {
+    const { container } = renderAgenda({ children: <p>Lista da semana</p> })
+
+    expect(screen.getByText('Lista da semana')).toBeInTheDocument()
+    expect(container.querySelector('.agenda-mobile__timeline')).toBeNull()
+  })
+
+  it('children tem precedência sobre o emptyState', () => {
+    renderAgenda({ children: <p>Lista da semana</p>, events: [], emptyState: <p>Sem aulas</p> })
+
+    expect(screen.getByText('Lista da semana')).toBeInTheDocument()
+    expect(screen.queryByText('Sem aulas')).not.toBeInTheDocument()
+  })
+
+  it('sem children a timeline continua sendo o corpo', () => {
+    const { container } = renderAgenda()
+    expect(container.querySelector('.agenda-mobile__timeline')).not.toBeNull()
+  })
+
+  it('actionSlot substitui o botão de `action` no mesmo lugar', () => {
+    const onClick = vi.fn()
+    const { container } = renderAgenda({
+      action: { label: '+ Nova reserva', onClick },
+      actionSlot: <button type="button">Solicitar bloqueio</button>,
+    })
+
+    expect(screen.getByRole('button', { name: 'Solicitar bloqueio' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '+ Nova reserva' })).not.toBeInTheDocument()
+    expect(container.querySelector('.agenda-mobile__action--slot')).not.toBeNull()
+  })
+
+  it('filterLabel renomeia o grupo acessível da linha de chips', () => {
+    renderAgenda({ filterLabel: 'Filtrar por arena' })
+
+    expect(screen.getByRole('group', { name: 'Filtrar por arena' })).toBeInTheDocument()
+    expect(screen.queryByRole('group', { name: 'Filtrar por quadra' })).not.toBeInTheDocument()
+  })
+
+  it('sem filterLabel o rótulo default continua "Filtrar por quadra"', () => {
+    renderAgenda()
+    expect(screen.getByRole('group', { name: 'Filtrar por quadra' })).toBeInTheDocument()
+  })
+
+  it('deriva o rótulo do toggle das opções recebidas', () => {
+    renderAgenda({ viewOptions: ['Hoje', 'Semana'], view: 'Hoje' })
+    expect(screen.getByRole('group', { name: 'Alternar entre visão Hoje e Semana' })).toBeInTheDocument()
   })
 })

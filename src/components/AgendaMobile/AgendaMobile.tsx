@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
+import { Badge } from '../ui/Badge/Badge'
 import { Button } from '../ui/Button/Button'
 import { IconButton } from '../ui/IconButton/IconButton'
 import { Segmented } from '../ui/Segmented/Segmented'
@@ -38,6 +39,30 @@ import './AgendaMobile.css'
  *   (--type-label/--type-small, eram --type-overline/11px), e as células da
  *   weekStrip passaram a ter fundo `surface-card` + radius-lg como no frame
  *   (eram transparentes/radius-md).
+ *
+ * ADAPTAÇÃO 2026-08 (AG4 — Agenda do Professor, frames 35:1096 / 186:4455 /
+ * 99:1584 do mesmo protótipo). Também tudo aditivo e opcional, e nada disso
+ * dispara sem o consumidor pedir — AG1DayPage não passa NENHUMA destas
+ * props e continua pixel a pixel igual:
+ *
+ * - `AgendaMobileEvent.action` e `AgendaMobileEvent.badge` — a ação e o selo
+ *   DENTRO do bloco da timeline. É a decisão de produto de AG4 (check-in
+ *   visível no bloco enquanto a aula está na janela de check-in) e é a única
+ *   parte destas telas que NÃO existe em nenhum frame — ver o comentário
+ *   "DESVIO DO FRAME" em pages/Agenda/AG4TeacherAgendaPage.tsx. Vocabulário
+ *   do design system: `ui/Button` (primary/sm) e `ui/Badge` (success), sem
+ *   estética nova;
+ * - `overlapLanes` — dois eventos no MESMO horário deixam de se empilhar
+ *   (um escondendo o outro) e passam a dividir a faixa em colunas. Nasce de
+ *   AG4: o professor vê o dia de TODAS as suas arenas numa timeline só, e
+ *   duas arenas podem ter aula às 7h. Default `false` = geometria antiga,
+ *   intocada, para AG1;
+ * - `children` — corpo alternativo no lugar da timeline (a aba "Semana" de
+ *   AG4 é uma lista, não cabe num eixo de tempo de um dia);
+ * - `actionSlot` — nó pronto no lugar do `ui/Button` de `action`, para quem
+ *   já tem um componente-botão auto-contido (TeacherBlockRequestButton);
+ * - `filterLabel` — rótulo acessível da filterRow, porque em AG4 os chips
+ *   filtram ARENA e não quadra quando o professor dá aula em mais de uma.
  */
 
 const WEEKDAY_OVERLINE = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
@@ -119,6 +144,80 @@ export function computeEventLayout(
   return { top, height }
 }
 
+export interface AgendaMobileEventLane {
+  /** Índice da coluna (0-based) dentro do grupo de eventos sobrepostos. */
+  lane: number
+  /** Quantas colunas o grupo inteiro ocupa. 1 = evento sozinho na faixa. */
+  lanes: number
+}
+
+/**
+ * Reparte eventos que se sobrepõem no tempo em COLUNAS lado a lado, para que
+ * um não fique escondido embaixo do outro.
+ *
+ * Sem isto, dois eventos das 7h ocupam exatamente o mesmo retângulo absoluto
+ * e o segundo pinta por cima do primeiro. Numa agenda de uma arena só isso é
+ * raro (duas quadras podem ter aula às 7h, mas o admin tem a grade desktop
+ * por quadra para desempatar); na agenda do PROFESSOR, que junta todas as
+ * arenas dele num eixo de tempo só, é o caso que precisa aparecer — duas
+ * aulas às 7h em arenas diferentes é um conflito real de agenda, e esconder
+ * uma delas seria esconder o problema.
+ *
+ * Algoritmo (packing guloso clássico de intervalos, o mesmo de qualquer
+ * calendário de dia): agrupa em CLUSTERS de sobreposição transitiva, e
+ * dentro do cluster põe cada evento na primeira coluna cujo último evento já
+ * terminou. Todo o cluster compartilha a mesma contagem de colunas, senão
+ * eventos vizinhos teriam larguras diferentes e a leitura por coluna se
+ * perderia. Eventos com horário inválido (fora do formato "HH:MM") saem como
+ * `{lane: 0, lanes: 1}` — o chamador já os descarta no cálculo de layout.
+ */
+export function computeEventLanes(
+  events: Pick<AgendaMobileEvent, 'id' | 'start' | 'end'>[],
+): Map<string, AgendaMobileEventLane> {
+  const result = new Map<string, AgendaMobileEventLane>()
+
+  const parsed: { id: string; start: number; end: number }[] = []
+  for (const event of events) {
+    const start = parseHM(event.start)
+    const end = parseHM(event.end)
+    if (start === null || end === null || end <= start) {
+      result.set(event.id, { lane: 0, lanes: 1 })
+      continue
+    }
+    parsed.push({ id: event.id, start, end })
+  }
+  parsed.sort((a, b) => a.start - b.start || a.end - b.end)
+
+  let cluster: { id: string; lane: number }[] = []
+  let laneEnds: number[] = []
+  let clusterEnd = -1
+
+  function flush() {
+    const lanes = Math.max(laneEnds.length, 1)
+    for (const item of cluster) result.set(item.id, { lane: item.lane, lanes })
+    cluster = []
+    laneEnds = []
+  }
+
+  for (const item of parsed) {
+    // `>=` e não `>`: uma aula que termina às 8h e outra que começa às 8h se
+    // encostam, não se sobrepõem — não devem partir a faixa em duas colunas.
+    if (item.start >= clusterEnd && cluster.length > 0) flush()
+    let lane = laneEnds.findIndex((end) => end <= item.start)
+    if (lane === -1) {
+      lane = laneEnds.length
+      laneEnds.push(item.end)
+    } else {
+      laneEnds[lane] = item.end
+    }
+    cluster.push({ id: item.id, lane })
+    clusterEnd = Math.max(clusterEnd, item.end)
+  }
+  if (cluster.length > 0) flush()
+
+  return result
+}
+
 /**
  * Tom de status de uma reserva. Mesmo conjunto de AgendaDesktop
  * (AgendaDesktopEventStatus) — os dois frames desenham a mesma paleta de
@@ -150,6 +249,21 @@ export interface AgendaMobileCourtFilter {
   sport?: string
 }
 
+/** Ação renderizada DENTRO do bloco da timeline (o "Check-in" de AG4). É um
+ * `ui/Button` primary/sm, e o clique nunca vaza para `onSelectEvent` — o
+ * bloco com ação deixa de ser um `<button>` e passa a ter um botão de corpo
+ * separado, porque `<button>` dentro de `<button>` é HTML inválido. */
+export interface AgendaMobileEventAction {
+  label: string
+  /** Complemento ANEXADO ao rótulo visível, só para leitor de tela — numa
+   * timeline com N blocos, N botões "Check-in" são indistinguíveis para quem
+   * navega pela lista de botões. Anexa em vez de substituir para o nome
+   * acessível continuar começando pelo texto que a pessoa vê na tela
+   * (requisito de "label in name", WCAG 2.5.3). */
+  contextLabel?: string
+  onClick: () => void
+}
+
 export interface AgendaMobileEvent {
   id: string
   title: string
@@ -158,6 +272,12 @@ export interface AgendaMobileEvent {
   start: string
   /** "HH:MM" */
   end: string
+  /** Ação dentro do bloco. Ausente = bloco limpo (o desenho dos frames). */
+  action?: AgendaMobileEventAction
+  /** Selo de estado dentro do bloco ("✅ Check-in feito"), um `ui/Badge`
+   * success. Mutuamente compatível com `action`, mas na prática os
+   * consumidores mostram um OU outro. */
+  badge?: string
   /** Status da reserva — decide a cor do card (fundo `--state-*-soft`,
    * texto `--state-*-text`/`--state-*`), como nos frames reais da tela. */
   status?: AgendaMobileEventStatus
@@ -213,6 +333,11 @@ export interface AgendaMobileProps {
    * escolha única já existe ui/Segmented). */
   selectedCourtIds: string[]
   onToggleCourt?: (courtId: string) => void
+  /** Rótulo acessível da filterRow. Default "Filtrar por quadra" (o que os
+   * frames desenham). AG4 troca para "Filtrar por arena" quando os chips
+   * passam a ser as arenas do professor — o rótulo tem que dizer a verdade
+   * sobre o que a linha filtra. */
+  filterLabel?: string
   /** Legenda de status entre os filtros e a timeline (frame 5:217, node
    * 163:5368). Ausente = sem legenda (frame do professor). */
   legend?: { status: AgendaMobileEventStatus; label: string }[]
@@ -229,6 +354,21 @@ export interface AgendaMobileProps {
   /** Ação principal abaixo da timeline: "+ Nova reserva" (admin) ou
    * "+ Solicitar bloqueio" (professor). */
   action?: AgendaMobileAction
+  /** Nó pronto no lugar do `ui/Button` de `action`, no MESMO slot (rodapé no
+   * mobile, canto superior direito no desktop). Para quem já tem um
+   * componente-botão auto-contido, dono do próprio estado — é o caso de
+   * TeacherBlockRequestButton, que carrega botão + bottom sheet juntos e não
+   * cabe num par `{label, onClick}`. Tem precedência sobre `action`. */
+  actionSlot?: ReactNode
+  /** Divide a faixa entre eventos que se sobrepõem no tempo, em vez de
+   * empilhá-los um sobre o outro (ver computeEventLanes). Default `false` =
+   * comportamento original do pattern. */
+  overlapLanes?: boolean
+  /** Corpo alternativo NO LUGAR da timeline — mantém cabeçalho, navegador de
+   * semana, weekStrip, chips e ação, e troca só o miolo. A aba "Semana" de
+   * AG4 é uma lista de aulas por dia, que não cabe num eixo de tempo de um
+   * dia. Tem precedência sobre a timeline e sobre `emptyState`. */
+  children?: ReactNode
   /** Primeira hora exibida na timeline. Default 6 (Figma). */
   startHour?: number
   /** Limite superior exclusivo da timeline. Default 14 (Figma: linhas 6h-13h). */
@@ -252,6 +392,7 @@ export function AgendaMobile({
   courts,
   selectedCourtIds,
   onToggleCourt,
+  filterLabel = 'Filtrar por quadra',
   legend,
   events,
   onSelectEvent,
@@ -259,6 +400,9 @@ export function AgendaMobile({
   onSelectFreeSlot,
   emptyState,
   action,
+  actionSlot,
+  overlapLanes = false,
+  children,
   startHour = 6,
   endHour = 14,
   hourHeightPx = 40,
@@ -266,6 +410,7 @@ export function AgendaMobile({
   const hours = hoursInRange(startHour, endHour)
   const timelineHeight = hours.length * hourHeightPx
   const showEmptyState = Boolean(emptyState) && events.length === 0
+  const lanes = overlapLanes ? computeEventLanes(events) : null
 
   return (
     <div className="agenda-mobile">
@@ -273,7 +418,10 @@ export function AgendaMobile({
 
       {viewOptions && viewOptions.length > 0 ? (
         <Segmented
-          ariaLabel="Alternar entre visão Dia e Semana"
+          // Derivado das opções em vez de fixo: AG1 passa ["Dia","Semana"] e
+          // continua com exatamente o mesmo rótulo de antes, mas a agenda do
+          // professor alterna ["Hoje","Semana"] e um rótulo fixo mentiria.
+          ariaLabel={`Alternar entre visão ${viewOptions.join(' e ')}`}
           options={viewOptions}
           value={view}
           onChange={onViewChange}
@@ -317,7 +465,7 @@ export function AgendaMobile({
       </div>
 
       {courts.length > 0 ? (
-        <div className="agenda-mobile__filter-row" role="group" aria-label="Filtrar por quadra">
+        <div className="agenda-mobile__filter-row" role="group" aria-label={filterLabel}>
           {courts.map((court) => {
             const isSelected = selectedCourtIds.includes(court.id)
             const style = court.sport
@@ -351,7 +499,9 @@ export function AgendaMobile({
         </div>
       ) : null}
 
-      {showEmptyState ? (
+      {children ? (
+        <div className="agenda-mobile__body">{children}</div>
+      ) : showEmptyState ? (
         <div className="agenda-mobile__empty">{emptyState}</div>
       ) : (
         <div
@@ -399,23 +549,98 @@ export function AgendaMobile({
           {events.map((event) => {
             const layout = computeEventLayout(event, startHour, endHour, hourHeightPx)
             if (!layout) return null
+            const lane = lanes?.get(event.id)
+            const laned = lane !== undefined && lane.lanes > 1
             const style = {
               '--agenda-mobile-event-top': `${layout.top}px`,
               '--agenda-mobile-event-h': `${layout.height}px`,
+              ...(laned
+                ? {
+                    // Frações da faixa útil (a largura do trilho de eventos,
+                    // já descontados o corredor dos rótulos de hora e o
+                    // respiro da direita) — o CSS multiplica, não divide, por
+                    // ser a operação de calc() com suporte mais antigo.
+                    '--agenda-mobile-event-lane-left': `${lane.lane / lane.lanes}`,
+                    '--agenda-mobile-event-lane-width': `${1 / lane.lanes}`,
+                  }
+                : null),
               ...(event.status || !event.sport
                 ? null
                 : { '--agenda-mobile-event-color': `var(${sportCssVar(event.sport)})` }),
             } as CSSProperties
-            const content = (
+            const body = (
               <>
-                <span className="agenda-mobile__event-stripe" aria-hidden="true" />
                 <span className="agenda-mobile__event-title">{event.title}</span>
                 {event.subtitle ? (
                   <span className="agenda-mobile__event-subtitle">{event.subtitle}</span>
                 ) : null}
               </>
             )
-            const className = `agenda-mobile__event${event.status ? '' : ' agenda-mobile__event--sport'}`
+            const className = [
+              'agenda-mobile__event',
+              event.status ? '' : 'agenda-mobile__event--sport',
+              laned ? 'agenda-mobile__event--laned' : '',
+              event.action || event.badge ? 'agenda-mobile__event--with-trailing' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')
+
+            // Bloco com ação/selo: o card inteiro NÃO pode ser o <button>
+            // (botão dentro de botão é HTML inválido e o clique da ação
+            // borbulharia para a navegação). O corpo vira o alvo de toque
+            // "abrir a aula" e a ação fica ao lado dele.
+            if (event.action || event.badge) {
+              return (
+                <div
+                  key={event.id}
+                  className={className}
+                  data-tone={event.status}
+                  style={style}
+                  data-testid={`agenda-mobile-event-${event.id}`}
+                >
+                  <span className="agenda-mobile__event-stripe" aria-hidden="true" />
+                  {onSelectEvent ? (
+                    <button
+                      type="button"
+                      className="agenda-mobile__event-body"
+                      onClick={() => onSelectEvent(event.id)}
+                    >
+                      {body}
+                    </button>
+                  ) : (
+                    <span className="agenda-mobile__event-body">{body}</span>
+                  )}
+                  {event.action ? (
+                    <span className="agenda-mobile__event-action">
+                      <Button variant="primary" size="sm" onClick={event.action.onClick}>
+                        {event.action.label}
+                        {/* O separador é um nó de texto IRMÃO do span, não o
+                            primeiro caractere dele: o cálculo do nome
+                            acessível apara o texto de cada elemento, e um
+                            espaço dentro do span some — o nome viraria
+                            "Check-inBT Iniciante às 07:00". */}
+                        {event.action.contextLabel ? ' ' : null}
+                        {event.action.contextLabel ? (
+                          <span className="agenda-mobile__sr-only">{event.action.contextLabel}</span>
+                        ) : null}
+                      </Button>
+                    </span>
+                  ) : null}
+                  {event.badge ? (
+                    <span className="agenda-mobile__event-badge">
+                      <Badge tone="success">{event.badge}</Badge>
+                    </span>
+                  ) : null}
+                </div>
+              )
+            }
+
+            const content = (
+              <>
+                <span className="agenda-mobile__event-stripe" aria-hidden="true" />
+                {body}
+              </>
+            )
             return onSelectEvent ? (
               <button
                 type="button"
@@ -443,7 +668,9 @@ export function AgendaMobile({
         </div>
       )}
 
-      {action ? (
+      {actionSlot ? (
+        <div className="agenda-mobile__action agenda-mobile__action--slot">{actionSlot}</div>
+      ) : action ? (
         <div className="agenda-mobile__action">
           <Button variant={action.variant ?? 'primary'} size="md" fullWidth onClick={action.onClick}>
             {action.label}

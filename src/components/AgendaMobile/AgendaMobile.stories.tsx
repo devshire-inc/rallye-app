@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { Button } from '../ui/Button/Button'
 import { EmptyState } from '../ui/EmptyState/EmptyState'
 import { AgendaMobile } from './AgendaMobile'
 import './AgendaMobile.stories.css'
@@ -328,6 +329,158 @@ export const DiaVazio: Story = {
         }
         action={{ label: '+ Nova reserva' }}
       />
+    </div>
+  ),
+}
+
+/** Frame "03 · Agenda — Professor — Mobile" (35:1096) COM o desvio de
+ * produto de AG4: a ação de check-in dentro do bloco enquanto a aula está na
+ * janela (15min antes / 30min depois), e o bloco limpo fora dela. Os três
+ * estados aparecem juntos aqui, que é o que o frame não mostra:
+ *
+ * - 07:00 na janela -> `action` (ui/Button primary/sm);
+ * - 09:00 já feito  -> `badge` (ui/Badge success);
+ * - 11:00 futuro    -> bloco limpo, exatamente como o frame desenha.
+ *
+ * `actionSlot` no lugar de `action` porque a tela real planta ali o
+ * TeacherBlockRequestButton, que é dono do próprio bottom sheet.
+ */
+export const AgendaProfessor: Story = {
+  render: () => (
+    <div className="agenda-mobile-story-frame">
+      <AgendaMobile
+        title="Minhas aulas"
+        viewOptions={['Hoje', 'Semana']}
+        view="Hoje"
+        rangeLabel="26 jul – 1 ago"
+        days={[
+          { date: '2026-07-26' },
+          { date: '2026-07-27' },
+          { date: '2026-07-28', hasEvents: true },
+          { date: '2026-07-29' },
+          { date: '2026-07-30' },
+          { date: '2026-07-31' },
+          { date: '2026-08-01' },
+        ]}
+        selectedDate="2026-07-28"
+        courts={[{ id: 'court-1', label: 'Quadra 1' }, { id: 'court-2', label: 'Quadra 2' }]}
+        selectedCourtIds={[]}
+        events={[
+          {
+            id: 'ev-1',
+            title: 'BT Iniciante',
+            subtitle: 'Quadra 1 · 6 alunos',
+            start: '07:00',
+            end: '08:00',
+            status: 'confirmado',
+            action: { label: 'Check-in', contextLabel: 'BT Iniciante às 07:00', onClick: () => {} },
+          },
+          {
+            id: 'ev-2',
+            title: 'Particular · Marina Costa',
+            subtitle: 'Quadra 2 · individual',
+            start: '09:00',
+            end: '10:00',
+            status: 'particular',
+            badge: '✅ Check-in feito',
+          },
+          {
+            id: 'ev-3',
+            title: 'BT Avançado',
+            subtitle: 'Quadra 1 · 8 alunos',
+            start: '11:00',
+            end: '12:00',
+            status: 'confirmado',
+          },
+        ]}
+        onSelectEvent={() => {}}
+        actionSlot={
+          <Button variant="secondary" size="md" fullWidth>
+            Solicitar bloqueio
+          </Button>
+        }
+        startHour={6}
+        endHour={13}
+      />
+    </div>
+  ),
+}
+
+/** O caso difícil de AG4: o professor dá aula em DUAS arenas e as duas têm
+ * aula às 7h. Numa timeline de um dia só há um eixo de tempo — com
+ * `overlapLanes` os dois blocos dividem a faixa em colunas em vez de um
+ * cobrir o outro, e a arena vai para dentro do subtítulo. Sem a prop
+ * (default), o segundo bloco simplesmente somiria embaixo do primeiro. */
+export const CrossArenaMesmoHorario: Story = {
+  render: () => (
+    <div className="agenda-mobile-story-frame">
+      <AgendaMobile
+        title="Minhas aulas"
+        rangeLabel="26 jul – 1 ago"
+        days={[{ date: '2026-07-28', hasEvents: true }, { date: '2026-07-29' }]}
+        selectedDate="2026-07-28"
+        courts={[
+          { id: 'unit-1', label: 'Arena Beira-Mar' },
+          { id: 'unit-2', label: 'Arena Praia Sul' },
+        ]}
+        selectedCourtIds={[]}
+        filterLabel="Filtrar por arena"
+        overlapLanes
+        events={[
+          {
+            id: 'ev-1',
+            title: 'BT Iniciante',
+            subtitle: 'Arena Beira-Mar · Quadra 1 · 6 alunos',
+            start: '07:00',
+            end: '08:00',
+            status: 'confirmado',
+          },
+          {
+            id: 'ev-2',
+            title: 'Padel Avançado',
+            subtitle: 'Arena Praia Sul · Quadra 1 · 4 alunos',
+            start: '07:00',
+            end: '08:30',
+            status: 'confirmado',
+          },
+          {
+            id: 'ev-3',
+            title: 'Particular · Marina Costa',
+            subtitle: 'Arena Beira-Mar · Quadra 2 · individual',
+            start: '09:00',
+            end: '10:00',
+            status: 'particular',
+          },
+        ]}
+        onSelectEvent={() => {}}
+        startHour={6}
+        endHour={12}
+      />
+    </div>
+  ),
+}
+
+/** `children` troca a timeline por um corpo qualquer, mantendo cabeçalho,
+ * navegador de semana, tira de dias e chips. É como AG4 monta a aba
+ * "Semana": uma semana é uma lista de aulas por dia, e não cabe num eixo de
+ * tempo de um dia. */
+export const CorpoAlternativoSemana: Story = {
+  render: () => (
+    <div className="agenda-mobile-story-frame">
+      <AgendaMobile
+        title="Minhas aulas"
+        viewOptions={['Hoje', 'Semana']}
+        view="Semana"
+        rangeLabel="26 jul – 1 ago"
+        days={[{ date: '2026-07-28', hasEvents: true }, { date: '2026-07-29' }]}
+        selectedDate="2026-07-28"
+        courts={[]}
+        selectedCourtIds={[]}
+        events={[]}
+      >
+        <p className="agenda-mobile-story-body">ter, 28 jul — BT Iniciante · 07:00</p>
+        <p className="agenda-mobile-story-body">qua, 29 jul — Padel Avançado · 09:00</p>
+      </AgendaMobile>
     </div>
   ),
 }

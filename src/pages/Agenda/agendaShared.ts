@@ -81,6 +81,24 @@ export function bookingTitle(booking: Booking): string {
   return bookingTypeLabel(booking.type)
 }
 
+/** "Quadra 1 · 6 alunos" (turma) / "Quadra 2 · individual" (particular) — o
+ * subtítulo que o frame 35:1096 desenha, prefixado pela ARENA quando o
+ * professor tem aula em mais de uma no período exibido.
+ *
+ * A contagem vem de `studentCount`, que `getBookingsGrid` já devolve por
+ * reserva — nenhuma chamada por aula. Em `type=private` o backend manda 0 de
+ * propósito (o aluno vive em `student_name`, não em `booking_participants`,
+ * ver lib/api/bookings.ts), e "0 alunos" seria uma mentira: para esse tipo o
+ * rótulo é "individual", igual ao frame, com o nome do aluno subindo para o
+ * TÍTULO do bloco via bookingTitle ("Particular · Marina Costa"). */
+export function bookingSubtitle(booking: Booking, withArena: boolean): string {
+  const who =
+    booking.type === 'private'
+      ? 'individual'
+      : `${booking.studentCount} ${booking.studentCount === 1 ? 'aluno' : 'alunos'}`
+  return [withArena ? booking.unitName : null, booking.courtName, who].filter(Boolean).join(' · ')
+}
+
 /** Legenda fixa de AG1/AG2 — AC "legenda com 4 itens + Livre — toque para
  * reservar" (cópia exata do rótulo do último item). `colorClass` casa com as
  * classes `.sq-*` de Agenda.css (mesma paleta de `.booking.bk-*`). */
