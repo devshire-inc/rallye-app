@@ -101,9 +101,15 @@ describe('AG1DayPage', () => {
     vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: true })
 
     renderPage()
-    await waitFor(() => expect(bookingsApi.getBookingsGrid).toHaveBeenCalled())
 
-    expect(screen.queryByRole('button', { name: '+ Nova reserva' })).not.toBeInTheDocument()
+    // Espera pela RESPOSTA aplicada, não pela chamada disparada — ver o
+    // comentário equivalente em AG2WeekPage.test.tsx. `getBookingsGrid` ser
+    // chamada e `setViewOnly(true)` chegar ao DOM são momentos diferentes, e
+    // a ação nasce presente (`viewOnly` inicial é `false`), então esperar por
+    // ela sumir é uma barreira de verdade.
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: '+ Nova reserva' })).not.toBeInTheDocument(),
+    )
   })
 
   it('marks empty desktop slots as aria-disabled when view_only=true', async () => {
@@ -112,8 +118,16 @@ describe('AG1DayPage', () => {
 
     renderPage()
 
-    const slot = await screen.findByLabelText('Horário livre Q1 6h')
-    expect(slot).toHaveAttribute('aria-disabled', 'true')
+    // O slot existe ANTES e DEPOIS da resposta — o que a resposta muda é o
+    // atributo. Por isso a espera é pelo atributo, não pelo elemento:
+    // `findByLabelText` sozinho podia devolver o slot ainda com
+    // aria-disabled="false".
+    await waitFor(async () =>
+      expect(await screen.findByLabelText('Horário livre Q1 6h')).toHaveAttribute(
+        'aria-disabled',
+        'true',
+      ),
+    )
   })
 
   it('hides the mobile free-slot chips when view_only=true', async () => {

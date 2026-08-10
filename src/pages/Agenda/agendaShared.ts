@@ -266,3 +266,37 @@ export function bookingWhenLabel(iso: string): string {
 export function enrolledLabel(studentCount: number): string {
   return `${studentCount} ${studentCount === 1 ? 'matriculado' : 'matriculados'}`
 }
+
+/** Endereço de ida para AG6 "Nova reserva" (`/units/:unitId/agenda/nova-reserva`),
+ * montado por quem navega — AG1 (Dia) e AG2 (Semana). Vive aqui, e não no
+ * componente da página, pelo mesmo motivo de todo o resto deste arquivo: são
+ * TRÊS lugares que precisam concordar sobre o formato dos parâmetros (os dois
+ * chamadores e a página que os lê), e uma divergência sutil aqui vira
+ * preenchimento errado ou uma volta para o lugar errado — não um erro de
+ * compilação. `from`/`fromDate` descrevem a ORIGEM (para onde voltar);
+ * `courtId`/`date`/`startHour` descrevem o PREENCHIMENTO. Ver o comentário de
+ * módulo de AG6NovaReservaPage.tsx sobre por que query param e não
+ * `location.state`. */
+export interface NovaReservaLinkOptions {
+  /** Pré-preenche a quadra. */
+  courtId?: string
+  /** Pré-preenche o campo Data. */
+  date?: Date
+  /** Pré-preenche a hora de início (e o fim, uma hora depois). */
+  startHour?: number
+  /** Visão de origem, para onde Cancelar/criar/voltar devolvem o usuário. */
+  from: 'dia' | 'semana'
+  /** Dia/semana que a origem estava mostrando — pode ser diferente de `date`
+   * (o FAB da semana não pré-preenche data, mas a volta tem destino certo). */
+  fromDate: Date
+}
+
+export function novaReservaPath(unitId: string, options: NovaReservaLinkOptions): string {
+  const params = new URLSearchParams()
+  if (options.courtId) params.set('court', options.courtId)
+  if (options.date) params.set('date', formatISODate(options.date))
+  if (options.startHour !== undefined) params.set('hour', String(options.startHour))
+  params.set('from', options.from)
+  params.set('fromDate', formatISODate(options.fromDate))
+  return `/units/${unitId}/agenda/nova-reserva?${params.toString()}`
+}

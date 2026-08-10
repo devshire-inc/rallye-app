@@ -1,6 +1,6 @@
 /* Sheet de desistência (BEAC-1994, story BEAC-1718) — classes copiadas do
  * protótipo real (`#sheet-desistencia`, artifact "Rallye — Torneios"),
- * self-contained (mesmo padrão de WaitlistSheet.css/NovaReservaSheet.css:
+ * self-contained (mesmo padrão de WaitlistSheet.css/AG6NovaReservaPage.css:
  * não assume que outra tela já carregou o CSS equivalente). Tokens
  * migrados pra Claude Design (BEAC-2055). */
 

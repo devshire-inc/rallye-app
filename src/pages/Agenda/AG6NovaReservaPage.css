@@ -1,0 +1,279 @@
+/* AG6 — Nova reserva. Era `NovaReservaSheet.css` (bottom sheet); virou a
+   folha de uma PÁGINA — ver o comentário de módulo de AG6NovaReservaPage.tsx
+   para a decisão de produto e o que ela implicou na navegação.
+
+   Frames: "08 · Nova Reserva — Admin — Mobile" (12:280) e "— Desktop"
+   (94:1656) do protótipo hb7PA0Xx3L7iHjt9AfHsGK.
+
+   Sobrou muito pouco daqui: os controles (chips de tipo/quadra, campos,
+   botões) passaram a ser componentes do design system, então esta folha só
+   faz enquadramento — cabeçalho da página, ritmo vertical do formulário e as
+   duas grades de campo. As classes legadas do layout de AUTENTICAÇÃO que o
+   sheet usava (`.field` x16, `.stack`, `.btn btn-primary btn-md btn-full`) e
+   o import de `AuthLayout.css` que elas exigiam saíram junto.
+
+   Toda classe daqui é prefixada `nr-`. O sheet já tinha aprendido isso da
+   pior forma em 5fac500: `.toast` nu colidia com o Toast do design system e
+   quebrava o alinhamento do componente no app inteiro. A trava
+   (src/test/cssClassCollision.test.ts) reprova classe nua nova. */
+
+.nr-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Cabeçalho: "‹ Voltar" (frame mobile) e breadcrumb (frame desktop) estão os
+   dois no DOM e a @media escolhe — sem `matchMedia`, sem flash na primeira
+   pintura. Mesmo mecanismo de AG5BookingDetailPage.css. */
+.nr-head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.nr-back {
+  color: var(--text-brand);
+  font: var(--type-small);
+  text-decoration: none;
+}
+
+.nr-crumbs {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  font: var(--type-body);
+  color: var(--text-muted);
+}
+.nr-crumbs__link {
+  color: var(--text-brand);
+  text-decoration: none;
+}
+.nr-crumbs__link:hover {
+  text-decoration: underline;
+}
+.nr-crumbs__current {
+  color: var(--text-muted);
+}
+
+/* 32px Baloo ExtraBold no frame mobile (21:386); vira 19px Bold no desktop
+   (94:1728), na @media lá embaixo. */
+.nr-title {
+  font: var(--type-display);
+  color: var(--text-heading);
+  margin: 0;
+}
+
+.nr-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Rótulo de um grupo que NÃO é um campo de formulário (Tipo, Quadra,
+   Recorrência): o controle é uma fileira de chips/segmented, não um
+   `<input>`, então não existe `<label for>` para pendurar — o grupo é
+   associado por `aria-labelledby`. Mesma tipografia do rótulo do `Input` do
+   design system (Label, 13px bold), na cor de texto secundário que os frames
+   usam nesses três rótulos. */
+.nr-group-label {
+  font: var(--type-label);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.nr-group-hint {
+  font: var(--type-small);
+  color: var(--text-muted);
+  margin: 0;
+}
+
+.nr-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.nr-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* Data | Início | Fim numa linha só, como nos dois frames (21:408 / 94:1121),
+   e os pares de campo em duas colunas.
+
+   A coluna da Data é mais larga (1.2fr) porque o campo carrega uma data
+   inteira em dd/mm/aaaa — o frame escreve "qui, 18 jul", que é bem mais
+   curto, e com três colunas iguais "18/07/2026" não cabe num aparelho de
+   390px. Abaixo de 360px nem assim cabe, e aí a linha vira 2 + 1: preferível
+   a um valor truncado no meio. */
+.nr-row3 {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr 1fr;
+  gap: var(--space-2);
+}
+.nr-row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-2);
+}
+@media (max-width: 359px) {
+  .nr-row3 {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Um `<input>` nativo tem largura INTRÍNSECA (o atributo `size`, ~20
+   caracteres) e um item de grid nasce com `min-width: auto` — juntos, três
+   campos numa linha empurravam a página para ~660px de largura num aparelho
+   de 390 e faziam o <body> rolar na horizontal. As duas metades da conta
+   precisam ser desfeitas: a coluna pode encolher (`min-width: 0`) e o
+   controle segue a coluna em vez de exigir seu tamanho natural. Escopado a
+   esta folha (0,2,0) — o `Input` do design system fica intacto. */
+.nr-row3 > *,
+.nr-row2 > * {
+  min-width: 0;
+}
+.nr-row3 .input__control,
+.nr-row2 .input__control {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Ícone à direita do campo (calendário em Data, relógio em Início/Fim) —
+   decorativo, quem informa é o rótulo. Só no DESKTOP: quem os desenha é o
+   frame 94:1656 (nós 163:5008/163:5002/163:5005); o frame mobile 12:280
+   mostra os três campos sem ícone nenhum, e é também o único jeito de os três
+   caberem numa linha em 390px. */
+.nr-field-icon {
+  display: none;
+  color: var(--text-muted);
+  flex-shrink: 0;
+}
+
+/* Textarea de "Observações" — o único controle desta tela sem componente no
+   design system (não existe `ui/Textarea`). Copia a gramática do
+   `ui/Input`: mesmo rótulo, mesma borda de 1.5px, mesmo raio. */
+.nr-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+.nr-field label {
+  font: var(--type-label);
+  color: var(--text-heading);
+}
+.nr-textarea {
+  font: var(--type-body);
+  color: var(--text-body);
+  background: var(--surface-card);
+  border: 1.5px solid var(--border-default);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  min-height: 92px;
+  resize: vertical;
+  width: 100%;
+}
+/* Sem regra de foco própria: o `:focus-visible` global (src/index.css) já
+   aplica `--focus-ring` a qualquer elemento focável, e o raio deste campo é o
+   mesmo do `Input`, então o anel cai certo. */
+
+/* Aviso inline de resultado da criação. Nome próprio (`.nr-notice`), NÃO
+   `.toast`: `.toast` é do componente do design system
+   (src/components/ui/.../Toast.css) e a colisão de classe nua sobrescrevia
+   `align-items: center` por `flex-start` em TODO o app. Herdado de
+   `.nrs-notice` (5fac500), renomeado junto com o resto do prefixo. */
+.nr-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  font: var(--type-small);
+}
+.nr-notice--success {
+  background: var(--state-success-soft);
+  color: var(--state-success);
+}
+.nr-notice--error {
+  background: var(--state-danger-soft);
+  color: var(--state-danger);
+}
+.nr-notice--neutral {
+  background: var(--surface-sunken);
+  color: var(--text-heading);
+}
+
+/* Frame mobile: só "Criar reserva", largura cheia (quem cancela é o
+   "‹ Voltar" do topo). Frame desktop: "Cancelar" + "Criar reserva" à
+   direita. O `Button` do design system não aceita `className` e `fullWidth`
+   é prop, não media query — então a largura vem daqui, escopada em
+   `.nr-actions .button` (0,2,0), que é o escape hatch documentado da trava
+   de colisão. */
+.nr-actions {
+  display: flex;
+}
+.nr-actions__cancel {
+  display: none;
+}
+.nr-actions .button {
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Desktop (frame 94:1656). BREAKPOINT_SHELL_DESKTOP_MIN (860,
+   src/lib/breakpoints.ts) é a fonte canônica — é onde a casca troca a
+   bottom-nav pela sidebar, e é o mesmo ponto usado por AG1DayPage.css e
+   AG5BookingDetailPage.css.
+   -------------------------------------------------------------------------- */
+@media (min-width: 860px) {
+  .nr-crumbs {
+    display: flex;
+  }
+  .nr-back {
+    display: none;
+  }
+
+  /* Coluna de 640px centralizada, com o breadcrumb e o título alinhados a
+     ela (frame: "Main Content" com items-center e o bloco do formulário em
+     640). */
+  .nr-page {
+    max-width: 640px;
+    margin-inline: auto;
+    width: 100%;
+  }
+  .nr-head,
+  .nr-title {
+    justify-content: center;
+    text-align: center;
+  }
+  .nr-title {
+    font: var(--type-heading);
+  }
+
+  .nr-field-icon {
+    display: block;
+  }
+
+  /* No desktop os chips de Tipo e de Quadra dividem a largura em partes
+     iguais (frame: `flex-[1_0_0]` em 94:1111-94:1120), em vez de cada um
+     ficar do tamanho do próprio rótulo. Override escopado a esta folha
+     (0,2,0) — o `Chip` do design system continua intacto para os outros
+     consumidores, que é a regra da trava de colisão. */
+  .nr-chips > .chip {
+    flex: 1 0 0;
+    justify-content: center;
+  }
+
+  .nr-actions {
+    justify-content: flex-end;
+    gap: var(--space-2);
+  }
+  .nr-actions__cancel {
+    display: inline-flex;
+  }
+  .nr-actions .button {
+    width: auto;
+  }
+}

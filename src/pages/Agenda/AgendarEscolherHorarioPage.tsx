@@ -29,8 +29,9 @@ function occurrenceTime(iso: string): string {
  * Tela 1/3 do fluxo self-service "Agendar aula" (Aluno) — Figma "06 · Agendar
  * — Escolher Horário — Aluno — Mobile" (node 159:1576) / "— Desktop" (node
  * 183:2954). Construída do zero (não é reskin — a versão staff de "Nova
- * reserva" é `NovaReservaSheet.tsx`, um bottom sheet completamente diferente
- * de fluxo/permissão, ver comentário daquele arquivo).
+ * reserva" é `AG6NovaReservaPage.tsx`, uma tela de admin completamente
+ * diferente de fluxo/permissão, ver comentário daquele arquivo — era um
+ * bottom sheet (`NovaReservaSheet.tsx`) até virar página).
  *
  * Integrada com o backend real (dispatch de disponibilidade self-service):
  * GET /units/{id}/classes/occurrences?sport=&from=&to= (../../lib/api/classOccurrences.ts)

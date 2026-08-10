@@ -53,13 +53,42 @@ describe('AG2WeekPage', () => {
     expect(screen.getByText('indisponível')).toBeInTheDocument()
   })
 
+  /* A barreira deste teste é a RESPOSTA aplicada, não a chamada disparada.
+   * `getBookingsGrid` ter sido chamada e `setViewOnly(true)` ter sido aplicado
+   * são dois momentos diferentes — a chamada acontece no corpo de
+   * `reloadBookings`, o setState só no `.then`. Esperar pela chamada
+   * (`toHaveBeenCalled()`) liberava a asserção enquanto `viewOnly` ainda era
+   * `false`, e aí o FAB legitimamente existia:
+   *
+   *   expected document not to contain element, found
+   *   <button aria-label="Nova reserva" class="fab">+</button>
+   *
+   * Passava quase sempre porque o `waitFor` só reavalia depois de um tick, e
+   * até lá a microtask do `.then` normalmente já drenou — "quase sempre"
+   * medido em 2 falhas a cada 30 execuções DO ARQUIVO SOZINHO, com a mesma
+   * taxa em e77fe27 (não é regressão de nenhuma mudança recente; é a
+   * sincronização errada desde sempre). */
   it('hides the FAB and disables empty slots when view_only=true', async () => {
     vi.spyOn(courtsApi, 'listCourts').mockResolvedValue({ ok: true, courts })
     vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: true })
 
     renderPage()
-    await waitFor(() => expect(bookingsApi.getBookingsGrid).toHaveBeenCalled())
 
-    expect(screen.queryByRole('button', { name: 'Nova reserva' })).not.toBeInTheDocument()
+    // Barreira real: o FAB nasce presente (o estado inicial de `viewOnly` é
+    // `false`) e só some quando a resposta chega — esperar por ele sumir não
+    // é satisfeito de graça no primeiro tick.
+    await waitFor(() =>
+      expect(screen.queryByRole('button', { name: 'Nova reserva' })).not.toBeInTheDocument(),
+    )
+
+    // "…and disables empty slots": a segunda metade do nome do teste, que
+    // nunca chegou a ser verificada. Só é checável depois da barreira acima,
+    // pelo mesmo motivo.
+    const freeSlots = screen.getAllByRole('button', { name: /Horário livre/ })
+    expect(freeSlots.length).toBeGreaterThan(0)
+    for (const slot of freeSlots) {
+      expect(slot).toHaveAttribute('aria-disabled', 'true')
+      expect(slot).toHaveAttribute('tabindex', '-1')
+    }
   })
 })

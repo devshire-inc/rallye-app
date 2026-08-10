@@ -17,10 +17,10 @@ import {
   isSameDay,
   LEGEND_ITEMS,
   matchesSearch,
+  novaReservaPath,
   weekWindow,
   WEEKDAY_SHORT_LABELS,
 } from './agendaShared'
-import { NovaReservaSheet, type NovaReservaPrefill } from './NovaReservaSheet'
 import '../../components/AuthLayout/AuthLayout.css'
 import './Agenda.css'
 
@@ -46,9 +46,6 @@ export default function AG2WeekPage() {
   const [viewOnly, setViewOnly] = useState(false)
   const [loadError, setLoadError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [sheetPrefill, setSheetPrefill] = useState<NovaReservaPrefill | undefined>(undefined)
-  const [sheetKey, setSheetKey] = useState(0)
 
   useEffect(() => {
     if (!unitId) return
@@ -121,11 +118,23 @@ export default function AG2WeekPage() {
     setAnchorDate(next)
   }
 
-  function openSheetForSlot(dayIndex: number, hour: number) {
+  // AG6 "Nova reserva" é uma PÁGINA irmã desta rota, não mais um bottom sheet
+  // (ver AG6NovaReservaPage.tsx). `from=semana&fromDate=` é o que devolve o
+  // usuário para ESTA semana nesta visão — sem isso ele cairia na Agenda do
+  // dia de hoje, que não é de onde ele veio. `fromDate` é o `anchorDate` (a
+  // semana visível), não o dia do slot: são coisas diferentes no FAB, que não
+  // pré-preenche data nenhuma.
+  function goNovaReservaForSlot(dayIndex: number, hour: number) {
     if (viewOnly) return
-    setSheetPrefill({ courtId: selectedCourtId, date: weekDays[dayIndex], startHour: hour })
-    setSheetKey((k) => k + 1)
-    setSheetOpen(true)
+    navigate(
+      novaReservaPath(unitId ?? '', {
+        courtId: selectedCourtId,
+        date: weekDays[dayIndex],
+        startHour: hour,
+        from: 'semana',
+        fromDate: anchorDate,
+      }),
+    )
   }
 
   // Stats "em tempo real" (AC: "Ocupação da semana", "Horários livres",
@@ -241,7 +250,7 @@ export default function AG2WeekPage() {
                   aria-label={`Horário livre ${WEEKDAY_SHORT_LABELS[dayIndex]} ${formatHour(hour)}`}
                   aria-disabled={viewOnly}
                   style={{ gridColumn: dayIndex + 2 }}
-                  onClick={() => openSheetForSlot(dayIndex, hour)}
+                  onClick={() => goNovaReservaForSlot(dayIndex, hour)}
                 />
               )
             }),
@@ -291,25 +300,19 @@ export default function AG2WeekPage() {
         <button
           className="fab"
           aria-label="Nova reserva"
-          onClick={() => {
-            setSheetPrefill({ courtId: selectedCourtId })
-            setSheetKey((k) => k + 1)
-            setSheetOpen(true)
-          }}
+          onClick={() =>
+            navigate(
+              novaReservaPath(unitId ?? '', {
+                courtId: selectedCourtId,
+                from: 'semana',
+                fromDate: anchorDate,
+              }),
+            )
+          }
         >
           +
         </button>
       ) : null}
-
-      <NovaReservaSheet
-        key={sheetKey}
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        unitId={unitId ?? ''}
-        courts={courts}
-        prefill={sheetPrefill}
-        onCreated={reloadBookings}
-      />
     </>
   )
 }

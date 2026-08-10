@@ -10,7 +10,7 @@
 
 /* Contador de créditos. Antes usava `toast toast-info` sem NENHUMA regra
    local: pegava carona no `.toast` nu de outra página (TournamentViewPage/
-   NovaReservaSheet/DayUseConfigPage), então a aparência dependia da ordem do
+   AG6 Nova reserva/DayUseConfigPage), então a aparência dependia da ordem do
    bundle, e `.toast-info` nunca existiu em lugar nenhum. Classe própria aqui
    — as regras `.toast` nuas foram renomeadas justamente por colidirem com o
    componente Toast do design system. Valores = os do `.toast` que vencia a

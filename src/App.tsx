@@ -14,6 +14,7 @@ import AG2WeekPage from './pages/Agenda/AG2WeekPage'
 import AG3StudentAgendaPage from './pages/Agenda/AG3StudentAgendaPage'
 import AG4TeacherAgendaPage from './pages/Agenda/AG4TeacherAgendaPage'
 import AG5BookingDetailPage from './pages/Agenda/AG5BookingDetailPage'
+import AG6NovaReservaPage from './pages/Agenda/AG6NovaReservaPage'
 import AgendarConfirmarPage from './pages/Agenda/AgendarConfirmarPage'
 import AgendarEscolherHorarioPage from './pages/Agenda/AgendarEscolherHorarioPage'
 import AgendarSucessoPage from './pages/Agenda/AgendarSucessoPage'
@@ -286,6 +287,26 @@ function AppRoutes() {
             de um só. Rota unit-scoped, mesmo padrão de /units/:unitId/roles. */}
         <Route path="/units/:unitId/agenda" element={<AG1DayPage />} />
         <Route path="/units/:unitId/agenda/semana" element={<AG2WeekPage />} />
+        {/* AG6 — Nova reserva (BEAC-1904, mesma story). Era um bottom sheet
+            dentro de AG1/AG2; virou PÁGINA por decisão do dono do produto —
+            os frames 12:280/94:1656 desenham uma página (voltar, título,
+            bottom nav visível), e como página ela ganha endereço próprio,
+            botão-voltar do sistema e campos que respiram. Ver o comentário de
+            módulo de AG6NovaReservaPage.tsx.
+
+            Rota unit-scoped como as irmãs (espelha POST /units/{id}/bookings
+            e POST /units/{id}/classes, que é o que ela chama). Segmento
+            literal "nova-reserva" sob /agenda, sem parâmetro dinâmico ao lado
+            — não colide com nada.
+
+            TUDO que a tela precisa viaja por QUERY PARAM, não por
+            `location.state`: `?court=&date=&hour=` pré-preenchem (o que antes
+            era a prop `prefill`) e `?from=dia|semana&fromDate=` dizem para
+            onde voltar. É o que torna o endereço compartilhável e resistente
+            a F5 — o contrário de /units/:unitId/bookings/:bookingId logo
+            abaixo, que usa `state` porque carrega um objeto inteiro sem
+            endpoint de leitura. */}
+        <Route path="/units/:unitId/agenda/nova-reserva" element={<AG6NovaReservaPage />} />
         {/* AG3 — Minha agenda (Aluno) (BEAC-1926, mesma story). */}
         <Route path="/units/:unitId/agenda/minha" element={<AG3StudentAgendaPage />} />
         {/* AG4 — Minha Agenda (Professor). Buraco de planejamento do Épico 6

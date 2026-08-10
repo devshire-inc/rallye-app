@@ -21,9 +21,9 @@ import {
   isSameDay,
   LEGEND_TONE_ITEMS,
   matchesSearch,
+  novaReservaPath,
   weekDaysSunday,
 } from './agendaShared'
-import { NovaReservaSheet, type NovaReservaPrefill } from './NovaReservaSheet'
 import './AG1DayPage.css'
 
 /**
@@ -67,12 +67,6 @@ export default function AG1DayPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [search, setSearch] = useState('')
   const [now, setNow] = useState(new Date())
-  const [sheetOpen, setSheetOpen] = useState(false)
-  const [sheetPrefill, setSheetPrefill] = useState<NovaReservaPrefill | undefined>(undefined)
-  // Incrementado a cada abertura para forçar remount de NovaReservaSheet
-  // (ver comentário de NovaReservaSheet.tsx — o reset de formulário depende
-  // de um `key` novo, não de um efeito que chama setState no corpo).
-  const [sheetKey, setSheetKey] = useState(0)
   // Filtro de quadra do frame mobile (chips). Lista VAZIA = nenhum filtro
   // (todas as quadras aparecem, nenhum chip aceso) — é o estado inicial e o
   // que o frame desenha: chip aceso significa "estou filtrando por esta",
@@ -221,17 +215,19 @@ export default function AG1DayPage() {
     setDate(next)
   }
 
-  function openSheetForSlot(courtId: string | undefined, hour: number) {
+  // AG6 "Nova reserva" é uma PÁGINA irmã desta rota, não mais um bottom sheet
+  // (ver AG6NovaReservaPage.tsx). O que era prop `prefill` viaja pela URL, e
+  // `from=dia&fromDate=` é o que faz a tela saber voltar para ESTE dia nesta
+  // visão. Navegar daqui desmonta esta página; ao voltar ela remonta e o
+  // efeito de `reloadBookings` re-busca o grid sozinho — era para isso que
+  // servia a antiga prop `onCreated`.
+  function goNovaReservaForSlot(courtId: string | undefined, hour: number) {
     if (viewOnly) return
-    setSheetPrefill({ courtId, date, startHour: hour })
-    setSheetKey((k) => k + 1)
-    setSheetOpen(true)
+    navigate(novaReservaPath(unitId ?? '', { courtId, date, startHour: hour, from: 'dia', fromDate: date }))
   }
 
-  function openSheetForFab() {
-    setSheetPrefill({ date })
-    setSheetKey((k) => k + 1)
-    setSheetOpen(true)
+  function goNovaReservaForFab() {
+    navigate(novaReservaPath(unitId ?? '', { date, from: 'dia', fromDate: date }))
   }
 
   function openBooking(bookingId: string) {
@@ -284,7 +280,7 @@ export default function AG1DayPage() {
           events={mobileEvents}
           onSelectEvent={openBooking}
           freeSlots={mobileFreeSlots}
-          onSelectFreeSlot={(hour) => openSheetForSlot(undefined, hour)}
+          onSelectFreeSlot={(hour) => goNovaReservaForSlot(undefined, hour)}
           emptyState={
             <EmptyState
               icon="🗓"
@@ -292,7 +288,7 @@ export default function AG1DayPage() {
               description="A agenda de hoje está livre. Reservas novas aparecem aqui."
             />
           }
-          action={viewOnly ? undefined : { label: '+ Nova reserva', onClick: openSheetForFab }}
+          action={viewOnly ? undefined : { label: '+ Nova reserva', onClick: goNovaReservaForFab }}
           startHour={GRID_START_HOUR}
           endHour={GRID_END_HOUR}
         />
@@ -318,25 +314,15 @@ export default function AG1DayPage() {
           legend={LEGEND_TONE_ITEMS}
           events={desktopEvents}
           onSelectEvent={openBooking}
-          onSelectSlot={openSheetForSlot}
+          onSelectSlot={goNovaReservaForSlot}
           slotsDisabled={viewOnly}
           actionLabel={viewOnly ? null : '+ Nova reserva'}
-          onNewBooking={openSheetForFab}
+          onNewBooking={goNovaReservaForFab}
           nowMinutes={nowMinutes}
           startHour={GRID_START_HOUR}
           endHour={GRID_END_HOUR}
         />
       </div>
-
-      <NovaReservaSheet
-        key={sheetKey}
-        open={sheetOpen}
-        onClose={() => setSheetOpen(false)}
-        unitId={unitId ?? ''}
-        courts={courts}
-        prefill={sheetPrefill}
-        onCreated={reloadBookings}
-      />
     </div>
   )
 }

@@ -26,7 +26,7 @@ type LoadState = { status: 'loading' } | { status: 'error' } | { status: 'ready'
  * # Busca de alunos da unit — sem componente de picker dedicado ainda
  *
  * Não existe (nem existia antes desta task, ver comentário de pacote em
- * NovaReservaSheet.tsx: "não existe GET /units/{id}/students lista/busca")
+ * AG6NovaReservaPage.tsx: "não existe GET /units/{id}/students lista/busca")
  * nenhum componente de people-search/picker padronizado neste app. O que
  * existe É um endpoint de busca real e já em produção — GET
  * /units/{id}/members?q= (BEAC-1844/1845, listMembers em
