@@ -1,4 +1,5 @@
-import { screen, waitFor } from '@testing-library/react'
+import { screen, waitFor, within } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router-dom'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import * as bookingsApi from '../../lib/api/bookings'
@@ -31,62 +32,101 @@ function renderPage() {
   )
 }
 
+/* A tela renderiza AS DUAS variantes (AgendaMobile + AgendaDesktop) e o CSS
+ * esconde uma — ver AG1DayPage.css. Em jsdom não há media query aplicada, então
+ * as duas existem no DOM: consultas de texto compartilhado (nome de quadra,
+ * legenda, "+ Nova reserva") escopam pelo bloco, ou usam getAllBy. */
+function mobile(container: HTMLElement): HTMLElement {
+  return container.querySelector<HTMLElement>('.ag1-page__mobile')!
+}
+
+function desktop(container: HTMLElement): HTMLElement {
+  return container.querySelector<HTMLElement>('.ag1-page__desktop')!
+}
+
 describe('AG1DayPage', () => {
-  it('renders one column per court (including maintenance) and the col-blocked overlay text', async () => {
+  it('renders one desktop column per court (including maintenance), with the blocked overlay text', async () => {
     mockCourts()
     vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
 
-    renderPage()
+    const { container } = renderPage()
 
-    expect(await screen.findByText('Q1')).toBeInTheDocument()
-    expect(screen.getByText('Q3')).toBeInTheDocument()
-    expect(screen.getByText('Manutenção até sexta')).toBeInTheDocument()
+    const grid = desktop(container)
+    expect(await within(grid).findByText('Q1')).toBeInTheDocument()
+    expect(within(grid).getByText('Q3')).toBeInTheDocument()
+    expect(within(grid).getByText('Manutenção até sexta')).toBeInTheDocument()
   })
 
-  it('renders the 4-item legend plus the free-slot hint', async () => {
+  it('renders the same courts as filter chips on the mobile timeline', async () => {
     mockCourts()
     vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
 
-    renderPage()
+    const { container } = renderPage()
+
+    const chip = await within(mobile(container)).findByRole('button', { name: 'Q1' })
+    // Nenhum chip aceso = sem filtro (todas as quadras aparecem); acender um
+    // passa a filtrar por ele.
+    expect(chip).toHaveAttribute('aria-pressed', 'false')
+    await userEvent.click(chip)
+    expect(chip).toHaveAttribute('aria-pressed', 'true')
+  })
+
+  it('renders the 4-item status legend in both variants', async () => {
+    mockCourts()
+    vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
+
+    const { container } = renderPage()
     await waitFor(() => expect(courtsApi.listCourts).toHaveBeenCalled())
 
-    expect(screen.getByText('Confirmado')).toBeInTheDocument()
-    expect(screen.getByText('Pendente')).toBeInTheDocument()
-    expect(screen.getByText('Particular')).toBeInTheDocument()
-    expect(screen.getByText('Bloqueio')).toBeInTheDocument()
-    expect(screen.getByText('Livre — toque para reservar')).toBeInTheDocument()
+    for (const block of [mobile(container), desktop(container)]) {
+      expect(within(block).getByText('Confirmado')).toBeInTheDocument()
+      expect(within(block).getByText('Pendente')).toBeInTheDocument()
+      expect(within(block).getByText('Particular')).toBeInTheDocument()
+      expect(within(block).getByText('Bloqueio')).toBeInTheDocument()
+    }
   })
 
-  it('shows the FAB when the caller is not view-only', async () => {
+  it('shows the "+ Nova reserva" action when the caller is not view-only', async () => {
     mockCourts()
     vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
 
-    renderPage()
+    const { container } = renderPage()
 
-    expect(await screen.findByRole('button', { name: 'Nova reserva' })).toBeInTheDocument()
+    expect(await within(mobile(container)).findByRole('button', { name: '+ Nova reserva' })).toBeInTheDocument()
+    expect(within(desktop(container)).getByRole('button', { name: '+ Nova reserva' })).toBeInTheDocument()
   })
 
-  it('hides the FAB when view_only=true (Professor)', async () => {
+  it('hides the "+ Nova reserva" action when view_only=true (Professor)', async () => {
     mockCourts()
     vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: true })
 
     renderPage()
     await waitFor(() => expect(bookingsApi.getBookingsGrid).toHaveBeenCalled())
 
-    expect(screen.queryByRole('button', { name: 'Nova reserva' })).not.toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '+ Nova reserva' })).not.toBeInTheDocument()
   })
 
-  it('marks empty slots as aria-disabled when view_only=true', async () => {
+  it('marks empty desktop slots as aria-disabled when view_only=true', async () => {
     mockCourts()
     vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: true })
 
     renderPage()
 
-    const slot = await screen.findByLabelText('Horário livre Q1 06h')
+    const slot = await screen.findByLabelText('Horário livre Q1 6h')
     expect(slot).toHaveAttribute('aria-disabled', 'true')
   })
 
-  it('renders a booking block with its title', async () => {
+  it('hides the mobile free-slot chips when view_only=true', async () => {
+    mockCourts()
+    vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: true })
+
+    const { container } = renderPage()
+    await waitFor(() => expect(bookingsApi.getBookingsGrid).toHaveBeenCalled())
+
+    expect(within(mobile(container)).queryByText('+ Avulsa')).not.toBeInTheDocument()
+  })
+
+  it('renders a booking block with its title in both variants', async () => {
     mockCourts()
     vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({
       ok: true,
@@ -114,8 +154,21 @@ describe('AG1DayPage', () => {
       ],
     })
 
-    renderPage()
+    const { container } = renderPage()
 
-    expect(await screen.findByText('BT iniciante')).toBeInTheDocument()
+    expect(await screen.findByTestId('agenda-desktop-event-b1')).toHaveTextContent('BT iniciante')
+    expect(within(mobile(container)).getByTestId('agenda-mobile-event-b1')).toHaveTextContent('BT iniciante')
+  })
+
+  it('shows the empty state on the mobile timeline when the day has no booking', async () => {
+    mockCourts()
+    vi.spyOn(bookingsApi, 'getBookingsGrid').mockResolvedValue({ ok: true, bookings: [], viewOnly: false })
+
+    const { container } = renderPage()
+
+    expect(await within(mobile(container)).findByText('Sem aulas hoje')).toBeInTheDocument()
+    expect(
+      within(mobile(container)).getByText('A agenda de hoje está livre. Reservas novas aparecem aqui.'),
+    ).toBeInTheDocument()
   })
 })

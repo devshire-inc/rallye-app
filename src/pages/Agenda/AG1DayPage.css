@@ -1,0 +1,33 @@
+/* AG1 — Calendário Dia. A tela não desenha mais grade nenhuma: o layout é
+   dos componentes AgendaMobile/AgendaDesktop (ver AG1DayPage.tsx). Esta
+   folha só faz o enquadramento da página e a troca mobile/desktop.
+
+   As duas variantes são renderizadas e o CSS esconde uma — mesmo padrão
+   (e mesma justificativa) de F5MyInvoicesPage: sem `matchMedia` em JS,
+   sem flash de layout na primeira pintura, sem stub de matchMedia fora do
+   browser. O ponto de troca é BREAKPOINT_SHELL_DESKTOP_MIN (860px,
+   src/lib/breakpoints.ts) — a mesma largura em que a casca troca a
+   bottom-nav pela sidebar, que é exatamente quando o frame desktop
+   (81:1109) passa a fazer sentido. Acima disso a grade ainda pode ficar
+   mais larga que a coluna útil (muitas quadras): quem rola é
+   `.agenda-desktop__grid-wrap`, nunca o <body>. */
+
+.ag1-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.ag1-page__desktop {
+  display: none;
+}
+
+@media (min-width: 860px) {
+  .ag1-page__mobile {
+    display: none;
+  }
+
+  .ag1-page__desktop {
+    display: block;
+  }
+}

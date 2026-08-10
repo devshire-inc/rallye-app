@@ -91,6 +91,60 @@ export const LEGEND_ITEMS: { colorClass: string; label: string }[] = [
   { colorClass: 'sq-block', label: 'Bloqueio' },
 ]
 
+/** Mesma legenda, no vocabulário de "tom de status" que AgendaMobile/
+ * AgendaDesktop consomem (`data-tone`) — os rótulos são os MESMOS de
+ * LEGEND_ITEMS, que continua servindo AG2 (grade de semana com as classes
+ * `.sq-*`). */
+export type BookingTone = 'confirmado' | 'pendente' | 'particular' | 'bloqueio'
+
+export const LEGEND_TONE_ITEMS: { status: BookingTone; label: string }[] = [
+  { status: 'confirmado', label: 'Confirmado' },
+  { status: 'pendente', label: 'Pendente' },
+  { status: 'particular', label: 'Particular' },
+  { status: 'bloqueio', label: 'Bloqueio' },
+]
+
+/** Tom de status de uma reserva — mesma decisão de bookingColorClass
+ * (cor por TYPE, porque `public.bookings.status` não modela "pendente"),
+ * só que no vocabulário dos componentes de agenda. */
+export function bookingTone(booking: Pick<Booking, 'type'>): BookingTone {
+  if (booking.type === 'block') return 'bloqueio'
+  if (booking.type === 'private') return 'particular'
+  return 'confirmado'
+}
+
+/** "07:00" — hora local de um instante ISO, no formato "HH:MM" que
+ * AgendaMobile/AgendaDesktop esperam em `start`/`end`. */
+export function formatHM(iso: string): string {
+  const d = new Date(iso)
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
+}
+
+/** Os 7 dias da semana que contém `date`, começando no DOMINGO — é a
+ * convenção da weekStrip dos frames de Agenda (DOM..SÁB), diferente da
+ * semana Seg-Dom de weekWindow/AG2 (que é a janela de BUSCA da grade de
+ * semana, não uma tira de navegação). */
+export function weekDaysSunday(date: Date): Date[] {
+  const sunday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay())
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(sunday)
+    d.setDate(d.getDate() + i)
+    return d
+  })
+}
+
+/** "2026-07-28" (local, sem o shift de fuso de toISOString). */
+export function formatISODate(date: Date): string {
+  const mm = String(date.getMonth() + 1).padStart(2, '0')
+  const dd = String(date.getDate()).padStart(2, '0')
+  return `${date.getFullYear()}-${mm}-${dd}`
+}
+
+/** "26 jul – 1 ago" — rótulo do navegador de semana dos frames de Agenda. */
+export function formatShortRange(from: Date, to: Date): string {
+  return `${from.getDate()} ${MONTH_SHORT[from.getMonth()]} – ${to.getDate()} ${MONTH_SHORT[to.getMonth()]}`
+}
+
 /** Alturas fixas de linha do grid de AG1 (px) — usadas tanto pelo CSS
  * (Agenda.css `.cal-grid`) quanto pelo cálculo JS da posição da `.now-line`,
  * para os dois nunca divergirem. */

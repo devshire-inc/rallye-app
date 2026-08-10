@@ -1,44 +1,58 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { IconButton } from '../../components/ui/IconButton/IconButton'
+import { AgendaDesktop } from '../../components/AgendaDesktop/AgendaDesktop'
+import { AgendaMobile } from '../../components/AgendaMobile/AgendaMobile'
+import { EmptyState } from '../../components/ui/EmptyState/EmptyState'
 import { Input } from '../../components/ui/Input/Input'
-import { Segmented } from '../../components/ui/Segmented/Segmented'
 import { getBookingsGrid, type Booking } from '../../lib/api/bookings'
 import { listCourts, type Court } from '../../lib/api/courts'
 import {
-  bookingColorClass,
   bookingTitle,
+  bookingTone,
   bookingTypeLabel,
-  courtSportCssVar,
   dayWindow,
-  formatHour,
-  gridRowForInstant,
+  formatHM,
+  formatISODate,
+  formatShortRange,
+  formatWeekdayDate,
   GRID_END_HOUR,
   GRID_START_HOUR,
   HOURS,
-  LEGEND_ITEMS,
-  matchesSearch,
-  formatWeekdayDate,
   isSameDay,
-  ROW_HEADER_PX,
-  ROW_HOUR_PX,
+  LEGEND_TONE_ITEMS,
+  matchesSearch,
+  weekDaysSunday,
 } from './agendaShared'
 import { NovaReservaSheet, type NovaReservaPrefill } from './NovaReservaSheet'
-import '../../components/AuthLayout/AuthLayout.css'
-import './Agenda.css'
+import './AG1DayPage.css'
 
 /**
- * AG1 — Calendário Dia (BEAC-1903, story BEAC-1704). Markup/classes
- * (`.cal-grid`, `.booking`, `.now-line`, `.col-blocked`, `.legend`) copiados
- * do protótipo real (scr-ag1, artifact "Rallye — Agenda", tool-results/
- * artifact-*.html linhas 537-611 lidas integralmente antes de implementar) —
- * NÃO é uma variação de props de AG2Week Page (decisão travada do dispatch:
- * "AG1 e AG2 são estruturalmente diferentes... dois componentes separados").
+ * AG1 — Calendário Dia (BEAC-1903, story BEAC-1704), reskinado em 2026-08
+ * contra os frames "02 · Agenda — Admin — Mobile" (5:217), "02b · …Vazio"
+ * (188:2111) e "04 · Agenda — Admin — Desktop" (81:1109) do protótipo
+ * hb7PA0Xx3L7iHjt9AfHsGK.
  *
- * Quadras como colunas (uma por quadra da unit, incluindo as em manutenção —
- * ver comentário de ../../lib/api/courts.ts sobre por que o overlay
- * `.col-blocked` precisa da quadra aparecer mesmo sem nenhuma reserva),
- * horários como linhas (06h-22h, ver agendaShared.HOURS).
+ * A tela NÃO tem mais markup de grade próprio: ela COMPÕE os dois
+ * componentes que já tinham sido construídos a partir do Figma e estavam
+ * sem consumidor nenhum — `AgendaMobile` (timeline de um dia + tira de
+ * dias + filtro de quadra) e `AgendaDesktop` (grade hora x quadra). Foi
+ * exatamente esse divórcio (componente feito do protótipo, tela feita à
+ * mão, os dois divergindo) que já custou caro em MatchCard/Medal/
+ * BracketRoundHeader. As props que faltavam para cobrir o comportamento já
+ * entregue por esta tela (slot livre clicável, coluna em manutenção, linha
+ * do "agora", busca, toggle Dia|Semana) foram adicionadas AOS
+ * COMPONENTES, de forma aditiva — ver os comentários de módulo dos dois.
+ *
+ * Os dois são renderizados sempre e o CSS (AG1DayPage.css, breakpoint
+ * BREAKPOINT_SHELL_DESKTOP_MIN) esconde um dos dois — mesmo padrão de
+ * F5MyInvoicesPage (cards no mobile / tabela no desktop): sem `matchMedia`,
+ * sem flash de layout na primeira pintura.
+ *
+ * Quadras como colunas no desktop (uma por quadra da unit, incluindo as em
+ * manutenção — ver comentário de ../../lib/api/courts.ts sobre por que o
+ * overlay de bloqueio precisa da quadra aparecer mesmo sem nenhuma
+ * reserva); no mobile as quadras viram chips de filtro e o dia inteiro cabe
+ * numa timeline única, como no frame.
  */
 export default function AG1DayPage() {
   const { unitId } = useParams<{ unitId: string }>()
@@ -59,6 +73,12 @@ export default function AG1DayPage() {
   // (ver comentário de NovaReservaSheet.tsx — o reset de formulário depende
   // de um `key` novo, não de um efeito que chama setState no corpo).
   const [sheetKey, setSheetKey] = useState(0)
+  // Filtro de quadra do frame mobile (chips). Lista VAZIA = nenhum filtro
+  // (todas as quadras aparecem, nenhum chip aceso) — é o estado inicial e o
+  // que o frame desenha: chip aceso significa "estou filtrando por esta",
+  // não "esta está ligada". Sem isso a tela abriria com todos os chips
+  // pintados de escuro, que lê como seleção deliberada do usuário.
+  const [courtFilter, setCourtFilter] = useState<string[]>([])
 
   useEffect(() => {
     if (!unitId) return
@@ -75,13 +95,20 @@ export default function AG1DayPage() {
   // durante um fetch em voo, ou desmonte de teste) — evita tanto o warning
   // do React quanto uma promise não tratada tentando reaplicar um mock já
   // restaurado em teste.
+  //
+  // `mountedRef.current = true` no CORPO do efeito, não só no valor inicial
+  // do ref: em dev o StrictMode monta -> desmonta -> monta a MESMA
+  // instância, e a limpeza da primeira passagem deixava o ref em `false`
+  // para sempre — todo fetch subsequente era descartado e a agenda ficava
+  // permanentemente vazia rodando `bun run dev` (defeito só de dev,
+  // encontrado no QA visual desta tela).
   const mountedRef = useRef(true)
-  useEffect(
-    () => () => {
+  useEffect(() => {
+    mountedRef.current = true
+    return () => {
       mountedRef.current = false
-    },
-    [],
-  )
+    }
+  }, [])
 
   const reloadBookings = useCallback(() => {
     if (!unitId) return
@@ -123,9 +150,66 @@ export default function AG1DayPage() {
     [bookings, search],
   )
 
-  function bookingsForCourt(courtId: string): Booking[] {
-    return visibleBookings.filter((b) => b.courtId === courtId)
-  }
+
+  /** Reservas do dia no formato dos dois componentes de agenda. */
+  const desktopEvents = useMemo(
+    () =>
+      visibleBookings.map((booking) => {
+        const title = bookingTitle(booking)
+        const subtitle = booking.teacherName
+          ? `Prof. ${booking.teacherName}`
+          : bookingTypeLabel(booking.type)
+        return {
+          id: booking.id,
+          courtId: booking.courtId,
+          title,
+          // Bloqueio cujo `reason` é literalmente "Bloqueio" cairia em
+          // "Bloqueio / Bloqueio" (título = motivo, subtítulo = rótulo do
+          // tipo) — repetir a mesma palavra em duas linhas não informa nada.
+          subtitle: subtitle === title ? undefined : subtitle,
+          start: formatHM(booking.startAt),
+          end: formatHM(booking.endAt),
+          status: bookingTone(booking),
+        }
+      }),
+    [visibleBookings],
+  )
+
+  // No mobile a timeline é UMA só (não há coluna por quadra), então o chip
+  // de quadra é o que decide o que aparece — e o nome da quadra vira o
+  // subtítulo do card, que no desktop já está implícito na coluna.
+  const mobileEvents = useMemo(
+    () =>
+      desktopEvents
+        .filter((event) => courtFilter.length === 0 || courtFilter.includes(event.courtId))
+        .map((event) => ({
+          ...event,
+          subtitle:
+            [courts.find((c) => c.id === event.courtId)?.name, event.subtitle]
+              .filter(Boolean)
+              .join(' · ') || undefined,
+        })),
+    [desktopEvents, courtFilter, courts],
+  )
+
+  // Horas sem nenhuma reserva das quadras visíveis — o chip tracejado
+  // "+ Avulsa" do frame (163:5385). O frame também mostra o PREÇO do slot
+  // ("+ Avulsa · R$ 90"); nenhum endpoint da agenda devolve preço de
+  // horário avulso, então o rótulo vai sem ele (ver relatório da tela).
+  const mobileFreeSlots = useMemo(() => {
+    if (viewOnly) return []
+    const busy = new Set(
+      mobileEvents.flatMap((event) => {
+        const start = Number(event.start.slice(0, 2))
+        const end = Number(event.end.slice(0, 2))
+        return HOURS.filter((hour) => hour >= start && hour < Math.max(end, start + 1))
+      }),
+    )
+    return HOURS.filter((hour) => !busy.has(hour)).map((hour) => ({
+      hour,
+      label: '+ Avulsa',
+    }))
+  }, [mobileEvents, viewOnly])
 
   function goWeek() {
     navigate(`/units/${unitId}/agenda/semana?date=${date.toISOString().slice(0, 10)}`)
@@ -137,7 +221,7 @@ export default function AG1DayPage() {
     setDate(next)
   }
 
-  function openSheetForSlot(courtId: string, hour: number) {
+  function openSheetForSlot(courtId: string | undefined, hour: number) {
     if (viewOnly) return
     setSheetPrefill({ courtId, date, startHour: hour })
     setSheetKey((k) => k + 1)
@@ -150,139 +234,99 @@ export default function AG1DayPage() {
     setSheetOpen(true)
   }
 
+  function openBooking(bookingId: string) {
+    const booking = bookings.find((b) => b.id === bookingId)
+    navigate(`/units/${unitId}/bookings/${bookingId}`, { state: { booking } })
+  }
+
   const today = isSameDay(date, new Date())
   const dateLabel = `${today ? 'Hoje · ' : ''}${formatWeekdayDate(date)}`
+  const weekDays = weekDaysSunday(date)
+  const rangeLabel = formatShortRange(weekDays[0]!, weekDays[6]!)
+  const nowMinutes = today ? now.getHours() * 60 + now.getMinutes() : null
 
-  // Posição da linha "agora" em px — mesma ideia do protótipo real (calcula
-  // um `top` em px via JS), usando as mesmas constantes de altura de linha do
-  // CSS (ROW_HEADER_PX/ROW_HOUR_PX, ver Agenda.css `.cal-grid`) para as duas
-  // nunca divergirem. Só aparece quando o dia mostrado é hoje e o horário
-  // está dentro da janela 06h-22h.
-  const nowTopPx =
-    today && now.getHours() >= GRID_START_HOUR && now.getHours() < GRID_END_HOUR
-      ? ROW_HEADER_PX + ((now.getHours() - GRID_START_HOUR) * 60 + now.getMinutes()) * (ROW_HOUR_PX / 60)
-      : null
+  const searchInput = (
+    <Input
+      type="search"
+      ariaLabel="Buscar por aluno, professor ou quadra"
+      placeholder="🔍 Buscar"
+      value={search}
+      onChange={(e) => setSearch(e.target.value)}
+    />
+  )
 
   return (
-    <>
-      <div className="ag-head">
-        <h1>Agenda</h1>
-        <div className="spacer" />
-        <div className="date-nav">
-          <IconButton variant="secondary" size="sm" label="Dia anterior" onClick={() => changeDay(-1)}>
-            ‹
-          </IconButton>
-          <span className="dlabel">{dateLabel}</span>
-          <IconButton variant="secondary" size="sm" label="Próximo dia" onClick={() => changeDay(1)}>
-            ›
-          </IconButton>
-        </div>
-        <Segmented
-          ariaLabel="Alternar entre visão Dia e Semana"
-          options={['Dia', 'Semana']}
-          value="Dia"
-          onChange={(option) => {
-            if (option === 'Semana') goWeek()
-          }}
-        />
-        <Input
-          type="search"
-          ariaLabel="Buscar por aluno, professor ou quadra"
-          placeholder="🔍 Buscar"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
-
+    <div className="ag1-page">
       {loadError ? <p role="alert">{loadError}</p> : null}
 
-      <div className="legend">
-        {LEGEND_ITEMS.map((item) => (
-          <span key={item.label}>
-            <span className={`sq ${item.colorClass}`} />
-            {item.label}
-          </span>
-        ))}
-        <span>
-          <span className="sq sq-free" />
-          Livre — toque para reservar
-        </span>
-      </div>
-
-      <div className="cal-wrap">
-        <div
-          className="cal-grid"
-          style={{ gridTemplateColumns: `64px repeat(${courts.length}, 1fr)` }}
-        >
-          <div className="head" />
-          {courts.map((court) => (
-            <div className="head" key={court.id}>
-              <span className="cq">
-                <span className="dot" style={{ background: `var(${courtSportCssVar(court)})` }} />
-                {court.name}
-              </span>
-              <small>{court.status === 'maintenance' ? 'Manutenção' : court.sport}</small>
-            </div>
-          ))}
-
-          {HOURS.map((hour) => (
-            <div className="hr" key={hour}>
-              {formatHour(hour)}
-            </div>
-          ))}
-
-          {courts.map((court) =>
-            court.status === 'maintenance' ? (
-              <div className="col-blocked" key={`blocked-${court.id}`}>
-                <span>Manutenção até sexta</span>
-              </div>
-            ) : (
-              HOURS.map((hour) =>
-                bookingsForCourt(court.id).some((b) => new Date(b.startAt).getHours() <= hour && new Date(b.endAt).getHours() > hour) ? null : (
-                  <div
-                    key={`${court.id}-${hour}`}
-                    className="cal-cell"
-                    data-newslot
-                    role="button"
-                    tabIndex={viewOnly ? -1 : 0}
-                    aria-label={`Horário livre ${court.name} ${formatHour(hour)}`}
-                    aria-disabled={viewOnly}
-                    onClick={() => openSheetForSlot(court.id, hour)}
-                  />
-                ),
-              )
-            ),
-          )}
-
-          {visibleBookings.map((booking) => {
-            const rowStart = gridRowForInstant(booking.startAt)
-            const rowEnd = gridRowForInstant(booking.endAt)
-            const colIndex = courts.findIndex((c) => c.id === booking.courtId)
-            if (colIndex < 0) return null
-            return (
-              <div
-                key={booking.id}
-                className={`booking ${bookingColorClass(booking)}`}
-                style={{ gridColumn: colIndex + 2, gridRow: `${rowStart}/${rowEnd}` }}
-                onClick={() => navigate(`/units/${unitId}/bookings/${booking.id}`, { state: { booking } })}
-              >
-                <b>{bookingTitle(booking)}</b>
-                <span className="bmeta">
-                  {booking.teacherName ? `Prof. ${booking.teacherName}` : bookingTypeLabel(booking.type)}
-                </span>
-              </div>
+      <div className="ag1-page__mobile">
+        <AgendaMobile
+          viewOptions={['Dia', 'Semana']}
+          view="Dia"
+          onViewChange={(option) => {
+            if (option === 'Semana') goWeek()
+          }}
+          headerExtra={searchInput}
+          rangeLabel={rangeLabel}
+          onPrevWeek={() => changeDay(-7)}
+          onNextWeek={() => changeDay(7)}
+          days={weekDays.map((day) => ({ date: formatISODate(day) }))}
+          selectedDate={formatISODate(date)}
+          onSelectDate={(iso) => setDate(new Date(`${iso}T00:00:00`))}
+          courts={courts.map((court) => ({ id: court.id, label: court.name, sport: court.sport }))}
+          selectedCourtIds={courtFilter}
+          onToggleCourt={(courtId) =>
+            setCourtFilter((prev) =>
+              prev.includes(courtId) ? prev.filter((id) => id !== courtId) : [...prev, courtId],
             )
-          })}
-
-          {nowTopPx !== null ? <div className="now-line" style={{ top: `${nowTopPx}px` }} /> : null}
-        </div>
+          }
+          legend={LEGEND_TONE_ITEMS}
+          events={mobileEvents}
+          onSelectEvent={openBooking}
+          freeSlots={mobileFreeSlots}
+          onSelectFreeSlot={(hour) => openSheetForSlot(undefined, hour)}
+          emptyState={
+            <EmptyState
+              icon="🗓"
+              title="Sem aulas hoje"
+              description="A agenda de hoje está livre. Reservas novas aparecem aqui."
+            />
+          }
+          action={viewOnly ? undefined : { label: '+ Nova reserva', onClick: openSheetForFab }}
+          startHour={GRID_START_HOUR}
+          endHour={GRID_END_HOUR}
+        />
       </div>
 
-      {!viewOnly ? (
-        <button className="fab" aria-label="Nova reserva" onClick={openSheetForFab}>
-          +
-        </button>
-      ) : null}
+      <div className="ag1-page__desktop">
+        <AgendaDesktop
+          rangeLabel={dateLabel}
+          onPrevDay={() => changeDay(-1)}
+          onNextDay={() => changeDay(1)}
+          viewOptions={['Dia', 'Semana']}
+          view="Dia"
+          onViewChange={(option) => {
+            if (option === 'Semana') goWeek()
+          }}
+          headerExtra={searchInput}
+          courts={courts.map((court) => ({
+            id: court.id,
+            label: court.name,
+            sport: court.sport,
+            blockedLabel: court.status === 'maintenance' ? 'Manutenção até sexta' : undefined,
+          }))}
+          legend={LEGEND_TONE_ITEMS}
+          events={desktopEvents}
+          onSelectEvent={openBooking}
+          onSelectSlot={openSheetForSlot}
+          slotsDisabled={viewOnly}
+          actionLabel={viewOnly ? null : '+ Nova reserva'}
+          onNewBooking={openSheetForFab}
+          nowMinutes={nowMinutes}
+          startHour={GRID_START_HOUR}
+          endHour={GRID_END_HOUR}
+        />
+      </div>
 
       <NovaReservaSheet
         key={sheetKey}
@@ -293,6 +337,6 @@ export default function AG1DayPage() {
         prefill={sheetPrefill}
         onCreated={reloadBookings}
       />
-    </>
+    </div>
   )
 }

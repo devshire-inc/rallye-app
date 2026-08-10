@@ -1,6 +1,7 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
 import { IconButton } from '../ui/IconButton/IconButton'
 import { Button } from '../ui/Button/Button'
+import { Segmented } from '../ui/Segmented/Segmented'
 import { sportCssVar, sportLabel } from '../../lib/sports'
 import './AgendaDesktop.css'
 
@@ -22,6 +23,20 @@ import './AgendaDesktop.css'
  * 100% controlado via props + callbacks — não busca dados nem possui estado
  * de navegação/seleção; quem usa decide o dia exibido, quais quadras
  * existem e quais eventos aparecem.
+ *
+ * ADAPTAÇÃO 2026-08 (reskin da Agenda, frame "04 · Agenda — Admin —
+ * Desktop", 81:1109 de hb7PA0Xx3L7iHjt9AfHsGK): props novas, todas
+ * opcionais e retrocompatíveis, para o componente cobrir o que AG1DayPage
+ * já entregava e o frame do pattern não previa —
+ * `viewOptions`/`view`/`onViewChange` (toggle Dia|Semana do canto superior
+ * direito), `headerExtra` (busca), `legend` (a legenda real do domínio),
+ * `actionLabel`, `onSelectEvent`, `onSelectSlot`/`slotsDisabled` (criar
+ * reserva tocando num horário livre), `AgendaDesktopCourt.blockedLabel`
+ * (coluna de quadra em manutenção) e `nowMinutes` (linha do "agora").
+ * O status ganhou 'pendente' (a legenda travada da tela tem 4 itens:
+ * Confirmado/Pendente/Particular/Bloqueio) e as cores de tom saíram do JS
+ * para o CSS (`[data-tone]`), porque o tom do TEXTO precisa mudar entre
+ * claro e escuro e uma custom property inline não alterna por tema.
  */
 
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/
@@ -80,19 +95,12 @@ export function computeEventLayout(
   return { top, height }
 }
 
-export type AgendaDesktopEventStatus = 'confirmado' | 'particular' | 'bloqueio' | 'livre'
-
-/** Tokens de tom por status — dot/legenda, borda/stripe, fundo e texto do
- * card de evento (node 65:14 legendRow + 66:49 event). "Livre" não aparece
- * como card de evento no exemplo estático do Figma (representa um slot
- * vazio), mas recebe um tom simétrico aos outros 3 caso o chamador precise
- * renderizar um evento "disponível" clicável. */
-const STATUS_TONE: Record<AgendaDesktopEventStatus, { dot: string; border: string; bg: string; text: string }> = {
-  confirmado: { dot: '--state-success', border: '--state-success', bg: '--state-success-soft', text: '--state-success-text' },
-  particular: { dot: '--state-info', border: '--state-info', bg: '--state-info-soft', text: '--state-info-text' },
-  bloqueio: { dot: '--state-danger', border: '--state-danger', bg: '--state-danger-soft', text: '--state-danger-text' },
-  livre: { dot: '--surface-sunken', border: '--border-default', bg: '--surface-sunken', text: '--text-muted' },
-}
+export type AgendaDesktopEventStatus =
+  | 'confirmado'
+  | 'pendente'
+  | 'particular'
+  | 'bloqueio'
+  | 'livre'
 
 const LEGEND_ITEMS: { status: AgendaDesktopEventStatus; label: string }[] = [
   { status: 'confirmado', label: 'Confirmado' },
@@ -107,6 +115,9 @@ export interface AgendaDesktopCourt {
   /** Slug de lib/sports.ts — o dot do header da coluna usa a cor do
    * esporte da quadra (mesmo padrão de AgendaMobile/CourtCard/ClassCard). */
   sport: string
+  /** Quando presente, a coluna inteira vira um overlay hachurado com este
+   * texto (quadra em manutenção) e não aceita clique de horário livre. */
+  blockedLabel?: string
 }
 
 export interface AgendaDesktopEvent {
@@ -122,14 +133,39 @@ export interface AgendaDesktopEvent {
 }
 
 export interface AgendaDesktopProps {
+  title?: string
   /** "Hoje · ter, 28 jul" — já formatado pelo chamador. */
   rangeLabel: string
   onPrevDay?: () => void
   onNextDay?: () => void
+  /** Toggle Dia|Semana do canto superior direito (frame 81:1109). Vazio ou
+   * ausente esconde o toggle. */
+  viewOptions?: string[]
+  view?: string
+  onViewChange?: (view: string) => void
+  /** Controle extra do cabeçalho (a busca de AG1, que não aparece em
+   * nenhum frame desta tela mas é comportamento já entregue). */
+  headerExtra?: ReactNode
   courts: AgendaDesktopCourt[]
   /** Eventos do dia exibido, já filtrados pelo chamador. */
   events: AgendaDesktopEvent[]
+  onSelectEvent?: (eventId: string) => void
+  /** Clique num horário livre da grade (courtId + hora cheia). Ausente =
+   * células não interativas. */
+  onSelectSlot?: (courtId: string, hour: number) => void
+  /** Mantém as células de horário livre na grade, porém inertes
+   * (`aria-disabled`) — é o modo somente-leitura de quem não pode criar
+   * reserva na arena. */
+  slotsDisabled?: boolean
+  /** Legenda de status. Default: a do frame do pattern (Confirmado/
+   * Particular/Bloqueio/Livre). */
+  legend?: { status: AgendaDesktopEventStatus; label: string }[]
   onNewBooking?: () => void
+  /** Rótulo da ação principal. `null` esconde o botão. */
+  actionLabel?: string | null
+  /** Minutos desde 00:00 do "agora" — desenha a linha vermelha do horário
+   * atual. `null`/ausente = sem linha (dia exibido não é hoje). */
+  nowMinutes?: number | null
   /** Primeira hora exibida na grade. Default 6 (Figma). */
   startHour?: number
   /** Limite superior exclusivo da grade. Default 19 (Figma: linhas 6h-18h). */
@@ -139,12 +175,23 @@ export interface AgendaDesktopProps {
 }
 
 export function AgendaDesktop({
+  title = 'Agenda',
   rangeLabel,
   onPrevDay,
   onNextDay,
+  viewOptions,
+  view,
+  onViewChange,
+  headerExtra,
   courts,
   events,
+  onSelectEvent,
+  onSelectSlot,
+  slotsDisabled = false,
+  legend = LEGEND_ITEMS,
   onNewBooking,
+  actionLabel = '+ Nova reserva',
+  nowMinutes = null,
   startHour = 6,
   endHour = 19,
   hourHeightPx = 44,
@@ -157,10 +204,15 @@ export function AgendaDesktop({
     '--agenda-desktop-hour-h': `${hourHeightPx}px`,
   } as CSSProperties
 
+  const nowTop =
+    nowMinutes !== null && nowMinutes !== undefined && nowMinutes >= startHour * 60 && nowMinutes < endHour * 60
+      ? ((nowMinutes - startHour * 60) / 60) * hourHeightPx
+      : null
+
   return (
     <div className="agenda-desktop">
       <div className="agenda-desktop__header-row">
-        <h1 className="agenda-desktop__title">Agenda</h1>
+        <h1 className="agenda-desktop__title">{title}</h1>
         <div className="agenda-desktop__date-nav">
           <IconButton variant="secondary" size="sm" label="Dia anterior" onClick={onPrevDay}>
             ‹
@@ -170,23 +222,31 @@ export function AgendaDesktop({
             ›
           </IconButton>
         </div>
+        <span className="agenda-desktop__header-spacer" aria-hidden="true" />
+        {headerExtra}
+        {viewOptions && viewOptions.length > 0 ? (
+          <Segmented
+            ariaLabel="Alternar entre visão Dia e Semana"
+            options={viewOptions}
+            value={view}
+            onChange={onViewChange}
+          />
+        ) : null}
       </div>
 
       <div className="agenda-desktop__legend-row">
-        {LEGEND_ITEMS.map((item) => {
-          const tone = STATUS_TONE[item.status]
-          const dotStyle = { '--agenda-desktop-legend-color': `var(${tone.dot})` } as CSSProperties
-          return (
-            <span className="agenda-desktop__legend-item" key={item.status}>
-              <span className="agenda-desktop__legend-dot" style={dotStyle} aria-hidden="true" />
-              <span className="agenda-desktop__legend-label">{item.label}</span>
-            </span>
-          )
-        })}
+        {legend.map((item) => (
+          <span className="agenda-desktop__legend-item" key={item.label}>
+            <span className="agenda-desktop__legend-dot" data-tone={item.status} aria-hidden="true" />
+            <span className="agenda-desktop__legend-label">{item.label}</span>
+          </span>
+        ))}
         <span className="agenda-desktop__legend-spacer" aria-hidden="true" />
-        <Button variant="primary" size="md" onClick={onNewBooking}>
-          + Nova reserva
-        </Button>
+        {actionLabel !== null ? (
+          <Button variant="primary" size="md" onClick={onNewBooking}>
+            {actionLabel}
+          </Button>
+        ) : null}
       </div>
 
       <div className="agenda-desktop__grid-wrap">
@@ -201,7 +261,9 @@ export function AgendaDesktop({
                   <span className="agenda-desktop__court-dot" aria-hidden="true" />
                   <span className="agenda-desktop__court-name">{court.label}</span>
                 </span>
-                <span className="agenda-desktop__court-sport">{sportLabel(court.sport)}</span>
+                <span className="agenda-desktop__court-sport">
+                  {court.blockedLabel ? 'Manutenção' : sportLabel(court.sport)}
+                </span>
               </div>
             )
           })}
@@ -222,37 +284,97 @@ export function AgendaDesktop({
           {courts.map((court, columnIndex) => {
             const columnStyle = { '--agenda-desktop-col': `${columnIndex + 2}` } as CSSProperties
             const courtEvents = events.filter((event) => event.courtId === court.id)
+            const busyHours = new Set(
+              courtEvents.flatMap((event) => {
+                const start = parseHM(event.start)
+                const end = parseHM(event.end)
+                if (start === null || end === null) return []
+                return hours.filter((hour) => start < (hour + 1) * 60 && end > hour * 60)
+              }),
+            )
             return (
               <div className="agenda-desktop__column" style={columnStyle} key={court.id}>
+                {court.blockedLabel ? (
+                  <div className="agenda-desktop__blocked">
+                    <span>{court.blockedLabel}</span>
+                  </div>
+                ) : (
+                  onSelectSlot &&
+                  hours
+                    .filter((hour) => !busyHours.has(hour))
+                    .map((hour) => {
+                      const slotStyle = {
+                        '--agenda-desktop-event-top': `${(hour - startHour) * hourHeightPx}px`,
+                        '--agenda-desktop-event-h': `${hourHeightPx}px`,
+                      } as CSSProperties
+                      return (
+                        <div
+                          key={`slot-${hour}`}
+                          className="agenda-desktop__slot"
+                          style={slotStyle}
+                          role="button"
+                          tabIndex={slotsDisabled ? -1 : 0}
+                          aria-label={`Horário livre ${court.label} ${formatHourLabel(hour)}`}
+                          aria-disabled={slotsDisabled}
+                          onClick={() => {
+                            if (!slotsDisabled) onSelectSlot(court.id, hour)
+                          }}
+                        />
+                      )
+                    })
+                )}
+
                 {courtEvents.map((event) => {
                   const layout = computeEventLayout(event, startHour, endHour, hourHeightPx)
                   if (!layout) return null
-                  const tone = STATUS_TONE[event.status]
                   const eventStyle = {
                     '--agenda-desktop-event-top': `${layout.top}px`,
                     '--agenda-desktop-event-h': `${layout.height}px`,
-                    '--agenda-desktop-event-border': `var(${tone.border})`,
-                    '--agenda-desktop-event-bg': `var(${tone.bg})`,
-                    '--agenda-desktop-event-text': `var(${tone.text})`,
                   } as CSSProperties
-                  return (
-                    <div
-                      key={event.id}
-                      className="agenda-desktop__event"
-                      style={eventStyle}
-                      data-testid={`agenda-desktop-event-${event.id}`}
-                    >
+                  const content = (
+                    <>
                       <span className="agenda-desktop__event-stripe" aria-hidden="true" />
                       <span className="agenda-desktop__event-title">{event.title}</span>
                       {event.subtitle ? (
                         <span className="agenda-desktop__event-subtitle">{event.subtitle}</span>
                       ) : null}
+                    </>
+                  )
+                  return onSelectEvent ? (
+                    <button
+                      type="button"
+                      key={event.id}
+                      className="agenda-desktop__event"
+                      data-tone={event.status}
+                      style={eventStyle}
+                      data-testid={`agenda-desktop-event-${event.id}`}
+                      onClick={() => onSelectEvent(event.id)}
+                    >
+                      {content}
+                    </button>
+                  ) : (
+                    <div
+                      key={event.id}
+                      className="agenda-desktop__event"
+                      data-tone={event.status}
+                      style={eventStyle}
+                      data-testid={`agenda-desktop-event-${event.id}`}
+                    >
+                      {content}
                     </div>
                   )
                 })}
               </div>
             )
           })}
+
+          {nowTop !== null ? (
+            <div
+              className="agenda-desktop__now-line"
+              style={{ '--agenda-desktop-now-top': `${nowTop}px` } as CSSProperties}
+              aria-hidden="true"
+            />
+          ) : null}
         </div>
       </div>
     </div>

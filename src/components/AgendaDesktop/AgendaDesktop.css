@@ -29,6 +29,21 @@
   gap: var(--space-2);
 }
 
+.agenda-desktop__header-spacer {
+  flex: 1 0 0;
+}
+
+/* Toggle Dia|Semana (frame 81:1109): pill ativo em surface-inverse, não no
+   surface-card do ui/Segmented. Sobrescrita escopada por ancestral (0,2,0)
+   — o escape hatch previsto por src/test/cssClassCollision.test.ts. */
+.agenda-desktop .segmented__indicator {
+  background: var(--surface-inverse);
+}
+
+.agenda-desktop .segmented__option--active {
+  color: var(--text-inverse);
+}
+
 .agenda-desktop__range {
   font: var(--type-body);
   color: var(--text-heading);
@@ -53,12 +68,62 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--agenda-desktop-legend-color);
+  background: var(--agenda-tone-solid);
+}
+
+/* Tons de status — texto em `--state-*-text` no claro (o par com contraste
+   AA sobre `-soft`, ver src/styles/tokens/colors.test.ts) e no tom cheio
+   `--state-*` no escuro, onde `-soft` é translúcido a 14%. Mesma tabela de
+   AgendaMobile.css, duplicada pelo mesmo motivo dos helpers de tempo: os
+   dois patterns vêm de frames independentes. */
+.agenda-desktop [data-tone='confirmado'] {
+  --agenda-tone-solid: var(--state-success);
+  --agenda-tone-bg: var(--state-success-soft);
+  --agenda-tone-text: var(--state-success-text);
+}
+
+.agenda-desktop [data-tone='pendente'] {
+  --agenda-tone-solid: var(--state-warning);
+  --agenda-tone-bg: var(--state-warning-soft);
+  --agenda-tone-text: var(--state-warning-text);
+}
+
+.agenda-desktop [data-tone='particular'] {
+  --agenda-tone-solid: var(--state-info);
+  --agenda-tone-bg: var(--state-info-soft);
+  --agenda-tone-text: var(--state-info-text);
+}
+
+.agenda-desktop [data-tone='bloqueio'] {
+  --agenda-tone-solid: var(--state-danger);
+  --agenda-tone-bg: var(--state-danger-soft);
+  --agenda-tone-text: var(--state-danger-text);
+}
+
+.agenda-desktop [data-tone='livre'] {
+  --agenda-tone-solid: var(--border-strong);
+  --agenda-tone-bg: var(--surface-sunken);
+  --agenda-tone-text: var(--text-muted);
+}
+
+[data-theme='dark'] .agenda-desktop [data-tone='confirmado'] {
+  --agenda-tone-text: var(--state-success);
+}
+
+[data-theme='dark'] .agenda-desktop [data-tone='pendente'] {
+  --agenda-tone-text: var(--state-warning);
+}
+
+[data-theme='dark'] .agenda-desktop [data-tone='particular'] {
+  --agenda-tone-text: var(--state-info);
+}
+
+[data-theme='dark'] .agenda-desktop [data-tone='bloqueio'] {
+  --agenda-tone-text: var(--state-danger);
 }
 
 .agenda-desktop__legend-label {
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
+  font: var(--type-small);
   color: var(--text-muted);
 }
 
@@ -72,7 +137,12 @@
   background: var(--surface-card);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  /* Muitas quadras não podem espremer a coluna até o nome ficar ilegível:
+     abaixo de 140px por quadra (min-width da grade, logo abaixo) a grade
+     excede a caixa e quem rola é este wrapper, nunca o <body> — mesmo
+     princípio de `.brk-scroll` em BracketPage.css. */
+  overflow-x: auto;
+  overflow-y: hidden;
 }
 
 /* Colunas: coluna de horas (fixa) + N colunas de quadra (flexíveis, mesma
@@ -83,8 +153,9 @@
    + N linhas de hora (--agenda-desktop-hour-h). */
 .agenda-desktop__grid {
   display: grid;
-  grid-template-columns: 56px repeat(var(--agenda-desktop-court-count), minmax(0, 1fr));
+  grid-template-columns: 56px repeat(var(--agenda-desktop-court-count), minmax(140px, 1fr));
   grid-template-rows: var(--control-h-sm) repeat(var(--agenda-desktop-hour-count), var(--agenda-desktop-hour-h));
+  min-width: min-content;
 }
 
 .agenda-desktop__corner {
@@ -121,7 +192,7 @@
 }
 
 .agenda-desktop__court-name {
-  font: var(--type-heading);
+  font: var(--type-subtitle);
   color: var(--text-heading);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -129,8 +200,7 @@
 }
 
 .agenda-desktop__court-sport {
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
+  font: var(--type-small);
   color: var(--text-muted);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -140,10 +210,9 @@
 .agenda-desktop__hour-label {
   grid-column: 1;
   grid-row: var(--agenda-desktop-row);
-  padding-top: var(--space-1);
+  padding-top: var(--space-2);
   padding-left: var(--space-3);
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
+  font: var(--type-small);
   color: var(--text-muted);
 }
 
@@ -162,6 +231,75 @@
   border-left: 1px solid var(--border-default);
 }
 
+/* Célula de horário livre — invisível, só alvo de clique (o frame não
+   desenha nada num slot vazio da grade desktop; o affordance é o hover). */
+.agenda-desktop__slot {
+  position: absolute;
+  top: var(--agenda-desktop-event-top);
+  height: var(--agenda-desktop-event-h);
+  left: 0;
+  right: 0;
+  cursor: pointer;
+}
+
+.agenda-desktop__slot:hover {
+  background: color-mix(in srgb, var(--interactive-primary) 10%, transparent);
+}
+
+.agenda-desktop__slot:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.agenda-desktop__slot[aria-disabled='true'] {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Coluna de quadra em manutenção — hachura sobre a coluna inteira, com o
+   motivo centralizado (regra herdada de `.col-blocked` em Agenda.css, que
+   esta coluna substitui). */
+.agenda-desktop__blocked {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-3);
+  text-align: center;
+  background: repeating-linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--state-danger) 8%, transparent),
+    color-mix(in srgb, var(--state-danger) 8%, transparent) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+}
+
+.agenda-desktop__blocked span {
+  font: var(--type-label);
+  color: var(--state-danger);
+}
+
+/* Linha do "agora" — item de grade cobrindo da primeira linha de hora até o
+   fim, com a régua desenhada no offset calculado em AgendaDesktop.tsx. */
+.agenda-desktop__now-line {
+  position: relative;
+  grid-row: 2 / -1;
+  grid-column: 1 / -1;
+  pointer-events: none;
+}
+
+.agenda-desktop__now-line::before {
+  content: '';
+  position: absolute;
+  top: var(--agenda-desktop-now-top);
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--state-danger);
+}
+
 .agenda-desktop__event {
   position: absolute;
   top: var(--agenda-desktop-event-top);
@@ -173,10 +311,20 @@
   justify-content: center;
   gap: 2px;
   padding: var(--space-1) var(--space-2) var(--space-1) 10px;
-  border: 1px solid var(--agenda-desktop-event-border);
+  border: 1px solid var(--agenda-tone-solid);
   border-radius: 6px;
-  background: var(--agenda-desktop-event-bg);
+  background: var(--agenda-tone-bg);
   overflow: hidden;
+  text-align: left;
+}
+
+button.agenda-desktop__event {
+  cursor: pointer;
+}
+
+button.agenda-desktop__event:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .agenda-desktop__event-stripe {
@@ -185,21 +333,21 @@
   left: -1px;
   bottom: -1px;
   width: 3px;
-  background: var(--agenda-desktop-event-border);
+  background: var(--agenda-tone-solid);
 }
 
 .agenda-desktop__event-title {
-  font: var(--type-subtitle);
-  color: var(--agenda-desktop-event-text);
+  font: var(--type-label);
+  color: var(--agenda-tone-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .agenda-desktop__event-subtitle {
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
-  color: var(--agenda-desktop-event-text);
+  font: var(--type-small);
+  color: var(--agenda-tone-text);
+  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;

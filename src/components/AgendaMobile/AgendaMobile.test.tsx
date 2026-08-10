@@ -187,3 +187,134 @@ describe('AgendaMobile — timeline', () => {
     expect(screen.queryByTestId('agenda-mobile-event-ev-2')).not.toBeInTheDocument()
   })
 })
+
+/* Props do reskin 2026-08 (frames 5:217 / 188:2111 / 35:1096) — todas
+ * opcionais, então cada teste prova também que a ausência da prop mantém o
+ * comportamento anterior do pattern. */
+describe('AgendaMobile — cabeçalho da tela', () => {
+  it('usa "Agenda" por padrão e aceita outro título', () => {
+    const { rerender } = renderAgenda()
+    expect(screen.getByRole('heading', { name: 'Agenda' })).toBeInTheDocument()
+
+    rerender(
+      <AgendaMobile
+        title="Minhas aulas"
+        rangeLabel="26 jul – 1 ago"
+        days={DAYS}
+        selectedDate="2026-07-28"
+        courts={COURTS}
+        selectedCourtIds={['court-1']}
+        events={EVENTS}
+      />,
+    )
+    expect(screen.getByRole('heading', { name: 'Minhas aulas' })).toBeInTheDocument()
+  })
+
+  it('só mostra o toggle Dia|Semana quando recebe viewOptions', async () => {
+    const onViewChange = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda()
+    expect(screen.queryByRole('button', { name: 'Semana' })).not.toBeInTheDocument()
+
+    renderAgenda({ viewOptions: ['Dia', 'Semana'], view: 'Dia', onViewChange })
+    await user.click(screen.getByRole('button', { name: 'Semana' }))
+
+    expect(onViewChange).toHaveBeenCalledWith('Semana')
+  })
+
+  it('renderiza o headerExtra recebido', () => {
+    renderAgenda({ headerExtra: <input aria-label="Buscar" /> })
+    expect(screen.getByLabelText('Buscar')).toBeInTheDocument()
+  })
+})
+
+describe('AgendaMobile — legenda, ação e estado vazio', () => {
+  it('só mostra a legenda quando recebe `legend`', () => {
+    renderAgenda()
+    expect(screen.queryByText('Confirmado')).not.toBeInTheDocument()
+
+    renderAgenda({ legend: [{ status: 'confirmado', label: 'Confirmado' }] })
+    expect(screen.getByText('Confirmado')).toBeInTheDocument()
+  })
+
+  it('dispara a ação principal', async () => {
+    const onClick = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda({ action: { label: '+ Solicitar bloqueio', variant: 'secondary', onClick } })
+
+    await user.click(screen.getByRole('button', { name: '+ Solicitar bloqueio' }))
+
+    expect(onClick).toHaveBeenCalledTimes(1)
+  })
+
+  it('troca a timeline pelo estado vazio quando não há evento nenhum', () => {
+    renderAgenda({ events: [], emptyState: <p>Sem aulas hoje</p> })
+    expect(screen.getByText('Sem aulas hoje')).toBeInTheDocument()
+    expect(screen.queryByText('6h')).not.toBeInTheDocument()
+  })
+
+  it('mantém a timeline quando há evento, mesmo com emptyState definido', () => {
+    renderAgenda({ emptyState: <p>Sem aulas hoje</p> })
+    expect(screen.queryByText('Sem aulas hoje')).not.toBeInTheDocument()
+    expect(screen.getByTestId('agenda-mobile-event-ev-1')).toBeInTheDocument()
+  })
+})
+
+describe('AgendaMobile — eventos e slots livres', () => {
+  it('colore o evento pelo status quando ele existe, e por esporte quando não', () => {
+    renderAgenda({
+      events: [
+        { id: 'com-status', title: 'Bloqueado', start: '07:00', end: '08:00', status: 'bloqueio' },
+        { id: 'sem-status', title: 'Aula', start: '09:00', end: '10:00', sport: 'padel' },
+      ],
+    })
+
+    expect(screen.getByTestId('agenda-mobile-event-com-status')).toHaveAttribute('data-tone', 'bloqueio')
+    const sportEvent = screen.getByTestId('agenda-mobile-event-sem-status')
+    expect(sportEvent).not.toHaveAttribute('data-tone')
+    expect(sportEvent.className).toContain('agenda-mobile__event--sport')
+  })
+
+  it('só torna o evento clicável quando recebe onSelectEvent', async () => {
+    const onSelectEvent = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda()
+    expect(screen.getByTestId('agenda-mobile-event-ev-1').tagName).toBe('DIV')
+
+    renderAgenda({ onSelectEvent })
+    await user.click(screen.getAllByTestId('agenda-mobile-event-ev-1')[1]!)
+
+    expect(onSelectEvent).toHaveBeenCalledWith('ev-1')
+  })
+
+  it('renderiza os chips de horário livre e dispara onSelectFreeSlot', async () => {
+    const onSelectFreeSlot = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda({ freeSlots: [{ hour: 10, label: '+ Avulsa' }], onSelectFreeSlot })
+
+    await user.click(screen.getByRole('button', { name: '+ Avulsa' }))
+
+    expect(onSelectFreeSlot).toHaveBeenCalledWith(10)
+  })
+
+  it('descarta um chip de horário livre fora da janela da timeline', () => {
+    renderAgenda({ freeSlots: [{ hour: 22, label: '+ Avulsa' }], startHour: 6, endHour: 14 })
+    expect(screen.queryByText('+ Avulsa')).not.toBeInTheDocument()
+  })
+})
+
+describe('AgendaMobile — filtro de quadra opcional', () => {
+  it('omite a linha de filtro quando não há quadra nenhuma', () => {
+    renderAgenda({ courts: [], selectedCourtIds: [] })
+    expect(screen.queryByRole('group', { name: 'Filtrar por quadra' })).not.toBeInTheDocument()
+  })
+
+  it('aceita chip sem esporte (sem dot colorido)', () => {
+    const { container } = renderAgenda({
+      courts: [{ id: 'q1', label: 'Quadra 1' }],
+      selectedCourtIds: [],
+    })
+    expect(screen.getByRole('button', { name: 'Quadra 1' })).toBeInTheDocument()
+    expect(container.querySelector('.agenda-mobile__chip-dot')).toBeNull()
+  })
+})

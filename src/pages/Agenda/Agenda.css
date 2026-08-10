@@ -9,7 +9,13 @@
  * contradiz a decisão travada "AG1 e AG2 são componentes JSX separados", que
  * é sobre estrutura de COMPONENTE, não sobre reuso de folha de estilo (mesmo
  * espírito de AuthLayout.css, já compartilhado por várias páginas não
- * relacionadas). */
+ * relacionadas).
+ *
+ * AG1 SAIU desta folha em 2026-08 (reskin): o Calendário Dia passou a ser
+ * composto por AgendaMobile/AgendaDesktop e não importa mais Agenda.css.
+ * As regras que só AG1 usava (`.cal-grid`, `.col-blocked`, `.now-line`,
+ * `.ag-search`) foram removidas junto — o que ficou é o que AG2/AG3/AG4/AG5
+ * ainda consomem (grep conferido antes de apagar). */
 
 .ag-head {
   display: flex;
@@ -64,17 +70,6 @@
   background: var(--interactive-primary);
   color: var(--text-on-brand);
 }
-.ag-search {
-  min-height: 36px;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border-default);
-  background: var(--surface-card);
-  color: var(--text-heading);
-  padding: 0 var(--space-3);
-  font-size: 13px;
-  max-width: 220px;
-}
-
 .legend {
   display: flex;
   gap: var(--space-4);
@@ -121,7 +116,6 @@
   overflow-x: auto;
 }
 
-.cal-grid,
 .week-grid {
   display: grid;
   position: relative;
@@ -216,39 +210,6 @@
 .booking.bk-block {
   background: color-mix(in srgb, var(--state-danger) 18%, var(--surface-card));
   border-color: var(--state-danger);
-}
-
-.col-blocked {
-  grid-row: 2 / span 16;
-  background: repeating-linear-gradient(
-    135deg,
-    color-mix(in srgb, var(--state-danger) 8%, transparent),
-    color-mix(in srgb, var(--state-danger) 8%, transparent) 6px,
-    transparent 6px,
-    transparent 12px
-  );
-  border-right: 1px solid var(--border-default);
-  border-bottom: 1px solid var(--border-default);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: var(--space-3);
-}
-.col-blocked span {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--state-danger);
-}
-
-.now-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: var(--state-danger);
-  pointer-events: none;
-  z-index: 2;
 }
 
 .fab {

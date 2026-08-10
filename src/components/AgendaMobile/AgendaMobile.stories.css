@@ -1,0 +1,6 @@
+/* Só para as stories (nunca entra no bundle do app — ver a nota sobre
+   `*.stories.css` em src/test/cssClassCollision.test.ts). Enquadra o
+   componente na largura do frame mobile em vez de um style inline. */
+.agenda-mobile-story-frame {
+  max-width: 350px;
+}

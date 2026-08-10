@@ -1,18 +1,48 @@
-/* AgendaMobile — Figma "Agenda — Mobile" (node 63:2/63:6). Pattern novo
-   (navRow + weekStrip + filterRow + timeline), sem componente `ui/`
-   equivalente — ver comentário de módulo em AgendaMobile.tsx. */
+/* AgendaMobile — Figma "Agenda — Mobile" (node 63:2/63:6), realinhado em
+   2026-08 aos frames reais da tela: "02 · Agenda — Admin — Mobile" (5:217),
+   "02b · … Vazio" (188:2111) e "03 · Agenda — Professor — Mobile"
+   (35:1096) do arquivo hb7PA0Xx3L7iHjt9AfHsGK. Pattern novo (navRow +
+   weekStrip + filterRow + timeline), sem componente `ui/` equivalente —
+   ver comentário de módulo em AgendaMobile.tsx. */
 
 .agenda-mobile {
   display: flex;
   flex-direction: column;
-  gap: var(--space-4);
+  /* 24px entre seções — o `gap` do Scroll Content do frame (5:217). */
+  gap: var(--space-6);
   width: 100%;
 }
 
+/* Título: 32px Baloo 2 ExtraBold no frame (5:217 node 6:151) = --type-display. */
 .agenda-mobile__title {
   margin: 0;
-  font: var(--type-title);
+  font: var(--type-display);
   color: var(--text-heading);
+}
+
+.agenda-mobile__header-extra {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* O toggle Dia|Semana do frame é um par de Chips (ativo em
+   interactive-primary); aqui é o ui/Segmented do design system, com o pill
+   ativo escurecido para surface-inverse — é o desenho do frame DESKTOP
+   (81:1109) e evita gastar a cor de CTA (laranja) num controle de
+   navegação que fica logo acima do próprio CTA "+ Nova reserva".
+   Sobrescrita escopada por ancestral (0,2,0), o escape hatch previsto por
+   src/test/cssClassCollision.test.ts. */
+.agenda-mobile .segmented {
+  align-self: flex-start;
+}
+
+.agenda-mobile .segmented__indicator {
+  background: var(--surface-inverse);
+}
+
+.agenda-mobile .segmented__option--active {
+  color: var(--text-inverse);
 }
 
 /* navRow — prev/next (IconButton secondary/sm) flanqueando o rótulo do
@@ -27,11 +57,12 @@
 .agenda-mobile__range {
   flex: 1 0 0;
   text-align: center;
-  font: var(--type-heading);
+  font: var(--type-body);
   color: var(--text-heading);
 }
 
-/* weekStrip — 7 células iguais, dia selecionado em surface-inverse. */
+/* weekStrip — 7 células iguais em surface-card (frame 6:157: fundo branco,
+   radius-lg, py 9px), dia selecionado em surface-inverse. */
 .agenda-mobile__week-strip {
   display: flex;
   gap: var(--space-1);
@@ -46,10 +77,10 @@
   align-items: center;
   justify-content: center;
   gap: var(--space-1);
-  padding: var(--space-2) 0;
+  padding: 9px 0;
   border: none;
-  border-radius: var(--radius-md);
-  background: transparent;
+  border-radius: var(--radius-lg);
+  background: var(--surface-card);
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease-standard);
 }
@@ -68,8 +99,7 @@
 }
 
 .agenda-mobile__day-label {
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
+  font: var(--type-label);
   color: var(--text-muted);
 }
 
@@ -79,7 +109,7 @@
 }
 
 .agenda-mobile__day-number {
-  font: var(--type-heading);
+  font: var(--type-subtitle);
   color: var(--text-heading);
 }
 
@@ -114,14 +144,12 @@
   display: inline-flex;
   align-items: center;
   gap: var(--space-1);
-  height: var(--control-h-sm);
-  padding: 0 var(--space-3);
+  padding: 8px var(--space-3);
   border: 1px solid var(--border-default);
   border-radius: var(--radius-pill);
   background: var(--surface-card);
   color: var(--text-heading);
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
+  font: var(--type-label);
   cursor: pointer;
   transition:
     background var(--dur-fast) var(--ease-standard),
@@ -147,6 +175,82 @@
   background: var(--agenda-mobile-chip-color);
 }
 
+/* legenda de status (frame 163:5368) — dot 8px + rótulo 13px muted. */
+.agenda-mobile__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.agenda-mobile__legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.agenda-mobile__legend-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--agenda-tone-solid);
+}
+
+.agenda-mobile__legend-label {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+/* Tons de status — o TEXTO usa `--state-*-text` no claro (o par que tem
+   contraste AA sobre `-soft`, ver src/styles/tokens/colors.test.ts) e o tom
+   cheio `--state-*` no escuro, onde `-soft` é translúcido a 14% e o `-text`
+   escuro deixaria de ser legível. É também o que os frames Dark
+   (186:3620/186:4455) mostram: pílula sem fundo visível e texto vivo. */
+.agenda-mobile [data-tone='confirmado'] {
+  --agenda-tone-solid: var(--state-success);
+  --agenda-tone-bg: var(--state-success-soft);
+  --agenda-tone-text: var(--state-success-text);
+}
+
+.agenda-mobile [data-tone='pendente'] {
+  --agenda-tone-solid: var(--state-warning);
+  --agenda-tone-bg: var(--state-warning-soft);
+  --agenda-tone-text: var(--state-warning-text);
+}
+
+.agenda-mobile [data-tone='particular'] {
+  --agenda-tone-solid: var(--state-info);
+  --agenda-tone-bg: var(--state-info-soft);
+  --agenda-tone-text: var(--state-info-text);
+}
+
+.agenda-mobile [data-tone='bloqueio'] {
+  --agenda-tone-solid: var(--state-danger);
+  --agenda-tone-bg: var(--state-danger-soft);
+  --agenda-tone-text: var(--state-danger-text);
+}
+
+.agenda-mobile [data-tone='livre'] {
+  --agenda-tone-solid: var(--border-strong);
+  --agenda-tone-bg: var(--surface-sunken);
+  --agenda-tone-text: var(--text-muted);
+}
+
+[data-theme='dark'] .agenda-mobile [data-tone='confirmado'] {
+  --agenda-tone-text: var(--state-success);
+}
+
+[data-theme='dark'] .agenda-mobile [data-tone='pendente'] {
+  --agenda-tone-text: var(--state-warning);
+}
+
+[data-theme='dark'] .agenda-mobile [data-tone='particular'] {
+  --agenda-tone-text: var(--state-info);
+}
+
+[data-theme='dark'] .agenda-mobile [data-tone='bloqueio'] {
+  --agenda-tone-text: var(--state-danger);
+}
+
 /* timeline — linhas de hora fixas (posicionadas por índice) com eventos
    sobrepostos em posição absoluta, calculada em AgendaMobile.tsx a partir
    do horário real do evento (computeEventLayout). */
@@ -170,27 +274,49 @@
 
 .agenda-mobile__hour-label {
   position: absolute;
-  top: var(--space-1);
+  top: var(--space-2);
   left: var(--space-3);
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
+  font: var(--type-small);
   color: var(--text-muted);
 }
 
-.agenda-mobile__event {
+.agenda-mobile__empty {
+  display: flex;
+  justify-content: center;
+}
+
+.agenda-mobile__event,
+.agenda-mobile__free-slot {
   position: absolute;
   top: var(--agenda-mobile-event-top);
   height: var(--agenda-mobile-event-h);
   left: 56px;
-  right: var(--space-2);
+  right: var(--space-3);
   display: flex;
   flex-direction: column;
   justify-content: center;
   gap: 2px;
   padding: var(--space-1) var(--space-3);
-  border-radius: var(--radius-md);
-  background: color-mix(in srgb, var(--agenda-mobile-event-color) 14%, var(--surface-card));
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--agenda-tone-bg);
   overflow: hidden;
+  text-align: left;
+}
+
+/* Sem `status`: comportamento original do pattern, cor derivada do esporte. */
+.agenda-mobile__event--sport {
+  background: color-mix(in srgb, var(--agenda-mobile-event-color) 14%, var(--surface-card));
+}
+
+button.agenda-mobile__event {
+  cursor: pointer;
+}
+
+button.agenda-mobile__event:focus-visible,
+.agenda-mobile__free-slot:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
 }
 
 .agenda-mobile__event-stripe {
@@ -199,22 +325,75 @@
   left: 0;
   bottom: 0;
   width: 3px;
+  background: var(--agenda-tone-solid);
+}
+
+.agenda-mobile__event--sport .agenda-mobile__event-stripe {
   background: var(--agenda-mobile-event-color);
 }
 
 .agenda-mobile__event-title {
-  font: var(--type-subtitle);
-  color: var(--text-heading);
+  font: var(--type-label);
+  color: var(--agenda-tone-text);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+.agenda-mobile__event--sport .agenda-mobile__event-title {
+  color: var(--text-heading);
+}
+
 .agenda-mobile__event-subtitle {
-  font: var(--type-overline);
-  letter-spacing: var(--tracking-overline);
-  color: var(--text-muted);
+  font: var(--type-small);
+  color: var(--agenda-tone-text);
+  opacity: 0.85;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.agenda-mobile__event--sport .agenda-mobile__event-subtitle {
+  color: var(--text-muted);
+  opacity: 1;
+}
+
+/* Slot livre — chip tracejado (frame 163:5385), largura de conteúdo em vez
+   de ocupar a linha inteira. */
+.agenda-mobile__free-slot {
+  right: auto;
+  flex-direction: row;
+  align-items: center;
+  border: 1px dashed var(--border-default);
+  background: transparent;
+  color: var(--text-muted);
+  font: var(--type-small);
+  cursor: pointer;
+}
+
+.agenda-mobile__free-slot:hover {
+  border-color: var(--interactive-primary);
+  color: var(--text-brand);
+}
+
+/* Ação principal ("+ Nova reserva" / "+ Solicitar bloqueio"): largura
+   cheia no rodapé do bloco, como nos frames mobile (5:217/35:1096).
+   A partir de BREAKPOINT_SHELL_DESKTOP_MIN (860px, src/lib/breakpoints.ts)
+   este pattern ainda é a agenda do PROFESSOR no desktop (frame 99:1584),
+   onde um botão de 100% de largura ficaria absurdo: ele encolhe e sobe
+   para logo abaixo do título, alinhado à direita. O frame o coloca na
+   MESMA linha do título — ver o relatório da tela. */
+@media (min-width: 860px) {
+  .agenda-mobile__action {
+    order: -1;
+    align-self: flex-end;
+  }
+
+  .agenda-mobile__title {
+    order: -2;
+  }
+
+  .agenda-mobile__action .button {
+    width: auto;
+  }
 }

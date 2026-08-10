@@ -1,5 +1,7 @@
-import type { CSSProperties } from 'react'
+import type { CSSProperties, ReactNode } from 'react'
+import { Button } from '../ui/Button/Button'
 import { IconButton } from '../ui/IconButton/IconButton'
+import { Segmented } from '../ui/Segmented/Segmented'
 import { sportCssVar } from '../../lib/sports'
 import './AgendaMobile.css'
 
@@ -16,6 +18,26 @@ import './AgendaMobile.css'
  * DatePicker/Segmented) — não busca dados nem possui estado de negócio;
  * quem usa decide a janela de datas, quais dias têm evento, quais quadras
  * existem e quais eventos aparecem na timeline do dia selecionado.
+ *
+ * ADAPTAÇÃO 2026-08 (reskin da Agenda, protótipo hb7PA0Xx3L7iHjt9AfHsGK):
+ * o componente nasceu de um frame anterior ("Agenda — Mobile") e agora é
+ * consumido pelas telas reais, cujos frames são "02 · Agenda — Admin —
+ * Mobile" (5:217), "…— Vazio" (188:2111) e "03 · Agenda — Professor —
+ * Mobile" (35:1096). O que mudou, tudo aditivo/retrocompatível:
+ *
+ * - props novas, todas opcionais: `title`, `viewOptions`/`view`/
+ *   `onViewChange` (toggle Dia|Semana), `headerExtra`, `legend`, `action`,
+ *   `freeSlots`/`onSelectFreeSlot`, `onSelectEvent`, `emptyState`;
+ * - `AgendaMobileEvent.sport` e `AgendaMobileCourtFilter.sport` viraram
+ *   OPCIONAIS, e o evento ganhou `status` — nos frames reais a cor do
+ *   evento vem do STATUS da reserva (state/*-soft + state/*), não do
+ *   esporte. Sem `status`, o comportamento antigo (cor por esporte) segue
+ *   valendo, então nenhum consumidor/story anterior muda de aparência;
+ * - tipografia realinhada aos frames reais: título 32px (--type-display,
+ *   era --type-title/24px), rótulos de dia/chip/hora/evento em 13px
+ *   (--type-label/--type-small, eram --type-overline/11px), e as células da
+ *   weekStrip passaram a ter fundo `surface-card` + radius-lg como no frame
+ *   (eram transparentes/radius-md).
  */
 
 const WEEKDAY_OVERLINE = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
@@ -97,6 +119,18 @@ export function computeEventLayout(
   return { top, height }
 }
 
+/**
+ * Tom de status de uma reserva. Mesmo conjunto de AgendaDesktop
+ * (AgendaDesktopEventStatus) — os dois frames desenham a mesma paleta de
+ * status, mas cada componente mantém a sua cópia pelo mesmo motivo dos
+ * helpers de tempo duplicados: vêm de frames independentes e não devem
+ * depender de internals um do outro. As cores em si vivem no CSS
+ * (`[data-tone]`), não aqui, porque o tom do TEXTO muda entre claro e
+ * escuro (`--state-*-text` só tem contraste AA no claro) e uma custom
+ * property inline não consegue alternar por tema.
+ */
+export type AgendaMobileEventStatus = 'confirmado' | 'pendente' | 'particular' | 'bloqueio' | 'livre'
+
 export interface AgendaMobileDay {
   /** "YYYY-MM-DD" local. */
   date: string
@@ -110,8 +144,10 @@ export interface AgendaMobileCourtFilter {
   label: string
   /** Slug de lib/sports.ts — o dot do chip usa a cor do esporte da quadra
    * (mesmo padrão de CourtCard/ClassCard/SportTag: cor derivada do esporte,
-   * nunca uma cor arbitrária por quadra). */
-  sport: string
+   * nunca uma cor arbitrária por quadra). Opcional: quem só tem o NOME da
+   * quadra (ex.: a agenda do professor, que lê `courtName` de um booking e
+   * não busca a lista de quadras) passa o chip sem dot. */
+  sport?: string
 }
 
 export interface AgendaMobileEvent {
@@ -122,14 +158,45 @@ export interface AgendaMobileEvent {
   start: string
   /** "HH:MM" */
   end: string
-  /** Slug de lib/sports.ts — cor do stripe/realce do card, mesma convenção
-   * de cor-por-esporte do resto do design system (deliberadamente diferente
-   * do exemplo estático do Figma, que usa tokens state/success fixos —
-   * ver AgendaMobile.stories.tsx e o resumo da implementação). */
-  sport: string
+  /** Status da reserva — decide a cor do card (fundo `--state-*-soft`,
+   * texto `--state-*-text`/`--state-*`), como nos frames reais da tela. */
+  status?: AgendaMobileEventStatus
+  /** Slug de lib/sports.ts — cor do stripe/realce do card quando NÃO há
+   * `status`. Mantido pelo frame original do pattern (63:6), que colore por
+   * esporte; `status` tem precedência quando os dois vêm juntos. */
+  sport?: string
+}
+
+/** Slot livre da timeline — o chip tracejado "+ Avulsa" do frame 5:217
+ * (node 163:5385). `hour` é a hora cheia; o rótulo vem pronto do chamador
+ * (o frame mostra também o preço, que a API de agenda não devolve — ver
+ * relatório da tela). */
+export interface AgendaMobileFreeSlot {
+  hour: number
+  label: string
+}
+
+export interface AgendaMobileAction {
+  label: string
+  variant?: 'primary' | 'secondary'
+  onClick?: () => void
 }
 
 export interface AgendaMobileProps {
+  /** Título da tela. Admin usa "Agenda"; a agenda do professor usa
+   * "Minhas aulas" (frame 35:1096). */
+  title?: string
+  /** Opções do toggle acima do navegador de semana (frame 5:217:
+   * ["Dia", "Semana"]). Vazio/ausente esconde o toggle — é o caso do
+   * professor, que não tem visão de semana. */
+  viewOptions?: string[]
+  view?: string
+  onViewChange?: (view: string) => void
+  /** Controle extra do cabeçalho (a busca de AG1, que não existe em
+   * nenhum frame desta tela mas é comportamento já entregue). Escape hatch
+   * deliberado: mantém o componente fiel ao frame em vez de inventar um
+   * campo de busca no design. */
+  headerExtra?: ReactNode
   /** "26 jul – 1 ago" — já formatado pelo chamador (ex.: via
    * formatWeekLabel de pages/Agenda/agendaShared.ts). */
   rangeLabel: string
@@ -146,9 +213,22 @@ export interface AgendaMobileProps {
    * escolha única já existe ui/Segmented). */
   selectedCourtIds: string[]
   onToggleCourt?: (courtId: string) => void
+  /** Legenda de status entre os filtros e a timeline (frame 5:217, node
+   * 163:5368). Ausente = sem legenda (frame do professor). */
+  legend?: { status: AgendaMobileEventStatus; label: string }[]
   /** Eventos do dia selecionado, já filtrados pelo chamador (o componente
    * não filtra por selectedCourtIds/selectedDate sozinho). */
   events: AgendaMobileEvent[]
+  onSelectEvent?: (eventId: string) => void
+  /** Chips tracejados de horário livre. */
+  freeSlots?: AgendaMobileFreeSlot[]
+  onSelectFreeSlot?: (hour: number) => void
+  /** Renderizado NO LUGAR da timeline quando não há nenhum evento (frame
+   * 188:2111). Ausente = timeline vazia, só com as linhas de hora. */
+  emptyState?: ReactNode
+  /** Ação principal abaixo da timeline: "+ Nova reserva" (admin) ou
+   * "+ Solicitar bloqueio" (professor). */
+  action?: AgendaMobileAction
   /** Primeira hora exibida na timeline. Default 6 (Figma). */
   startHour?: number
   /** Limite superior exclusivo da timeline. Default 14 (Figma: linhas 6h-13h). */
@@ -158,6 +238,11 @@ export interface AgendaMobileProps {
 }
 
 export function AgendaMobile({
+  title = 'Agenda',
+  viewOptions,
+  view,
+  onViewChange,
+  headerExtra,
   rangeLabel,
   onPrevWeek,
   onNextWeek,
@@ -167,17 +252,35 @@ export function AgendaMobile({
   courts,
   selectedCourtIds,
   onToggleCourt,
+  legend,
   events,
+  onSelectEvent,
+  freeSlots,
+  onSelectFreeSlot,
+  emptyState,
+  action,
   startHour = 6,
   endHour = 14,
   hourHeightPx = 40,
 }: AgendaMobileProps) {
   const hours = hoursInRange(startHour, endHour)
   const timelineHeight = hours.length * hourHeightPx
+  const showEmptyState = Boolean(emptyState) && events.length === 0
 
   return (
     <div className="agenda-mobile">
-      <h1 className="agenda-mobile__title">Agenda</h1>
+      <h1 className="agenda-mobile__title">{title}</h1>
+
+      {viewOptions && viewOptions.length > 0 ? (
+        <Segmented
+          ariaLabel="Alternar entre visão Dia e Semana"
+          options={viewOptions}
+          value={view}
+          onChange={onViewChange}
+        />
+      ) : null}
+
+      {headerExtra ? <div className="agenda-mobile__header-extra">{headerExtra}</div> : null}
 
       <div className="agenda-mobile__nav-row">
         <IconButton variant="secondary" size="sm" label="Semana anterior" onClick={onPrevWeek}>
@@ -213,66 +316,140 @@ export function AgendaMobile({
         })}
       </div>
 
-      <div className="agenda-mobile__filter-row" role="group" aria-label="Filtrar por quadra">
-        {courts.map((court) => {
-          const isSelected = selectedCourtIds.includes(court.id)
-          const style = { '--agenda-mobile-chip-color': `var(${sportCssVar(court.sport)})` } as CSSProperties
-          return (
-            <button
-              type="button"
-              key={court.id}
-              className={`agenda-mobile__chip${isSelected ? ' agenda-mobile__chip--selected' : ''}`}
-              style={style}
-              aria-pressed={isSelected}
-              onClick={() => onToggleCourt?.(court.id)}
-            >
-              <span className="agenda-mobile__chip-dot" aria-hidden="true" />
-              {court.label}
-            </button>
-          )
-        })}
-      </div>
+      {courts.length > 0 ? (
+        <div className="agenda-mobile__filter-row" role="group" aria-label="Filtrar por quadra">
+          {courts.map((court) => {
+            const isSelected = selectedCourtIds.includes(court.id)
+            const style = court.sport
+              ? ({ '--agenda-mobile-chip-color': `var(${sportCssVar(court.sport)})` } as CSSProperties)
+              : undefined
+            return (
+              <button
+                type="button"
+                key={court.id}
+                className={`agenda-mobile__chip${isSelected ? ' agenda-mobile__chip--selected' : ''}`}
+                style={style}
+                aria-pressed={isSelected}
+                onClick={() => onToggleCourt?.(court.id)}
+              >
+                {court.sport ? <span className="agenda-mobile__chip-dot" aria-hidden="true" /> : null}
+                {court.label}
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
 
-      <div
-        className="agenda-mobile__timeline"
-        style={{ '--agenda-mobile-timeline-h': `${timelineHeight}px` } as CSSProperties}
-      >
-        {hours.map((hour, index) => {
-          const rowStyle = {
-            '--agenda-mobile-row-top': `${index * hourHeightPx}px`,
-            '--agenda-mobile-row-h': `${hourHeightPx}px`,
-          } as CSSProperties
-          return (
-            <div key={hour} className="agenda-mobile__hour-row" style={rowStyle}>
-              <span className="agenda-mobile__hour-label">{formatHourLabel(hour)}</span>
-            </div>
-          )
-        })}
+      {legend && legend.length > 0 ? (
+        <div className="agenda-mobile__legend">
+          {legend.map((item) => (
+            <span className="agenda-mobile__legend-item" key={item.label}>
+              <span className="agenda-mobile__legend-dot" data-tone={item.status} aria-hidden="true" />
+              <span className="agenda-mobile__legend-label">{item.label}</span>
+            </span>
+          ))}
+        </div>
+      ) : null}
 
-        {events.map((event) => {
-          const layout = computeEventLayout(event, startHour, endHour, hourHeightPx)
-          if (!layout) return null
-          const style = {
-            '--agenda-mobile-event-top': `${layout.top}px`,
-            '--agenda-mobile-event-h': `${layout.height}px`,
-            '--agenda-mobile-event-color': `var(${sportCssVar(event.sport)})`,
-          } as CSSProperties
-          return (
-            <div
-              key={event.id}
-              className="agenda-mobile__event"
-              style={style}
-              data-testid={`agenda-mobile-event-${event.id}`}
-            >
-              <span className="agenda-mobile__event-stripe" aria-hidden="true" />
-              <span className="agenda-mobile__event-title">{event.title}</span>
-              {event.subtitle ? (
-                <span className="agenda-mobile__event-subtitle">{event.subtitle}</span>
-              ) : null}
-            </div>
-          )
-        })}
-      </div>
+      {showEmptyState ? (
+        <div className="agenda-mobile__empty">{emptyState}</div>
+      ) : (
+        <div
+          className="agenda-mobile__timeline"
+          style={{ '--agenda-mobile-timeline-h': `${timelineHeight}px` } as CSSProperties}
+        >
+          {hours.map((hour, index) => {
+            const rowStyle = {
+              '--agenda-mobile-row-top': `${index * hourHeightPx}px`,
+              '--agenda-mobile-row-h': `${hourHeightPx}px`,
+            } as CSSProperties
+            return (
+              <div key={hour} className="agenda-mobile__hour-row" style={rowStyle}>
+                <span className="agenda-mobile__hour-label">{formatHourLabel(hour)}</span>
+              </div>
+            )
+          })}
+
+          {(freeSlots ?? []).map((slot) => {
+            const layout = computeEventLayout(
+              { start: `${String(slot.hour).padStart(2, '0')}:00`, end: `${String(slot.hour + 1).padStart(2, '0')}:00` },
+              startHour,
+              endHour,
+              hourHeightPx,
+            )
+            if (!layout) return null
+            const style = {
+              '--agenda-mobile-event-top': `${layout.top}px`,
+              '--agenda-mobile-event-h': `${layout.height}px`,
+            } as CSSProperties
+            return (
+              <button
+                type="button"
+                key={`free-${slot.hour}`}
+                className="agenda-mobile__free-slot"
+                style={style}
+                data-testid={`agenda-mobile-free-${slot.hour}`}
+                onClick={() => onSelectFreeSlot?.(slot.hour)}
+              >
+                {slot.label}
+              </button>
+            )
+          })}
+
+          {events.map((event) => {
+            const layout = computeEventLayout(event, startHour, endHour, hourHeightPx)
+            if (!layout) return null
+            const style = {
+              '--agenda-mobile-event-top': `${layout.top}px`,
+              '--agenda-mobile-event-h': `${layout.height}px`,
+              ...(event.status || !event.sport
+                ? null
+                : { '--agenda-mobile-event-color': `var(${sportCssVar(event.sport)})` }),
+            } as CSSProperties
+            const content = (
+              <>
+                <span className="agenda-mobile__event-stripe" aria-hidden="true" />
+                <span className="agenda-mobile__event-title">{event.title}</span>
+                {event.subtitle ? (
+                  <span className="agenda-mobile__event-subtitle">{event.subtitle}</span>
+                ) : null}
+              </>
+            )
+            const className = `agenda-mobile__event${event.status ? '' : ' agenda-mobile__event--sport'}`
+            return onSelectEvent ? (
+              <button
+                type="button"
+                key={event.id}
+                className={className}
+                data-tone={event.status}
+                style={style}
+                data-testid={`agenda-mobile-event-${event.id}`}
+                onClick={() => onSelectEvent(event.id)}
+              >
+                {content}
+              </button>
+            ) : (
+              <div
+                key={event.id}
+                className={className}
+                data-tone={event.status}
+                style={style}
+                data-testid={`agenda-mobile-event-${event.id}`}
+              >
+                {content}
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {action ? (
+        <div className="agenda-mobile__action">
+          <Button variant={action.variant ?? 'primary'} size="md" fullWidth onClick={action.onClick}>
+            {action.label}
+          </Button>
+        </div>
+      ) : null}
     </div>
   )
 }

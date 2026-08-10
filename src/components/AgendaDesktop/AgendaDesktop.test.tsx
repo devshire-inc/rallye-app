@@ -163,8 +163,9 @@ describe('AgendaDesktop — events', () => {
     renderAgenda({
       events: [{ id: 'ev-3', courtId: 'court-2', title: 'Bloqueio', start: '18:00', end: '19:00', status: 'bloqueio' }],
     })
-    expect(screen.getByTestId('agenda-desktop-event-ev-3')).toBeInTheDocument()
-    expect(screen.getByText('Bloqueio')).toBeInTheDocument()
+    // "Bloqueio" também é um item da legenda — a asserção precisa ser no
+    // card do evento, não em qualquer nó com esse texto.
+    expect(screen.getByTestId('agenda-desktop-event-ev-3')).toHaveTextContent('Bloqueio')
   })
 
   it('omits an event that falls entirely outside the grid window', () => {
@@ -179,5 +180,103 @@ describe('AgendaDesktop — events', () => {
       events: [{ id: 'ev-5', courtId: 'court-unknown', title: 'Quadra inexistente', start: '07:00', end: '08:00', status: 'confirmado' }],
     })
     expect(screen.queryByTestId('agenda-desktop-event-ev-5')).not.toBeInTheDocument()
+  })
+})
+
+/* Props do reskin 2026-08 (frame 81:1109) — todas opcionais. */
+describe('AgendaDesktop — cabeçalho', () => {
+  it('só mostra o toggle Dia|Semana quando recebe viewOptions', async () => {
+    const onViewChange = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda()
+    expect(screen.queryByRole('button', { name: 'Semana' })).not.toBeInTheDocument()
+
+    renderAgenda({ viewOptions: ['Dia', 'Semana'], view: 'Dia', onViewChange })
+    await user.click(screen.getByRole('button', { name: 'Semana' }))
+
+    expect(onViewChange).toHaveBeenCalledWith('Semana')
+  })
+
+  it('renderiza o headerExtra e esconde a ação quando actionLabel é null', () => {
+    renderAgenda({ headerExtra: <input aria-label="Buscar" />, actionLabel: null })
+    expect(screen.getByLabelText('Buscar')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: '+ Nova reserva' })).not.toBeInTheDocument()
+  })
+
+  it('aceita uma legenda própria no lugar da default do pattern', () => {
+    renderAgenda({ legend: [{ status: 'pendente', label: 'Pendente' }] })
+    expect(screen.getByText('Pendente')).toBeInTheDocument()
+    expect(screen.queryByText('Livre')).not.toBeInTheDocument()
+  })
+})
+
+describe('AgendaDesktop — horários livres', () => {
+  it('não renderiza célula de horário livre sem onSelectSlot', () => {
+    renderAgenda()
+    expect(screen.queryByLabelText('Horário livre Quadra 1 6h')).not.toBeInTheDocument()
+  })
+
+  it('dispara onSelectSlot com a quadra e a hora, e pula as horas ocupadas', async () => {
+    const onSelectSlot = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda({ onSelectSlot })
+
+    // ev-1 ocupa 07:00-08:00 na Quadra 1 — aquela hora não vira slot livre.
+    expect(screen.queryByLabelText('Horário livre Quadra 1 7h')).not.toBeInTheDocument()
+    await user.click(screen.getByLabelText('Horário livre Quadra 1 6h'))
+
+    expect(onSelectSlot).toHaveBeenCalledWith('court-1', 6)
+  })
+
+  it('mantém as células, porém inertes, quando slotsDisabled', async () => {
+    const onSelectSlot = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda({ onSelectSlot, slotsDisabled: true })
+
+    const slot = screen.getByLabelText('Horário livre Quadra 1 6h')
+    expect(slot).toHaveAttribute('aria-disabled', 'true')
+    // O CSS também torna a célula inerte (pointer-events: none), mas o
+    // guarda em JS é o que este teste prova — jsdom não aplica a folha.
+    await user.click(slot)
+    expect(onSelectSlot).not.toHaveBeenCalled()
+  })
+})
+
+describe('AgendaDesktop — quadra bloqueada e linha do agora', () => {
+  it('substitui a coluna por um overlay quando a quadra tem blockedLabel', () => {
+    renderAgenda({
+      courts: [{ id: 'court-1', label: 'Quadra 1', sport: 'beach_tennis', blockedLabel: 'Manutenção até sexta' }],
+      onSelectSlot: vi.fn(),
+    })
+
+    expect(screen.getByText('Manutenção até sexta')).toBeInTheDocument()
+    expect(screen.getByText('Manutenção')).toBeInTheDocument()
+    expect(screen.queryByLabelText('Horário livre Quadra 1 6h')).not.toBeInTheDocument()
+  })
+
+  it('desenha a linha do "agora" só quando nowMinutes cai dentro da janela', () => {
+    const { container, rerender } = render(
+      <AgendaDesktop rangeLabel="Hoje" courts={COURTS} events={[]} nowMinutes={7 * 60 + 30} startHour={6} endHour={19} />,
+    )
+    expect(container.querySelector('.agenda-desktop__now-line')).not.toBeNull()
+
+    rerender(
+      <AgendaDesktop rangeLabel="Hoje" courts={COURTS} events={[]} nowMinutes={2 * 60} startHour={6} endHour={19} />,
+    )
+    expect(container.querySelector('.agenda-desktop__now-line')).toBeNull()
+  })
+})
+
+describe('AgendaDesktop — evento clicável', () => {
+  it('só vira botão quando recebe onSelectEvent', async () => {
+    const onSelectEvent = vi.fn()
+    const user = userEvent.setup()
+    renderAgenda()
+    expect(screen.getByTestId('agenda-desktop-event-ev-1').tagName).toBe('DIV')
+
+    renderAgenda({ onSelectEvent })
+    await user.click(screen.getAllByTestId('agenda-desktop-event-ev-1')[1]!)
+
+    expect(onSelectEvent).toHaveBeenCalledWith('ev-1')
   })
 })

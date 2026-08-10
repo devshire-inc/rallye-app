@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react-vite'
+import { EmptyState } from '../ui/EmptyState/EmptyState'
 import { AgendaMobile } from './AgendaMobile'
+import './AgendaMobile.stories.css'
 import type { AgendaMobileCourtFilter, AgendaMobileDay, AgendaMobileEvent } from './AgendaMobile'
 
 const COURTS: AgendaMobileCourtFilter[] = [
@@ -222,4 +224,110 @@ export const EmptyDay: Story = {
       </div>
     )
   },
+}
+
+/** Frame "02 · Agenda — Admin — Mobile" (5:217) inteiro: toggle Dia|Semana,
+ * legenda de status, eventos coloridos por STATUS (não por esporte), chip
+ * tracejado de horário livre e o CTA "+ Nova reserva". É a composição que
+ * AG1DayPage monta com dados reais. */
+export const AdminMobile: Story = {
+  render: () => (
+    <div className="agenda-mobile-story-frame">
+      <AgendaMobile
+        viewOptions={['Dia', 'Semana']}
+        view="Dia"
+        rangeLabel="26 jul – 1 ago"
+        days={[
+          { date: '2026-07-26' },
+          { date: '2026-07-27' },
+          { date: '2026-07-28' },
+          { date: '2026-07-29' },
+          { date: '2026-07-30' },
+          { date: '2026-07-31' },
+          { date: '2026-08-01' },
+        ]}
+        selectedDate="2026-07-28"
+        courts={COURTS}
+        selectedCourtIds={['court-1', 'court-2', 'court-3']}
+        legend={[
+          { status: 'confirmado', label: 'Confirmado' },
+          { status: 'pendente', label: 'Pendente' },
+          { status: 'particular', label: 'Particular' },
+          { status: 'bloqueio', label: 'Bloqueio' },
+        ]}
+        events={[
+          { id: 'ev-1', title: 'BT Iniciante', subtitle: 'Quadra 1 · Prof. Marcus', start: '07:00', end: '08:00', status: 'confirmado' },
+          { id: 'ev-2', title: 'Marina Costa', subtitle: 'Quadra 2 · Aula particular', start: '08:00', end: '09:00', status: 'particular' },
+          { id: 'ev-3', title: 'Bloqueado — Marcus Lima', subtitle: 'Quadra 1', start: '09:00', end: '10:00', status: 'bloqueio' },
+        ]}
+        freeSlots={[{ hour: 10, label: '+ Avulsa' }]}
+        onSelectEvent={() => {}}
+        onSelectFreeSlot={() => {}}
+        action={{ label: '+ Nova reserva' }}
+        startHour={6}
+        endHour={12}
+      />
+    </div>
+  ),
+}
+
+/** Frame "03 · Agenda — Professor — Mobile" (35:1096): mesmo pattern sem
+ * filtro de quadra nem legenda, com título e ação próprios. */
+export const ProfessorMobile: Story = {
+  render: () => (
+    <div className="agenda-mobile-story-frame">
+      <AgendaMobile
+        title="Minhas aulas"
+        rangeLabel="26 jul – 1 ago"
+        days={[
+          { date: '2026-07-26' },
+          { date: '2026-07-27' },
+          { date: '2026-07-28' },
+          { date: '2026-07-29' },
+          { date: '2026-07-30' },
+          { date: '2026-07-31' },
+          { date: '2026-08-01' },
+        ]}
+        selectedDate="2026-07-28"
+        courts={[]}
+        selectedCourtIds={[]}
+        events={[
+          { id: 'ev-1', title: 'BT Iniciante', subtitle: 'Quadra 1 · 6 alunos', start: '07:00', end: '08:00', status: 'particular' },
+          { id: 'ev-2', title: 'Particular · Marina Costa', subtitle: 'Quadra 2 · individual', start: '09:00', end: '10:00', status: 'particular' },
+        ]}
+        action={{ label: '+ Solicitar bloqueio', variant: 'secondary' }}
+        startHour={6}
+        endHour={12}
+      />
+    </div>
+  ),
+}
+
+/** Frame "02b · Agenda — Vazio — Admin — Mobile" (188:2111): sem nenhum
+ * evento, a timeline dá lugar ao estado vazio. O cabeçalho continua (o
+ * frame só desenha o bloco vazio, mas sem a tira de dias não haveria como
+ * sair de um dia sem reserva — ver o relatório da tela). */
+export const DiaVazio: Story = {
+  render: () => (
+    <div className="agenda-mobile-story-frame">
+      <AgendaMobile
+        viewOptions={['Dia', 'Semana']}
+        view="Dia"
+        rangeLabel="26 jul – 1 ago"
+        days={[{ date: '2026-07-28' }, { date: '2026-07-29' }]}
+        selectedDate="2026-07-29"
+        courts={COURTS}
+        selectedCourtIds={['court-1']}
+        events={[]}
+        emptyState={
+          <EmptyState
+            icon="🗓"
+            title="Sem aulas hoje"
+            description="A agenda de hoje está livre. Reservas novas aparecem aqui."
+          />
+        }
+        action={{ label: '+ Nova reserva' }}
+      />
+    </div>
+  ),
 }

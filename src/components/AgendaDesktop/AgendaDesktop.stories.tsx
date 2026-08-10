@@ -128,3 +128,42 @@ export const EmptyDay: Story = {
     <AgendaDesktop rangeLabel="qua, 5 ago" courts={COURTS} events={[]} onNewBooking={() => window.alert('Nova reserva')} />
   ),
 }
+
+/** Frame "04 · Agenda — Admin — Desktop" (81:1109) como AG1DayPage o monta:
+ * toggle Dia|Semana no canto, legenda real do domínio (4 itens), horários
+ * livres clicáveis, uma quadra em manutenção e a linha do "agora". */
+export const AdminDesktop: Story = {
+  render: () => (
+    <AgendaDesktop
+      rangeLabel="Hoje · ter, 28 jul"
+      viewOptions={['Dia', 'Semana']}
+      view="Dia"
+      courts={[...COURTS, { id: 'court-4', label: 'Quadra 4', sport: 'padel', blockedLabel: 'Manutenção até sexta' }]}
+      legend={[
+        { status: 'confirmado', label: 'Confirmado' },
+        { status: 'pendente', label: 'Pendente' },
+        { status: 'particular', label: 'Particular' },
+        { status: 'bloqueio', label: 'Bloqueio' },
+      ]}
+      events={EVENTS_BY_DATE['2026-07-28']!}
+      onSelectEvent={() => {}}
+      onSelectSlot={() => {}}
+      nowMinutes={10 * 60 + 30}
+    />
+  ),
+}
+
+/** Mesma tela para quem só tem leitura na arena (`view_only` da API):
+ * sem "+ Nova reserva" e com as células de horário livre inertes. */
+export const SomenteLeitura: Story = {
+  render: () => (
+    <AgendaDesktop
+      rangeLabel="Hoje · ter, 28 jul"
+      courts={COURTS}
+      events={EVENTS_BY_DATE['2026-07-28']!}
+      onSelectSlot={() => {}}
+      slotsDisabled
+      actionLabel={null}
+    />
+  ),
+}
