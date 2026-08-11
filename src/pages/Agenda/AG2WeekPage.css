@@ -1,0 +1,381 @@
+/* AG2 — Calendário Semana, contra os frames "24 · Agenda Semana — Admin —
+   Mobile" (157:4330) e "24 · Agenda — Semana — Admin — Desktop" (165:4881) do
+   protótipo hb7PA0Xx3L7iHjt9AfHsGK.
+
+   A tela saiu de Agenda.css: o cromo agora é de AgendaMobile/AgendaDesktop e o
+   que resta aqui é o enquadramento da página, a troca mobile/desktop e a GRADE
+   dia x hora, que é markup próprio desta tela (ver o comentário de módulo de
+   AG2WeekPage.tsx sobre a decisão de componente).
+
+   Todo nome leva prefixo `ag2-`: o bundle de CSS é um arquivo único e classe
+   nua de tela colidindo com componente do design system já custou nove
+   incidentes (ver src/test/cssClassCollision.test.ts). Nenhum `.ag2-*` existia
+   em nenhuma outra folha do projeto.
+
+   As DUAS variantes são renderizadas e o CSS esconde uma — mesmo padrão (e
+   mesma justificativa) de AG1DayPage.css/F5MyInvoicesPage: sem `matchMedia` em
+   JS, sem flash de layout na primeira pintura. Ponto de troca
+   BREAKPOINT_SHELL_DESKTOP_MIN (860px, src/lib/breakpoints.ts), o mesmo de
+   AG1. */
+
+.ag2-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.ag2-page__desktop {
+  display: none;
+}
+
+@media (min-width: 860px) {
+  .ag2-page__mobile {
+    display: none;
+  }
+
+  .ag2-page__desktop {
+    display: block;
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Grade dia x hora
+   ---------------------------------------------------------------------------
+   Um só JSX para as duas variantes (ver WeekGrid em AG2WeekPage.tsx): tudo o
+   que muda entre mobile e desktop são as quatro medidas abaixo mais a
+   tipografia. Cada variante redefine só as custom properties.
+
+   Colunas: corredor de horas (largura fixa) + 7 dias iguais. Linhas: header +
+   N linhas de hora, com N vindo de `--ag2-hour-count` (HOURS.length em JS) em
+   vez de um 16 literal aqui — mesma técnica de `repeat(var(...))` de
+   AgendaDesktop.css, e o que impede a grade de divergir de HOURS quando a
+   janela do AC mudar. */
+
+.ag2-week {
+  --ag2-gutter: 56px;
+  --ag2-col-min: 96px;
+  --ag2-head-h: 52px;
+  --ag2-row-h: 52px;
+  width: 100%;
+}
+
+.ag2-week__scroll {
+  width: 100%;
+  background: var(--surface-card);
+  border: 1px solid var(--border-default);
+  /* Raio do cartão: 8px no frame mobile e 12px no desktop; os tokens mais
+     próximos são --radius-sm (10) e --radius-md (14). */
+  border-radius: var(--radius-md);
+  /* Sete colunas legíveis não cabem em qualquer largura: abaixo de
+     `--ag2-col-min` por dia a grade excede a caixa e quem rola é este wrapper,
+     nunca o <body> — mesmo princípio de `.agenda-desktop__grid-wrap`. */
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+.ag2-week__grid {
+  display: grid;
+  grid-template-columns: var(--ag2-gutter) repeat(7, minmax(var(--ag2-col-min), 1fr));
+  grid-template-rows: var(--ag2-head-h) repeat(var(--ag2-hour-count), var(--ag2-row-h));
+  min-width: min-content;
+  position: relative;
+}
+
+.ag2-week__corner {
+  grid-row: 1;
+  grid-column: 1;
+  border-bottom: 1px solid var(--border-default);
+}
+
+/* Cabeçalho de dia: overline do dia da semana + número, centralizados
+   (157:4330 nodes 212:2199/212:2200, 165:4881 node 166:5144). */
+.ag2-week__day-head {
+  grid-row: 1;
+  grid-column: var(--ag2-col);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.ag2-week__day-name {
+  font: var(--type-overline);
+  color: var(--text-muted);
+}
+
+.ag2-week__day-number {
+  font: var(--type-subtitle);
+  color: var(--text-heading);
+}
+
+/* Dia de hoje: os frames pintam overline E número em interactive/primary
+   (165:4881 node 166:5150, "TER 28" em #f96420) em vez de dar fundo à coluna. */
+.ag2-week__day-head[data-today='true'] .ag2-week__day-name,
+.ag2-week__day-head[data-today='true'] .ag2-week__day-number {
+  color: var(--interactive-primary);
+}
+
+.ag2-week__hour {
+  grid-column: 1;
+  grid-row: var(--ag2-row);
+  padding-top: var(--space-2);
+  padding-left: var(--space-3);
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.ag2-week__hour-line {
+  grid-column: 1 / -1;
+  grid-row: var(--ag2-row);
+  align-self: end;
+  border-bottom: 1px solid var(--border-default);
+  /* Ocupa a mesma célula de grade das células clicáveis: sem isto a linha (que
+     é um item de grade de largura total) engoliria o clique da célula. */
+  pointer-events: none;
+}
+
+/* Célula de horário livre. O affordance aparece no hover/focus e não em todas
+   as 112 células de uma vez: os frames desenham UM "+"/"+ Vago" num mock de
+   cinco eventos (169:3180 no desktop, 212:2233 no mobile) — pintar o chip em
+   toda célula vazia viraria um campo de texto de 8px cobrindo a grade inteira.
+   Mesma leitura já registrada em `.agenda-desktop__slot` ("o frame não desenha
+   nada num slot vazio; o affordance é o hover"). O alvo de toque é a célula
+   inteira nos dois casos, e "Livre" está na legenda. */
+.ag2-week__cell {
+  grid-column: var(--ag2-col);
+  grid-row: var(--ag2-row);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--border-default);
+  cursor: pointer;
+}
+
+.ag2-week__cell-affordance {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  /* 4px é o raio do chip/bloco nos dois frames (212:2227, 166:5177). Não há
+     token abaixo de --radius-sm (10px), e 10px num chip de 24px de altura
+     viraria uma pílula — mesmo caso do `6px` literal de
+     `.agenda-desktop__event`. */
+  border-radius: 4px;
+  font: var(--type-label);
+}
+
+.ag2-week__cell:hover .ag2-week__cell-affordance,
+.ag2-week__cell:focus-visible .ag2-week__cell-affordance {
+  display: flex;
+}
+
+.ag2-week__cell:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.ag2-week__cell[aria-disabled='true'] {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* Bloco de reserva. Cor pelo tom herdado de `[data-tone]` — as custom
+   properties `--agenda-tone-*` vêm de AgendaMobile.css/AgendaDesktop.css, que
+   as declaram escopadas por `.agenda-mobile`/`.agenda-desktop`: a grade está
+   dentro de uma das duas, então herda também a alternância de tom de TEXTO
+   entre claro e escuro medida em 0abc631. */
+.ag2-week__booking {
+  grid-column: var(--ag2-col);
+  grid-row: var(--ag2-row-start) / var(--ag2-row-end);
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  min-width: 0;
+  margin: 2px;
+  padding: 2px var(--space-2);
+  border: none;
+  border-radius: 4px;
+  background: var(--agenda-tone-bg);
+  color: var(--agenda-tone-text);
+  text-align: left;
+  overflow: hidden;
+  cursor: pointer;
+  font: inherit;
+}
+
+.ag2-week__booking:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}
+
+.ag2-week__booking-title,
+.ag2-week__booking-subtitle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ag2-week__booking-title {
+  font: var(--type-label);
+}
+
+.ag2-week__booking-subtitle {
+  font: var(--type-small);
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+/* Linha do "agora" (165:4881 node 169:3177): 2px em interactive/primary
+   atravessando os sete dias, com o horário no corredor de horas. Só existe
+   quando a semana exibida contém hoje, e só na variante desktop — o frame
+   mobile (157:4330) não a desenha. `--ag2-now-frac` é a fração da hora (JS),
+   então a linha cai no minuto certo dentro da faixa. */
+.ag2-week__now {
+  grid-column: 1 / -1;
+  grid-row: var(--ag2-row);
+  align-self: start;
+  margin-top: calc(var(--ag2-row-h) * var(--ag2-now-frac));
+  height: 2px;
+  background: var(--interactive-primary);
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Ponto no encontro do corredor com a primeira coluna, como o frame
+   (169:3178). */
+.ag2-week__now::before {
+  content: '';
+  position: absolute;
+  top: -3px;
+  left: calc(var(--ag2-gutter) - 4px);
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--interactive-primary);
+}
+
+/* Horário ABAIXO da linha e alinhado à direita do corredor: o rótulo da faixa
+   ("10h") ocupa o topo da linha de hora, e o "agora" cai no meio dela — os dois
+   no topo se encostavam e o fundo de um cortava o descendente do outro. */
+.ag2-week__now-label {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  width: var(--ag2-gutter);
+  padding-right: var(--space-1);
+  text-align: right;
+  background: var(--surface-card);
+  font: var(--type-overline);
+  color: var(--interactive-primary);
+}
+
+/* ---------------------------------------------------------------------------
+   Variante mobile (157:4330) — corredor de 28px, colunas de 46px, linhas de
+   30px, header de 34px, tipografia reduzida e SEM subtítulo no bloco (o frame
+   mostra só o título no chip de 8px). */
+
+.ag2-week--mobile .ag2-week__scroll {
+  border-radius: var(--radius-sm);
+}
+
+.ag2-week--mobile {
+  --ag2-gutter: 28px;
+  --ag2-col-min: 44px;
+  --ag2-head-h: 34px;
+  --ag2-row-h: 30px;
+}
+
+.ag2-week--mobile .ag2-week__day-name {
+  font: 700 10px/1.2 var(--font-body);
+}
+
+.ag2-week--mobile .ag2-week__day-number {
+  font: 700 13px/1.2 var(--font-body);
+}
+
+.ag2-week--mobile .ag2-week__hour {
+  padding-top: 3px;
+  padding-left: 0;
+  font: 600 10px/1.2 var(--font-body);
+}
+
+.ag2-week--mobile .ag2-week__booking {
+  margin: 3px 2px;
+  padding: 2px 3px;
+  align-items: center;
+  text-align: center;
+}
+
+/* No chip de 46px do frame o título quebra em duas linhas ("BT / Iniciante",
+   node 212:2227). Precisa de `anywhere` além da quebra por palavra: uma palavra
+   sozinha maior que o chip ("Intermediária") não tem onde quebrar e transbordava
+   para fora do bloco. Duas linhas no máximo, como a altura do chip permite —
+   mesmo recorte de `.n1-row-desc`. */
+.ag2-week--mobile .ag2-week__booking-title {
+  font: 700 8px/1.2 var(--font-body);
+  white-space: normal;
+  overflow-wrap: anywhere;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.ag2-week--mobile .ag2-week__booking-subtitle {
+  display: none;
+}
+
+/* Chip cinza "+ Vago" do frame (212:2233): surface/sunken + text/muted. */
+.ag2-week--mobile .ag2-week__cell-affordance {
+  width: calc(100% - 4px);
+  height: calc(100% - 6px);
+  background: var(--surface-sunken);
+  color: var(--text-muted);
+  font: 700 8px/1.2 var(--font-body);
+}
+
+/* ---------------------------------------------------------------------------
+   Variante desktop (165:4881) — "+" tracejado em interactive/primary
+   (169:3180) no lugar do chip cinza. */
+
+.ag2-week--desktop .ag2-week__cell-affordance {
+  width: calc(100% - 8px);
+  height: calc(100% - 12px);
+  border: 1px dashed var(--interactive-primary);
+  color: var(--interactive-primary);
+  font: var(--type-subtitle);
+}
+
+/* ---------------------------------------------------------------------------
+   Rodapé de stats da semana. Não existe em frame nenhum e continua porque são
+   AC desta tela (ver o comentário de módulo de AG2WeekPage.tsx). Desenhado no
+   vocabulário do design system, sem estética nova. */
+
+.ag2-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-5);
+  margin: 0;
+}
+
+.ag2-stats__item {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+}
+
+.ag2-stats dt {
+  font: var(--type-small);
+  color: var(--text-muted);
+}
+
+.ag2-stats dd {
+  margin: 0;
+  font: var(--type-label);
+  color: var(--text-heading);
+}

@@ -37,6 +37,19 @@ import './AgendaDesktop.css'
  * Confirmado/Pendente/Particular/Bloqueio) e as cores de tom saíram do JS
  * para o CSS (`[data-tone]`), porque o tom do TEXTO precisa mudar entre
  * claro e escuro e uma custom property inline não alterna por tema.
+ *
+ * ADAPTAÇÃO 2026-08 (AG2 — Agenda da Semana, frame 165:4881): `children`,
+ * corpo alternativo NO LUGAR da grade hora x quadra — o mesmo escape hatch que
+ * AgendaMobile já tinha. Cabeçalho (título + navegador + toggle Dia|Semana) e
+ * linha de legenda + "+ Nova reserva" são idênticos entre o frame do dia
+ * (81:1109) e o da semana (165:4881); o que muda é só o EIXO da grade (quadras
+ * como colunas contra dias como colunas), e isso é a decisão travada do
+ * dispatch de que AG1 e AG2 são estruturalmente diferentes e nunca uma variação
+ * de props uma da outra. Default (ausente) = a grade de quadras, intocada, para
+ * AG1. O corpo de quem passa `children` fica DENTRO de `.agenda-desktop`, então
+ * herda a paleta de `[data-tone]` desta folha — incluindo a alternância de tom
+ * de texto entre claro e escuro medida em 0abc631, que não é reproduzível fora
+ * do CSS.
  */
 
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/
@@ -138,6 +151,12 @@ export interface AgendaDesktopProps {
   rangeLabel: string
   onPrevDay?: () => void
   onNextDay?: () => void
+  /** Rótulos acessíveis (e `title`) das setas do navegador. Default "Dia
+   * anterior"/"Próximo dia" — o passo da grade de quadras. Quem navega por
+   * outro passo tem que dizer a verdade: a semana de AG2 anda de sete em sete
+   * dias, e "Dia anterior" mentiria para leitor de tela e tooltip. */
+  prevLabel?: string
+  nextLabel?: string
   /** Toggle Dia|Semana do canto superior direito (frame 81:1109). Vazio ou
    * ausente esconde o toggle. */
   viewOptions?: string[]
@@ -172,6 +191,10 @@ export interface AgendaDesktopProps {
   endHour?: number
   /** Altura de 1h na grade, em px. Default 44 (Figma). */
   hourHeightPx?: number
+  /** Corpo alternativo NO LUGAR da grade hora x quadra — mantém cabeçalho,
+   * navegador, toggle e a linha de legenda + ação, e troca só o miolo. Ausente
+   * = a grade de quadras. Ver o bloco "ADAPTAÇÃO 2026-08 (AG2)" acima. */
+  children?: ReactNode
 }
 
 export function AgendaDesktop({
@@ -179,6 +202,8 @@ export function AgendaDesktop({
   rangeLabel,
   onPrevDay,
   onNextDay,
+  prevLabel = 'Dia anterior',
+  nextLabel = 'Próximo dia',
   viewOptions,
   view,
   onViewChange,
@@ -195,6 +220,7 @@ export function AgendaDesktop({
   startHour = 6,
   endHour = 19,
   hourHeightPx = 44,
+  children,
 }: AgendaDesktopProps) {
   const hours = hoursInRange(startHour, endHour)
 
@@ -214,11 +240,11 @@ export function AgendaDesktop({
       <div className="agenda-desktop__header-row">
         <h1 className="agenda-desktop__title">{title}</h1>
         <div className="agenda-desktop__date-nav">
-          <IconButton variant="secondary" size="sm" label="Dia anterior" onClick={onPrevDay}>
+          <IconButton variant="secondary" size="sm" label={prevLabel} onClick={onPrevDay}>
             ‹
           </IconButton>
           <span className="agenda-desktop__range">{rangeLabel}</span>
-          <IconButton variant="secondary" size="sm" label="Próximo dia" onClick={onNextDay}>
+          <IconButton variant="secondary" size="sm" label={nextLabel} onClick={onNextDay}>
             ›
           </IconButton>
         </div>
@@ -249,134 +275,138 @@ export function AgendaDesktop({
         ) : null}
       </div>
 
-      <div className="agenda-desktop__grid-wrap">
-        <div className="agenda-desktop__grid" style={gridStyle} role="group" aria-label="Grade de horários por quadra">
-          <div className="agenda-desktop__corner" aria-hidden="true" />
+      {children ? (
+        <div className="agenda-desktop__body">{children}</div>
+      ) : (
+        <div className="agenda-desktop__grid-wrap">
+          <div className="agenda-desktop__grid" style={gridStyle} role="group" aria-label="Grade de horários por quadra">
+            <div className="agenda-desktop__corner" aria-hidden="true" />
 
-          {courts.map((court) => {
-            const dotStyle = { '--agenda-desktop-court-color': `var(${sportCssVar(court.sport)})` } as CSSProperties
-            return (
-              <div className="agenda-desktop__court-header" style={dotStyle} key={court.id}>
-                <span className="agenda-desktop__court-header-top">
-                  <span className="agenda-desktop__court-dot" aria-hidden="true" />
-                  <span className="agenda-desktop__court-name">{court.label}</span>
+            {courts.map((court) => {
+              const dotStyle = { '--agenda-desktop-court-color': `var(${sportCssVar(court.sport)})` } as CSSProperties
+              return (
+                <div className="agenda-desktop__court-header" style={dotStyle} key={court.id}>
+                  <span className="agenda-desktop__court-header-top">
+                    <span className="agenda-desktop__court-dot" aria-hidden="true" />
+                    <span className="agenda-desktop__court-name">{court.label}</span>
+                  </span>
+                  <span className="agenda-desktop__court-sport">
+                    {court.blockedLabel ? 'Manutenção' : sportLabel(court.sport)}
+                  </span>
+                </div>
+              )
+            })}
+
+            {hours.map((hour, index) => {
+              const rowStyle = { '--agenda-desktop-row': `${index + 2}` } as CSSProperties
+              return (
+                <span className="agenda-desktop__hour-label" style={rowStyle} key={`label-${hour}`}>
+                  {formatHourLabel(hour)}
                 </span>
-                <span className="agenda-desktop__court-sport">
-                  {court.blockedLabel ? 'Manutenção' : sportLabel(court.sport)}
-                </span>
-              </div>
-            )
-          })}
+              )
+            })}
+            {hours.map((hour, index) => {
+              const lineStyle = { '--agenda-desktop-row': `${index + 2}` } as CSSProperties
+              return <div className="agenda-desktop__hour-line" style={lineStyle} aria-hidden="true" key={`line-${hour}`} />
+            })}
 
-          {hours.map((hour, index) => {
-            const rowStyle = { '--agenda-desktop-row': `${index + 2}` } as CSSProperties
-            return (
-              <span className="agenda-desktop__hour-label" style={rowStyle} key={`label-${hour}`}>
-                {formatHourLabel(hour)}
-              </span>
-            )
-          })}
-          {hours.map((hour, index) => {
-            const lineStyle = { '--agenda-desktop-row': `${index + 2}` } as CSSProperties
-            return <div className="agenda-desktop__hour-line" style={lineStyle} aria-hidden="true" key={`line-${hour}`} />
-          })}
-
-          {courts.map((court, columnIndex) => {
-            const columnStyle = { '--agenda-desktop-col': `${columnIndex + 2}` } as CSSProperties
-            const courtEvents = events.filter((event) => event.courtId === court.id)
-            const busyHours = new Set(
-              courtEvents.flatMap((event) => {
-                const start = parseHM(event.start)
-                const end = parseHM(event.end)
-                if (start === null || end === null) return []
-                return hours.filter((hour) => start < (hour + 1) * 60 && end > hour * 60)
-              }),
-            )
-            return (
-              <div className="agenda-desktop__column" style={columnStyle} key={court.id}>
-                {court.blockedLabel ? (
-                  <div className="agenda-desktop__blocked">
-                    <span>{court.blockedLabel}</span>
-                  </div>
-                ) : (
-                  onSelectSlot &&
-                  hours
-                    .filter((hour) => !busyHours.has(hour))
-                    .map((hour) => {
-                      const slotStyle = {
-                        '--agenda-desktop-event-top': `${(hour - startHour) * hourHeightPx}px`,
-                        '--agenda-desktop-event-h': `${hourHeightPx}px`,
-                      } as CSSProperties
-                      return (
-                        <div
-                          key={`slot-${hour}`}
-                          className="agenda-desktop__slot"
-                          style={slotStyle}
-                          role="button"
-                          tabIndex={slotsDisabled ? -1 : 0}
-                          aria-label={`Horário livre ${court.label} ${formatHourLabel(hour)}`}
-                          aria-disabled={slotsDisabled}
-                          onClick={() => {
-                            if (!slotsDisabled) onSelectSlot(court.id, hour)
-                          }}
-                        />
-                      )
-                    })
-                )}
-
-                {courtEvents.map((event) => {
-                  const layout = computeEventLayout(event, startHour, endHour, hourHeightPx)
-                  if (!layout) return null
-                  const eventStyle = {
-                    '--agenda-desktop-event-top': `${layout.top}px`,
-                    '--agenda-desktop-event-h': `${layout.height}px`,
-                  } as CSSProperties
-                  const content = (
-                    <>
-                      <span className="agenda-desktop__event-stripe" aria-hidden="true" />
-                      <span className="agenda-desktop__event-title">{event.title}</span>
-                      {event.subtitle ? (
-                        <span className="agenda-desktop__event-subtitle">{event.subtitle}</span>
-                      ) : null}
-                    </>
-                  )
-                  return onSelectEvent ? (
-                    <button
-                      type="button"
-                      key={event.id}
-                      className="agenda-desktop__event"
-                      data-tone={event.status}
-                      style={eventStyle}
-                      data-testid={`agenda-desktop-event-${event.id}`}
-                      onClick={() => onSelectEvent(event.id)}
-                    >
-                      {content}
-                    </button>
-                  ) : (
-                    <div
-                      key={event.id}
-                      className="agenda-desktop__event"
-                      data-tone={event.status}
-                      style={eventStyle}
-                      data-testid={`agenda-desktop-event-${event.id}`}
-                    >
-                      {content}
+            {courts.map((court, columnIndex) => {
+              const columnStyle = { '--agenda-desktop-col': `${columnIndex + 2}` } as CSSProperties
+              const courtEvents = events.filter((event) => event.courtId === court.id)
+              const busyHours = new Set(
+                courtEvents.flatMap((event) => {
+                  const start = parseHM(event.start)
+                  const end = parseHM(event.end)
+                  if (start === null || end === null) return []
+                  return hours.filter((hour) => start < (hour + 1) * 60 && end > hour * 60)
+                }),
+              )
+              return (
+                <div className="agenda-desktop__column" style={columnStyle} key={court.id}>
+                  {court.blockedLabel ? (
+                    <div className="agenda-desktop__blocked">
+                      <span>{court.blockedLabel}</span>
                     </div>
-                  )
-                })}
-              </div>
-            )
-          })}
+                  ) : (
+                    onSelectSlot &&
+                    hours
+                      .filter((hour) => !busyHours.has(hour))
+                      .map((hour) => {
+                        const slotStyle = {
+                          '--agenda-desktop-event-top': `${(hour - startHour) * hourHeightPx}px`,
+                          '--agenda-desktop-event-h': `${hourHeightPx}px`,
+                        } as CSSProperties
+                        return (
+                          <div
+                            key={`slot-${hour}`}
+                            className="agenda-desktop__slot"
+                            style={slotStyle}
+                            role="button"
+                            tabIndex={slotsDisabled ? -1 : 0}
+                            aria-label={`Horário livre ${court.label} ${formatHourLabel(hour)}`}
+                            aria-disabled={slotsDisabled}
+                            onClick={() => {
+                              if (!slotsDisabled) onSelectSlot(court.id, hour)
+                            }}
+                          />
+                        )
+                      })
+                  )}
 
-          {nowTop !== null ? (
-            <div
-              className="agenda-desktop__now-line"
-              style={{ '--agenda-desktop-now-top': `${nowTop}px` } as CSSProperties}
-              aria-hidden="true"
-            />
-          ) : null}
+                  {courtEvents.map((event) => {
+                    const layout = computeEventLayout(event, startHour, endHour, hourHeightPx)
+                    if (!layout) return null
+                    const eventStyle = {
+                      '--agenda-desktop-event-top': `${layout.top}px`,
+                      '--agenda-desktop-event-h': `${layout.height}px`,
+                    } as CSSProperties
+                    const content = (
+                      <>
+                        <span className="agenda-desktop__event-stripe" aria-hidden="true" />
+                        <span className="agenda-desktop__event-title">{event.title}</span>
+                        {event.subtitle ? (
+                          <span className="agenda-desktop__event-subtitle">{event.subtitle}</span>
+                        ) : null}
+                      </>
+                    )
+                    return onSelectEvent ? (
+                      <button
+                        type="button"
+                        key={event.id}
+                        className="agenda-desktop__event"
+                        data-tone={event.status}
+                        style={eventStyle}
+                        data-testid={`agenda-desktop-event-${event.id}`}
+                        onClick={() => onSelectEvent(event.id)}
+                      >
+                        {content}
+                      </button>
+                    ) : (
+                      <div
+                        key={event.id}
+                        className="agenda-desktop__event"
+                        data-tone={event.status}
+                        style={eventStyle}
+                        data-testid={`agenda-desktop-event-${event.id}`}
+                      >
+                        {content}
+                      </div>
+                    )
+                  })}
+                </div>
+              )
+            })}
+
+            {nowTop !== null ? (
+              <div
+                className="agenda-desktop__now-line"
+                style={{ '--agenda-desktop-now-top': `${nowTop}px` } as CSSProperties}
+                aria-hidden="true"
+              />
+            ) : null}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

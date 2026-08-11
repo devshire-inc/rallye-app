@@ -31,27 +31,6 @@ export function gridRowForInstant(iso: string): number {
   return 2 + (hour - GRID_START_HOUR)
 }
 
-/**
- * Classe de cor do bloco `.booking` — AC "coloridos por status (verde=
- * confirmado, âmbar=pendente, azul=particular, vermelho=bloqueio)". Decisão
- * desta implementação (ver relatório de dispatch): `public.bookings.status`
- * (migrations/000034) só modela confirmed/cancelled — NÃO existe um status
- * "pendente" no schema real (o protótipo usa isso para simular "aguardando
- * pagamento" de uma locação avulsa, conceito financeiro não modelado ainda).
- * Por isso a cor é decidida por TYPE, não por um status inexistente:
- * block -> vermelho, private -> azul, os demais confirmados -> verde. A
- * classe `bk-pend`/rótulo "Pendente" continua na legenda (cópia fiel do AC),
- * mas fica sem dado real que a acione até uma feature futura modelar status
- * de pagamento — ver comentário do relatório final.
- */
-export type BookingColorClass = 'bk-conf' | 'bk-pend' | 'bk-part' | 'bk-block'
-
-export function bookingColorClass(booking: Pick<Booking, 'type'>): BookingColorClass {
-  if (booking.type === 'block') return 'bk-block'
-  if (booking.type === 'private') return 'bk-part'
-  return 'bk-conf'
-}
-
 /** Rótulo curto de tipo em PT-BR, usado no card e no detalhe (AG5). */
 export function bookingTypeLabel(type: Booking['type']): string {
   switch (type) {
@@ -99,20 +78,9 @@ export function bookingSubtitle(booking: Booking, withArena: boolean): string {
   return [withArena ? booking.unitName : null, booking.courtName, who].filter(Boolean).join(' · ')
 }
 
-/** Legenda fixa de AG1/AG2 — AC "legenda com 4 itens + Livre — toque para
- * reservar" (cópia exata do rótulo do último item). `colorClass` casa com as
- * classes `.sq-*` de Agenda.css (mesma paleta de `.booking.bk-*`). */
-export const LEGEND_ITEMS: { colorClass: string; label: string }[] = [
-  { colorClass: 'sq-conf', label: 'Confirmado' },
-  { colorClass: 'sq-pend', label: 'Pendente' },
-  { colorClass: 'sq-part', label: 'Particular' },
-  { colorClass: 'sq-block', label: 'Bloqueio' },
-]
-
-/** Mesma legenda, no vocabulário de "tom de status" que AgendaMobile/
- * AgendaDesktop consomem (`data-tone`) — os rótulos são os MESMOS de
- * LEGEND_ITEMS, que continua servindo AG2 (grade de semana com as classes
- * `.sq-*`). */
+/** Legenda de status no vocabulário de "tom" que AgendaMobile/AgendaDesktop
+ * consomem (`data-tone`). É a legenda do AC de AG1 ("4 itens"), preservada
+ * como está para não mudar a aparência da tela do dia. */
 export type BookingTone = 'confirmado' | 'pendente' | 'particular' | 'bloqueio'
 
 export const LEGEND_TONE_ITEMS: { status: BookingTone; label: string }[] = [
@@ -122,9 +90,33 @@ export const LEGEND_TONE_ITEMS: { status: BookingTone; label: string }[] = [
   { status: 'bloqueio', label: 'Bloqueio' },
 ]
 
-/** Tom de status de uma reserva — mesma decisão de bookingColorClass
- * (cor por TYPE, porque `public.bookings.status` não modela "pendente"),
- * só que no vocabulário dos componentes de agenda. */
+/**
+ * Legenda da SEMANA (AG2) — Confirmado/Particular/Bloqueio/Livre, exatamente
+ * os quatro itens dos frames 157:4330 e 165:4881, que é também o default do
+ * pattern em AgendaDesktop.
+ *
+ * Duas diferenças em relação a LEGEND_TONE_ITEMS, as duas vindas do frame e as
+ * duas removendo uma imprecisão em vez de criando uma:
+ *
+ * - SAI "Pendente": `bookingTone` nunca devolve 'pendente', porque
+ *   `public.bookings.status` (migrations/000034) só modela confirmed/cancelled
+ *   e não existe status de pagamento no schema. Era um item de legenda que
+ *   nenhum dado real podia acender.
+ * - ENTRA "Livre": na grade de semana a célula vazia é clicável e é a maior
+ *   parte da grade; ela precisa aparecer na legenda.
+ */
+export const WEEK_LEGEND_TONE_ITEMS: { status: BookingTone | 'livre'; label: string }[] = [
+  { status: 'confirmado', label: 'Confirmado' },
+  { status: 'particular', label: 'Particular' },
+  { status: 'bloqueio', label: 'Bloqueio' },
+  { status: 'livre', label: 'Livre' },
+]
+
+/** Tom de status de uma reserva. A cor sai do TYPE e não do status porque
+ * `public.bookings.status` (migrations/000034) só modela confirmed/cancelled —
+ * não existe "pendente" no schema real (o protótipo usa esse tom para simular
+ * "aguardando pagamento" de uma avulsa, conceito financeiro ainda não
+ * modelado). block -> bloqueio, private -> particular, o resto -> confirmado. */
 export function bookingTone(booking: Pick<Booking, 'type'>): BookingTone {
   if (booking.type === 'block') return 'bloqueio'
   if (booking.type === 'private') return 'particular'
@@ -139,9 +131,9 @@ export function formatHM(iso: string): string {
 }
 
 /** Os 7 dias da semana que contém `date`, começando no DOMINGO — é a
- * convenção da weekStrip dos frames de Agenda (DOM..SÁB), diferente da
- * semana Seg-Dom de weekWindow/AG2 (que é a janela de BUSCA da grade de
- * semana, não uma tira de navegação). */
+ * convenção de TODOS os frames de Agenda (DOM..SÁB): a weekStrip de AG1/AG4 e
+ * as colunas da grade de semana de AG2. Diferente da semana Seg-Dom de
+ * `weekWindow`, que é só a janela de busca da aba "Semana" de AG4. */
 export function weekDaysSunday(date: Date): Date[] {
   const sunday = new Date(date.getFullYear(), date.getMonth(), date.getDate() - date.getDay())
   return Array.from({ length: 7 }, (_, i) => {
@@ -163,14 +155,13 @@ export function formatShortRange(from: Date, to: Date): string {
   return `${from.getDate()} ${MONTH_SHORT[from.getMonth()]} – ${to.getDate()} ${MONTH_SHORT[to.getMonth()]}`
 }
 
-/** Alturas fixas de linha do grid de AG1 (px) — usadas tanto pelo CSS
- * (Agenda.css `.cal-grid`) quanto pelo cálculo JS da posição da `.now-line`,
- * para os dois nunca divergirem. */
-export const ROW_HEADER_PX = 40
-export const ROW_HOUR_PX = 48
-
+/** "6h", "13h" — rótulo de linha de hora da grade de semana (AG2), no mesmo
+ * formato que os frames desenham (157:4330 node 212:2214, 165:4881 node
+ * 165:4955) e que `formatHourLabel` de AgendaMobile/AgendaDesktop já produz nas
+ * timelines do dia. Era "06h" com zero à esquerda, que não aparece em frame
+ * nenhum. */
 export function formatHour(hour: number): string {
-  return `${String(hour).padStart(2, '0')}h`
+  return `${hour}h`
 }
 
 export function courtSportCssVar(court: Pick<Court, 'sport'>): string {
@@ -222,9 +213,9 @@ export function dayWindow(date: Date): { from: string; to: string } {
 }
 
 /** Segunda-feira (00:00 local) da semana que contém `date`, e o domingo
- * seguinte (00:00, exclusivo) — janela de AG2 ("1 quadra por vez... dias da
- * semana como colunas"). `getDay()` 0=domingo..6=sábado; a semana do
- * protótipo começa na segunda. */
+ * seguinte (00:00, exclusivo) — janela da aba "Semana" de AG4. `getDay()`
+ * 0=domingo..6=sábado. Para a grade de semana de AG2, que desenha colunas
+ * dom-sáb como os frames, ver `weekWindowSunday`. */
 export function weekWindow(date: Date): { from: string; to: string; monday: Date } {
   const dow = date.getDay()
   const diffToMonday = dow === 0 ? -6 : 1 - dow
@@ -234,15 +225,23 @@ export function weekWindow(date: Date): { from: string; to: string; monday: Date
   return { from: monday.toISOString(), to: sundayEnd.toISOString(), monday }
 }
 
-/** "7 – 13 de julho" — dlabel de AG2. */
-export function formatWeekLabel(monday: Date): string {
-  const sunday = new Date(monday)
-  sunday.setDate(sunday.getDate() + 6)
-  const monthName = [
-    'janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho',
-    'agosto', 'setembro', 'outubro', 'novembro', 'dezembro',
-  ][sunday.getMonth()]
-  return `${monday.getDate()} – ${sunday.getDate()} de ${monthName}`
+/**
+ * Janela de busca da grade de semana de AG2: domingo (00:00 local) a domingo
+ * seguinte (00:00, exclusivo) — a MESMA semana que `weekDaysSunday` desenha
+ * como colunas.
+ *
+ * Domingo, e não segunda como `weekWindow`: os dois frames da semana
+ * (157:4330, 165:4881) desenham "DOM 26 … SÁB 1" e rotulam a faixa
+ * "26 jul – 1 ago". Janela e colunas têm que ser a mesma semana — buscar
+ * seg-dom e desenhar dom-sáb daria dois dias de coluna sem dado e um dia de
+ * dado sem coluna. `weekWindow` (seg-dom) continua servindo AG4, cuja aba
+ * "Semana" agrupa por dia e não por coluna. */
+export function weekWindowSunday(date: Date): { from: string; to: string; sunday: Date } {
+  const days = weekDaysSunday(date)
+  const sunday = days[0]!
+  const nextSunday = new Date(sunday)
+  nextSunday.setDate(nextSunday.getDate() + 7)
+  return { from: sunday.toISOString(), to: nextSunday.toISOString(), sunday }
 }
 
 export const WEEKDAY_SHORT_LABELS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']

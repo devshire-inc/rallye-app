@@ -1,32 +1,28 @@
-/* AG1/AG2/AG3/AG5 — Agenda (BEAC-1903/1904/1905/1926, story BEAC-1704).
- * Classes copiadas do protótipo real (Artifact "Rallye — Agenda",
- * tool-results/artifact-*.html, scr-ag1/scr-ag2/scr-ag3 lidos integralmente
- * antes de implementar) — self-contained, mesmo padrão de
- * StudentProfilePage.css (não assume que outra página já carregou o CSS
- * equivalente). Compartilhado entre as 4 telas de propósito: são as MESMAS
- * classes reais do protótipo em telas irmãs (ag-head/date-nav/seg2/dgroup/
- * ag-list/ag-row aparecem identicamente em scr-ag1/ag2/ag3) — isso não
- * contradiz a decisão travada "AG1 e AG2 são componentes JSX separados", que
- * é sobre estrutura de COMPONENTE, não sobre reuso de folha de estilo (mesmo
- * espírito de AuthLayout.css, já compartilhado por várias páginas não
- * relacionadas).
+/* AG3/AG5/Check-in — Agenda (BEAC-1905/1926, story BEAC-1704). Classes
+ * copiadas do protótipo real (Artifact "Rallye — Agenda",
+ * tool-results/artifact-*.html, scr-ag3 lido integralmente antes de
+ * implementar) — self-contained, mesmo padrão de StudentProfilePage.css (não
+ * assume que outra página já carregou o CSS equivalente).
  *
- * AG1 SAIU desta folha em 2026-08 (reskin): o Calendário Dia passou a ser
- * composto por AgendaMobile/AgendaDesktop e não importa mais Agenda.css.
- * As regras que só AG1 usava (`.cal-grid`, `.col-blocked`, `.now-line`,
- * `.ag-search`) foram removidas junto — o que ficou é o que AG2/AG3/AG4/AG5
- * ainda consomem (grep conferido antes de apagar). */
+ * AG1 SAIU desta folha em 2026-08 (reskin, 0abc631) e AG2 SAIU em 2026-08
+ * (reskin da Agenda da Semana): as duas passaram a ser compostas por
+ * AgendaMobile/AgendaDesktop e têm folha própria (AG1DayPage.css,
+ * AG2WeekPage.css). As regras que só elas usavam saíram junto.
+ *
+ * Critério da remoção (não foi a olho): uma regra saiu quando NENHUMA classe do
+ * seu seletor aparece em atributo `className` de nenhum `.tsx` do projeto, e o
+ * bundle de produção foi remontado depois para confirmar que nenhum valor
+ * efetivo de CSS mudou em nenhum seletor. Saíram assim `.ag-head`, `.date-nav`,
+ * `.dlabel`, `.seg2`, `.legend`, `.sq*`, `.cal-wrap`, `.week-grid`, `.head*`,
+ * `.cq`, `.hr`, `.cal-cell*`, `.booking*`, `.bk-*`, `.bmeta`, `.fab`,
+ * `.wk-stats*` e `.linkbtn`.
+ *
+ * FICARAM `.iconbtn` e `.dot`, que parecem de agenda e não são: `.iconbtn` é
+ * consumida por TournamentViewPage e `.dot` pelo AppShell. São classes nuas
+ * declaradas também por outras folhas do bundle, então tirá-las daqui mexeria
+ * na cascata de telas sem relação com esta — mesma decisão registrada no
+ * cabeçalho de BracketPage.css. */
 
-.ag-head {
-  display: flex;
-  align-items: center;
-  gap: var(--space-3);
-  padding: var(--space-4) var(--space-6);
-  flex-wrap: wrap;
-}
-.ag-head .spacer {
-  flex: 1;
-}
 .iconbtn {
   width: 32px;
   height: 32px;
@@ -40,204 +36,12 @@
   cursor: pointer;
   font-size: 15px;
 }
-.date-nav {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.dlabel {
-  font-weight: 600;
-  font-size: 13.5px;
-  min-width: 140px;
-  text-align: center;
-}
-.seg2 {
-  display: inline-flex;
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--border-default);
-  overflow: hidden;
-}
-.seg2 button {
-  border: none;
-  background: var(--surface-card);
-  color: var(--text-muted);
-  font-weight: 600;
-  font-size: 12.5px;
-  padding: 8px 14px;
-  cursor: pointer;
-}
-.seg2 button.active {
-  background: var(--interactive-primary);
-  color: var(--text-on-brand);
-}
-.legend {
-  display: flex;
-  gap: var(--space-4);
-  flex-wrap: wrap;
-  padding: 0 var(--space-6) var(--space-3);
-  font-size: 11.5px;
-  color: var(--text-muted);
-  align-items: center;
-}
-.legend span {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
-.sq {
-  width: 11px;
-  height: 11px;
-  border-radius: 3px;
-  display: inline-block;
-  border: 1px solid transparent;
-}
-.sq-conf {
-  background: color-mix(in srgb, var(--state-success) 25%, var(--surface-card));
-  border-color: var(--state-success);
-}
-.sq-pend {
-  background: color-mix(in srgb, var(--state-warning) 25%, var(--surface-card));
-  border-color: var(--state-warning);
-}
-.sq-part {
-  background: color-mix(in srgb, var(--interactive-primary) 25%, var(--surface-card));
-  border-color: var(--interactive-primary);
-}
-.sq-block {
-  background: color-mix(in srgb, var(--state-danger) 25%, var(--surface-card));
-  border-color: var(--state-danger);
-}
-.sq-free {
-  border: 1px dashed var(--border-default);
-}
 
-.cal-wrap {
-  padding: 0 var(--space-6) var(--space-6);
-  overflow-x: auto;
-}
-
-.week-grid {
-  display: grid;
-  position: relative;
-  grid-template-rows: 40px repeat(16, 48px);
-  min-width: 640px;
-  border-top: 1px solid var(--border-default);
-  border-left: 1px solid var(--border-default);
-}
-.head {
-  border-right: 1px solid var(--border-default);
-  border-bottom: 1px solid var(--border-default);
-  padding: 6px 8px;
-  font-size: 12px;
-  font-weight: 600;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-.head.today {
-  background: color-mix(in srgb, var(--interactive-primary) 14%, var(--surface-card));
-}
-.head small {
-  font-weight: 400;
-  color: var(--text-muted);
-  font-size: 10.5px;
-}
-.cq {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-}
 .dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
   display: inline-block;
-}
-.hr {
-  border-right: 1px solid var(--border-default);
-  border-bottom: 1px solid var(--border-default);
-  font-size: 10.5px;
-  color: var(--text-muted);
-  padding: 4px 6px;
-  display: flex;
-  align-items: flex-start;
-}
-.cal-cell {
-  border-right: 1px solid var(--border-default);
-  border-bottom: 1px solid var(--border-default);
-  cursor: pointer;
-}
-.cal-cell:hover {
-  background: color-mix(in srgb, var(--interactive-primary) 10%, transparent);
-}
-.cal-cell[aria-disabled='true'] {
-  cursor: default;
-  pointer-events: none;
-}
-
-.booking {
-  margin: 1px;
-  border-radius: 6px;
-  padding: 4px 6px;
-  font-size: 11px;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  cursor: pointer;
-  overflow: hidden;
-  border: 1px solid transparent;
-}
-.booking b {
-  font-size: 11.5px;
-  line-height: 1.2;
-}
-.bmeta {
-  color: var(--text-muted);
-  font-size: 10px;
-}
-.booking.bk-conf {
-  background: color-mix(in srgb, var(--state-success) 18%, var(--surface-card));
-  border-color: var(--state-success);
-}
-.booking.bk-pend {
-  background: color-mix(in srgb, var(--state-warning) 18%, var(--surface-card));
-  border-color: var(--state-warning);
-}
-.booking.bk-part {
-  background: color-mix(in srgb, var(--interactive-primary) 18%, var(--surface-card));
-  border-color: var(--interactive-primary);
-}
-.booking.bk-block {
-  background: color-mix(in srgb, var(--state-danger) 18%, var(--surface-card));
-  border-color: var(--state-danger);
-}
-
-.fab {
-  position: fixed;
-  right: 20px;
-  bottom: 84px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: none;
-  background: var(--interactive-primary);
-  color: var(--text-on-brand);
-  font-size: 24px;
-  cursor: pointer;
-  box-shadow: var(--shadow-raised);
-  z-index: 20;
-}
-
-.wk-stats {
-  display: flex;
-  gap: var(--space-5);
-  flex-wrap: wrap;
-  padding: 0 var(--space-6) var(--space-6);
-  font-size: 12.5px;
-  color: var(--text-muted);
-}
-.wk-stats b {
-  color: var(--text-heading);
 }
 
 /* ---------- AG3 — Minha agenda ---------- */
@@ -293,13 +97,4 @@
   align-items: flex-end;
   gap: 4px;
   font-size: 11.5px;
-}
-.linkbtn {
-  background: none;
-  border: none;
-  color: var(--interactive-primary);
-  font-weight: 600;
-  font-size: 12px;
-  cursor: pointer;
-  padding: 0;
 }

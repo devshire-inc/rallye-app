@@ -16,6 +16,19 @@ const courts: courtsApi.Court[] = [
   { id: 'court-3', unitId: 'unit-1', name: 'Q3', sport: 'beach_tennis', status: 'maintenance' },
 ]
 
+/** Uma hora cheia de HOJE dentro da janela da grade (GRID_START_HOUR 6 /
+ * GRID_END_HOUR 22) — mesmo helper de AG4TeacherAgendaPage.test.tsx. Um
+ * booking em `new Date()` cru só cai dentro da grade se a máquina estiver
+ * rodando entre 06h e 22h no fuso dos testes (America/Sao_Paulo, ver
+ * vite.config.ts): `computeEventLayout` devolve null fora da janela e o bloco
+ * simplesmente não é renderizado, então o teste reprovava de madrugada e
+ * passava de dia. */
+function todayAt(hour: number, minute = 0): Date {
+  const d = new Date()
+  d.setHours(hour, minute, 0, 0)
+  return d
+}
+
 function mockCourts() {
   vi.spyOn(courtsApi, 'listCourts').mockResolvedValue({ ok: true, courts })
 }
@@ -153,8 +166,8 @@ describe('AG1DayPage', () => {
           type: 'class_occurrence',
           classId: 'c1',
           className: 'BT iniciante',
-          startAt: new Date().toISOString(),
-          endAt: new Date(Date.now() + 3600_000).toISOString(),
+          startAt: todayAt(9).toISOString(),
+          endAt: todayAt(10).toISOString(),
           status: 'confirmed',
           teacherName: 'Marcus Lima',
           studentName: null,

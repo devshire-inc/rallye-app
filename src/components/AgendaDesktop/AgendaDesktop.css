@@ -131,6 +131,17 @@
   flex: 1 0 0;
 }
 
+/* Corpo alternativo de quem passa `children` no lugar da grade (AG2 — Agenda
+   da Semana). Só o empilhamento; o conteúdo é de quem passou. Classe nova, sem
+   consumidor anterior: AG1DayPage não renderiza este nó. */
+.agenda-desktop__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  width: 100%;
+  min-width: 0;
+}
+
 /* gridWrap — cartão com a grade horário x quadra. */
 .agenda-desktop__grid-wrap {
   width: 100%;

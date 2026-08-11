@@ -63,6 +63,16 @@ import './AgendaMobile.css'
  *   já tem um componente-botão auto-contido (TeacherBlockRequestButton);
  * - `filterLabel` — rótulo acessível da filterRow, porque em AG4 os chips
  *   filtram ARENA e não quadra quando o professor dá aula em mais de uma.
+ *
+ * ADAPTAÇÃO 2026-08 (AG2 — Agenda da Semana, frame 157:4330). Uma prop nova,
+ * opcional, com default = comportamento atual:
+ *
+ * - `showWeekStrip` — a tira de dias é o navegador de DIA de uma agenda de um
+ *   dia. Na visão de semana o próprio corpo já é a semana inteira, com os sete
+ *   dias como colunas e o cabeçalho "DOM 26 / SEG 27 / …" dentro da grade
+ *   (frame 157:4330, node 212:2199+): a tira acima repetiria os mesmos sete
+ *   dias e ofereceria uma seleção de dia que a tela não tem. Default `true` =
+ *   tira presente, como em AG1/AG4, que não passam a prop.
  */
 
 const WEEKDAY_OVERLINE = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SÁB']
@@ -318,12 +328,18 @@ export interface AgendaMobileProps {
    * campo de busca no design. */
   headerExtra?: ReactNode
   /** "26 jul – 1 ago" — já formatado pelo chamador (ex.: via
-   * formatWeekLabel de pages/Agenda/agendaShared.ts). */
+   * formatShortRange de pages/Agenda/agendaShared.ts). */
   rangeLabel: string
   onPrevWeek?: () => void
   onNextWeek?: () => void
   /** Dias exibidos na weekStrip, na ordem em que devem aparecer. */
   days: AgendaMobileDay[]
+  /** Mostra a tira de dias entre o navegador de semana e os filtros. Default
+   * `true` (o desenho de AG1/AG4). `false` para uma visão cujo CORPO já é a
+   * semana inteira — ver o bloco "ADAPTAÇÃO 2026-08 (AG2)" acima. `days`
+   * continua obrigatória: é ela que define a janela que `rangeLabel` descreve,
+   * mesmo quando a tira não é desenhada. */
+  showWeekStrip?: boolean
   /** "YYYY-MM-DD" do dia selecionado. */
   selectedDate: string
   onSelectDate?: (date: string) => void
@@ -387,6 +403,7 @@ export function AgendaMobile({
   onPrevWeek,
   onNextWeek,
   days,
+  showWeekStrip = true,
   selectedDate,
   onSelectDate,
   courts,
@@ -440,29 +457,31 @@ export function AgendaMobile({
         </IconButton>
       </div>
 
-      <div className="agenda-mobile__week-strip" role="tablist" aria-label="Dias da semana">
-        {days.map((day) => {
-          const date = parseISODate(day.date)
-          const isSelected = day.date === selectedDate
-          return (
-            <button
-              type="button"
-              key={day.date}
-              role="tab"
-              aria-selected={isSelected}
-              className={`agenda-mobile__day${isSelected ? ' agenda-mobile__day--selected' : ''}`}
-              onClick={() => onSelectDate?.(day.date)}
-            >
-              <span className="agenda-mobile__day-label">{weekdayOverline(date)}</span>
-              <span className="agenda-mobile__day-number">{date.getDate()}</span>
-              <span
-                className={`agenda-mobile__day-dot${day.hasEvents ? ' agenda-mobile__day-dot--active' : ''}`}
-                aria-hidden="true"
-              />
-            </button>
-          )
-        })}
-      </div>
+      {showWeekStrip ? (
+        <div className="agenda-mobile__week-strip" role="tablist" aria-label="Dias da semana">
+          {days.map((day) => {
+            const date = parseISODate(day.date)
+            const isSelected = day.date === selectedDate
+            return (
+              <button
+                type="button"
+                key={day.date}
+                role="tab"
+                aria-selected={isSelected}
+                className={`agenda-mobile__day${isSelected ? ' agenda-mobile__day--selected' : ''}`}
+                onClick={() => onSelectDate?.(day.date)}
+              >
+                <span className="agenda-mobile__day-label">{weekdayOverline(date)}</span>
+                <span className="agenda-mobile__day-number">{date.getDate()}</span>
+                <span
+                  className={`agenda-mobile__day-dot${day.hasEvents ? ' agenda-mobile__day-dot--active' : ''}`}
+                  aria-hidden="true"
+                />
+              </button>
+            )
+          })}
+        </div>
+      ) : null}
 
       {courts.length > 0 ? (
         <div className="agenda-mobile__filter-row" role="group" aria-label={filterLabel}>
